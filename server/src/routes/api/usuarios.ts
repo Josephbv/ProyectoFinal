@@ -1,5 +1,8 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../../prismaClient';
+import { sendResetCodeEmail } from '../../services/mail.service';
+import bcrypt from 'bcryptjs';
+
 
 const router = Router();
 
@@ -171,4 +174,63 @@ router.delete('/:id', async (req: Request, res: Response) => {
     }
 });
 
+// === RUTAS DE RECUPERACIÓN DE CONTRASEÑA ===
+
+// 1. Solicitar código de recuperación
+router.post('/forgot-password', async (req: Request, res: Response) => {
+    const { correo } = req.body;
+    try {
+        const usuario = await prisma.usuario.findUnique({ where: { correo } });
+        if (!usuario) {
+            return res.status(404).json({ error: 'No existe un usuario con este correo electrónico.' });
+        }
+
+        // Generar código de 6 dígitos
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Guardar código en el usuario (usamos el campo token_recuperacion para esto)
+        await prisma.usuario.update({
+            where: { id_usuario: usuario.id_usuario },
+            data: { token_recuperacion: codigo }
+        });
+
+        // Enviar el correo
+        await sendResetCodeEmail(correo, codigo);
+
+        res.json({ success: true, message: 'Código enviado al correo médico.' });
+    } catch (error) {
+        console.error('[AUTH] FORGOT-PASSWORD ERROR:', error);
+        res.status(500).json({ error: 'Error al procesar la solicitud.' });
+    }
+});
+
+// 2. Verificar código y cambiar contraseña
+router.post('/reset-password', async (req: Request, res: Response) => {
+    const { correo, codigo, nuevaContrasena } = req.body;
+    try {
+        const usuario = await prisma.usuario.findUnique({ where: { correo } });
+        if (!usuario || usuario.token_recuperacion !== codigo) {
+            return res.status(400).json({ error: 'Código inválido o correo incorrecto.' });
+        }
+
+        // Encriptar nueva contraseña
+        const hashedPsw = await bcrypt.hash(nuevaContrasena, 10);
+
+        // Actualizar contraseña y limpiar código
+        await prisma.usuario.update({
+            where: { id_usuario: usuario.id_usuario },
+            data: {
+                contrasena: hashedPsw,
+                token_recuperacion: null
+            }
+        });
+
+        res.json({ success: true, message: 'Contraseña actualizada correctamente.' });
+    } catch (error) {
+        console.error('[AUTH] RESET-PASSWORD ERROR:', error);
+        res.status(500).json({ error: 'Error al cambiar la contraseña.' });
+    }
+});
+
 export default router;
+

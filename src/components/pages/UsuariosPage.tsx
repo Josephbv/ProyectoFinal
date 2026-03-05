@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { Users, Plus, Search, Edit, Shield, ShieldOff, Lock, Unlock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye } from "lucide-react";
 import { useUsuarios, Usuario } from "../hooks/useUsuarios";
 import { UsuarioModal } from "../modals/UsuarioModal";
-
 export function UsuariosPage() {
     const { usuarios, loading, crearUsuario, actualizarUsuario, buscarUsuarios } = useUsuarios();
     const [busqueda, setBusqueda] = useState("");

@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import prisma from '../prismaClient';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { sendWelcomeEmail, sendResetCodeEmail } from '../services/mail.service';
+
 
 const router = Router();
 const SECRET = process.env.JWT_SECRET || 'kaivet_secret';
@@ -9,7 +11,13 @@ const SECRET = process.env.JWT_SECRET || 'kaivet_secret';
 // POST /api/auth/register - Registrar un nuevo usuario
 router.post('/register', async (req: Request, res: Response) => {
     try {
-        const { correo, contrasena, nombre_usuario, nombre_rol, cedula, id_cliente, id_empleado } = req.body;
+        const correo = req.body.correo?.trim().toLowerCase();
+        const contrasena = req.body.contrasena;
+        const nombre_usuario = req.body.nombre_usuario?.trim();
+        const nombre_rol = req.body.nombre_rol || 'cliente';
+        const cedula = req.body.cedula;
+        const id_cliente = req.body.id_cliente;
+        const id_empleado = req.body.id_empleado;
 
         if (!correo || !contrasena || !nombre_usuario) {
             return res.status(400).json({ error: 'Correo, contraseña y nombre_usuario son obligatorios' });
@@ -19,12 +27,13 @@ router.post('/register', async (req: Request, res: Response) => {
         if (existe) return res.status(400).json({ error: 'El correo ya está registrado' });
 
         let rolDb = await prisma.roles.findFirst({
-            where: { nombre_rol: nombre_rol || 'Admin' }
+            where: { nombre_rol: { contains: nombre_rol } }
         });
 
         if (!rolDb) {
-            rolDb = await prisma.roles.create({ data: { nombre_rol: nombre_rol || 'Admin' } });
+            rolDb = await prisma.roles.create({ data: { nombre_rol: nombre_rol, activo: true } });
         }
+
 
         const hashedPassword = await bcrypt.hash(contrasena, 10);
 
@@ -180,4 +189,58 @@ router.delete('/users/:id', async (req: Request, res: Response) => {
     }
 });
 
+
+// === RUTAS DE RECUPERACIÓN DE CONTRASEÑA (Para el frontend) ===
+
+
+router.post('/request-reset', async (req: Request, res: Response) => {
+    const { email } = req.body;
+    try {
+        const usuario = await prisma.usuario.findUnique({ where: { correo: email } });
+        if (!usuario) {
+            return res.status(404).json({ error: 'No existe un usuario con este correo.' });
+        }
+
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+
+        await prisma.usuario.update({
+            where: { id_usuario: usuario.id_usuario },
+            data: { token_recuperacion: codigo }
+        });
+
+        await sendResetCodeEmail(email, codigo);
+
+        res.json({ success: true, message: 'Código de recuperación enviado' });
+    } catch (error) {
+        console.error('[AUTH] REFRESH-RESET ERROR:', error);
+        res.status(500).json({ error: 'Error al enviar código' });
+    }
+});
+
+router.post('/reset-password', async (req: Request, res: Response) => {
+    const { email, token, newPassword } = req.body;
+    try {
+        const usuario = await prisma.usuario.findUnique({ where: { correo: email } });
+        if (!usuario || usuario.token_recuperacion !== token) {
+            return res.status(400).json({ error: 'Código inválido o correo incorrecto' });
+        }
+
+        const hashedPsw = await bcrypt.hash(newPassword, 10);
+
+        await prisma.usuario.update({
+            where: { id_usuario: usuario.id_usuario },
+            data: {
+                contrasena: hashedPsw,
+                token_recuperacion: null
+            }
+        });
+
+        res.json({ success: true, message: 'Contraseña actualizada' });
+    } catch (error) {
+        console.error('[AUTH] RESET-PASSWORD ERROR:', error);
+        res.status(500).json({ error: 'Error al cambiar contraseña' });
+    }
+});
+
 export default router;
+

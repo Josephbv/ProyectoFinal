@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../prismaClient';
+import { sendWelcomeEmail } from '../services/mail.service';
+
 
 const router = Router();
 
@@ -91,6 +93,14 @@ router.post('/', async (req: Request, res: Response) => {
         } catch (usuarioError) {
             console.warn('[CLIENTES] Usuario vinculado no creado (no crítico):', usuarioError);
         }
+
+        // 3. Enviar correo de bienvenida al cliente
+        if (correo) {
+            sendWelcomeEmail(correo, nombre).catch(err =>
+                console.error('[CLIENTES] Error asíncrono enviando bienvenida:', err)
+            );
+        }
+
 
         console.log('[CLIENTES] Creado con éxito:', nuevoCliente.id_cliente);
         res.status(201).json(nuevoCliente);

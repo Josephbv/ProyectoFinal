@@ -48,8 +48,9 @@ export function useEmailAuth() {
         correo: userData.email,
         contrasena: userData.password,
         nombre_usuario: `${userData.nombre || ''} ${userData.apellido || ''}`.trim(),
-        nombre_rol: userData.nombre_rol || 'Admin'
+        nombre_rol: userData.nombre_rol || 'cliente'
       };
+
 
       const data = await apiFetch(`${API_URL}/register`, {
         method: 'POST',
