@@ -1,0 +1,276 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/modals/EmpleadoModal.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"]; const useEffect = __vite__cjsImport3_react["useEffect"];
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "/src/components/ui/dialog.tsx?t=1772223881594";
+import { Button } from "/src/components/ui/button.tsx?t=1772223881528";
+import { Input } from "/src/components/ui/input.tsx";
+import { Label } from "/src/components/ui/label.tsx?t=1772223881635";
+import { User, Briefcase } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading }) {
+    _s();
+    const [formData, setFormData] = useState({
+        nombre: '',
+        cargo: ''
+    });
+    const [errors, setErrors] = useState({});
+    useEffect(()=>{
+        if (empleado) {
+            setFormData({
+                nombre: empleado.nombre,
+                cargo: empleado.cargo || ''
+            });
+        } else {
+            setFormData({
+                nombre: '',
+                cargo: ''
+            });
+        }
+        setErrors({});
+    }, [
+        empleado,
+        isOpen
+    ]);
+    const validateForm = ()=>{
+        const newErrors = {};
+        if (!formData.nombre.trim()) newErrors.nombre = 'El nombre es obligatorio';
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        if (!validateForm()) return;
+        const data = {
+            ...formData,
+            id_empleado: empleado?.id_empleado
+        };
+        const result = await onSubmit(data);
+        if (result.success) {
+            onClose();
+        }
+    };
+    const handleChange = (field, value)=>{
+        setFormData((prev)=>({
+                ...prev,
+                [field]: value
+            }));
+        if (errors[field]) {
+            setErrors((prev)=>({
+                    ...prev,
+                    [field]: ''
+                }));
+        }
+    };
+    return /*#__PURE__*/ _jsxDEV(Dialog, {
+        open: isOpen,
+        onOpenChange: onClose,
+        children: /*#__PURE__*/ _jsxDEV(DialogContent, {
+            className: "max-w-md bg-dark-card border-dark-color",
+            children: [
+                /*#__PURE__*/ _jsxDEV(DialogHeader, {
+                    children: [
+                        /*#__PURE__*/ _jsxDEV(DialogTitle, {
+                            className: "text-xl font-semibold text-dark-primary flex items-center gap-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(User, {
+                                    className: "w-5 h-5 text-blue-400"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                                    lineNumber: 76,
+                                    columnNumber: 25
+                                }, this),
+                                empleado ? 'Editar Empleado' : 'Nuevo Empleado'
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                            lineNumber: 75,
+                            columnNumber: 21
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogDescription, {
+                            className: "text-dark-secondary",
+                            children: empleado ? 'Actualiza los datos del empleado' : 'Ingresa la información básica del nuevo empleado'
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                            lineNumber: 79,
+                            columnNumber: 21
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                    lineNumber: 74,
+                    columnNumber: 17
+                }, this),
+                /*#__PURE__*/ _jsxDEV("form", {
+                    onSubmit: handleSubmit,
+                    className: "space-y-6",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            className: "text-dark-secondary text-xs",
+                                            children: "Nombre Completo *"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                                            lineNumber: 87,
+                                            columnNumber: 29
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(Input, {
+                                            value: formData.nombre,
+                                            onChange: (e)=>handleChange('nombre', e.target.value),
+                                            className: "bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta",
+                                            placeholder: "Nombre del empleado"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                                            lineNumber: 88,
+                                            columnNumber: 29
+                                        }, this),
+                                        errors.nombre && /*#__PURE__*/ _jsxDEV("p", {
+                                            className: "text-red-400 text-sm",
+                                            children: errors.nombre
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                                            lineNumber: 94,
+                                            columnNumber: 47
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                                    lineNumber: 86,
+                                    columnNumber: 25
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            className: "text-dark-secondary text-xs flex items-center gap-1",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Briefcase, {
+                                                    className: "w-3 h-3"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                                                    lineNumber: 99,
+                                                    columnNumber: 33
+                                                }, this),
+                                                " Cargo"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                                            lineNumber: 98,
+                                            columnNumber: 29
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(Input, {
+                                            value: formData.cargo,
+                                            onChange: (e)=>handleChange('cargo', e.target.value),
+                                            className: "bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta",
+                                            placeholder: "Ej: Veterinario, Recepcionista"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                                            lineNumber: 101,
+                                            columnNumber: 29
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                                    lineNumber: 97,
+                                    columnNumber: 25
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                            lineNumber: 85,
+                            columnNumber: 21
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogFooter, {
+                            className: "border-t border-dark-color pt-6 gap-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "button",
+                                    variant: "ghost",
+                                    onClick: onClose,
+                                    className: "text-dark-secondary border border-dark-color hover:bg-dark-hover",
+                                    children: "Cancelar"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                                    lineNumber: 111,
+                                    columnNumber: 25
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "submit",
+                                    disabled: loading,
+                                    className: "bg-dark-cta text-white hover:bg-blue-600 px-6",
+                                    children: loading ? 'Procesando...' : empleado ? 'Actualizar' : 'Crear Empleado'
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                                    lineNumber: 119,
+                                    columnNumber: 25
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                            lineNumber: 110,
+                            columnNumber: 21
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+                    lineNumber: 84,
+                    columnNumber: 17
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+            lineNumber: 73,
+            columnNumber: 13
+        }, this)
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx",
+        lineNumber: 72,
+        columnNumber: 9
+    }, this);
+}
+_s(EmpleadoModal, "KiyLZj6dSkzpfsoNV3UYQCM9mDM=");
+_c = EmpleadoModal;
+var _c;
+$RefreshReg$(_c, "EmpleadoModal");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/EmpleadoModal.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIkVtcGxlYWRvTW9kYWwudHN4Il0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IHVzZVN0YXRlLCB1c2VFZmZlY3QgfSBmcm9tICdyZWFjdCc7XHJcbmltcG9ydCB7IERpYWxvZywgRGlhbG9nQ29udGVudCwgRGlhbG9nRGVzY3JpcHRpb24sIERpYWxvZ0Zvb3RlciwgRGlhbG9nSGVhZGVyLCBEaWFsb2dUaXRsZSB9IGZyb20gJy4uL3VpL2RpYWxvZyc7XHJcbmltcG9ydCB7IEJ1dHRvbiB9IGZyb20gJy4uL3VpL2J1dHRvbic7XHJcbmltcG9ydCB7IElucHV0IH0gZnJvbSAnLi4vdWkvaW5wdXQnO1xyXG5pbXBvcnQgeyBMYWJlbCB9IGZyb20gJy4uL3VpL2xhYmVsJztcclxuaW1wb3J0IHsgRW1wbGVhZG8gfSBmcm9tICcuLi9ob29rcy91c2VFbXBsZWFkb3MnO1xyXG5pbXBvcnQgeyBVc2VyLCBCcmllZmNhc2UgfSBmcm9tICdsdWNpZGUtcmVhY3QnO1xyXG5cclxuaW50ZXJmYWNlIEVtcGxlYWRvTW9kYWxQcm9wcyB7XHJcbiAgICBpc09wZW46IGJvb2xlYW47XHJcbiAgICBvbkNsb3NlOiAoKSA9PiB2b2lkO1xyXG4gICAgb25TdWJtaXQ6IChlbXBsZWFkbzogUGFydGlhbDxFbXBsZWFkbz4pID0+IFByb21pc2U8YW55PjtcclxuICAgIGVtcGxlYWRvPzogRW1wbGVhZG8gfCBudWxsO1xyXG4gICAgbG9hZGluZz86IGJvb2xlYW47XHJcbn1cclxuXHJcbmV4cG9ydCBmdW5jdGlvbiBFbXBsZWFkb01vZGFsKHsgaXNPcGVuLCBvbkNsb3NlLCBvblN1Ym1pdCwgZW1wbGVhZG8sIGxvYWRpbmcgfTogRW1wbGVhZG9Nb2RhbFByb3BzKSB7XHJcbiAgICBjb25zdCBbZm9ybURhdGEsIHNldEZvcm1EYXRhXSA9IHVzZVN0YXRlKHtcclxuICAgICAgICBub21icmU6ICcnLFxyXG4gICAgICAgIGNhcmdvOiAnJ1xyXG4gICAgfSk7XHJcblxyXG4gICAgY29uc3QgW2Vycm9ycywgc2V0RXJyb3JzXSA9IHVzZVN0YXRlPFJlY29yZDxzdHJpbmcsIHN0cmluZz4+KHt9KTtcclxuXHJcbiAgICB1c2VFZmZlY3QoKCkgPT4ge1xyXG4gICAgICAgIGlmIChlbXBsZWFkbykge1xyXG4gICAgICAgICAgICBzZXRGb3JtRGF0YSh7XHJcbiAgICAgICAgICAgICAgICBub21icmU6IGVtcGxlYWRvLm5vbWJyZSxcclxuICAgICAgICAgICAgICAgIGNhcmdvOiBlbXBsZWFkby5jYXJnbyB8fCAnJ1xyXG4gICAgICAgICAgICB9KTtcclxuICAgICAgICB9IGVsc2Uge1xyXG4gICAgICAgICAgICBzZXRGb3JtRGF0YSh7XHJcbiAgICAgICAgICAgICAgICBub21icmU6ICcnLFxyXG4gICAgICAgICAgICAgICAgY2FyZ286ICcnXHJcbiAgICAgICAgICAgIH0pO1xyXG4gICAgICAgIH1cclxuICAgICAgICBzZXRFcnJvcnMoe30pO1xyXG4gICAgfSwgW2VtcGxlYWRvLCBpc09wZW5dKTtcclxuXHJcbiAgICBjb25zdCB2YWxpZGF0ZUZvcm0gPSAoKSA9PiB7XHJcbiAgICAgICAgY29uc3QgbmV3RXJyb3JzOiBSZWNvcmQ8c3RyaW5nLCBzdHJpbmc+ID0ge307XHJcblxyXG4gICAgICAgIGlmICghZm9ybURhdGEubm9tYnJlLnRyaW0oKSkgbmV3RXJyb3JzLm5vbWJyZSA9ICdFbCBub21icmUgZXMgb2JsaWdhdG9yaW8nO1xyXG5cclxuICAgICAgICBzZXRFcnJvcnMobmV3RXJyb3JzKTtcclxuICAgICAgICByZXR1cm4gT2JqZWN0LmtleXMobmV3RXJyb3JzKS5sZW5ndGggPT09IDA7XHJcbiAgICB9O1xyXG5cclxuICAgIGNvbnN0IGhhbmRsZVN1Ym1pdCA9IGFzeW5jIChlOiBSZWFjdC5Gb3JtRXZlbnQpID0+IHtcclxuICAgICAgICBlLnByZXZlbnREZWZhdWx0KCk7XHJcbiAgICAgICAgaWYgKCF2YWxpZGF0ZUZvcm0oKSkgcmV0dXJuO1xyXG5cclxuICAgICAgICBjb25zdCBkYXRhID0ge1xyXG4gICAgICAgICAgICAuLi5mb3JtRGF0YSxcclxuICAgICAgICAgICAgaWRfZW1wbGVhZG86IGVtcGxlYWRvPy5pZF9lbXBsZWFkb1xyXG4gICAgICAgIH07XHJcblxyXG4gICAgICAgIGNvbnN0IHJlc3VsdCA9IGF3YWl0IG9uU3VibWl0KGRhdGEpO1xyXG4gICAgICAgIGlmIChyZXN1bHQuc3VjY2Vzcykge1xyXG4gICAgICAgICAgICBvbkNsb3NlKCk7XHJcbiAgICAgICAgfVxyXG4gICAgfTtcclxuXHJcbiAgICBjb25zdCBoYW5kbGVDaGFuZ2UgPSAoZmllbGQ6IHN0cmluZywgdmFsdWU6IGFueSkgPT4ge1xyXG4gICAgICAgIHNldEZvcm1EYXRhKHByZXYgPT4gKHsgLi4ucHJldiwgW2ZpZWxkXTogdmFsdWUgfSkpO1xyXG4gICAgICAgIGlmIChlcnJvcnNbZmllbGRdKSB7XHJcbiAgICAgICAgICAgIHNldEVycm9ycyhwcmV2ID0+ICh7IC4uLnByZXYsIFtmaWVsZF06ICcnIH0pKTtcclxuICAgICAgICB9XHJcbiAgICB9O1xyXG5cclxuICAgIHJldHVybiAoXHJcbiAgICAgICAgPERpYWxvZyBvcGVuPXtpc09wZW59IG9uT3BlbkNoYW5nZT17b25DbG9zZX0+XHJcbiAgICAgICAgICAgIDxEaWFsb2dDb250ZW50IGNsYXNzTmFtZT1cIm1heC13LW1kIGJnLWRhcmstY2FyZCBib3JkZXItZGFyay1jb2xvclwiPlxyXG4gICAgICAgICAgICAgICAgPERpYWxvZ0hlYWRlcj5cclxuICAgICAgICAgICAgICAgICAgICA8RGlhbG9nVGl0bGUgY2xhc3NOYW1lPVwidGV4dC14bCBmb250LXNlbWlib2xkIHRleHQtZGFyay1wcmltYXJ5IGZsZXggaXRlbXMtY2VudGVyIGdhcC0yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxVc2VyIGNsYXNzTmFtZT1cInctNSBoLTUgdGV4dC1ibHVlLTQwMFwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIHtlbXBsZWFkbyA/ICdFZGl0YXIgRW1wbGVhZG8nIDogJ051ZXZvIEVtcGxlYWRvJ31cclxuICAgICAgICAgICAgICAgICAgICA8L0RpYWxvZ1RpdGxlPlxyXG4gICAgICAgICAgICAgICAgICAgIDxEaWFsb2dEZXNjcmlwdGlvbiBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstc2Vjb25kYXJ5XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIHtlbXBsZWFkbyA/ICdBY3R1YWxpemEgbG9zIGRhdG9zIGRlbCBlbXBsZWFkbycgOiAnSW5ncmVzYSBsYSBpbmZvcm1hY2nDs24gYsOhc2ljYSBkZWwgbnVldm8gZW1wbGVhZG8nfVxyXG4gICAgICAgICAgICAgICAgICAgIDwvRGlhbG9nRGVzY3JpcHRpb24+XHJcbiAgICAgICAgICAgICAgICA8L0RpYWxvZ0hlYWRlcj5cclxuXHJcbiAgICAgICAgICAgICAgICA8Zm9ybSBvblN1Ym1pdD17aGFuZGxlU3VibWl0fSBjbGFzc05hbWU9XCJzcGFjZS15LTZcIj5cclxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktNFwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktMlwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPExhYmVsIGNsYXNzTmFtZT1cInRleHQtZGFyay1zZWNvbmRhcnkgdGV4dC14c1wiPk5vbWJyZSBDb21wbGV0byAqPC9MYWJlbD5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxJbnB1dFxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZhbHVlPXtmb3JtRGF0YS5ub21icmV9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb25DaGFuZ2U9eyhlKSA9PiBoYW5kbGVDaGFuZ2UoJ25vbWJyZScsIGUudGFyZ2V0LnZhbHVlKX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJiZy1kYXJrLWhvdmVyIGJvcmRlci1kYXJrLWNvbG9yIHRleHQtZGFyay1wcmltYXJ5IGZvY3VzOmJvcmRlci1kYXJrLWN0YVwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9XCJOb21icmUgZGVsIGVtcGxlYWRvXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICB7ZXJyb3JzLm5vbWJyZSAmJiA8cCBjbGFzc05hbWU9XCJ0ZXh0LXJlZC00MDAgdGV4dC1zbVwiPntlcnJvcnMubm9tYnJlfTwvcD59XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxMYWJlbCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstc2Vjb25kYXJ5IHRleHQteHMgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTFcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8QnJpZWZjYXNlIGNsYXNzTmFtZT1cInctMyBoLTNcIiAvPiBDYXJnb1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9MYWJlbD5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxJbnB1dFxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZhbHVlPXtmb3JtRGF0YS5jYXJnb31cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvbkNoYW5nZT17KGUpID0+IGhhbmRsZUNoYW5nZSgnY2FyZ28nLCBlLnRhcmdldC52YWx1ZSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwiYmctZGFyay1ob3ZlciBib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstcHJpbWFyeSBmb2N1czpib3JkZXItZGFyay1jdGFcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBsYWNlaG9sZGVyPVwiRWo6IFZldGVyaW5hcmlvLCBSZWNlcGNpb25pc3RhXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgICAgICAgICA8RGlhbG9nRm9vdGVyIGNsYXNzTmFtZT1cImJvcmRlci10IGJvcmRlci1kYXJrLWNvbG9yIHB0LTYgZ2FwLTJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPEJ1dHRvblxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgdHlwZT1cImJ1dHRvblwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICB2YXJpYW50PVwiZ2hvc3RcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgb25DbGljaz17b25DbG9zZX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT1cInRleHQtZGFyay1zZWNvbmRhcnkgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yIGhvdmVyOmJnLWRhcmstaG92ZXJcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICBDYW5jZWxhclxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8L0J1dHRvbj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPEJ1dHRvblxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgdHlwZT1cInN1Ym1pdFwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICBkaXNhYmxlZD17bG9hZGluZ31cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT1cImJnLWRhcmstY3RhIHRleHQtd2hpdGUgaG92ZXI6YmctYmx1ZS02MDAgcHgtNlwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgID5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIHtsb2FkaW5nID8gJ1Byb2Nlc2FuZG8uLi4nIDogZW1wbGVhZG8gPyAnQWN0dWFsaXphcicgOiAnQ3JlYXIgRW1wbGVhZG8nfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8L0J1dHRvbj5cclxuICAgICAgICAgICAgICAgICAgICA8L0RpYWxvZ0Zvb3Rlcj5cclxuICAgICAgICAgICAgICAgIDwvZm9ybT5cclxuICAgICAgICAgICAgPC9EaWFsb2dDb250ZW50PlxyXG4gICAgICAgIDwvRGlhbG9nPlxyXG4gICAgKTtcclxufVxyXG4iXSwibmFtZXMiOlsidXNlU3RhdGUiLCJ1c2VFZmZlY3QiLCJEaWFsb2ciLCJEaWFsb2dDb250ZW50IiwiRGlhbG9nRGVzY3JpcHRpb24iLCJEaWFsb2dGb290ZXIiLCJEaWFsb2dIZWFkZXIiLCJEaWFsb2dUaXRsZSIsIkJ1dHRvbiIsIklucHV0IiwiTGFiZWwiLCJVc2VyIiwiQnJpZWZjYXNlIiwiRW1wbGVhZG9Nb2RhbCIsImlzT3BlbiIsIm9uQ2xvc2UiLCJvblN1Ym1pdCIsImVtcGxlYWRvIiwibG9hZGluZyIsImZvcm1EYXRhIiwic2V0Rm9ybURhdGEiLCJub21icmUiLCJjYXJnbyIsImVycm9ycyIsInNldEVycm9ycyIsInZhbGlkYXRlRm9ybSIsIm5ld0Vycm9ycyIsInRyaW0iLCJPYmplY3QiLCJrZXlzIiwibGVuZ3RoIiwiaGFuZGxlU3VibWl0IiwiZSIsInByZXZlbnREZWZhdWx0IiwiZGF0YSIsImlkX2VtcGxlYWRvIiwicmVzdWx0Iiwic3VjY2VzcyIsImhhbmRsZUNoYW5nZSIsImZpZWxkIiwidmFsdWUiLCJwcmV2Iiwib3BlbiIsIm9uT3BlbkNoYW5nZSIsImNsYXNzTmFtZSIsImZvcm0iLCJkaXYiLCJvbkNoYW5nZSIsInRhcmdldCIsInBsYWNlaG9sZGVyIiwicCIsInR5cGUiLCJ2YXJpYW50Iiwib25DbGljayIsImRpc2FibGVk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

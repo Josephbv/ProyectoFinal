@@ -1,0 +1,262 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/ui/select.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+"use client";
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"];
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const React = ((m) => m?.__esModule ? m : { ...typeof m === "object" && !Array.isArray(m) || typeof m === "function" ? m : {}, default: m })(__vite__cjsImport3_react);
+import * as SelectPrimitive from "/node_modules/.vite/deps/@radix-ui_react-select.js?v=04e61ac6";
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+import { cn } from "/src/components/ui/utils.ts";
+function Select({ ...props }) {
+    return /*#__PURE__*/ _jsxDEV(SelectPrimitive.Root, {
+        "data-slot": "select",
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+        lineNumber: 16,
+        columnNumber: 10
+    }, this);
+}
+_c = Select;
+function SelectGroup({ ...props }) {
+    return /*#__PURE__*/ _jsxDEV(SelectPrimitive.Group, {
+        "data-slot": "select-group",
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+        lineNumber: 22,
+        columnNumber: 10
+    }, this);
+}
+_c1 = SelectGroup;
+function SelectValue({ ...props }) {
+    return /*#__PURE__*/ _jsxDEV(SelectPrimitive.Value, {
+        "data-slot": "select-value",
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+        lineNumber: 28,
+        columnNumber: 10
+    }, this);
+}
+_c2 = SelectValue;
+function SelectTrigger({ className, size = "default", children, ...props }) {
+    return /*#__PURE__*/ _jsxDEV(SelectPrimitive.Trigger, {
+        "data-slot": "select-trigger",
+        "data-size": size,
+        className: cn("border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-full items-center justify-between gap-2 rounded-md border bg-input-background px-3 py-2 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", className),
+        ...props,
+        children: [
+            children,
+            /*#__PURE__*/ _jsxDEV(SelectPrimitive.Icon, {
+                asChild: true,
+                children: /*#__PURE__*/ _jsxDEV(ChevronDownIcon, {
+                    className: "size-4 opacity-50"
+                }, void 0, false, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+                    lineNumber: 51,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+                lineNumber: 50,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+        lineNumber: 40,
+        columnNumber: 5
+    }, this);
+}
+_c3 = SelectTrigger;
+function SelectContent({ className, children, position = "popper", ...props }) {
+    return /*#__PURE__*/ _jsxDEV(SelectPrimitive.Portal, {
+        children: /*#__PURE__*/ _jsxDEV(SelectPrimitive.Content, {
+            "data-slot": "select-content",
+            className: cn("bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md", position === "popper" && "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1", className),
+            position: position,
+            ...props,
+            children: [
+                /*#__PURE__*/ _jsxDEV(SelectScrollUpButton, {}, void 0, false, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+                    lineNumber: 76,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV(SelectPrimitive.Viewport, {
+                    className: cn("p-1", position === "popper" && "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1"),
+                    children: children
+                }, void 0, false, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+                    lineNumber: 77,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV(SelectScrollDownButton, {}, void 0, false, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+                    lineNumber: 86,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+            lineNumber: 65,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+        lineNumber: 64,
+        columnNumber: 5
+    }, this);
+}
+_c4 = SelectContent;
+function SelectLabel({ className, ...props }) {
+    return /*#__PURE__*/ _jsxDEV(SelectPrimitive.Label, {
+        "data-slot": "select-label",
+        className: cn("text-muted-foreground px-2 py-1.5 text-xs", className),
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+        lineNumber: 97,
+        columnNumber: 5
+    }, this);
+}
+_c5 = SelectLabel;
+function SelectItem({ className, children, ...props }) {
+    return /*#__PURE__*/ _jsxDEV(SelectPrimitive.Item, {
+        "data-slot": "select-item",
+        className: cn("focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2", className),
+        ...props,
+        children: [
+            /*#__PURE__*/ _jsxDEV("span", {
+                className: "absolute right-2 flex size-3.5 items-center justify-center",
+                children: /*#__PURE__*/ _jsxDEV(SelectPrimitive.ItemIndicator, {
+                    children: /*#__PURE__*/ _jsxDEV(CheckIcon, {
+                        className: "size-4"
+                    }, void 0, false, {
+                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+                        lineNumber: 121,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+                    lineNumber: 120,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+                lineNumber: 119,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV(SelectPrimitive.ItemText, {
+                children: children
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+                lineNumber: 124,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+        lineNumber: 111,
+        columnNumber: 5
+    }, this);
+}
+_c6 = SelectItem;
+function SelectSeparator({ className, ...props }) {
+    return /*#__PURE__*/ _jsxDEV(SelectPrimitive.Separator, {
+        "data-slot": "select-separator",
+        className: cn("bg-border pointer-events-none -mx-1 my-1 h-px", className),
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+        lineNumber: 134,
+        columnNumber: 5
+    }, this);
+}
+_c7 = SelectSeparator;
+function SelectScrollUpButton({ className, ...props }) {
+    return /*#__PURE__*/ _jsxDEV(SelectPrimitive.ScrollUpButton, {
+        "data-slot": "select-scroll-up-button",
+        className: cn("flex cursor-default items-center justify-center py-1", className),
+        ...props,
+        children: /*#__PURE__*/ _jsxDEV(ChevronUpIcon, {
+            className: "size-4"
+        }, void 0, false, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+            lineNumber: 155,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+        lineNumber: 147,
+        columnNumber: 5
+    }, this);
+}
+_c8 = SelectScrollUpButton;
+function SelectScrollDownButton({ className, ...props }) {
+    return /*#__PURE__*/ _jsxDEV(SelectPrimitive.ScrollDownButton, {
+        "data-slot": "select-scroll-down-button",
+        className: cn("flex cursor-default items-center justify-center py-1", className),
+        ...props,
+        children: /*#__PURE__*/ _jsxDEV(ChevronDownIcon, {
+            className: "size-4"
+        }, void 0, false, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+            lineNumber: 173,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx",
+        lineNumber: 165,
+        columnNumber: 5
+    }, this);
+}
+_c9 = SelectScrollDownButton;
+export { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue };
+var _c, _c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8, _c9;
+$RefreshReg$(_c, "Select");
+$RefreshReg$(_c1, "SelectGroup");
+$RefreshReg$(_c2, "SelectValue");
+$RefreshReg$(_c3, "SelectTrigger");
+$RefreshReg$(_c4, "SelectContent");
+$RefreshReg$(_c5, "SelectLabel");
+$RefreshReg$(_c6, "SelectItem");
+$RefreshReg$(_c7, "SelectSeparator");
+$RefreshReg$(_c8, "SelectScrollUpButton");
+$RefreshReg$(_c9, "SelectScrollDownButton");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/select.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNlbGVjdC50c3giXSwic291cmNlc0NvbnRlbnQiOlsiXCJ1c2UgY2xpZW50XCI7XHJcblxyXG5pbXBvcnQgKiBhcyBSZWFjdCBmcm9tIFwicmVhY3RcIjtcclxuaW1wb3J0ICogYXMgU2VsZWN0UHJpbWl0aXZlIGZyb20gXCJAcmFkaXgtdWkvcmVhY3Qtc2VsZWN0XCI7XHJcbmltcG9ydCB7XHJcbiAgQ2hlY2tJY29uLFxyXG4gIENoZXZyb25Eb3duSWNvbixcclxuICBDaGV2cm9uVXBJY29uLFxyXG59IGZyb20gXCJsdWNpZGUtcmVhY3RcIjtcclxuXHJcbmltcG9ydCB7IGNuIH0gZnJvbSBcIi4vdXRpbHNcIjtcclxuXHJcbmZ1bmN0aW9uIFNlbGVjdCh7XHJcbiAgLi4ucHJvcHNcclxufTogUmVhY3QuQ29tcG9uZW50UHJvcHM8dHlwZW9mIFNlbGVjdFByaW1pdGl2ZS5Sb290Pikge1xyXG4gIHJldHVybiA8U2VsZWN0UHJpbWl0aXZlLlJvb3QgZGF0YS1zbG90PVwic2VsZWN0XCIgey4uLnByb3BzfSAvPjtcclxufVxyXG5cclxuZnVuY3Rpb24gU2VsZWN0R3JvdXAoe1xyXG4gIC4uLnByb3BzXHJcbn06IFJlYWN0LkNvbXBvbmVudFByb3BzPHR5cGVvZiBTZWxlY3RQcmltaXRpdmUuR3JvdXA+KSB7XHJcbiAgcmV0dXJuIDxTZWxlY3RQcmltaXRpdmUuR3JvdXAgZGF0YS1zbG90PVwic2VsZWN0LWdyb3VwXCIgey4uLnByb3BzfSAvPjtcclxufVxyXG5cclxuZnVuY3Rpb24gU2VsZWN0VmFsdWUoe1xyXG4gIC4uLnByb3BzXHJcbn06IFJlYWN0LkNvbXBvbmVudFByb3BzPHR5cGVvZiBTZWxlY3RQcmltaXRpdmUuVmFsdWU+KSB7XHJcbiAgcmV0dXJuIDxTZWxlY3RQcmltaXRpdmUuVmFsdWUgZGF0YS1zbG90PVwic2VsZWN0LXZhbHVlXCIgey4uLnByb3BzfSAvPjtcclxufVxyXG5cclxuZnVuY3Rpb24gU2VsZWN0VHJpZ2dlcih7XHJcbiAgY2xhc3NOYW1lLFxyXG4gIHNpemUgPSBcImRlZmF1bHRcIixcclxuICBjaGlsZHJlbixcclxuICAuLi5wcm9wc1xyXG59OiBSZWFjdC5Db21wb25lbnRQcm9wczx0eXBlb2YgU2VsZWN0UHJpbWl0aXZlLlRyaWdnZXI+ICYge1xyXG4gIHNpemU/OiBcInNtXCIgfCBcImRlZmF1bHRcIjtcclxufSkge1xyXG4gIHJldHVybiAoXHJcbiAgICA8U2VsZWN0UHJpbWl0aXZlLlRyaWdnZXJcclxuICAgICAgZGF0YS1zbG90PVwic2VsZWN0LXRyaWdnZXJcIlxyXG4gICAgICBkYXRhLXNpemU9e3NpemV9XHJcbiAgICAgIGNsYXNzTmFtZT17Y24oXHJcbiAgICAgICAgXCJib3JkZXItaW5wdXQgZGF0YS1bcGxhY2Vob2xkZXJdOnRleHQtbXV0ZWQtZm9yZWdyb3VuZCBbJl9zdmc6bm90KFtjbGFzcyo9J3RleHQtJ10pXTp0ZXh0LW11dGVkLWZvcmVncm91bmQgZm9jdXMtdmlzaWJsZTpib3JkZXItcmluZyBmb2N1cy12aXNpYmxlOnJpbmctcmluZy81MCBhcmlhLWludmFsaWQ6cmluZy1kZXN0cnVjdGl2ZS8yMCBkYXJrOmFyaWEtaW52YWxpZDpyaW5nLWRlc3RydWN0aXZlLzQwIGFyaWEtaW52YWxpZDpib3JkZXItZGVzdHJ1Y3RpdmUgZGFyazpiZy1pbnB1dC8zMCBkYXJrOmhvdmVyOmJnLWlucHV0LzUwIGZsZXggdy1mdWxsIGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWJldHdlZW4gZ2FwLTIgcm91bmRlZC1tZCBib3JkZXIgYmctaW5wdXQtYmFja2dyb3VuZCBweC0zIHB5LTIgdGV4dC1zbSB3aGl0ZXNwYWNlLW5vd3JhcCB0cmFuc2l0aW9uLVtjb2xvcixib3gtc2hhZG93XSBvdXRsaW5lLW5vbmUgZm9jdXMtdmlzaWJsZTpyaW5nLVszcHhdIGRpc2FibGVkOmN1cnNvci1ub3QtYWxsb3dlZCBkaXNhYmxlZDpvcGFjaXR5LTUwIGRhdGEtW3NpemU9ZGVmYXVsdF06aC05IGRhdGEtW3NpemU9c21dOmgtOCAqOmRhdGEtW3Nsb3Q9c2VsZWN0LXZhbHVlXTpsaW5lLWNsYW1wLTEgKjpkYXRhLVtzbG90PXNlbGVjdC12YWx1ZV06ZmxleCAqOmRhdGEtW3Nsb3Q9c2VsZWN0LXZhbHVlXTppdGVtcy1jZW50ZXIgKjpkYXRhLVtzbG90PXNlbGVjdC12YWx1ZV06Z2FwLTIgWyZfc3ZnXTpwb2ludGVyLWV2ZW50cy1ub25lIFsmX3N2Z106c2hyaW5rLTAgWyZfc3ZnOm5vdChbY2xhc3MqPSdzaXplLSddKV06c2l6ZS00XCIsXHJcbiAgICAgICAgY2xhc3NOYW1lLFxyXG4gICAgICApfVxyXG4gICAgICB7Li4ucHJvcHN9XHJcbiAgICA+XHJcbiAgICAgIHtjaGlsZHJlbn1cclxuICAgICAgPFNlbGVjdFByaW1pdGl2ZS5JY29uIGFzQ2hpbGQ+XHJcbiAgICAgICAgPENoZXZyb25Eb3duSWNvbiBjbGFzc05hbWU9XCJzaXplLTQgb3BhY2l0eS01MFwiIC8+XHJcbiAgICAgIDwvU2VsZWN0UHJpbWl0aXZlLkljb24+XHJcbiAgICA8L1NlbGVjdFByaW1pdGl2ZS5UcmlnZ2VyPlxyXG4gICk7XHJcbn1cclxuXHJcbmZ1bmN0aW9uIFNlbGVjdENvbnRlbnQoe1xyXG4gIGNsYXNzTmFtZSxcclxuICBjaGlsZHJlbixcclxuICBwb3NpdGlvbiA9IFwicG9wcGVyXCIsXHJcbiAgLi4ucHJvcHNcclxufTogUmVhY3QuQ29tcG9uZW50UHJvcHM8dHlwZW9mIFNlbGVjdFByaW1pdGl2ZS5Db250ZW50Pikge1xyXG4gIHJldHVybiAoXHJcbiAgICA8U2VsZWN0UHJpbWl0aXZlLlBvcnRhbD5cclxuICAgICAgPFNlbGVjdFByaW1pdGl2ZS5Db250ZW50XHJcbiAgICAgICAgZGF0YS1zbG90PVwic2VsZWN0LWNvbnRlbnRcIlxyXG4gICAgICAgIGNsYXNzTmFtZT17Y24oXHJcbiAgICAgICAgICBcImJnLXBvcG92ZXIgdGV4dC1wb3BvdmVyLWZvcmVncm91bmQgZGF0YS1bc3RhdGU9b3Blbl06YW5pbWF0ZS1pbiBkYXRhLVtzdGF0ZT1jbG9zZWRdOmFuaW1hdGUtb3V0IGRhdGEtW3N0YXRlPWNsb3NlZF06ZmFkZS1vdXQtMCBkYXRhLVtzdGF0ZT1vcGVuXTpmYWRlLWluLTAgZGF0YS1bc3RhdGU9Y2xvc2VkXTp6b29tLW91dC05NSBkYXRhLVtzdGF0ZT1vcGVuXTp6b29tLWluLTk1IGRhdGEtW3NpZGU9Ym90dG9tXTpzbGlkZS1pbi1mcm9tLXRvcC0yIGRhdGEtW3NpZGU9bGVmdF06c2xpZGUtaW4tZnJvbS1yaWdodC0yIGRhdGEtW3NpZGU9cmlnaHRdOnNsaWRlLWluLWZyb20tbGVmdC0yIGRhdGEtW3NpZGU9dG9wXTpzbGlkZS1pbi1mcm9tLWJvdHRvbS0yIHJlbGF0aXZlIHotNTAgbWF4LWgtKC0tcmFkaXgtc2VsZWN0LWNvbnRlbnQtYXZhaWxhYmxlLWhlaWdodCkgbWluLXctWzhyZW1dIG9yaWdpbi0oLS1yYWRpeC1zZWxlY3QtY29udGVudC10cmFuc2Zvcm0tb3JpZ2luKSBvdmVyZmxvdy14LWhpZGRlbiBvdmVyZmxvdy15LWF1dG8gcm91bmRlZC1tZCBib3JkZXIgc2hhZG93LW1kXCIsXHJcbiAgICAgICAgICBwb3NpdGlvbiA9PT0gXCJwb3BwZXJcIiAmJlxyXG4gICAgICAgICAgICBcImRhdGEtW3NpZGU9Ym90dG9tXTp0cmFuc2xhdGUteS0xIGRhdGEtW3NpZGU9bGVmdF06LXRyYW5zbGF0ZS14LTEgZGF0YS1bc2lkZT1yaWdodF06dHJhbnNsYXRlLXgtMSBkYXRhLVtzaWRlPXRvcF06LXRyYW5zbGF0ZS15LTFcIixcclxuICAgICAgICAgIGNsYXNzTmFtZSxcclxuICAgICAgICApfVxyXG4gICAgICAgIHBvc2l0aW9uPXtwb3NpdGlvbn1cclxuICAgICAgICB7Li4ucHJvcHN9XHJcbiAgICAgID5cclxuICAgICAgICA8U2VsZWN0U2Nyb2xsVXBCdXR0b24gLz5cclxuICAgICAgICA8U2VsZWN0UHJpbWl0aXZlLlZpZXdwb3J0XHJcbiAgICAgICAgICBjbGFzc05hbWU9e2NuKFxyXG4gICAgICAgICAgICBcInAtMVwiLFxyXG4gICAgICAgICAgICBwb3NpdGlvbiA9PT0gXCJwb3BwZXJcIiAmJlxyXG4gICAgICAgICAgICAgIFwiaC1bdmFyKC0tcmFkaXgtc2VsZWN0LXRyaWdnZXItaGVpZ2h0KV0gdy1mdWxsIG1pbi13LVt2YXIoLS1yYWRpeC1zZWxlY3QtdHJpZ2dlci13aWR0aCldIHNjcm9sbC1teS0xXCIsXHJcbiAgICAgICAgICApfVxyXG4gICAgICAgID5cclxuICAgICAgICAgIHtjaGlsZHJlbn1cclxuICAgICAgICA8L1NlbGVjdFByaW1pdGl2ZS5WaWV3cG9ydD5cclxuICAgICAgICA8U2VsZWN0U2Nyb2xsRG93bkJ1dHRvbiAvPlxyXG4gICAgICA8L1NlbGVjdFByaW1pdGl2ZS5Db250ZW50PlxyXG4gICAgPC9TZWxlY3RQcmltaXRpdmUuUG9ydGFsPlxyXG4gICk7XHJcbn1cclxuXHJcbmZ1bmN0aW9uIFNlbGVjdExhYmVsKHtcclxuICBjbGFzc05hbWUsXHJcbiAgLi4ucHJvcHNcclxufTogUmVhY3QuQ29tcG9uZW50UHJvcHM8dHlwZW9mIFNlbGVjdFByaW1pdGl2ZS5MYWJlbD4pIHtcclxuICByZXR1cm4gKFxyXG4gICAgPFNlbGVjdFByaW1pdGl2ZS5MYWJlbFxyXG4gICAgICBkYXRhLXNsb3Q9XCJzZWxlY3QtbGFiZWxcIlxyXG4gICAgICBjbGFzc05hbWU9e2NuKFwidGV4dC1tdXRlZC1mb3JlZ3JvdW5kIHB4LTIgcHktMS41IHRleHQteHNcIiwgY2xhc3NOYW1lKX1cclxuICAgICAgey4uLnByb3BzfVxyXG4gICAgLz5cclxuICApO1xyXG59XHJcblxyXG5mdW5jdGlvbiBTZWxlY3RJdGVtKHtcclxuICBjbGFzc05hbWUsXHJcbiAgY2hpbGRyZW4sXHJcbiAgLi4ucHJvcHNcclxufTogUmVhY3QuQ29tcG9uZW50UHJvcHM8dHlwZW9mIFNlbGVjdFByaW1pdGl2ZS5JdGVtPikge1xyXG4gIHJldHVybiAoXHJcbiAgICA8U2VsZWN0UHJpbWl0aXZlLkl0ZW1cclxuICAgICAgZGF0YS1zbG90PVwic2VsZWN0LWl0ZW1cIlxyXG4gICAgICBjbGFzc05hbWU9e2NuKFxyXG4gICAgICAgIFwiZm9jdXM6YmctYWNjZW50IGZvY3VzOnRleHQtYWNjZW50LWZvcmVncm91bmQgWyZfc3ZnOm5vdChbY2xhc3MqPSd0ZXh0LSddKV06dGV4dC1tdXRlZC1mb3JlZ3JvdW5kIHJlbGF0aXZlIGZsZXggdy1mdWxsIGN1cnNvci1kZWZhdWx0IGl0ZW1zLWNlbnRlciBnYXAtMiByb3VuZGVkLXNtIHB5LTEuNSBwci04IHBsLTIgdGV4dC1zbSBvdXRsaW5lLWhpZGRlbiBzZWxlY3Qtbm9uZSBkYXRhLVtkaXNhYmxlZF06cG9pbnRlci1ldmVudHMtbm9uZSBkYXRhLVtkaXNhYmxlZF06b3BhY2l0eS01MCBbJl9zdmddOnBvaW50ZXItZXZlbnRzLW5vbmUgWyZfc3ZnXTpzaHJpbmstMCBbJl9zdmc6bm90KFtjbGFzcyo9J3NpemUtJ10pXTpzaXplLTQgKjpbc3Bhbl06bGFzdDpmbGV4ICo6W3NwYW5dOmxhc3Q6aXRlbXMtY2VudGVyICo6W3NwYW5dOmxhc3Q6Z2FwLTJcIixcclxuICAgICAgICBjbGFzc05hbWUsXHJcbiAgICAgICl9XHJcbiAgICAgIHsuLi5wcm9wc31cclxuICAgID5cclxuICAgICAgPHNwYW4gY2xhc3NOYW1lPVwiYWJzb2x1dGUgcmlnaHQtMiBmbGV4IHNpemUtMy41IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlclwiPlxyXG4gICAgICAgIDxTZWxlY3RQcmltaXRpdmUuSXRlbUluZGljYXRvcj5cclxuICAgICAgICAgIDxDaGVja0ljb24gY2xhc3NOYW1lPVwic2l6ZS00XCIgLz5cclxuICAgICAgICA8L1NlbGVjdFByaW1pdGl2ZS5JdGVtSW5kaWNhdG9yPlxyXG4gICAgICA8L3NwYW4+XHJcbiAgICAgIDxTZWxlY3RQcmltaXRpdmUuSXRlbVRleHQ+e2NoaWxkcmVufTwvU2VsZWN0UHJpbWl0aXZlLkl0ZW1UZXh0PlxyXG4gICAgPC9TZWxlY3RQcmltaXRpdmUuSXRlbT5cclxuICApO1xyXG59XHJcblxyXG5mdW5jdGlvbiBTZWxlY3RTZXBhcmF0b3Ioe1xyXG4gIGNsYXNzTmFtZSxcclxuICAuLi5wcm9wc1xyXG59OiBSZWFjdC5Db21wb25lbnRQcm9wczx0eXBlb2YgU2VsZWN0UHJpbWl0aXZlLlNlcGFyYXRvcj4pIHtcclxuICByZXR1cm4gKFxyXG4gICAgPFNlbGVjdFByaW1pdGl2ZS5TZXBhcmF0b3JcclxuICAgICAgZGF0YS1zbG90PVwic2VsZWN0LXNlcGFyYXRvclwiXHJcbiAgICAgIGNsYXNzTmFtZT17Y24oXCJiZy1ib3JkZXIgcG9pbnRlci1ldmVudHMtbm9uZSAtbXgtMSBteS0xIGgtcHhcIiwgY2xhc3NOYW1lKX1cclxuICAgICAgey4uLnByb3BzfVxyXG4gICAgLz5cclxuICApO1xyXG59XHJcblxyXG5mdW5jdGlvbiBTZWxlY3RTY3JvbGxVcEJ1dHRvbih7XHJcbiAgY2xhc3NOYW1lLFxyXG4gIC4uLnByb3BzXHJcbn06IFJlYWN0LkNvbXBvbmVudFByb3BzPHR5cGVvZiBTZWxlY3RQcmltaXRpdmUuU2Nyb2xsVXBCdXR0b24+KSB7XHJcbiAgcmV0dXJuIChcclxuICAgIDxTZWxlY3RQcmltaXRpdmUuU2Nyb2xsVXBCdXR0b25cclxuICAgICAgZGF0YS1zbG90PVwic2VsZWN0LXNjcm9sbC11cC1idXR0b25cIlxyXG4gICAgICBjbGFzc05hbWU9e2NuKFxyXG4gICAgICAgIFwiZmxleCBjdXJzb3ItZGVmYXVsdCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXIgcHktMVwiLFxyXG4gICAgICAgIGNsYXNzTmFtZSxcclxuICAgICAgKX1cclxuICAgICAgey4uLnByb3BzfVxyXG4gICAgPlxyXG4gICAgICA8Q2hldnJvblVwSWNvbiBjbGFzc05hbWU9XCJzaXplLTRcIiAvPlxyXG4gICAgPC9TZWxlY3RQcmltaXRpdmUuU2Nyb2xsVXBCdXR0b24+XHJcbiAgKTtcclxufVxyXG5cclxuZnVuY3Rpb24gU2VsZWN0U2Nyb2xsRG93bkJ1dHRvbih7XHJcbiAgY2xhc3NOYW1lLFxyXG4gIC4uLnByb3BzXHJcbn06IFJlYWN0LkNvbXBvbmVudFByb3BzPHR5cGVvZiBTZWxlY3RQcmltaXRpdmUuU2Nyb2xsRG93bkJ1dHRvbj4pIHtcclxuICByZXR1cm4gKFxyXG4gICAgPFNlbGVjdFByaW1pdGl2ZS5TY3JvbGxEb3duQnV0dG9uXHJcbiAgICAgIGRhdGEtc2xvdD1cInNlbGVjdC1zY3JvbGwtZG93bi1idXR0b25cIlxyXG4gICAgICBjbGFzc05hbWU9e2NuKFxyXG4gICAgICAgIFwiZmxleCBjdXJzb3ItZGVmYXVsdCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXIgcHktMVwiLFxyXG4gICAgICAgIGNsYXNzTmFtZSxcclxuICAgICAgKX1cclxuICAgICAgey4uLnByb3BzfVxyXG4gICAgPlxyXG4gICAgICA8Q2hldnJvbkRvd25JY29uIGNsYXNzTmFtZT1cInNpemUtNFwiIC8+XHJcbiAgICA8L1NlbGVjdFByaW1pdGl2ZS5TY3JvbGxEb3duQnV0dG9uPlxyXG4gICk7XHJcbn1cclxuXHJcbmV4cG9ydCB7XHJcbiAgU2VsZWN0LFxyXG4gIFNlbGVjdENvbnRlbnQsXHJcbiAgU2VsZWN0R3JvdXAsXHJcbiAgU2VsZWN0SXRlbSxcclxuICBTZWxlY3RMYWJlbCxcclxuICBTZWxlY3RTY3JvbGxEb3duQnV0dG9uLFxyXG4gIFNlbGVjdFNjcm9sbFVwQnV0dG9uLFxyXG4gIFNlbGVjdFNlcGFyYXRvcixcclxuICBTZWxlY3RUcmlnZ2VyLFxyXG4gIFNlbGVjdFZhbHVlLFxyXG59O1xyXG4iXSwibmFtZXMiOlsiUmVhY3QiLCJTZWxlY3RQcmltaXRpdmUiLCJDaGVja0ljb24iLCJDaGV2cm9uRG93bkljb24iLCJDaGV2cm9uVXBJY29uIiwiY24iLCJTZWxlY3QiLCJwcm9wcyIsIlJvb3QiLCJkYXRhLXNsb3QiLCJTZWxlY3RHcm91cCIsIkdyb3VwIiwiU2VsZWN0VmFsdWUiLCJWYWx1ZSIsIlNlbGVjdFRyaWdnZXIiLCJjbGFzc05hbWUiLCJzaXplIiwiY2hpbGRyZW4iLCJUcmlnZ2VyIiwiZGF0YS1zaXplIiwiSWNvbiIsImFzQ2hpbGQiLCJTZWxlY3RDb250ZW50IiwicG9zaXRpb24iLCJQb3J0YWwiLCJDb250ZW50IiwiU2VsZWN0U2Nyb2xsVXBCdXR0b24iLCJWaWV3cG9ydCIsIlNlbGVjdFNjcm9sbERvd25CdXR0b24iLCJTZWxlY3RMYWJlbCIsIkxhYmVsIiwiU2VsZWN0SXRlbSIsIkl0ZW0iLCJzcGFuIiwiSXRlbUluZGljYXRvciIsIkl0ZW1UZXh0IiwiU2VsZWN0U2VwYXJhdG9yIiwiU2VwYXJhdG9yIiwiU2Nyb2xsVXBCdXR0b24iLCJTY3JvbGxEb3duQnV0dG9uIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBQUE7O0FBRUEsWUFBWUEsV0FBVyxRQUFRO0FBQy9CLFlBQVlDLHFCQUFxQix5QkFBeUI7QUFDMUQsU0FDRUMsU0FBUyxFQUNUQyxlQUFlLEVBQ2ZDLGFBQWEsUUFDUixlQUFlO0FBRXRCLFNBQVNDLEVBQUUsUUFBUSxVQUFVO0FBRTdCLFNBQVNDLE9BQU8sRUFDZCxHQUFHQyxPQUMrQztJQUNsRCxxQkFBTyxRQUFDTixnQkFBZ0JPLElBQUk7UUFBQ0MsYUFBVTtRQUFVLEdBQUdGLEtBQUs7Ozs7OztBQUMzRDtLQUpTRDtBQU1ULFNBQVNJLFlBQVksRUFDbkIsR0FBR0gsT0FDZ0Q7SUFDbkQscUJBQU8sUUFBQ04sZ0JBQWdCVSxLQUFLO1FBQUNGLGFBQVU7UUFBZ0IsR0FBR0YsS0FBSzs7Ozs7O0FBQ2xFO01BSlNHO0FBTVQsU0FBU0UsWUFBWSxFQUNuQixHQUFHTCxPQUNnRDtJQUNuRCxxQkFBTyxRQUFDTixnQkFBZ0JZLEtBQUs7UUFBQ0osYUFBVTtRQUFnQixHQUFHRixLQUFLOzs7Ozs7QUFDbEU7TUFKU0s7QUFNVCxTQUFTRSxjQUFjLEVBQ3JCQyxTQUFTLEVBQ1RDLE9BQU8sU0FBUyxFQUNoQkMsUUFBUSxFQUNSLEdBQUdWLE9BR0o7SUFDQyxxQkFDRSxRQUFDTixnQkFBZ0JpQixPQUFPO1FBQ3RCVCxhQUFVO1FBQ1ZVLGFBQVdIO1FBQ1hELFdBQVdWLEdBQ1QsNHlCQUNBVTtRQUVELEdBQUdSLEtBQUs7O1lBRVJVOzBCQUNELFFBQUNoQixnQkFBZ0JtQixJQUFJO2dCQUFDQyxPQUFPOzBCQUMzQixjQUFBLFFBQUNsQjtvQkFBZ0JZLFdBQVU7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBSW5DO01BeEJTRDtBQTBCVCxTQUFTUSxjQUFjLEVBQ3JCUCxTQUFTLEVBQ1RFLFFBQVEsRUFDUk0sV0FBVyxRQUFRLEVBQ25CLEdBQUdoQixPQUNrRDtJQUNyRCxxQkFDRSxRQUFDTixnQkFBZ0J1QixNQUFNO2tCQUNyQixjQUFBLFFBQUN2QixnQkFBZ0J3QixPQUFPO1lBQ3RCaEIsYUFBVTtZQUNWTSxXQUFXVixHQUNULGlqQkFDQWtCLGFBQWEsWUFDWCxtSUFDRlI7WUFFRlEsVUFBVUE7WUFDVCxHQUFHaEIsS0FBSzs7OEJBRVQsUUFBQ21COzs7Ozs4QkFDRCxRQUFDekIsZ0JBQWdCMEIsUUFBUTtvQkFDdkJaLFdBQVdWLEdBQ1QsT0FDQWtCLGFBQWEsWUFDWDs4QkFHSE47Ozs7Ozs4QkFFSCxRQUFDVzs7Ozs7Ozs7Ozs7Ozs7OztBQUlUO01BakNTTjtBQW1DVCxTQUFTTyxZQUFZLEVBQ25CZCxTQUFTLEVBQ1QsR0FBR1IsT0FDZ0Q7SUFDbkQscUJBQ0UsUUFBQ04sZ0JBQWdCNkIsS0FBSztRQUNwQnJCLGFBQVU7UUFDVk0sV0FBV1YsR0FBRyw2Q0FBNkNVO1FBQzFELEdBQUdSLEtBQUs7Ozs7OztBQUdmO01BWFNzQjtBQWFULFNBQVNFLFdBQVcsRUFDbEJoQixTQUFTLEVBQ1RFLFFBQVEsRUFDUixHQUFHVixPQUMrQztJQUNsRCxxQkFDRSxRQUFDTixnQkFBZ0IrQixJQUFJO1FBQ25CdkIsYUFBVTtRQUNWTSxXQUFXVixHQUNULDZhQUNBVTtRQUVELEdBQUdSLEtBQUs7OzBCQUVULFFBQUMwQjtnQkFBS2xCLFdBQVU7MEJBQ2QsY0FBQSxRQUFDZCxnQkFBZ0JpQyxhQUFhOzhCQUM1QixjQUFBLFFBQUNoQzt3QkFBVWEsV0FBVTs7Ozs7Ozs7Ozs7Ozs7OzswQkFHekIsUUFBQ2QsZ0JBQWdCa0MsUUFBUTswQkFBRWxCOzs7Ozs7Ozs7Ozs7QUFHakM7TUF0QlNjO0FBd0JULFNBQVNLLGdCQUFnQixFQUN2QnJCLFNBQVMsRUFDVCxHQUFHUixPQUNvRDtJQUN2RCxxQkFDRSxRQUFDTixnQkFBZ0JvQyxTQUFTO1FBQ3hCNUIsYUFBVTtRQUNWTSxXQUFXVixHQUFHLGlEQUFpRFU7UUFDOUQsR0FBR1IsS0FBSzs7Ozs7O0FBR2Y7TUFYUzZCO0FBYVQsU0FBU1YscUJBQXFCLEVBQzVCWCxTQUFTLEVBQ1QsR0FBR1IsT0FDeUQ7SUFDNUQscUJBQ0UsUUFBQ04sZ0JBQWdCcUMsY0FBYztRQUM3QjdCLGFBQVU7UUFDVk0sV0FBV1YsR0FDVCx3REFDQVU7UUFFRCxHQUFHUixLQUFLO2tCQUVULGNBQUEsUUFBQ0g7WUFBY1csV0FBVTs7Ozs7Ozs7Ozs7QUFHL0I7TUFoQlNXO0FBa0JULFNBQVNFLHVCQUF1QixFQUM5QmIsU0FBUyxFQUNULEdBQUdSLE9BQzJEO0lBQzlELHFCQUNFLFFBQUNOLGdCQUFnQnNDLGdCQUFnQjtRQUMvQjlCLGFBQVU7UUFDVk0sV0FBV1YsR0FDVCx3REFDQVU7UUFFRCxHQUFHUixLQUFLO2tCQUVULGNBQUEsUUFBQ0o7WUFBZ0JZLFdBQVU7Ozs7Ozs7Ozs7O0FBR2pDO01BaEJTYTtBQWtCVCxTQUNFdEIsTUFBTSxFQUNOZ0IsYUFBYSxFQUNiWixXQUFXLEVBQ1hxQixVQUFVLEVBQ1ZGLFdBQVcsRUFDWEQsc0JBQXNCLEVBQ3RCRixvQkFBb0IsRUFDcEJVLGVBQWUsRUFDZnRCLGFBQWEsRUFDYkYsV0FBVyxHQUNYIn0=

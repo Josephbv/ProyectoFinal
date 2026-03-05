@@ -1,0 +1,788 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/pages/MascotasPage.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"]; const _Fragment = __vite__cjsImport2_react_jsxDevRuntime["Fragment"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"]; const useEffect = __vite__cjsImport3_react["useEffect"];
+import { Button } from "/src/components/ui/button.tsx?t=1772223881528";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "/src/components/ui/table.tsx";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "/src/components/ui/alert-dialog.tsx?t=1772223881329";
+import { toast } from "/node_modules/.vite/deps/sonner.js?v=04e61ac6";
+import { Dog, Plus, Search, Eye, Edit, Trash2, User, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+import { MascotaModal } from "/src/components/modals/MascotaModal.tsx?t=1772223881681";
+import { useMascotas } from "/src/components/hooks/useMascotas.tsx";
+import { useClientes } from "/src/components/hooks/useClientes.tsx";
+export function MascotasPage() {
+    _s();
+    const { mascotas, loading, crearMascota, actualizarMascota, eliminarMascota } = useMascotas();
+    const { clientes } = useClientes();
+    const [busqueda, setBusqueda] = useState("");
+    const [mascotaModal, setMascotaModal] = useState({
+        isOpen: false,
+        mascota: null,
+        readOnly: false
+    });
+    const [deleteDialog, setDeleteDialog] = useState({
+        isOpen: false,
+        mascota: null
+    });
+    // Estados para paginación
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(5);
+    const mascotasFiltradas = mascotas.filter((mascota)=>{
+        const matchBusqueda = (mascota.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) || (mascota.especie || '').toLowerCase().includes(busqueda.toLowerCase()) || (mascota.raza || '').toLowerCase().includes(busqueda.toLowerCase()) || (mascota.cliente?.nombre || '').toLowerCase().includes(busqueda.toLowerCase());
+        return matchBusqueda;
+    });
+    // Cálculos de paginación
+    const totalPages = Math.ceil(mascotasFiltradas.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const mascotasPaginadas = mascotasFiltradas.slice(startIndex, endIndex);
+    const goToPage = (page)=>{
+        setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+    };
+    useEffect(()=>{
+        setCurrentPage(1);
+    }, [
+        busqueda
+    ]);
+    const handleCrearMascota = async (mascotaData)=>{
+        const resultado = await crearMascota(mascotaData);
+        if (resultado.success) {
+            toast.success("Mascota registrada exitosamente");
+            cerrarMascotaModal();
+        } else {
+            toast.error(resultado.error || "Error al registrar mascota");
+        }
+        return resultado;
+    };
+    const handleActualizarMascota = async (mascotaData)=>{
+        if (!mascotaModal.mascota) return {
+            success: false
+        };
+        const resultado = await actualizarMascota(mascotaModal.mascota.id_mascota, mascotaData);
+        if (resultado.success) {
+            toast.success("Mascota actualizada exitosamente");
+            cerrarMascotaModal();
+        } else {
+            toast.error(resultado.error || "Error al actualizar mascota");
+        }
+        return resultado;
+    };
+    const handleEliminarMascota = async ()=>{
+        if (!deleteDialog.mascota) return;
+        const resultado = await eliminarMascota(deleteDialog.mascota.id_mascota);
+        if (resultado.success) {
+            toast.success("Mascota eliminada exitosamente");
+        } else {
+            toast.error(resultado.error || "Error al eliminar mascota");
+        }
+        setDeleteDialog({
+            isOpen: false,
+            mascota: null
+        });
+    };
+    const abrirMascotaModal = (mascota, readOnly = false)=>{
+        setMascotaModal({
+            isOpen: true,
+            mascota: mascota || null,
+            readOnly
+        });
+    };
+    const cerrarMascotaModal = ()=>{
+        setMascotaModal({
+            isOpen: false,
+            mascota: null,
+            readOnly: false
+        });
+    };
+    const getEspecieIcon = (especie)=>{
+        const especieLower = (especie || '').toLowerCase();
+        return /*#__PURE__*/ _jsxDEV(Dog, {
+            className: "w-5 h-5 text-indigo-400"
+        }, void 0, false, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+            lineNumber: 95,
+            columnNumber: 12
+        }, this);
+    };
+    const getClienteNombre = (id_cliente)=>{
+        const cliente = clientes.find((c)=>c.id_cliente === id_cliente);
+        return cliente ? cliente.nombre : 'Cliente Desconocido';
+    };
+    return /*#__PURE__*/ _jsxDEV(_Fragment, {
+        children: [
+            /*#__PURE__*/ _jsxDEV("header", {
+                className: "bg-dark-bg border-b border-dark-color px-8 py-6",
+                children: /*#__PURE__*/ _jsxDEV("div", {
+                    className: "flex items-center justify-between",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("h1", {
+                                    className: "text-2xl font-semibold text-dark-primary",
+                                    children: "Gestión de Mascotas"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                    lineNumber: 108,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("p", {
+                                    className: "text-sm text-dark-secondary mt-1",
+                                    children: "Registro y control de pacientes"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                    lineNumber: 109,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                            lineNumber: 107,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "flex items-center space-x-3",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "relative",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Search, {
+                                            className: "w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                            lineNumber: 113,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("input", {
+                                            type: "text",
+                                            placeholder: "Buscar por nombre, raza, cliente...",
+                                            value: busqueda,
+                                            onChange: (e)=>setBusqueda(e.target.value),
+                                            className: "pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                            lineNumber: 114,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                    lineNumber: 112,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("button", {
+                                    onClick: ()=>abrirMascotaModal(),
+                                    className: "dark-button-primary gap-2 flex items-center",
+                                    disabled: loading,
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Plus, {
+                                            className: "w-4 h-4"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                            lineNumber: 128,
+                                            columnNumber: 15
+                                        }, this),
+                                        "Nueva Mascota"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                    lineNumber: 123,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                            lineNumber: 111,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                    lineNumber: 106,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                lineNumber: 105,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("main", {
+                className: "flex-1 overflow-auto p-8 bg-dark-bg",
+                children: /*#__PURE__*/ _jsxDEV("div", {
+                    className: "dark-card",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "overflow-x-auto",
+                            children: /*#__PURE__*/ _jsxDEV(Table, {
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV(TableHeader, {
+                                        children: /*#__PURE__*/ _jsxDEV(TableRow, {
+                                            className: "border-dark-color hover:bg-dark-hover",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                    className: "text-dark-primary font-semibold min-w-[200px]",
+                                                    children: /*#__PURE__*/ _jsxDEV("div", {
+                                                        className: "flex items-center gap-2",
+                                                        children: [
+                                                            /*#__PURE__*/ _jsxDEV(Dog, {
+                                                                className: "w-4 h-4"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                lineNumber: 143,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            "Mascota"
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                        lineNumber: 142,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                    lineNumber: 141,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                    className: "text-dark-primary font-semibold min-w-[150px]",
+                                                    children: "Especie"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                    lineNumber: 147,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                    className: "text-dark-primary font-semibold min-w-[150px]",
+                                                    children: "Raza"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                    lineNumber: 150,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                    className: "text-dark-primary font-semibold min-w-[200px]",
+                                                    children: /*#__PURE__*/ _jsxDEV("div", {
+                                                        className: "flex items-center gap-2",
+                                                        children: [
+                                                            /*#__PURE__*/ _jsxDEV(User, {
+                                                                className: "w-4 h-4"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                lineNumber: 155,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            "Dueño / Cliente"
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                        lineNumber: 154,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                    lineNumber: 153,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                    className: "text-dark-primary font-semibold text-center w-40",
+                                                    children: "Acciones"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                    lineNumber: 159,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                            lineNumber: 140,
+                                            columnNumber: 17
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                        lineNumber: 139,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV(TableBody, {
+                                        children: mascotasPaginadas.map((mascota)=>/*#__PURE__*/ _jsxDEV(TableRow, {
+                                                className: "border-dark-color hover:bg-dark-table-hover transition-colors",
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-3",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    className: "w-10 h-10 bg-dark-hover rounded-full flex items-center justify-center shadow-lg border border-dark-color",
+                                                                    children: getEspecieIcon(mascota.especie || '')
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                    lineNumber: 170,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    children: /*#__PURE__*/ _jsxDEV("div", {
+                                                                        className: "font-semibold text-dark-primary",
+                                                                        children: mascota.nombre
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                        lineNumber: 174,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                    lineNumber: 173,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                            lineNumber: 169,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                        lineNumber: 168,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "text-sm font-medium text-dark-primary",
+                                                            children: mascota.especie || 'N/A'
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                            lineNumber: 180,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                        lineNumber: 179,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "text-sm text-dark-primary",
+                                                            children: mascota.raza || 'N/A'
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                            lineNumber: 186,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                        lineNumber: 185,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "space-y-1",
+                                                            children: /*#__PURE__*/ _jsxDEV("div", {
+                                                                className: "flex items-center gap-2",
+                                                                children: [
+                                                                    /*#__PURE__*/ _jsxDEV(User, {
+                                                                        className: "w-3 h-3 text-dark-secondary"
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                        lineNumber: 194,
+                                                                        columnNumber: 27
+                                                                    }, this),
+                                                                    /*#__PURE__*/ _jsxDEV("span", {
+                                                                        className: "text-sm text-dark-primary font-medium hover:text-indigo-400 cursor-pointer",
+                                                                        children: getClienteNombre(mascota.id_cliente)
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                        lineNumber: 195,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                lineNumber: 193,
+                                                                columnNumber: 25
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                            lineNumber: 192,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                        lineNumber: 191,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center justify-center gap-1.5",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Button, {
+                                                                    onClick: ()=>abrirMascotaModal(mascota, true),
+                                                                    variant: "outline",
+                                                                    size: "sm",
+                                                                    className: "p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30",
+                                                                    disabled: loading,
+                                                                    title: "Ver detalle",
+                                                                    children: /*#__PURE__*/ _jsxDEV(Eye, {
+                                                                        className: "w-4 h-4"
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                        lineNumber: 212,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                    lineNumber: 204,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Button, {
+                                                                    onClick: ()=>abrirMascotaModal(mascota),
+                                                                    variant: "outline",
+                                                                    size: "sm",
+                                                                    className: "p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30",
+                                                                    disabled: loading,
+                                                                    title: "Editar mascota",
+                                                                    children: /*#__PURE__*/ _jsxDEV(Edit, {
+                                                                        className: "w-4 h-4"
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                        lineNumber: 222,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                    lineNumber: 214,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Button, {
+                                                                    onClick: ()=>setDeleteDialog({
+                                                                            isOpen: true,
+                                                                            mascota
+                                                                        }),
+                                                                    variant: "outline",
+                                                                    size: "sm",
+                                                                    className: "p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30",
+                                                                    disabled: loading,
+                                                                    title: "Eliminar",
+                                                                    children: /*#__PURE__*/ _jsxDEV(Trash2, {
+                                                                        className: "w-4 h-4"
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                        lineNumber: 232,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                                    lineNumber: 224,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                            lineNumber: 203,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                        lineNumber: 202,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, mascota.id_mascota, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                lineNumber: 167,
+                                                columnNumber: 19
+                                            }, this))
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                        lineNumber: 165,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                lineNumber: 138,
+                                columnNumber: 13
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                            lineNumber: 137,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "flex items-center justify-between pt-4 mt-4 border-t border-dark-color",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "text-sm text-dark-secondary",
+                                    children: [
+                                        "Mostrando ",
+                                        startIndex + 1,
+                                        "-",
+                                        Math.min(endIndex, mascotasFiltradas.length),
+                                        " de ",
+                                        mascotasFiltradas.length,
+                                        " mascotas"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                    lineNumber: 243,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "flex items-center gap-4",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "flex items-center gap-2 text-sm",
+                                            children: /*#__PURE__*/ _jsxDEV("span", {
+                                                className: "text-dark-secondary",
+                                                children: [
+                                                    "Página ",
+                                                    currentPage,
+                                                    " de ",
+                                                    totalPages
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                lineNumber: 249,
+                                                columnNumber: 17
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                            lineNumber: 248,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "flex items-center gap-1",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Button, {
+                                                    onClick: ()=>goToPage(1),
+                                                    disabled: currentPage === 1 || loading || totalPages === 0,
+                                                    variant: "outline",
+                                                    size: "sm",
+                                                    className: "p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover",
+                                                    children: /*#__PURE__*/ _jsxDEV(ChevronsLeft, {
+                                                        className: "w-3 h-3"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                        lineNumber: 252,
+                                                        columnNumber: 223
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                    lineNumber: 252,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(Button, {
+                                                    onClick: ()=>goToPage(currentPage - 1),
+                                                    disabled: currentPage === 1 || loading || totalPages === 0,
+                                                    variant: "outline",
+                                                    size: "sm",
+                                                    className: "p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover",
+                                                    children: /*#__PURE__*/ _jsxDEV(ChevronLeft, {
+                                                        className: "w-3 h-3"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                        lineNumber: 253,
+                                                        columnNumber: 237
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                    lineNumber: 253,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(Button, {
+                                                    onClick: ()=>goToPage(currentPage + 1),
+                                                    disabled: currentPage === totalPages || loading || totalPages === 0,
+                                                    variant: "outline",
+                                                    size: "sm",
+                                                    className: "p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover",
+                                                    children: /*#__PURE__*/ _jsxDEV(ChevronRight, {
+                                                        className: "w-3 h-3"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                        lineNumber: 254,
+                                                        columnNumber: 246
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                    lineNumber: 254,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(Button, {
+                                                    onClick: ()=>goToPage(totalPages),
+                                                    disabled: currentPage === totalPages || loading || totalPages === 0,
+                                                    variant: "outline",
+                                                    size: "sm",
+                                                    className: "p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover",
+                                                    children: /*#__PURE__*/ _jsxDEV(ChevronsRight, {
+                                                        className: "w-3 h-3"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                        lineNumber: 255,
+                                                        columnNumber: 241
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                                    lineNumber: 255,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                            lineNumber: 251,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                    lineNumber: 247,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                            lineNumber: 242,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                    lineNumber: 136,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                lineNumber: 135,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV(MascotaModal, {
+                isOpen: mascotaModal.isOpen,
+                onClose: cerrarMascotaModal,
+                onSubmit: mascotaModal.mascota ? handleActualizarMascota : handleCrearMascota,
+                mascota: mascotaModal.mascota,
+                loading: loading,
+                readOnly: mascotaModal.readOnly
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                lineNumber: 262,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV(AlertDialog, {
+                open: deleteDialog.isOpen,
+                onOpenChange: ()=>setDeleteDialog({
+                        isOpen: false,
+                        mascota: null
+                    }),
+                children: /*#__PURE__*/ _jsxDEV(AlertDialogContent, {
+                    className: "bg-dark-card border-dark-color",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV(AlertDialogHeader, {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(AlertDialogTitle, {
+                                    className: "text-dark-primary",
+                                    children: "¿Eliminar Mascota?"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                    lineNumber: 274,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(AlertDialogDescription, {
+                                    className: "text-dark-secondary",
+                                    children: [
+                                        '¿Estás seguro de que deseas eliminar a "',
+                                        deleteDialog.mascota?.nombre,
+                                        '"? Esta acción eliminará el historial médico asociado.'
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                    lineNumber: 275,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                            lineNumber: 273,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(AlertDialogFooter, {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(AlertDialogCancel, {
+                                    className: "border-dark-color text-dark-secondary hover:bg-dark-hover",
+                                    children: "Cancelar"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                    lineNumber: 281,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(AlertDialogAction, {
+                                    onClick: handleEliminarMascota,
+                                    className: "bg-red-600 text-white hover:bg-red-700",
+                                    disabled: loading,
+                                    children: "Eliminar Mascota"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                                    lineNumber: 284,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                            lineNumber: 280,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                    lineNumber: 272,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx",
+                lineNumber: 271,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true);
+}
+_s(MascotasPage, "U77dobbnr8ceJcDPO3mrWfbIKfk=", false, function() {
+    return [
+        useMascotas,
+        useClientes
+    ];
+});
+_c = MascotasPage;
+var _c;
+$RefreshReg$(_c, "MascotasPage");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/MascotasPage.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIk1hc2NvdGFzUGFnZS50c3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgdXNlU3RhdGUsIHVzZUVmZmVjdCB9IGZyb20gXCJyZWFjdFwiO1xyXG5pbXBvcnQgeyBCdXR0b24gfSBmcm9tIFwiLi4vdWkvYnV0dG9uXCI7XHJcbmltcG9ydCB7IFRhYmxlLCBUYWJsZUJvZHksIFRhYmxlQ2VsbCwgVGFibGVIZWFkLCBUYWJsZUhlYWRlciwgVGFibGVSb3cgfSBmcm9tIFwiLi4vdWkvdGFibGVcIjtcclxuaW1wb3J0IHsgQWxlcnREaWFsb2csIEFsZXJ0RGlhbG9nQWN0aW9uLCBBbGVydERpYWxvZ0NhbmNlbCwgQWxlcnREaWFsb2dDb250ZW50LCBBbGVydERpYWxvZ0Rlc2NyaXB0aW9uLCBBbGVydERpYWxvZ0Zvb3RlciwgQWxlcnREaWFsb2dIZWFkZXIsIEFsZXJ0RGlhbG9nVGl0bGUgfSBmcm9tIFwiLi4vdWkvYWxlcnQtZGlhbG9nXCI7XHJcbmltcG9ydCB7IHRvYXN0IH0gZnJvbSBcInNvbm5lclwiO1xyXG5pbXBvcnQgeyBEb2csIFBsdXMsIFNlYXJjaCwgRXllLCBFZGl0LCBUcmFzaDIsIFVzZXIsIENoZXZyb25MZWZ0LCBDaGV2cm9uUmlnaHQsIENoZXZyb25zTGVmdCwgQ2hldnJvbnNSaWdodCB9IGZyb20gXCJsdWNpZGUtcmVhY3RcIjtcclxuaW1wb3J0IHsgTWFzY290YU1vZGFsIH0gZnJvbSBcIi4uL21vZGFscy9NYXNjb3RhTW9kYWxcIjtcclxuaW1wb3J0IHsgdXNlTWFzY290YXMsIE1hc2NvdGEgfSBmcm9tIFwiLi4vaG9va3MvdXNlTWFzY290YXNcIjtcclxuaW1wb3J0IHsgdXNlQ2xpZW50ZXMgfSBmcm9tIFwiLi4vaG9va3MvdXNlQ2xpZW50ZXNcIjtcclxuXHJcbmV4cG9ydCBmdW5jdGlvbiBNYXNjb3Rhc1BhZ2UoKSB7XHJcbiAgY29uc3QgeyBtYXNjb3RhcywgbG9hZGluZywgY3JlYXJNYXNjb3RhLCBhY3R1YWxpemFyTWFzY290YSwgZWxpbWluYXJNYXNjb3RhIH0gPSB1c2VNYXNjb3RhcygpO1xyXG4gIGNvbnN0IHsgY2xpZW50ZXMgfSA9IHVzZUNsaWVudGVzKCk7XHJcbiAgY29uc3QgW2J1c3F1ZWRhLCBzZXRCdXNxdWVkYV0gPSB1c2VTdGF0ZShcIlwiKTtcclxuICBjb25zdCBbbWFzY290YU1vZGFsLCBzZXRNYXNjb3RhTW9kYWxdID0gdXNlU3RhdGUoeyBpc09wZW46IGZhbHNlLCBtYXNjb3RhOiBudWxsIGFzIE1hc2NvdGEgfCBudWxsLCByZWFkT25seTogZmFsc2UgfSk7XHJcbiAgY29uc3QgW2RlbGV0ZURpYWxvZywgc2V0RGVsZXRlRGlhbG9nXSA9IHVzZVN0YXRlKHsgaXNPcGVuOiBmYWxzZSwgbWFzY290YTogbnVsbCBhcyBNYXNjb3RhIHwgbnVsbCB9KTtcclxuXHJcbiAgLy8gRXN0YWRvcyBwYXJhIHBhZ2luYWNpw7NuXHJcbiAgY29uc3QgW2N1cnJlbnRQYWdlLCBzZXRDdXJyZW50UGFnZV0gPSB1c2VTdGF0ZSgxKTtcclxuICBjb25zdCBbaXRlbXNQZXJQYWdlXSA9IHVzZVN0YXRlKDUpO1xyXG5cclxuICBjb25zdCBtYXNjb3Rhc0ZpbHRyYWRhcyA9IG1hc2NvdGFzLmZpbHRlcihtYXNjb3RhID0+IHtcclxuICAgIGNvbnN0IG1hdGNoQnVzcXVlZGEgPSAobWFzY290YS5ub21icmUgfHwgJycpLnRvTG93ZXJDYXNlKCkuaW5jbHVkZXMoYnVzcXVlZGEudG9Mb3dlckNhc2UoKSkgfHxcclxuICAgICAgKG1hc2NvdGEuZXNwZWNpZSB8fCAnJykudG9Mb3dlckNhc2UoKS5pbmNsdWRlcyhidXNxdWVkYS50b0xvd2VyQ2FzZSgpKSB8fFxyXG4gICAgICAobWFzY290YS5yYXphIHx8ICcnKS50b0xvd2VyQ2FzZSgpLmluY2x1ZGVzKGJ1c3F1ZWRhLnRvTG93ZXJDYXNlKCkpIHx8XHJcbiAgICAgIChtYXNjb3RhLmNsaWVudGU/Lm5vbWJyZSB8fCAnJykudG9Mb3dlckNhc2UoKS5pbmNsdWRlcyhidXNxdWVkYS50b0xvd2VyQ2FzZSgpKTtcclxuXHJcbiAgICByZXR1cm4gbWF0Y2hCdXNxdWVkYTtcclxuICB9KTtcclxuXHJcbiAgLy8gQ8OhbGN1bG9zIGRlIHBhZ2luYWNpw7NuXHJcbiAgY29uc3QgdG90YWxQYWdlcyA9IE1hdGguY2VpbChtYXNjb3Rhc0ZpbHRyYWRhcy5sZW5ndGggLyBpdGVtc1BlclBhZ2UpO1xyXG4gIGNvbnN0IHN0YXJ0SW5kZXggPSAoY3VycmVudFBhZ2UgLSAxKSAqIGl0ZW1zUGVyUGFnZTtcclxuICBjb25zdCBlbmRJbmRleCA9IHN0YXJ0SW5kZXggKyBpdGVtc1BlclBhZ2U7XHJcbiAgY29uc3QgbWFzY290YXNQYWdpbmFkYXMgPSBtYXNjb3Rhc0ZpbHRyYWRhcy5zbGljZShzdGFydEluZGV4LCBlbmRJbmRleCk7XHJcblxyXG4gIGNvbnN0IGdvVG9QYWdlID0gKHBhZ2U6IG51bWJlcikgPT4ge1xyXG4gICAgc2V0Q3VycmVudFBhZ2UoTWF0aC5tYXgoMSwgTWF0aC5taW4ocGFnZSwgdG90YWxQYWdlcykpKTtcclxuICB9O1xyXG5cclxuICB1c2VFZmZlY3QoKCkgPT4ge1xyXG4gICAgc2V0Q3VycmVudFBhZ2UoMSk7XHJcbiAgfSwgW2J1c3F1ZWRhXSk7XHJcblxyXG4gIGNvbnN0IGhhbmRsZUNyZWFyTWFzY290YSA9IGFzeW5jIChtYXNjb3RhRGF0YTogUGFydGlhbDxNYXNjb3RhPikgPT4ge1xyXG4gICAgY29uc3QgcmVzdWx0YWRvID0gYXdhaXQgY3JlYXJNYXNjb3RhKG1hc2NvdGFEYXRhKTtcclxuXHJcbiAgICBpZiAocmVzdWx0YWRvLnN1Y2Nlc3MpIHtcclxuICAgICAgdG9hc3Quc3VjY2VzcyhcIk1hc2NvdGEgcmVnaXN0cmFkYSBleGl0b3NhbWVudGVcIik7XHJcbiAgICAgIGNlcnJhck1hc2NvdGFNb2RhbCgpO1xyXG4gICAgfSBlbHNlIHtcclxuICAgICAgdG9hc3QuZXJyb3IocmVzdWx0YWRvLmVycm9yIHx8IFwiRXJyb3IgYWwgcmVnaXN0cmFyIG1hc2NvdGFcIik7XHJcbiAgICB9XHJcbiAgICByZXR1cm4gcmVzdWx0YWRvO1xyXG4gIH07XHJcblxyXG4gIGNvbnN0IGhhbmRsZUFjdHVhbGl6YXJNYXNjb3RhID0gYXN5bmMgKG1hc2NvdGFEYXRhOiBQYXJ0aWFsPE1hc2NvdGE+KSA9PiB7XHJcbiAgICBpZiAoIW1hc2NvdGFNb2RhbC5tYXNjb3RhKSByZXR1cm4geyBzdWNjZXNzOiBmYWxzZSB9O1xyXG5cclxuICAgIGNvbnN0IHJlc3VsdGFkbyA9IGF3YWl0IGFjdHVhbGl6YXJNYXNjb3RhKG1hc2NvdGFNb2RhbC5tYXNjb3RhLmlkX21hc2NvdGEsIG1hc2NvdGFEYXRhKTtcclxuXHJcbiAgICBpZiAocmVzdWx0YWRvLnN1Y2Nlc3MpIHtcclxuICAgICAgdG9hc3Quc3VjY2VzcyhcIk1hc2NvdGEgYWN0dWFsaXphZGEgZXhpdG9zYW1lbnRlXCIpO1xyXG4gICAgICBjZXJyYXJNYXNjb3RhTW9kYWwoKTtcclxuICAgIH0gZWxzZSB7XHJcbiAgICAgIHRvYXN0LmVycm9yKHJlc3VsdGFkby5lcnJvciB8fCBcIkVycm9yIGFsIGFjdHVhbGl6YXIgbWFzY290YVwiKTtcclxuICAgIH1cclxuICAgIHJldHVybiByZXN1bHRhZG87XHJcbiAgfTtcclxuXHJcbiAgY29uc3QgaGFuZGxlRWxpbWluYXJNYXNjb3RhID0gYXN5bmMgKCkgPT4ge1xyXG4gICAgaWYgKCFkZWxldGVEaWFsb2cubWFzY290YSkgcmV0dXJuO1xyXG5cclxuICAgIGNvbnN0IHJlc3VsdGFkbyA9IGF3YWl0IGVsaW1pbmFyTWFzY290YShkZWxldGVEaWFsb2cubWFzY290YS5pZF9tYXNjb3RhKTtcclxuXHJcbiAgICBpZiAocmVzdWx0YWRvLnN1Y2Nlc3MpIHtcclxuICAgICAgdG9hc3Quc3VjY2VzcyhcIk1hc2NvdGEgZWxpbWluYWRhIGV4aXRvc2FtZW50ZVwiKTtcclxuICAgIH0gZWxzZSB7XHJcbiAgICAgIHRvYXN0LmVycm9yKHJlc3VsdGFkby5lcnJvciB8fCBcIkVycm9yIGFsIGVsaW1pbmFyIG1hc2NvdGFcIik7XHJcbiAgICB9XHJcblxyXG4gICAgc2V0RGVsZXRlRGlhbG9nKHsgaXNPcGVuOiBmYWxzZSwgbWFzY290YTogbnVsbCB9KTtcclxuICB9O1xyXG5cclxuICBjb25zdCBhYnJpck1hc2NvdGFNb2RhbCA9IChtYXNjb3RhPzogTWFzY290YSwgcmVhZE9ubHk6IGJvb2xlYW4gPSBmYWxzZSkgPT4ge1xyXG4gICAgc2V0TWFzY290YU1vZGFsKHsgaXNPcGVuOiB0cnVlLCBtYXNjb3RhOiBtYXNjb3RhIHx8IG51bGwsIHJlYWRPbmx5IH0pO1xyXG4gIH07XHJcblxyXG4gIGNvbnN0IGNlcnJhck1hc2NvdGFNb2RhbCA9ICgpID0+IHtcclxuICAgIHNldE1hc2NvdGFNb2RhbCh7IGlzT3BlbjogZmFsc2UsIG1hc2NvdGE6IG51bGwsIHJlYWRPbmx5OiBmYWxzZSB9KTtcclxuICB9O1xyXG5cclxuICBjb25zdCBnZXRFc3BlY2llSWNvbiA9IChlc3BlY2llOiBzdHJpbmcpID0+IHtcclxuICAgIGNvbnN0IGVzcGVjaWVMb3dlciA9IChlc3BlY2llIHx8ICcnKS50b0xvd2VyQ2FzZSgpO1xyXG4gICAgcmV0dXJuIDxEb2cgY2xhc3NOYW1lPVwidy01IGgtNSB0ZXh0LWluZGlnby00MDBcIiAvPjtcclxuICB9O1xyXG5cclxuICBjb25zdCBnZXRDbGllbnRlTm9tYnJlID0gKGlkX2NsaWVudGU6IG51bWJlcikgPT4ge1xyXG4gICAgY29uc3QgY2xpZW50ZSA9IGNsaWVudGVzLmZpbmQoYyA9PiBjLmlkX2NsaWVudGUgPT09IGlkX2NsaWVudGUpO1xyXG4gICAgcmV0dXJuIGNsaWVudGUgPyBjbGllbnRlLm5vbWJyZSA6ICdDbGllbnRlIERlc2Nvbm9jaWRvJztcclxuICB9O1xyXG5cclxuICByZXR1cm4gKFxyXG4gICAgPD5cclxuICAgICAgPGhlYWRlciBjbGFzc05hbWU9XCJiZy1kYXJrLWJnIGJvcmRlci1iIGJvcmRlci1kYXJrLWNvbG9yIHB4LTggcHktNlwiPlxyXG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1iZXR3ZWVuXCI+XHJcbiAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICA8aDEgY2xhc3NOYW1lPVwidGV4dC0yeGwgZm9udC1zZW1pYm9sZCB0ZXh0LWRhcmstcHJpbWFyeVwiPkdlc3Rpw7NuIGRlIE1hc2NvdGFzPC9oMT5cclxuICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1zbSB0ZXh0LWRhcmstc2Vjb25kYXJ5IG10LTFcIj5SZWdpc3RybyB5IGNvbnRyb2wgZGUgcGFjaWVudGVzPC9wPlxyXG4gICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIHNwYWNlLXgtM1wiPlxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInJlbGF0aXZlXCI+XHJcbiAgICAgICAgICAgICAgPFNlYXJjaCBjbGFzc05hbWU9XCJ3LTQgaC00IGFic29sdXRlIGxlZnQtMyB0b3AtMS8yIHRyYW5zZm9ybSAtdHJhbnNsYXRlLXktMS8yIHRleHQtZGFyay1zZWNvbmRhcnlcIiAvPlxyXG4gICAgICAgICAgICAgIDxpbnB1dFxyXG4gICAgICAgICAgICAgICAgdHlwZT1cInRleHRcIlxyXG4gICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9XCJCdXNjYXIgcG9yIG5vbWJyZSwgcmF6YSwgY2xpZW50ZS4uLlwiXHJcbiAgICAgICAgICAgICAgICB2YWx1ZT17YnVzcXVlZGF9XHJcbiAgICAgICAgICAgICAgICBvbkNoYW5nZT17KGUpID0+IHNldEJ1c3F1ZWRhKGUudGFyZ2V0LnZhbHVlKX1cclxuICAgICAgICAgICAgICAgIGNsYXNzTmFtZT1cInBsLTEwIHByLTQgcHktMiB3LTcyIGJnLWRhcmstaG92ZXIgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yIHJvdW5kZWQtbGcgdGV4dC1kYXJrLXByaW1hcnkgcGxhY2Vob2xkZXItZGFyay1zZWNvbmRhcnkgZm9jdXM6Ym9yZGVyLWRhcmstY3RhIGZvY3VzOm91dGxpbmUtbm9uZVwiXHJcbiAgICAgICAgICAgICAgLz5cclxuICAgICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgICA8YnV0dG9uXHJcbiAgICAgICAgICAgICAgb25DbGljaz17KCkgPT4gYWJyaXJNYXNjb3RhTW9kYWwoKX1cclxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJkYXJrLWJ1dHRvbi1wcmltYXJ5IGdhcC0yIGZsZXggaXRlbXMtY2VudGVyXCJcclxuICAgICAgICAgICAgICBkaXNhYmxlZD17bG9hZGluZ31cclxuICAgICAgICAgICAgPlxyXG4gICAgICAgICAgICAgIDxQbHVzIGNsYXNzTmFtZT1cInctNCBoLTRcIiAvPlxyXG4gICAgICAgICAgICAgIE51ZXZhIE1hc2NvdGFcclxuICAgICAgICAgICAgPC9idXR0b24+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICA8L2Rpdj5cclxuICAgICAgPC9oZWFkZXI+XHJcblxyXG4gICAgICA8bWFpbiBjbGFzc05hbWU9XCJmbGV4LTEgb3ZlcmZsb3ctYXV0byBwLTggYmctZGFyay1iZ1wiPlxyXG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZGFyay1jYXJkXCI+XHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cIm92ZXJmbG93LXgtYXV0b1wiPlxyXG4gICAgICAgICAgICA8VGFibGU+XHJcbiAgICAgICAgICAgICAgPFRhYmxlSGVhZGVyPlxyXG4gICAgICAgICAgICAgICAgPFRhYmxlUm93IGNsYXNzTmFtZT1cImJvcmRlci1kYXJrLWNvbG9yIGhvdmVyOmJnLWRhcmstaG92ZXJcIj5cclxuICAgICAgICAgICAgICAgICAgPFRhYmxlSGVhZCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSBmb250LXNlbWlib2xkIG1pbi13LVsyMDBweF1cIj5cclxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8RG9nIGNsYXNzTmFtZT1cInctNCBoLTRcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgTWFzY290YVxyXG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICA8L1RhYmxlSGVhZD5cclxuICAgICAgICAgICAgICAgICAgPFRhYmxlSGVhZCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSBmb250LXNlbWlib2xkIG1pbi13LVsxNTBweF1cIj5cclxuICAgICAgICAgICAgICAgICAgICBFc3BlY2llXHJcbiAgICAgICAgICAgICAgICAgIDwvVGFibGVIZWFkPlxyXG4gICAgICAgICAgICAgICAgICA8VGFibGVIZWFkIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5IGZvbnQtc2VtaWJvbGQgbWluLXctWzE1MHB4XVwiPlxyXG4gICAgICAgICAgICAgICAgICAgIFJhemFcclxuICAgICAgICAgICAgICAgICAgPC9UYWJsZUhlYWQ+XHJcbiAgICAgICAgICAgICAgICAgIDxUYWJsZUhlYWQgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZm9udC1zZW1pYm9sZCBtaW4tdy1bMjAwcHhdXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPFVzZXIgY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICBEdWXDsW8gLyBDbGllbnRlXHJcbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgIDwvVGFibGVIZWFkPlxyXG4gICAgICAgICAgICAgICAgICA8VGFibGVIZWFkIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5IGZvbnQtc2VtaWJvbGQgdGV4dC1jZW50ZXIgdy00MFwiPlxyXG4gICAgICAgICAgICAgICAgICAgIEFjY2lvbmVzXHJcbiAgICAgICAgICAgICAgICAgIDwvVGFibGVIZWFkPlxyXG4gICAgICAgICAgICAgICAgPC9UYWJsZVJvdz5cclxuICAgICAgICAgICAgICA8L1RhYmxlSGVhZGVyPlxyXG5cclxuICAgICAgICAgICAgICA8VGFibGVCb2R5PlxyXG4gICAgICAgICAgICAgICAge21hc2NvdGFzUGFnaW5hZGFzLm1hcCgobWFzY290YSkgPT4gKFxyXG4gICAgICAgICAgICAgICAgICA8VGFibGVSb3cga2V5PXttYXNjb3RhLmlkX21hc2NvdGF9IGNsYXNzTmFtZT1cImJvcmRlci1kYXJrLWNvbG9yIGhvdmVyOmJnLWRhcmstdGFibGUtaG92ZXIgdHJhbnNpdGlvbi1jb2xvcnNcIj5cclxuICAgICAgICAgICAgICAgICAgICA8VGFibGVDZWxsPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtM1wiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInctMTAgaC0xMCBiZy1kYXJrLWhvdmVyIHJvdW5kZWQtZnVsbCBmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlciBzaGFkb3ctbGcgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAge2dldEVzcGVjaWVJY29uKG1hc2NvdGEuZXNwZWNpZSB8fCAnJyl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZm9udC1zZW1pYm9sZCB0ZXh0LWRhcmstcHJpbWFyeVwiPnttYXNjb3RhLm5vbWJyZX08L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICA8L1RhYmxlQ2VsbD5cclxuXHJcbiAgICAgICAgICAgICAgICAgICAgPFRhYmxlQ2VsbD5cclxuICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidGV4dC1zbSBmb250LW1lZGl1bSB0ZXh0LWRhcmstcHJpbWFyeVwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICB7bWFzY290YS5lc3BlY2llIHx8ICdOL0EnfVxyXG4gICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgPC9UYWJsZUNlbGw+XHJcblxyXG4gICAgICAgICAgICAgICAgICAgIDxUYWJsZUNlbGw+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXByaW1hcnlcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAge21hc2NvdGEucmF6YSB8fCAnTi9BJ31cclxuICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDwvVGFibGVDZWxsPlxyXG5cclxuICAgICAgICAgICAgICAgICAgICA8VGFibGVDZWxsPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTFcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIDxVc2VyIGNsYXNzTmFtZT1cInctMyBoLTMgdGV4dC1kYXJrLXNlY29uZGFyeVwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwidGV4dC1zbSB0ZXh0LWRhcmstcHJpbWFyeSBmb250LW1lZGl1bSBob3Zlcjp0ZXh0LWluZGlnby00MDAgY3Vyc29yLXBvaW50ZXJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIHtnZXRDbGllbnRlTm9tYnJlKG1hc2NvdGEuaWRfY2xpZW50ZSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgPC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDwvVGFibGVDZWxsPlxyXG5cclxuICAgICAgICAgICAgICAgICAgICA8VGFibGVDZWxsPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlciBnYXAtMS41XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICAgICAgICAgICAgICBvbkNsaWNrPXsoKSA9PiBhYnJpck1hc2NvdGFNb2RhbChtYXNjb3RhLCB0cnVlKX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICB2YXJpYW50PVwib3V0bGluZVwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgc2l6ZT1cInNtXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJwLTIgaC05IHctOSBiZy1ibHVlLTUwMC8yMCBib3JkZXItYmx1ZS01MDAgdGV4dC1ibHVlLTQwMCBob3ZlcjpiZy1ibHVlLTUwMC8zMFwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgZGlzYWJsZWQ9e2xvYWRpbmd9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdGl0bGU9XCJWZXIgZGV0YWxsZVwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgID5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICA8RXllIGNsYXNzTmFtZT1cInctNCBoLTRcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8L0J1dHRvbj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPEJ1dHRvblxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIG9uQ2xpY2s9eygpID0+IGFicmlyTWFzY290YU1vZGFsKG1hc2NvdGEpfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIHZhcmlhbnQ9XCJvdXRsaW5lXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICBzaXplPVwic21cIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT1cInAtMiBoLTkgdy05IGJnLWFtYmVyLTUwMC8yMCBib3JkZXItYW1iZXItNTAwIHRleHQtYW1iZXItNDAwIGhvdmVyOmJnLWFtYmVyLTUwMC8zMFwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgZGlzYWJsZWQ9e2xvYWRpbmd9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdGl0bGU9XCJFZGl0YXIgbWFzY290YVwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgID5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICA8RWRpdCBjbGFzc05hbWU9XCJ3LTQgaC00XCIgLz5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICAgICAgICAgICAgICBvbkNsaWNrPXsoKSA9PiBzZXREZWxldGVEaWFsb2coeyBpc09wZW46IHRydWUsIG1hc2NvdGEgfSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdmFyaWFudD1cIm91dGxpbmVcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIHNpemU9XCJzbVwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwicC0yIGgtOSB3LTkgYmctcmVkLTUwMC8yMCBib3JkZXItcmVkLTUwMCB0ZXh0LXJlZC00MDAgaG92ZXI6YmctcmVkLTUwMC8zMFwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgZGlzYWJsZWQ9e2xvYWRpbmd9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdGl0bGU9XCJFbGltaW5hclwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgID5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICA8VHJhc2gyIGNsYXNzTmFtZT1cInctNCBoLTRcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8L0J1dHRvbj5cclxuICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDwvVGFibGVDZWxsPlxyXG4gICAgICAgICAgICAgICAgICA8L1RhYmxlUm93PlxyXG4gICAgICAgICAgICAgICAgKSl9XHJcbiAgICAgICAgICAgICAgPC9UYWJsZUJvZHk+XHJcbiAgICAgICAgICAgIDwvVGFibGU+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktYmV0d2VlbiBwdC00IG10LTQgYm9yZGVyLXQgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ0ZXh0LXNtIHRleHQtZGFyay1zZWNvbmRhcnlcIj5cclxuICAgICAgICAgICAgICBNb3N0cmFuZG8ge3N0YXJ0SW5kZXggKyAxfS17TWF0aC5taW4oZW5kSW5kZXgsIG1hc2NvdGFzRmlsdHJhZGFzLmxlbmd0aCl9IGRlIHttYXNjb3Rhc0ZpbHRyYWRhcy5sZW5ndGh9IG1hc2NvdGFzXHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtNFwiPlxyXG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTIgdGV4dC1zbVwiPlxyXG4gICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwidGV4dC1kYXJrLXNlY29uZGFyeVwiPlDDoWdpbmEge2N1cnJlbnRQYWdlfSBkZSB7dG90YWxQYWdlc308L3NwYW4+XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMVwiPlxyXG4gICAgICAgICAgICAgICAgPEJ1dHRvbiBvbkNsaWNrPXsoKSA9PiBnb1RvUGFnZSgxKX0gZGlzYWJsZWQ9e2N1cnJlbnRQYWdlID09PSAxIHx8IGxvYWRpbmcgfHwgdG90YWxQYWdlcyA9PT0gMH0gdmFyaWFudD1cIm91dGxpbmVcIiBzaXplPVwic21cIiBjbGFzc05hbWU9XCJwLTIgaC04IHctOCBib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstc2Vjb25kYXJ5IGhvdmVyOmJnLWRhcmstaG92ZXJcIj48Q2hldnJvbnNMZWZ0IGNsYXNzTmFtZT1cInctMyBoLTNcIiAvPjwvQnV0dG9uPlxyXG4gICAgICAgICAgICAgICAgPEJ1dHRvbiBvbkNsaWNrPXsoKSA9PiBnb1RvUGFnZShjdXJyZW50UGFnZSAtIDEpfSBkaXNhYmxlZD17Y3VycmVudFBhZ2UgPT09IDEgfHwgbG9hZGluZyB8fCB0b3RhbFBhZ2VzID09PSAwfSB2YXJpYW50PVwib3V0bGluZVwiIHNpemU9XCJzbVwiIGNsYXNzTmFtZT1cInAtMiBoLTggdy04IGJvcmRlci1kYXJrLWNvbG9yIHRleHQtZGFyay1zZWNvbmRhcnkgaG92ZXI6YmctZGFyay1ob3ZlclwiPjxDaGV2cm9uTGVmdCBjbGFzc05hbWU9XCJ3LTMgaC0zXCIgLz48L0J1dHRvbj5cclxuICAgICAgICAgICAgICAgIDxCdXR0b24gb25DbGljaz17KCkgPT4gZ29Ub1BhZ2UoY3VycmVudFBhZ2UgKyAxKX0gZGlzYWJsZWQ9e2N1cnJlbnRQYWdlID09PSB0b3RhbFBhZ2VzIHx8IGxvYWRpbmcgfHwgdG90YWxQYWdlcyA9PT0gMH0gdmFyaWFudD1cIm91dGxpbmVcIiBzaXplPVwic21cIiBjbGFzc05hbWU9XCJwLTIgaC04IHctOCBib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstc2Vjb25kYXJ5IGhvdmVyOmJnLWRhcmstaG92ZXJcIj48Q2hldnJvblJpZ2h0IGNsYXNzTmFtZT1cInctMyBoLTNcIiAvPjwvQnV0dG9uPlxyXG4gICAgICAgICAgICAgICAgPEJ1dHRvbiBvbkNsaWNrPXsoKSA9PiBnb1RvUGFnZSh0b3RhbFBhZ2VzKX0gZGlzYWJsZWQ9e2N1cnJlbnRQYWdlID09PSB0b3RhbFBhZ2VzIHx8IGxvYWRpbmcgfHwgdG90YWxQYWdlcyA9PT0gMH0gdmFyaWFudD1cIm91dGxpbmVcIiBzaXplPVwic21cIiBjbGFzc05hbWU9XCJwLTIgaC04IHctOCBib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstc2Vjb25kYXJ5IGhvdmVyOmJnLWRhcmstaG92ZXJcIj48Q2hldnJvbnNSaWdodCBjbGFzc05hbWU9XCJ3LTMgaC0zXCIgLz48L0J1dHRvbj5cclxuICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICA8L2Rpdj5cclxuICAgICAgPC9tYWluPlxyXG5cclxuICAgICAgPE1hc2NvdGFNb2RhbFxyXG4gICAgICAgIGlzT3Blbj17bWFzY290YU1vZGFsLmlzT3Blbn1cclxuICAgICAgICBvbkNsb3NlPXtjZXJyYXJNYXNjb3RhTW9kYWx9XHJcbiAgICAgICAgb25TdWJtaXQ9e21hc2NvdGFNb2RhbC5tYXNjb3RhID8gaGFuZGxlQWN0dWFsaXphck1hc2NvdGEgOiBoYW5kbGVDcmVhck1hc2NvdGF9XHJcbiAgICAgICAgbWFzY290YT17bWFzY290YU1vZGFsLm1hc2NvdGF9XHJcbiAgICAgICAgbG9hZGluZz17bG9hZGluZ31cclxuICAgICAgICByZWFkT25seT17bWFzY290YU1vZGFsLnJlYWRPbmx5fVxyXG4gICAgICAvPlxyXG5cclxuICAgICAgPEFsZXJ0RGlhbG9nIG9wZW49e2RlbGV0ZURpYWxvZy5pc09wZW59IG9uT3BlbkNoYW5nZT17KCkgPT4gc2V0RGVsZXRlRGlhbG9nKHsgaXNPcGVuOiBmYWxzZSwgbWFzY290YTogbnVsbCB9KX0+XHJcbiAgICAgICAgPEFsZXJ0RGlhbG9nQ29udGVudCBjbGFzc05hbWU9XCJiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICAgIDxBbGVydERpYWxvZ0hlYWRlcj5cclxuICAgICAgICAgICAgPEFsZXJ0RGlhbG9nVGl0bGUgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnlcIj7Cv0VsaW1pbmFyIE1hc2NvdGE/PC9BbGVydERpYWxvZ1RpdGxlPlxyXG4gICAgICAgICAgICA8QWxlcnREaWFsb2dEZXNjcmlwdGlvbiBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstc2Vjb25kYXJ5XCI+XHJcbiAgICAgICAgICAgICAgwr9Fc3TDoXMgc2VndXJvIGRlIHF1ZSBkZXNlYXMgZWxpbWluYXIgYSBcIntkZWxldGVEaWFsb2cubWFzY290YT8ubm9tYnJlfVwiP1xyXG4gICAgICAgICAgICAgIEVzdGEgYWNjacOzbiBlbGltaW5hcsOhIGVsIGhpc3RvcmlhbCBtw6lkaWNvIGFzb2NpYWRvLlxyXG4gICAgICAgICAgICA8L0FsZXJ0RGlhbG9nRGVzY3JpcHRpb24+XHJcbiAgICAgICAgICA8L0FsZXJ0RGlhbG9nSGVhZGVyPlxyXG4gICAgICAgICAgPEFsZXJ0RGlhbG9nRm9vdGVyPlxyXG4gICAgICAgICAgICA8QWxlcnREaWFsb2dDYW5jZWwgY2xhc3NOYW1lPVwiYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXNlY29uZGFyeSBob3ZlcjpiZy1kYXJrLWhvdmVyXCI+XHJcbiAgICAgICAgICAgICAgQ2FuY2VsYXJcclxuICAgICAgICAgICAgPC9BbGVydERpYWxvZ0NhbmNlbD5cclxuICAgICAgICAgICAgPEFsZXJ0RGlhbG9nQWN0aW9uXHJcbiAgICAgICAgICAgICAgb25DbGljaz17aGFuZGxlRWxpbWluYXJNYXNjb3RhfVxyXG4gICAgICAgICAgICAgIGNsYXNzTmFtZT1cImJnLXJlZC02MDAgdGV4dC13aGl0ZSBob3ZlcjpiZy1yZWQtNzAwXCJcclxuICAgICAgICAgICAgICBkaXNhYmxlZD17bG9hZGluZ31cclxuICAgICAgICAgICAgPlxyXG4gICAgICAgICAgICAgIEVsaW1pbmFyIE1hc2NvdGFcclxuICAgICAgICAgICAgPC9BbGVydERpYWxvZ0FjdGlvbj5cclxuICAgICAgICAgIDwvQWxlcnREaWFsb2dGb290ZXI+XHJcbiAgICAgICAgPC9BbGVydERpYWxvZ0NvbnRlbnQ+XHJcbiAgICAgIDwvQWxlcnREaWFsb2c+XHJcbiAgICA8Lz5cclxuICApO1xyXG59XHJcbiJdLCJuYW1lcyI6WyJ1c2VTdGF0ZSIsInVzZUVmZmVjdCIsIkJ1dHRvbiIsIlRhYmxlIiwiVGFibGVCb2R5IiwiVGFibGVDZWxsIiwiVGFibGVIZWFkIiwiVGFibGVIZWFkZXIiLCJUYWJsZVJvdyIsIkFsZXJ0RGlhbG9nIiwiQWxlcnREaWFsb2dBY3Rpb24iLCJBbGVydERpYWxvZ0NhbmNlbCIsIkFsZXJ0RGlhbG9nQ29udGVudCIsIkFsZXJ0RGlhbG9nRGVzY3JpcHRpb24iLCJBbGVydERpYWxvZ0Zvb3RlciIsIkFsZXJ0RGlhbG9nSGVhZGVyIiwiQWxlcnREaWFsb2dUaXRsZSIsInRvYXN0IiwiRG9nIiwiUGx1cyIsIlNlYXJjaCIsIkV5ZSIsIkVkaXQiLCJUcmFzaDIiLCJVc2VyIiwiQ2hldnJvbkxlZnQiLCJDaGV2cm9uUmlnaHQiLCJDaGV2cm9uc0xlZnQiLCJDaGV2cm9uc1JpZ2h0IiwiTWFzY290YU1vZGFsIiwidXNlTWFzY290YXMiLCJ1c2VDbGllbnRlcyIsIk1hc2NvdGFzUGFnZSIsIm1hc2NvdGFzIiwibG9hZGluZyIsImNyZWFyTWFzY290YSIsImFjdHVhbGl6YXJNYXNjb3RhIiwiZWxpbWluYXJNYXNjb3RhIiwiY2xpZW50ZXMiLCJidXNxdWVkYSIsInNldEJ1c3F1ZWRhIiwibWFzY290YU1vZGFsIiwic2V0TWFzY290YU1vZGFsIiwiaXNPcGVuIiwibWFzY290YSIsInJlYWRPbmx5IiwiZGVsZXRlRGlhbG9nIiwic2V0RGVsZXRlRGlhbG9nIiwiY3VycmVudFBhZ2UiLCJzZXRDdXJyZW50UGFnZSIsIml0ZW1zUGVyUGFnZSIsIm1hc2NvdGFzRmlsdHJhZGFzIiwiZmlsdGVyIiwibWF0Y2hCdXNxdWVkYSIsIm5vbWJyZSIsInRvTG93ZXJDYXNlIiwiaW5jbHVkZXMiLCJlc3BlY2llIiwicmF6YSIsImNsaWVudGUiLCJ0b3RhbFBhZ2VzIiwiTWF0aCIsImNlaWwiLCJsZW5ndGgiLCJzdGFydEluZGV4IiwiZW5kSW5kZXgiLCJtYXNjb3Rhc1BhZ2luYWRhcyIsInNsaWNlIiwiZ29Ub1BhZ2UiLCJwYWdlIiwibWF4IiwibWluIiwiaGFuZGxlQ3JlYXJNYXNjb3RhIiwibWFzY290YURhdGEiLCJyZXN1bHRhZG8iLCJzdWNjZXNzIiwiY2VycmFyTWFzY290YU1vZGFsIiwiZXJyb3IiLCJoYW5kbGVBY3R1YWxpemFyTWFzY290YSIsImlkX21hc2NvdGEiLCJoYW5kbGVFbGltaW5hck1hc2NvdGEiLCJhYnJpck1hc2NvdGFNb2RhbCIsImdldEVzcGVjaWVJY29uIiwiZXNwZWNpZUxvd2VyIiwiY2xhc3NOYW1lIiwiZ2V0Q2xpZW50ZU5vbWJyZSIsImlkX2NsaWVudGUiLCJmaW5kIiwiYyIsImhlYWRlciIsImRpdiIsImgxIiwicCIsImlucHV0IiwidHlwZSIsInBsYWNlaG9sZGVyIiwidmFsdWUiLCJvbkNoYW5nZSIsImUiLCJ0YXJnZXQiLCJidXR0b24iLCJvbkNsaWNrIiwiZGlzYWJsZWQiLCJtYWluIiwibWFwIiwic3BhbiIsInZhcmlhbnQiLCJzaXplIiwidGl0bGUiLCJvbkNsb3NlIiwib25TdWJtaXQiLCJvcGVuIiwib25PcGVuQ2hhbmdlIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFBQSxTQUFTQSxRQUFRLEVBQUVDLFNBQVMsUUFBUSxRQUFRO0FBQzVDLFNBQVNDLE1BQU0sUUFBUSxlQUFlO0FBQ3RDLFNBQVNDLEtBQUssRUFBRUMsU0FBUyxFQUFFQyxTQUFTLEVBQUVDLFNBQVMsRUFBRUMsV0FBVyxF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

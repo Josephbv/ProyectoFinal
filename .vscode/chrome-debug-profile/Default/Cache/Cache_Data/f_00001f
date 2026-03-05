@@ -1,0 +1,217 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/ui/dialog.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+"use client";
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"];
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const React = ((m) => m?.__esModule ? m : { ...typeof m === "object" && !Array.isArray(m) || typeof m === "function" ? m : {}, default: m })(__vite__cjsImport3_react);
+import * as DialogPrimitive from "/node_modules/.vite/deps/@radix-ui_react-dialog.js?v=04e61ac6";
+import { XIcon } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+import { cn } from "/src/components/ui/utils.ts";
+function Dialog({ ...props }) {
+    return /*#__PURE__*/ _jsxDEV(DialogPrimitive.Root, {
+        "data-slot": "dialog",
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+        lineNumber: 12,
+        columnNumber: 10
+    }, this);
+}
+_c = Dialog;
+const DialogTrigger = /*#__PURE__*/ React.forwardRef(_c1 = ({ ...props }, ref)=>/*#__PURE__*/ _jsxDEV(DialogPrimitive.Trigger, {
+        ref: ref,
+        "data-slot": "dialog-trigger",
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+        lineNumber: 19,
+        columnNumber: 3
+    }, this));
+_c2 = DialogTrigger;
+DialogTrigger.displayName = "DialogTrigger";
+function DialogPortal({ ...props }) {
+    return /*#__PURE__*/ _jsxDEV(DialogPrimitive.Portal, {
+        "data-slot": "dialog-portal",
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+        lineNumber: 26,
+        columnNumber: 10
+    }, this);
+}
+_c3 = DialogPortal;
+const DialogClose = /*#__PURE__*/ React.forwardRef(_c4 = ({ ...props }, ref)=>/*#__PURE__*/ _jsxDEV(DialogPrimitive.Close, {
+        ref: ref,
+        "data-slot": "dialog-close",
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+        lineNumber: 33,
+        columnNumber: 3
+    }, this));
+_c5 = DialogClose;
+DialogClose.displayName = "DialogClose";
+const DialogOverlay = /*#__PURE__*/ React.forwardRef(({ className, ...props }, ref)=>/*#__PURE__*/ _jsxDEV(DialogPrimitive.Overlay, {
+        ref: ref,
+        "data-slot": "dialog-overlay",
+        className: cn("data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50", className),
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+        lineNumber: 41,
+        columnNumber: 3
+    }, this));
+_c6 = DialogOverlay;
+DialogOverlay.displayName = "DialogOverlay";
+const DialogContent = /*#__PURE__*/ React.forwardRef(_c7 = ({ className, children, ...props }, ref)=>/*#__PURE__*/ _jsxDEV(DialogPortal, {
+        "data-slot": "dialog-portal",
+        children: [
+            /*#__PURE__*/ _jsxDEV(DialogOverlay, {}, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+                lineNumber: 58,
+                columnNumber: 5
+            }, this),
+            /*#__PURE__*/ _jsxDEV(DialogPrimitive.Content, {
+                ref: ref,
+                "data-slot": "dialog-content",
+                className: cn("bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg", className),
+                ...props,
+                children: [
+                    children,
+                    /*#__PURE__*/ _jsxDEV(DialogPrimitive.Close, {
+                        className: "ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+                        children: [
+                            /*#__PURE__*/ _jsxDEV(XIcon, {}, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+                                lineNumber: 70,
+                                columnNumber: 9
+                            }, this),
+                            /*#__PURE__*/ _jsxDEV("span", {
+                                className: "sr-only",
+                                children: "Close"
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+                                lineNumber: 71,
+                                columnNumber: 9
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+                        lineNumber: 69,
+                        columnNumber: 7
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+                lineNumber: 59,
+                columnNumber: 5
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+        lineNumber: 57,
+        columnNumber: 3
+    }, this));
+_c8 = DialogContent;
+DialogContent.displayName = "DialogContent";
+function DialogHeader({ className, ...props }) {
+    return /*#__PURE__*/ _jsxDEV("div", {
+        "data-slot": "dialog-header",
+        className: cn("flex flex-col gap-2 text-center sm:text-left", className),
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+        lineNumber: 80,
+        columnNumber: 5
+    }, this);
+}
+_c9 = DialogHeader;
+function DialogFooter({ className, ...props }) {
+    return /*#__PURE__*/ _jsxDEV("div", {
+        "data-slot": "dialog-footer",
+        className: cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className),
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+        lineNumber: 90,
+        columnNumber: 5
+    }, this);
+}
+_c10 = DialogFooter;
+const DialogTitle = /*#__PURE__*/ React.forwardRef(_c11 = ({ className, ...props }, ref)=>/*#__PURE__*/ _jsxDEV(DialogPrimitive.Title, {
+        ref: ref,
+        "data-slot": "dialog-title",
+        className: cn("text-lg leading-none font-semibold", className),
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+        lineNumber: 105,
+        columnNumber: 3
+    }, this));
+_c12 = DialogTitle;
+DialogTitle.displayName = "DialogTitle";
+const DialogDescription = /*#__PURE__*/ React.forwardRef(_c13 = ({ className, ...props }, ref)=>/*#__PURE__*/ _jsxDEV(DialogPrimitive.Description, {
+        ref: ref,
+        "data-slot": "dialog-description",
+        className: cn("text-muted-foreground text-sm", className),
+        ...props
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx",
+        lineNumber: 118,
+        columnNumber: 3
+    }, this));
+_c14 = DialogDescription;
+DialogDescription.displayName = "DialogDescription";
+export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger };
+var _c, _c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8, _c9, _c10, _c11, _c12, _c13, _c14;
+$RefreshReg$(_c, "Dialog");
+$RefreshReg$(_c1, "DialogTrigger$React.forwardRef");
+$RefreshReg$(_c2, "DialogTrigger");
+$RefreshReg$(_c3, "DialogPortal");
+$RefreshReg$(_c4, "DialogClose$React.forwardRef");
+$RefreshReg$(_c5, "DialogClose");
+$RefreshReg$(_c6, "DialogOverlay");
+$RefreshReg$(_c7, "DialogContent$React.forwardRef");
+$RefreshReg$(_c8, "DialogContent");
+$RefreshReg$(_c9, "DialogHeader");
+$RefreshReg$(_c10, "DialogFooter");
+$RefreshReg$(_c11, "DialogTitle$React.forwardRef");
+$RefreshReg$(_c12, "DialogTitle");
+$RefreshReg$(_c13, "DialogDescription$React.forwardRef");
+$RefreshReg$(_c14, "DialogDescription");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/ui/dialog.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImRpYWxvZy50c3giXSwic291cmNlc0NvbnRlbnQiOlsiXCJ1c2UgY2xpZW50XCI7XHJcblxyXG5pbXBvcnQgKiBhcyBSZWFjdCBmcm9tIFwicmVhY3RcIjtcclxuaW1wb3J0ICogYXMgRGlhbG9nUHJpbWl0aXZlIGZyb20gXCJAcmFkaXgtdWkvcmVhY3QtZGlhbG9nXCI7XHJcbmltcG9ydCB7IFhJY29uIH0gZnJvbSBcImx1Y2lkZS1yZWFjdFwiO1xyXG5cclxuaW1wb3J0IHsgY24gfSBmcm9tIFwiLi91dGlsc1wiO1xyXG5cclxuZnVuY3Rpb24gRGlhbG9nKHtcclxuICAuLi5wcm9wc1xyXG59OiBSZWFjdC5Db21wb25lbnRQcm9wczx0eXBlb2YgRGlhbG9nUHJpbWl0aXZlLlJvb3Q+KSB7XHJcbiAgcmV0dXJuIDxEaWFsb2dQcmltaXRpdmUuUm9vdCBkYXRhLXNsb3Q9XCJkaWFsb2dcIiB7Li4ucHJvcHN9IC8+O1xyXG59XHJcblxyXG5jb25zdCBEaWFsb2dUcmlnZ2VyID0gUmVhY3QuZm9yd2FyZFJlZjxcclxuICBSZWFjdC5FbGVtZW50UmVmPHR5cGVvZiBEaWFsb2dQcmltaXRpdmUuVHJpZ2dlcj4sXHJcbiAgUmVhY3QuQ29tcG9uZW50UHJvcHNXaXRob3V0UmVmPHR5cGVvZiBEaWFsb2dQcmltaXRpdmUuVHJpZ2dlcj5cclxuPigoeyAuLi5wcm9wcyB9LCByZWYpID0+IChcclxuICA8RGlhbG9nUHJpbWl0aXZlLlRyaWdnZXIgcmVmPXtyZWZ9IGRhdGEtc2xvdD1cImRpYWxvZy10cmlnZ2VyXCIgey4uLnByb3BzfSAvPlxyXG4pKVxyXG5EaWFsb2dUcmlnZ2VyLmRpc3BsYXlOYW1lID0gXCJEaWFsb2dUcmlnZ2VyXCJcclxuXHJcbmZ1bmN0aW9uIERpYWxvZ1BvcnRhbCh7XHJcbiAgLi4ucHJvcHNcclxufTogUmVhY3QuQ29tcG9uZW50UHJvcHM8dHlwZW9mIERpYWxvZ1ByaW1pdGl2ZS5Qb3J0YWw+KSB7XHJcbiAgcmV0dXJuIDxEaWFsb2dQcmltaXRpdmUuUG9ydGFsIGRhdGEtc2xvdD1cImRpYWxvZy1wb3J0YWxcIiB7Li4ucHJvcHN9IC8+O1xyXG59XHJcblxyXG5jb25zdCBEaWFsb2dDbG9zZSA9IFJlYWN0LmZvcndhcmRSZWY8XHJcbiAgUmVhY3QuRWxlbWVudFJlZjx0eXBlb2YgRGlhbG9nUHJpbWl0aXZlLkNsb3NlPixcclxuICBSZWFjdC5Db21wb25lbnRQcm9wc1dpdGhvdXRSZWY8dHlwZW9mIERpYWxvZ1ByaW1pdGl2ZS5DbG9zZT5cclxuPigoeyAuLi5wcm9wcyB9LCByZWYpID0+IChcclxuICA8RGlhbG9nUHJpbWl0aXZlLkNsb3NlIHJlZj17cmVmfSBkYXRhLXNsb3Q9XCJkaWFsb2ctY2xvc2VcIiB7Li4ucHJvcHN9IC8+XHJcbikpXHJcbkRpYWxvZ0Nsb3NlLmRpc3BsYXlOYW1lID0gXCJEaWFsb2dDbG9zZVwiXHJcblxyXG5jb25zdCBEaWFsb2dPdmVybGF5ID0gUmVhY3QuZm9yd2FyZFJlZjxcclxuICBSZWFjdC5FbGVtZW50UmVmPHR5cGVvZiBEaWFsb2dQcmltaXRpdmUuT3ZlcmxheT4sXHJcbiAgUmVhY3QuQ29tcG9uZW50UHJvcHNXaXRob3V0UmVmPHR5cGVvZiBEaWFsb2dQcmltaXRpdmUuT3ZlcmxheT5cclxuPigoeyBjbGFzc05hbWUsIC4uLnByb3BzIH0sIHJlZikgPT4gKFxyXG4gIDxEaWFsb2dQcmltaXRpdmUuT3ZlcmxheVxyXG4gICAgcmVmPXtyZWZ9XHJcbiAgICBkYXRhLXNsb3Q9XCJkaWFsb2ctb3ZlcmxheVwiXHJcbiAgICBjbGFzc05hbWU9e2NuKFxyXG4gICAgICBcImRhdGEtW3N0YXRlPW9wZW5dOmFuaW1hdGUtaW4gZGF0YS1bc3RhdGU9Y2xvc2VkXTphbmltYXRlLW91dCBkYXRhLVtzdGF0ZT1jbG9zZWRdOmZhZGUtb3V0LTAgZGF0YS1bc3RhdGU9b3Blbl06ZmFkZS1pbi0wIGZpeGVkIGluc2V0LTAgei01MCBiZy1ibGFjay81MFwiLFxyXG4gICAgICBjbGFzc05hbWUsXHJcbiAgICApfVxyXG4gICAgey4uLnByb3BzfVxyXG4gIC8+XHJcbikpXHJcbkRpYWxvZ092ZXJsYXkuZGlzcGxheU5hbWUgPSBcIkRpYWxvZ092ZXJsYXlcIlxyXG5cclxuY29uc3QgRGlhbG9nQ29udGVudCA9IFJlYWN0LmZvcndhcmRSZWY8XHJcbiAgUmVhY3QuRWxlbWVudFJlZjx0eXBlb2YgRGlhbG9nUHJpbWl0aXZlLkNvbnRlbnQ+LFxyXG4gIFJlYWN0LkNvbXBvbmVudFByb3BzV2l0aG91dFJlZjx0eXBlb2YgRGlhbG9nUHJpbWl0aXZlLkNvbnRlbnQ+XHJcbj4oKHsgY2xhc3NOYW1lLCBjaGlsZHJlbiwgLi4ucHJvcHMgfSwgcmVmKSA9PiAoXHJcbiAgPERpYWxvZ1BvcnRhbCBkYXRhLXNsb3Q9XCJkaWFsb2ctcG9ydGFsXCI+XHJcbiAgICA8RGlhbG9nT3ZlcmxheSAvPlxyXG4gICAgPERpYWxvZ1ByaW1pdGl2ZS5Db250ZW50XHJcbiAgICAgIHJlZj17cmVmfVxyXG4gICAgICBkYXRhLXNsb3Q9XCJkaWFsb2ctY29udGVudFwiXHJcbiAgICAgIGNsYXNzTmFtZT17Y24oXHJcbiAgICAgICAgXCJiZy1iYWNrZ3JvdW5kIGRhdGEtW3N0YXRlPW9wZW5dOmFuaW1hdGUtaW4gZGF0YS1bc3RhdGU9Y2xvc2VkXTphbmltYXRlLW91dCBkYXRhLVtzdGF0ZT1jbG9zZWRdOmZhZGUtb3V0LTAgZGF0YS1bc3RhdGU9b3Blbl06ZmFkZS1pbi0wIGRhdGEtW3N0YXRlPWNsb3NlZF06em9vbS1vdXQtOTUgZGF0YS1bc3RhdGU9b3Blbl06em9vbS1pbi05NSBmaXhlZCB0b3AtWzUwJV0gbGVmdC1bNTAlXSB6LTUwIGdyaWQgdy1mdWxsIG1heC13LVtjYWxjKDEwMCUtMnJlbSldIHRyYW5zbGF0ZS14LVstNTAlXSB0cmFuc2xhdGUteS1bLTUwJV0gZ2FwLTQgcm91bmRlZC1sZyBib3JkZXIgcC02IHNoYWRvdy1sZyBkdXJhdGlvbi0yMDAgc206bWF4LXctbGdcIixcclxuICAgICAgICBjbGFzc05hbWUsXHJcbiAgICAgICl9XHJcbiAgICAgIHsuLi5wcm9wc31cclxuICAgID5cclxuICAgICAge2NoaWxkcmVufVxyXG4gICAgICA8RGlhbG9nUHJpbWl0aXZlLkNsb3NlIGNsYXNzTmFtZT1cInJpbmctb2Zmc2V0LWJhY2tncm91bmQgZm9jdXM6cmluZy1yaW5nIGRhdGEtW3N0YXRlPW9wZW5dOmJnLWFjY2VudCBkYXRhLVtzdGF0ZT1vcGVuXTp0ZXh0LW11dGVkLWZvcmVncm91bmQgYWJzb2x1dGUgdG9wLTQgcmlnaHQtNCByb3VuZGVkLXhzIG9wYWNpdHktNzAgdHJhbnNpdGlvbi1vcGFjaXR5IGhvdmVyOm9wYWNpdHktMTAwIGZvY3VzOnJpbmctMiBmb2N1czpyaW5nLW9mZnNldC0yIGZvY3VzOm91dGxpbmUtaGlkZGVuIGRpc2FibGVkOnBvaW50ZXItZXZlbnRzLW5vbmUgWyZfc3ZnXTpwb2ludGVyLWV2ZW50cy1ub25lIFsmX3N2Z106c2hyaW5rLTAgWyZfc3ZnOm5vdChbY2xhc3MqPSdzaXplLSddKV06c2l6ZS00XCI+XHJcbiAgICAgICAgPFhJY29uIC8+XHJcbiAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwic3Itb25seVwiPkNsb3NlPC9zcGFuPlxyXG4gICAgICA8L0RpYWxvZ1ByaW1pdGl2ZS5DbG9zZT5cclxuICAgIDwvRGlhbG9nUHJpbWl0aXZlLkNvbnRlbnQ+XHJcbiAgPC9EaWFsb2dQb3J0YWw+XHJcbikpXHJcbkRpYWxvZ0NvbnRlbnQuZGlzcGxheU5hbWUgPSBcIkRpYWxvZ0NvbnRlbnRcIlxyXG5cclxuZnVuY3Rpb24gRGlhbG9nSGVhZGVyKHsgY2xhc3NOYW1lLCAuLi5wcm9wcyB9OiBSZWFjdC5Db21wb25lbnRQcm9wczxcImRpdlwiPikge1xyXG4gIHJldHVybiAoXHJcbiAgICA8ZGl2XHJcbiAgICAgIGRhdGEtc2xvdD1cImRpYWxvZy1oZWFkZXJcIlxyXG4gICAgICBjbGFzc05hbWU9e2NuKFwiZmxleCBmbGV4LWNvbCBnYXAtMiB0ZXh0LWNlbnRlciBzbTp0ZXh0LWxlZnRcIiwgY2xhc3NOYW1lKX1cclxuICAgICAgey4uLnByb3BzfVxyXG4gICAgLz5cclxuICApO1xyXG59XHJcblxyXG5mdW5jdGlvbiBEaWFsb2dGb290ZXIoeyBjbGFzc05hbWUsIC4uLnByb3BzIH06IFJlYWN0LkNvbXBvbmVudFByb3BzPFwiZGl2XCI+KSB7XHJcbiAgcmV0dXJuIChcclxuICAgIDxkaXZcclxuICAgICAgZGF0YS1zbG90PVwiZGlhbG9nLWZvb3RlclwiXHJcbiAgICAgIGNsYXNzTmFtZT17Y24oXHJcbiAgICAgICAgXCJmbGV4IGZsZXgtY29sLXJldmVyc2UgZ2FwLTIgc206ZmxleC1yb3cgc206anVzdGlmeS1lbmRcIixcclxuICAgICAgICBjbGFzc05hbWUsXHJcbiAgICAgICl9XHJcbiAgICAgIHsuLi5wcm9wc31cclxuICAgIC8+XHJcbiAgKTtcclxufVxyXG5cclxuY29uc3QgRGlhbG9nVGl0bGUgPSBSZWFjdC5mb3J3YXJkUmVmPFxyXG4gIFJlYWN0LkVsZW1lbnRSZWY8dHlwZW9mIERpYWxvZ1ByaW1pdGl2ZS5UaXRsZT4sXHJcbiAgUmVhY3QuQ29tcG9uZW50UHJvcHNXaXRob3V0UmVmPHR5cGVvZiBEaWFsb2dQcmltaXRpdmUuVGl0bGU+XHJcbj4oKHsgY2xhc3NOYW1lLCAuLi5wcm9wcyB9LCByZWYpID0+IChcclxuICA8RGlhbG9nUHJpbWl0aXZlLlRpdGxlXHJcbiAgICByZWY9e3JlZn1cclxuICAgIGRhdGEtc2xvdD1cImRpYWxvZy10aXRsZVwiXHJcbiAgICBjbGFzc05hbWU9e2NuKFwidGV4dC1sZyBsZWFkaW5nLW5vbmUgZm9udC1zZW1pYm9sZFwiLCBjbGFzc05hbWUpfVxyXG4gICAgey4uLnByb3BzfVxyXG4gIC8+XHJcbikpXHJcbkRpYWxvZ1RpdGxlLmRpc3BsYXlOYW1lID0gXCJEaWFsb2dUaXRsZVwiXHJcblxyXG5jb25zdCBEaWFsb2dEZXNjcmlwdGlvbiA9IFJlYWN0LmZvcndhcmRSZWY8XHJcbiAgUmVhY3QuRWxlbWVudFJlZjx0eXBlb2YgRGlhbG9nUHJpbWl0aXZlLkRlc2NyaXB0aW9uPixcclxuICBSZWFjdC5Db21wb25lbnRQcm9wc1dpdGhvdXRSZWY8dHlwZW9mIERpYWxvZ1ByaW1pdGl2ZS5EZXNjcmlwdGlvbj5cclxuPigoeyBjbGFzc05hbWUsIC4uLnByb3BzIH0sIHJlZikgPT4gKFxyXG4gIDxEaWFsb2dQcmltaXRpdmUuRGVzY3JpcHRpb25cclxuICAgIHJlZj17cmVmfVxyXG4gICAgZGF0YS1zbG90PVwiZGlhbG9nLWRlc2NyaXB0aW9uXCJcclxuICAgIGNsYXNzTmFtZT17Y24oXCJ0ZXh0LW11dGVkLWZvcmVncm91bmQgdGV4dC1zbVwiLCBjbGFzc05hbWUpfVxyXG4gICAgey4uLnByb3BzfVxyXG4gIC8+XHJcbikpXHJcbkRpYWxvZ0Rlc2NyaXB0aW9uLmRpc3BsYXlOYW1lID0gXCJEaWFsb2dEZXNjcmlwdGlvblwiXHJcblxyXG5leHBvcnQge1xyXG4gIERpYWxvZyxcclxuICBEaWFsb2dDbG9zZSxcclxuICBEaWFsb2dDb250ZW50LFxyXG4gIERpYWxvZ0Rlc2NyaXB0aW9uLFxyXG4gIERpYWxvZ0Zvb3RlcixcclxuICBEaWFsb2dIZWFkZXIsXHJcbiAgRGlhbG9nT3ZlcmxheSxcclxuICBEaWFsb2dQb3J0YWwsXHJcbiAgRGlhbG9nVGl0bGUsXHJcbiAgRGlhbG9nVHJpZ2dlcixcclxufTtcclxuIl0sIm5hbWVzIjpbIlJlYWN0IiwiRGlhbG9nUHJpbWl0aXZlIiwiWEljb24iLCJjbiIsIkRpYWxvZyIsInByb3BzIiwiUm9vdCIsImRhdGEtc2xvdCIsIkRpYWxvZ1RyaWdnZXIiLCJmb3J3YXJkUmVmIiwicmVmIiwiVHJpZ2dlciIsImRpc3BsYXlOYW1lIiwiRGlhbG9nUG9ydGFsIiwiUG9ydGFsIiwiRGlhbG9nQ2xvc2UiLCJDbG9zZSIsIkRpYWxvZ092ZXJsYXkiLCJjbGFzc05hbWUiLCJPdmVybGF5IiwiRGlhbG9nQ29udGVudCIsImNoaWxkcmVuIiwiQ29udGVudCIsInNwYW4iLCJEaWFsb2dIZWFkZXIiLCJkaXYiLCJEaWFsb2dGb290ZXIiLCJEaWFsb2dUaXRsZSIsIlRpdGxlIiwiRGlhbG9nRGVzY3JpcHRpb24iLCJEZXNjcmlwdGlvbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUFBOztBQUVBLFlBQVlBLFdBQVcsUUFBUTtBQUMvQixZQUFZQyxxQkFBcUIseUJBQXlCO0FBQzFELFNBQVNDLEtBQUssUUFBUSxlQUFlO0FBRXJDLFNBQVNDLEVBQUUsUUFBUSxVQUFVO0FBRTdCLFNBQVNDLE9BQU8sRUFDZCxHQUFHQyxPQUMrQztJQUNsRCxxQkFBTyxRQUFDSixnQkFBZ0JLLElBQUk7UUFBQ0MsYUFBVTtRQUFVLEdBQUdGLEtBQUs7Ozs7OztBQUMzRDtLQUpTRDtBQU1ULE1BQU1JLDhCQUFnQlIsTUFBTVMsVUFBVSxPQUdwQyxDQUFDLEVBQUUsR0FBR0osT0FBTyxFQUFFSyxvQkFDZixRQUFDVCxnQkFBZ0JVLE9BQU87UUFBQ0QsS0FBS0E7UUFBS0gsYUFBVTtRQUFrQixHQUFHRixLQUFLOzs7Ozs7O0FBRXpFRyxjQUFjSSxXQUFXLEdBQUc7QUFFNUIsU0FBU0MsYUFBYSxFQUNwQixHQUFHUixPQUNpRDtJQUNwRCxxQkFBTyxRQUFDSixnQkFBZ0JhLE1BQU07UUFBQ1AsYUFBVTtRQUFpQixHQUFHRixLQUFLOzs7Ozs7QUFDcEU7TUFKU1E7QUFNVCxNQUFNRSw0QkFBY2YsTUFBTVMsVUFBVSxPQUdsQyxDQUFDLEVBQUUsR0FBR0osT0FBTyxFQUFFSyxvQkFDZixRQUFDVCxnQkFBZ0JlLEtBQUs7UUFBQ04sS0FBS0E7UUFBS0gsYUFBVTtRQUFnQixHQUFHRixLQUFLOzs7Ozs7O0FBRXJFVSxZQUFZSCxXQUFXLEdBQUc7QUFFMUIsTUFBTUssOEJBQWdCakIsTUFBTVMsVUFBVSxDQUdwQyxDQUFDLEVBQUVTLFNBQVMsRUFBRSxHQUFHYixPQUFPLEVBQUVLLG9CQUMxQixRQUFDVCxnQkFBZ0JrQixPQUFPO1FBQ3RCVCxLQUFLQTtRQUNMSCxhQUFVO1FBQ1ZXLFdBQVdmLEdBQ1QsMEpBQ0FlO1FBRUQsR0FBR2IsS0FBSzs7Ozs7O01BWFBZO0FBY05BLGNBQWNMLFdBQVcsR0FBRztBQUU1QixNQUFNUSw4QkFBZ0JwQixNQUFNUyxVQUFVLE9BR3BDLENBQUMsRUFBRVMsU0FBUyxFQUFFRyxRQUFRLEVBQUUsR0FBR2hCLE9BQU8sRUFBRUssb0JBQ3BDLFFBQUNHO1FBQWFOLGFBQVU7OzBCQUN0QixRQUFDVTs7Ozs7MEJBQ0QsUUFBQ2hCLGdCQUFnQnFCLE9BQU87Z0JBQ3RCWixLQUFLQTtnQkFDTEgsYUFBVTtnQkFDVlcsV0FBV2YsR0FDVCwrV0FDQWU7Z0JBRUQsR0FBR2IsS0FBSzs7b0JBRVJnQjtrQ0FDRCxRQUFDcEIsZ0JBQWdCZSxLQUFLO3dCQUFDRSxXQUFVOzswQ0FDL0IsUUFBQ2hCOzs7OzswQ0FDRCxRQUFDcUI7Z0NBQUtMLFdBQVU7MENBQVU7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFLbENFLGNBQWNSLFdBQVcsR0FBRztBQUU1QixTQUFTWSxhQUFhLEVBQUVOLFNBQVMsRUFBRSxHQUFHYixPQUFvQztJQUN4RSxxQkFDRSxRQUFDb0I7UUFDQ2xCLGFBQVU7UUFDVlcsV0FBV2YsR0FBRyxnREFBZ0RlO1FBQzdELEdBQUdiLEtBQUs7Ozs7OztBQUdmO01BUlNtQjtBQVVULFNBQVNFLGFBQWEsRUFBRVIsU0FBUyxFQUFFLEdBQUdiLE9BQW9DO0lBQ3hFLHFCQUNFLFFBQUNvQjtRQUNDbEIsYUFBVTtRQUNWVyxXQUFXZixHQUNULDBEQUNBZTtRQUVELEdBQUdiLEtBQUs7Ozs7OztBQUdmO09BWFNxQjtBQWFULE1BQU1DLDRCQUFjM0IsTUFBTVMsVUFBVSxRQUdsQyxDQUFDLEVBQUVTLFNBQVMsRUFBRSxHQUFHYixPQUFPLEVBQUVLLG9CQUMxQixRQUFDVCxnQkFBZ0IyQixLQUFLO1FBQ3BCbEIsS0FBS0E7UUFDTEgsYUFBVTtRQUNWVyxXQUFXZixHQUFHLHNDQUFzQ2U7UUFDbkQsR0FBR2IsS0FBSzs7Ozs7OztBQUdic0IsWUFBWWYsV0FBVyxHQUFHO0FBRTFCLE1BQU1pQixrQ0FBb0I3QixNQUFNUyxVQUFVLFFBR3hDLENBQUMsRUFBRVMsU0FBUyxFQUFFLEdBQUdiLE9BQU8sRUFBRUssb0JBQzFCLFFBQUNULGdCQUFnQjZCLFdBQVc7UUFDMUJwQixLQUFLQTtRQUNMSCxhQUFVO1FBQ1ZXLFdBQVdmLEdBQUcsaUNBQWlDZTtRQUM5QyxHQUFHYixLQUFLOzs7Ozs7O0FBR2J3QixrQkFBa0JqQixXQUFXLEdBQUc7QUFFaEMsU0FDRVIsTUFBTSxFQUNOVyxXQUFXLEVBQ1hLLGFBQWEsRUFDYlMsaUJBQWlCLEVBQ2pCSCxZQUFZLEVBQ1pGLFlBQVksRUFDWlAsYUFBYSxFQUNiSixZQUFZLEVBQ1pjLFdBQVcsRUFDWG5CLGFBQWEsR0FDYiJ9

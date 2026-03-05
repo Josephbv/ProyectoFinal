@@ -1,0 +1,241 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/PawIcon.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"];
+export function PawIcon({ className }) {
+    return /*#__PURE__*/ _jsxDEV("svg", {
+        viewBox: "0 0 32 32",
+        fill: "currentColor",
+        className: className,
+        xmlns: "http://www.w3.org/2000/svg",
+        children: [
+            /*#__PURE__*/ _jsxDEV("ellipse", {
+                cx: "16",
+                cy: "22",
+                rx: "6",
+                ry: "4.5",
+                fill: "currentColor",
+                opacity: "0.95"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 10,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("ellipse", {
+                cx: "16",
+                cy: "21.5",
+                rx: "4.5",
+                ry: "3",
+                fill: "currentColor",
+                opacity: "0.7"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 20,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("ellipse", {
+                cx: "8",
+                cy: "12",
+                rx: "2.8",
+                ry: "3.5",
+                fill: "currentColor",
+                transform: "rotate(-20 8 12)",
+                opacity: "0.9"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 30,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("ellipse", {
+                cx: "8.2",
+                cy: "11.5",
+                rx: "1.8",
+                ry: "2.2",
+                fill: "currentColor",
+                transform: "rotate(-20 8.2 11.5)",
+                opacity: "0.6"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 39,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("ellipse", {
+                cx: "12.5",
+                cy: "8",
+                rx: "2.8",
+                ry: "4",
+                fill: "currentColor",
+                transform: "rotate(-8 12.5 8)",
+                opacity: "0.9"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 50,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("ellipse", {
+                cx: "12.3",
+                cy: "7.5",
+                rx: "1.8",
+                ry: "2.5",
+                fill: "currentColor",
+                transform: "rotate(-8 12.3 7.5)",
+                opacity: "0.6"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 59,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("ellipse", {
+                cx: "19.5",
+                cy: "8",
+                rx: "2.8",
+                ry: "4",
+                fill: "currentColor",
+                transform: "rotate(8 19.5 8)",
+                opacity: "0.9"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 70,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("ellipse", {
+                cx: "19.7",
+                cy: "7.5",
+                rx: "1.8",
+                ry: "2.5",
+                fill: "currentColor",
+                transform: "rotate(8 19.7 7.5)",
+                opacity: "0.6"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 79,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("ellipse", {
+                cx: "24",
+                cy: "12",
+                rx: "2.8",
+                ry: "3.5",
+                fill: "currentColor",
+                transform: "rotate(20 24 12)",
+                opacity: "0.9"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 90,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("ellipse", {
+                cx: "23.8",
+                cy: "11.5",
+                rx: "1.8",
+                ry: "2.2",
+                fill: "currentColor",
+                transform: "rotate(20 23.8 11.5)",
+                opacity: "0.6"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 99,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("ellipse", {
+                cx: "16",
+                cy: "20",
+                rx: "2",
+                ry: "1",
+                fill: "currentColor",
+                opacity: "0.3"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 110,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("circle", {
+                cx: "8",
+                cy: "10.5",
+                r: "0.8",
+                fill: "currentColor",
+                opacity: "0.4"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 120,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("circle", {
+                cx: "12.5",
+                cy: "6.5",
+                r: "0.8",
+                fill: "currentColor",
+                opacity: "0.4"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 121,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("circle", {
+                cx: "19.5",
+                cy: "6.5",
+                r: "0.8",
+                fill: "currentColor",
+                opacity: "0.4"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 122,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("circle", {
+                cx: "24",
+                cy: "10.5",
+                r: "0.8",
+                fill: "currentColor",
+                opacity: "0.4"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+                lineNumber: 123,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx",
+        lineNumber: 3,
+        columnNumber: 5
+    }, this);
+}
+_c = PawIcon;
+var _c;
+$RefreshReg$(_c, "PawIcon");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/PawIcon.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIlBhd0ljb24udHN4Il0sInNvdXJjZXNDb250ZW50IjpbImV4cG9ydCBmdW5jdGlvbiBQYXdJY29uKHsgY2xhc3NOYW1lIH06IHsgY2xhc3NOYW1lPzogc3RyaW5nIH0pIHtcclxuICByZXR1cm4gKFxyXG4gICAgPHN2ZyBcclxuICAgICAgdmlld0JveD1cIjAgMCAzMiAzMlwiIFxyXG4gICAgICBmaWxsPVwiY3VycmVudENvbG9yXCIgXHJcbiAgICAgIGNsYXNzTmFtZT17Y2xhc3NOYW1lfVxyXG4gICAgICB4bWxucz1cImh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnXCJcclxuICAgID5cclxuICAgICAgey8qIEFsbW9oYWRpbGxhIHByaW5jaXBhbCAocGFkIGNlbnRyYWwpIC0gbcOhcyBncmFuZGUgeSBhbXBsaWEgKi99XHJcbiAgICAgIDxlbGxpcHNlIFxyXG4gICAgICAgIGN4PVwiMTZcIiBcclxuICAgICAgICBjeT1cIjIyXCIgXHJcbiAgICAgICAgcng9XCI2XCIgXHJcbiAgICAgICAgcnk9XCI0LjVcIiBcclxuICAgICAgICBmaWxsPVwiY3VycmVudENvbG9yXCJcclxuICAgICAgICBvcGFjaXR5PVwiMC45NVwiXHJcbiAgICAgIC8+XHJcbiAgICAgIFxyXG4gICAgICB7LyogQWxtb2hhZGlsbGEgc2VjdW5kYXJpYSBwYXJhIGRhciBwcm9mdW5kaWRhZCAqL31cclxuICAgICAgPGVsbGlwc2UgXHJcbiAgICAgICAgY3g9XCIxNlwiIFxyXG4gICAgICAgIGN5PVwiMjEuNVwiIFxyXG4gICAgICAgIHJ4PVwiNC41XCIgXHJcbiAgICAgICAgcnk9XCIzXCIgXHJcbiAgICAgICAgZmlsbD1cImN1cnJlbnRDb2xvclwiXHJcbiAgICAgICAgb3BhY2l0eT1cIjAuN1wiXHJcbiAgICAgIC8+XHJcbiAgICAgIFxyXG4gICAgICB7LyogRGVkbyAxIC0gZXh0cmVtbyBpenF1aWVyZG8gKi99XHJcbiAgICAgIDxlbGxpcHNlIFxyXG4gICAgICAgIGN4PVwiOFwiIFxyXG4gICAgICAgIGN5PVwiMTJcIiBcclxuICAgICAgICByeD1cIjIuOFwiIFxyXG4gICAgICAgIHJ5PVwiMy41XCIgXHJcbiAgICAgICAgZmlsbD1cImN1cnJlbnRDb2xvclwiXHJcbiAgICAgICAgdHJhbnNmb3JtPVwicm90YXRlKC0yMCA4IDEyKVwiXHJcbiAgICAgICAgb3BhY2l0eT1cIjAuOVwiXHJcbiAgICAgIC8+XHJcbiAgICAgIDxlbGxpcHNlIFxyXG4gICAgICAgIGN4PVwiOC4yXCIgXHJcbiAgICAgICAgY3k9XCIxMS41XCIgXHJcbiAgICAgICAgcng9XCIxLjhcIiBcclxuICAgICAgICByeT1cIjIuMlwiIFxyXG4gICAgICAgIGZpbGw9XCJjdXJyZW50Q29sb3JcIlxyXG4gICAgICAgIHRyYW5zZm9ybT1cInJvdGF0ZSgtMjAgOC4yIDExLjUpXCJcclxuICAgICAgICBvcGFjaXR5PVwiMC42XCJcclxuICAgICAgLz5cclxuICAgICAgXHJcbiAgICAgIHsvKiBEZWRvIDIgLSBjZW50cm8gaXpxdWllcmRhICovfVxyXG4gICAgICA8ZWxsaXBzZSBcclxuICAgICAgICBjeD1cIjEyLjVcIiBcclxuICAgICAgICBjeT1cIjhcIiBcclxuICAgICAgICByeD1cIjIuOFwiIFxyXG4gICAgICAgIHJ5PVwiNFwiIFxyXG4gICAgICAgIGZpbGw9XCJjdXJyZW50Q29sb3JcIlxyXG4gICAgICAgIHRyYW5zZm9ybT1cInJvdGF0ZSgtOCAxMi41IDgpXCJcclxuICAgICAgICBvcGFjaXR5PVwiMC45XCJcclxuICAgICAgLz5cclxuICAgICAgPGVsbGlwc2UgXHJcbiAgICAgICAgY3g9XCIxMi4zXCIgXHJcbiAgICAgICAgY3k9XCI3LjVcIiBcclxuICAgICAgICByeD1cIjEuOFwiIFxyXG4gICAgICAgIHJ5PVwiMi41XCIgXHJcbiAgICAgICAgZmlsbD1cImN1cnJlbnRDb2xvclwiXHJcbiAgICAgICAgdHJhbnNmb3JtPVwicm90YXRlKC04IDEyLjMgNy41KVwiXHJcbiAgICAgICAgb3BhY2l0eT1cIjAuNlwiXHJcbiAgICAgIC8+XHJcbiAgICAgIFxyXG4gICAgICB7LyogRGVkbyAzIC0gY2VudHJvIGRlcmVjaGEgKi99XHJcbiAgICAgIDxlbGxpcHNlIFxyXG4gICAgICAgIGN4PVwiMTkuNVwiIFxyXG4gICAgICAgIGN5PVwiOFwiIFxyXG4gICAgICAgIHJ4PVwiMi44XCIgXHJcbiAgICAgICAgcnk9XCI0XCIgXHJcbiAgICAgICAgZmlsbD1cImN1cnJlbnRDb2xvclwiXHJcbiAgICAgICAgdHJhbnNmb3JtPVwicm90YXRlKDggMTkuNSA4KVwiXHJcbiAgICAgICAgb3BhY2l0eT1cIjAuOVwiXHJcbiAgICAgIC8+XHJcbiAgICAgIDxlbGxpcHNlIFxyXG4gICAgICAgIGN4PVwiMTkuN1wiIFxyXG4gICAgICAgIGN5PVwiNy41XCIgXHJcbiAgICAgICAgcng9XCIxLjhcIiBcclxuICAgICAgICByeT1cIjIuNVwiIFxyXG4gICAgICAgIGZpbGw9XCJjdXJyZW50Q29sb3JcIlxyXG4gICAgICAgIHRyYW5zZm9ybT1cInJvdGF0ZSg4IDE5LjcgNy41KVwiXHJcbiAgICAgICAgb3BhY2l0eT1cIjAuNlwiXHJcbiAgICAgIC8+XHJcbiAgICAgIFxyXG4gICAgICB7LyogRGVkbyA0IC0gZXh0cmVtbyBkZXJlY2hvICovfVxyXG4gICAgICA8ZWxsaXBzZSBcclxuICAgICAgICBjeD1cIjI0XCIgXHJcbiAgICAgICAgY3k9XCIxMlwiIFxyXG4gICAgICAgIHJ4PVwiMi44XCIgXHJcbiAgICAgICAgcnk9XCIzLjVcIiBcclxuICAgICAgICBmaWxsPVwiY3VycmVudENvbG9yXCJcclxuICAgICAgICB0cmFuc2Zvcm09XCJyb3RhdGUoMjAgMjQgMTIpXCJcclxuICAgICAgICBvcGFjaXR5PVwiMC45XCJcclxuICAgICAgLz5cclxuICAgICAgPGVsbGlwc2UgXHJcbiAgICAgICAgY3g9XCIyMy44XCIgXHJcbiAgICAgICAgY3k9XCIxMS41XCIgXHJcbiAgICAgICAgcng9XCIxLjhcIiBcclxuICAgICAgICByeT1cIjIuMlwiIFxyXG4gICAgICAgIGZpbGw9XCJjdXJyZW50Q29sb3JcIlxyXG4gICAgICAgIHRyYW5zZm9ybT1cInJvdGF0ZSgyMCAyMy44IDExLjUpXCJcclxuICAgICAgICBvcGFjaXR5PVwiMC42XCJcclxuICAgICAgLz5cclxuICAgICAgXHJcbiAgICAgIHsvKiBEZXRhbGxlcyBhZGljaW9uYWxlcyBwYXJhIHRleHR1cmEgKi99XHJcbiAgICAgIDxlbGxpcHNlIFxyXG4gICAgICAgIGN4PVwiMTZcIiBcclxuICAgICAgICBjeT1cIjIwXCIgXHJcbiAgICAgICAgcng9XCIyXCIgXHJcbiAgICAgICAgcnk9XCIxXCIgXHJcbiAgICAgICAgZmlsbD1cImN1cnJlbnRDb2xvclwiXHJcbiAgICAgICAgb3BhY2l0eT1cIjAuM1wiXHJcbiAgICAgIC8+XHJcbiAgICAgIFxyXG4gICAgICB7LyogUGVxdWXDsW9zIGRldGFsbGVzIGVuIGNhZGEgZGVkbyAqL31cclxuICAgICAgPGNpcmNsZSBjeD1cIjhcIiBjeT1cIjEwLjVcIiByPVwiMC44XCIgZmlsbD1cImN1cnJlbnRDb2xvclwiIG9wYWNpdHk9XCIwLjRcIiAvPlxyXG4gICAgICA8Y2lyY2xlIGN4PVwiMTIuNVwiIGN5PVwiNi41XCIgcj1cIjAuOFwiIGZpbGw9XCJjdXJyZW50Q29sb3JcIiBvcGFjaXR5PVwiMC40XCIgLz5cclxuICAgICAgPGNpcmNsZSBjeD1cIjE5LjVcIiBjeT1cIjYuNVwiIHI9XCIwLjhcIiBmaWxsPVwiY3VycmVudENvbG9yXCIgb3BhY2l0eT1cIjAuNFwiIC8+XHJcbiAgICAgIDxjaXJjbGUgY3g9XCIyNFwiIGN5PVwiMTAuNVwiIHI9XCIwLjhcIiBmaWxsPVwiY3VycmVudENvbG9yXCIgb3BhY2l0eT1cIjAuNFwiIC8+XHJcbiAgICA8L3N2Zz5cclxuICApO1xyXG59XHJcbiJdLCJuYW1lcyI6WyJQYXdJY29uIiwiY2xhc3NOYW1lIiwic3ZnIiwidmlld0JveCIsImZpbGwiLCJ4bWxucyIsImVsbGlwc2UiLCJjeCIsImN5Iiwi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

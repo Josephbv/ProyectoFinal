@@ -1,0 +1,322 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/CitasHoy.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import { Calendar, Clock } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+import { useAgendamiento } from "/src/components/hooks/useAgendamiento.tsx";
+import __vite__cjsImport5_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useMemo = __vite__cjsImport5_react["useMemo"];
+export function CitasHoy({ onVerCalendario }) {
+    _s();
+    const { citas, loading } = useAgendamiento();
+    const hoy = useMemo(()=>new Date().toISOString().split('T')[0], []);
+    // Filtrar citas de hoy directamente del array de citas
+    const citasHoy = useMemo(()=>citas.filter((c)=>c.fecha && c.fecha.startsWith(hoy)), [
+        citas,
+        hoy
+    ]);
+    if (loading && citas.length === 0) {
+        return /*#__PURE__*/ _jsxDEV("div", {
+            className: "dark-card flex items-center justify-center py-12",
+            children: /*#__PURE__*/ _jsxDEV("div", {
+                className: "animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                lineNumber: 23,
+                columnNumber: 9
+            }, this)
+        }, void 0, false, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+            lineNumber: 22,
+            columnNumber: 7
+        }, this);
+    }
+    return /*#__PURE__*/ _jsxDEV("div", {
+        className: "dark-card",
+        children: [
+            /*#__PURE__*/ _jsxDEV("div", {
+                className: "flex items-center justify-between pb-6",
+                children: [
+                    /*#__PURE__*/ _jsxDEV("div", {
+                        children: [
+                            /*#__PURE__*/ _jsxDEV("h3", {
+                                className: "text-xl font-bold text-dark-primary mb-2 flex items-center gap-2",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV(Calendar, {
+                                        className: "w-5 h-5 text-blue-400"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                        lineNumber: 33,
+                                        columnNumber: 13
+                                    }, this),
+                                    "Citas de Hoy"
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                lineNumber: 32,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ _jsxDEV("p", {
+                                className: "text-dark-secondary font-medium",
+                                children: [
+                                    "Agenda del día — ",
+                                    citasHoy.length,
+                                    " citas programadas"
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                lineNumber: 36,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                        lineNumber: 31,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ _jsxDEV("button", {
+                        className: "dark-button-secondary",
+                        onClick: onVerCalendario,
+                        children: "Ver Calendario"
+                    }, void 0, false, {
+                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                        lineNumber: 38,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                lineNumber: 30,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("div", {
+                className: "space-y-4 max-h-[400px] overflow-y-auto pr-2",
+                children: citasHoy.length > 0 ? citasHoy.map((cita)=>/*#__PURE__*/ _jsxDEV("div", {
+                        className: "flex items-start space-x-4 p-4 rounded-xl bg-dark-hover border border-dark-color hover:bg-dark-table-hover transition-colors",
+                        children: [
+                            /*#__PURE__*/ _jsxDEV("div", {
+                                className: "text-center min-w-[60px]",
+                                children: /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "text-lg font-bold text-dark-primary flex items-center gap-1",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Clock, {
+                                            className: "w-4 h-4 text-blue-400"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                            lineNumber: 49,
+                                            columnNumber: 19
+                                        }, this),
+                                        (cita.hora || '').substring(0, 5)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                    lineNumber: 48,
+                                    columnNumber: 17
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                lineNumber: 47,
+                                columnNumber: 15
+                            }, this),
+                            /*#__PURE__*/ _jsxDEV("div", {
+                                className: "flex-1 min-w-0",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV("h4", {
+                                        className: "font-semibold text-dark-primary truncate mb-1",
+                                        children: cita.cliente?.nombre || 'Cliente desconocido'
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                        lineNumber: 55,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("p", {
+                                        className: "text-sm text-dark-secondary",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV("strong", {
+                                                children: "Empleado:"
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                                lineNumber: 59,
+                                                columnNumber: 19
+                                            }, this),
+                                            " ",
+                                            cita.empleado?.nombre || 'Sin asignar'
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                        lineNumber: 58,
+                                        columnNumber: 17
+                                    }, this),
+                                    cita.agendamiento_servicios && cita.agendamiento_servicios.length > 0 && /*#__PURE__*/ _jsxDEV("p", {
+                                        className: "text-sm text-dark-secondary",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV("strong", {
+                                                children: "Servicios:"
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                                lineNumber: 63,
+                                                columnNumber: 21
+                                            }, this),
+                                            " ",
+                                            cita.agendamiento_servicios.length
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                        lineNumber: 62,
+                                        columnNumber: 19
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                lineNumber: 54,
+                                columnNumber: 15
+                            }, this)
+                        ]
+                    }, cita.id_agendamiento, true, {
+                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                        lineNumber: 46,
+                        columnNumber: 13
+                    }, this)) : /*#__PURE__*/ _jsxDEV("div", {
+                    className: "text-center py-12 border-2 border-dashed border-dark-color rounded-xl",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV(Calendar, {
+                            className: "w-12 h-12 text-dark-secondary mx-auto mb-4 opacity-30"
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                            lineNumber: 71,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("p", {
+                            className: "text-dark-secondary",
+                            children: "No hay citas programadas para hoy"
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                            lineNumber: 72,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                    lineNumber: 70,
+                    columnNumber: 11
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                lineNumber: 43,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("div", {
+                className: "mt-6 pt-4 border-t border-dark-color",
+                children: /*#__PURE__*/ _jsxDEV("div", {
+                    className: "grid grid-cols-2 gap-4 text-center",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "text-lg font-bold text-blue-400",
+                                    children: citasHoy.length
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                    lineNumber: 80,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "text-xs text-dark-secondary",
+                                    children: "Citas hoy"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                    lineNumber: 81,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                            lineNumber: 79,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "text-lg font-bold text-emerald-400",
+                                    children: citas.length
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                    lineNumber: 84,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "text-xs text-dark-secondary",
+                                    children: "Total registradas"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                                    lineNumber: 85,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                            lineNumber: 83,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                    lineNumber: 78,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+                lineNumber: 77,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx",
+        lineNumber: 29,
+        columnNumber: 5
+    }, this);
+}
+_s(CitasHoy, "pRCH2nfYQfOAHNJ8phSW5srAXPg=", false, function() {
+    return [
+        useAgendamiento
+    ];
+});
+_c = CitasHoy;
+var _c;
+$RefreshReg$(_c, "CitasHoy");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/CitasHoy.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIkNpdGFzSG95LnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBDYWxlbmRhciwgQ2xvY2sgfSBmcm9tIFwibHVjaWRlLXJlYWN0XCI7XHJcbmltcG9ydCB7IHVzZUFnZW5kYW1pZW50byB9IGZyb20gXCIuL2hvb2tzL3VzZUFnZW5kYW1pZW50b1wiO1xyXG5pbXBvcnQgeyB1c2VNZW1vIH0gZnJvbSBcInJlYWN0XCI7XHJcblxyXG5pbnRlcmZhY2UgQ2l0YXNIb3lQcm9wcyB7XHJcbiAgb25WZXJDYWxlbmRhcmlvPzogKCkgPT4gdm9pZDtcclxufVxyXG5cclxuZXhwb3J0IGZ1bmN0aW9uIENpdGFzSG95KHsgb25WZXJDYWxlbmRhcmlvIH06IENpdGFzSG95UHJvcHMpIHtcclxuICBjb25zdCB7IGNpdGFzLCBsb2FkaW5nIH0gPSB1c2VBZ2VuZGFtaWVudG8oKTtcclxuXHJcbiAgY29uc3QgaG95ID0gdXNlTWVtbygoKSA9PiBuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCkuc3BsaXQoJ1QnKVswXSwgW10pO1xyXG5cclxuICAvLyBGaWx0cmFyIGNpdGFzIGRlIGhveSBkaXJlY3RhbWVudGUgZGVsIGFycmF5IGRlIGNpdGFzXHJcbiAgY29uc3QgY2l0YXNIb3kgPSB1c2VNZW1vKCgpID0+XHJcbiAgICBjaXRhcy5maWx0ZXIoYyA9PiBjLmZlY2hhICYmIGMuZmVjaGEuc3RhcnRzV2l0aChob3kpKSxcclxuICAgIFtjaXRhcywgaG95XVxyXG4gICk7XHJcblxyXG4gIGlmIChsb2FkaW5nICYmIGNpdGFzLmxlbmd0aCA9PT0gMCkge1xyXG4gICAgcmV0dXJuIChcclxuICAgICAgPGRpdiBjbGFzc05hbWU9XCJkYXJrLWNhcmQgZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXIgcHktMTJcIj5cclxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImFuaW1hdGUtc3BpbiByb3VuZGVkLWZ1bGwgaC04IHctOCBib3JkZXItYi0yIGJvcmRlci1ibHVlLTUwMFwiPjwvZGl2PlxyXG4gICAgICA8L2Rpdj5cclxuICAgICk7XHJcbiAgfVxyXG5cclxuICByZXR1cm4gKFxyXG4gICAgPGRpdiBjbGFzc05hbWU9XCJkYXJrLWNhcmRcIj5cclxuICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWJldHdlZW4gcGItNlwiPlxyXG4gICAgICAgIDxkaXY+XHJcbiAgICAgICAgICA8aDMgY2xhc3NOYW1lPVwidGV4dC14bCBmb250LWJvbGQgdGV4dC1kYXJrLXByaW1hcnkgbWItMiBmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICA8Q2FsZW5kYXIgY2xhc3NOYW1lPVwidy01IGgtNSB0ZXh0LWJsdWUtNDAwXCIgLz5cclxuICAgICAgICAgICAgQ2l0YXMgZGUgSG95XHJcbiAgICAgICAgICA8L2gzPlxyXG4gICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXNlY29uZGFyeSBmb250LW1lZGl1bVwiPkFnZW5kYSBkZWwgZMOtYSDigJQge2NpdGFzSG95Lmxlbmd0aH0gY2l0YXMgcHJvZ3JhbWFkYXM8L3A+XHJcbiAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgPGJ1dHRvbiBjbGFzc05hbWU9XCJkYXJrLWJ1dHRvbi1zZWNvbmRhcnlcIiBvbkNsaWNrPXtvblZlckNhbGVuZGFyaW99PlxyXG4gICAgICAgICAgVmVyIENhbGVuZGFyaW9cclxuICAgICAgICA8L2J1dHRvbj5cclxuICAgICAgPC9kaXY+XHJcblxyXG4gICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktNCBtYXgtaC1bNDAwcHhdIG92ZXJmbG93LXktYXV0byBwci0yXCI+XHJcbiAgICAgICAge2NpdGFzSG95Lmxlbmd0aCA+IDAgPyAoXHJcbiAgICAgICAgICBjaXRhc0hveS5tYXAoKGNpdGEpID0+IChcclxuICAgICAgICAgICAgPGRpdiBrZXk9e2NpdGEuaWRfYWdlbmRhbWllbnRvfSBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLXN0YXJ0IHNwYWNlLXgtNCBwLTQgcm91bmRlZC14bCBiZy1kYXJrLWhvdmVyIGJvcmRlciBib3JkZXItZGFyay1jb2xvciBob3ZlcjpiZy1kYXJrLXRhYmxlLWhvdmVyIHRyYW5zaXRpb24tY29sb3JzXCI+XHJcbiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ0ZXh0LWNlbnRlciBtaW4tdy1bNjBweF1cIj5cclxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidGV4dC1sZyBmb250LWJvbGQgdGV4dC1kYXJrLXByaW1hcnkgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTFcIj5cclxuICAgICAgICAgICAgICAgICAgPENsb2NrIGNsYXNzTmFtZT1cInctNCBoLTQgdGV4dC1ibHVlLTQwMFwiIC8+XHJcbiAgICAgICAgICAgICAgICAgIHsoY2l0YS5ob3JhIHx8ICcnKS5zdWJzdHJpbmcoMCwgNSl9XHJcbiAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4LTEgbWluLXctMFwiPlxyXG4gICAgICAgICAgICAgICAgPGg0IGNsYXNzTmFtZT1cImZvbnQtc2VtaWJvbGQgdGV4dC1kYXJrLXByaW1hcnkgdHJ1bmNhdGUgbWItMVwiPlxyXG4gICAgICAgICAgICAgICAgICB7Y2l0YS5jbGllbnRlPy5ub21icmUgfHwgJ0NsaWVudGUgZGVzY29ub2NpZG8nfVxyXG4gICAgICAgICAgICAgICAgPC9oND5cclxuICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXNlY29uZGFyeVwiPlxyXG4gICAgICAgICAgICAgICAgICA8c3Ryb25nPkVtcGxlYWRvOjwvc3Ryb25nPiB7Y2l0YS5lbXBsZWFkbz8ubm9tYnJlIHx8ICdTaW4gYXNpZ25hcid9XHJcbiAgICAgICAgICAgICAgICA8L3A+XHJcbiAgICAgICAgICAgICAgICB7Y2l0YS5hZ2VuZGFtaWVudG9fc2VydmljaW9zICYmIGNpdGEuYWdlbmRhbWllbnRvX3NlcnZpY2lvcy5sZW5ndGggPiAwICYmIChcclxuICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1zbSB0ZXh0LWRhcmstc2Vjb25kYXJ5XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgPHN0cm9uZz5TZXJ2aWNpb3M6PC9zdHJvbmc+IHtjaXRhLmFnZW5kYW1pZW50b19zZXJ2aWNpb3MubGVuZ3RofVxyXG4gICAgICAgICAgICAgICAgICA8L3A+XHJcbiAgICAgICAgICAgICAgICApfVxyXG4gICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICkpXHJcbiAgICAgICAgKSA6IChcclxuICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidGV4dC1jZW50ZXIgcHktMTIgYm9yZGVyLTIgYm9yZGVyLWRhc2hlZCBib3JkZXItZGFyay1jb2xvciByb3VuZGVkLXhsXCI+XHJcbiAgICAgICAgICAgIDxDYWxlbmRhciBjbGFzc05hbWU9XCJ3LTEyIGgtMTIgdGV4dC1kYXJrLXNlY29uZGFyeSBteC1hdXRvIG1iLTQgb3BhY2l0eS0zMFwiIC8+XHJcbiAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtZGFyay1zZWNvbmRhcnlcIj5ObyBoYXkgY2l0YXMgcHJvZ3JhbWFkYXMgcGFyYSBob3k8L3A+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICApfVxyXG4gICAgICA8L2Rpdj5cclxuXHJcbiAgICAgIDxkaXYgY2xhc3NOYW1lPVwibXQtNiBwdC00IGJvcmRlci10IGJvcmRlci1kYXJrLWNvbG9yXCI+XHJcbiAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJncmlkIGdyaWQtY29scy0yIGdhcC00IHRleHQtY2VudGVyXCI+XHJcbiAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInRleHQtbGcgZm9udC1ib2xkIHRleHQtYmx1ZS00MDBcIj57Y2l0YXNIb3kubGVuZ3RofTwvZGl2PlxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInRleHQteHMgdGV4dC1kYXJrLXNlY29uZGFyeVwiPkNpdGFzIGhveTwvZGl2PlxyXG4gICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInRleHQtbGcgZm9udC1ib2xkIHRleHQtZW1lcmFsZC00MDBcIj57Y2l0YXMubGVuZ3RofTwvZGl2PlxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInRleHQteHMgdGV4dC1kYXJrLXNlY29uZGFyeVwiPlRvdGFsIHJlZ2lzdHJhZGFzPC9kaXY+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICA8L2Rpdj5cclxuICAgICAgPC9kaXY+XHJcbiAgICA8L2Rpdj5cclxuICApO1xyXG59XHJcbiJdLCJuYW1lcyI6WyJDYWxlbmRhciIsIkNsb2NrIiwidXNlQWdlbmRhbWllbnRvIiwidXNlTWVtbyIsIkNpdGFzSG95Iiwib25WZXJDYWxlbmRhcmlvIiwiY2l0YXMiLCJsb2FkaW5nIiwiaG95IiwiRGF0ZSIsInRvSVNPU3RyaW5nIiwic3BsaXQiLCJjaXRhc0hveSIsImZpbHRlciIsImMiLCJmZWNoYSIsInN0YXJ0c1dpdGgiLCJsZW5ndGgiLCJkaXYiLCJjbGFzc05hbWUiLCJoMyIsInAiLCJidXR0b24iLCJvbkNsaWNrIiwibWFwIiwiY2l0YSIsImhvcmEiLCJzdWJzdHJpbmciLCJoNCIsImNsaWVudGUiLCJub21icmUiLCJzdHJvbmciLCJlbXBsZWFkbyIsImFnZW5kYW1pZW50b19zZXJ2aWNpb3MiLCJpZF9hZ2VuZGFtaWVudG8iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUFBLFNBQVNBLFFBQVEsRUFBRUMsS0FBSyxRQUFRLGVBQWU7QUFDL0MsU0FBU0MsZUFBZSxRQUFRLDBCQUEwQjtBQUMxRCxTQUFTQyxPQUFPLFFBQVEsUUFBUTtBQU1oQyxP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

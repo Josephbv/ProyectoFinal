@@ -1,0 +1,1124 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/pages/RolesPage.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"]; const _Fragment = __vite__cjsImport2_react_jsxDevRuntime["Fragment"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"];
+import { Button } from "/src/components/ui/button.tsx?t=1772223881528";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "/src/components/ui/table.tsx";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "/src/components/ui/alert-dialog.tsx?t=1772223881329";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "/src/components/ui/dialog.tsx?t=1772223881594";
+import { toast } from "/node_modules/.vite/deps/sonner.js?v=04e61ac6";
+import { Shield, Plus, Search, Users, Eye, Edit, Trash2, Lock, CheckCircle } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+import { Switch } from "/src/components/ui/switch.tsx?t=1772223881771";
+import { RolModal } from "/src/components/modals/RolModal.tsx?t=1772223881771";
+import { useRoles } from "/src/components/hooks/useRoles.tsx";
+export function RolesPage() {
+    _s();
+    const { roles, loading, crearRol, actualizarRol, eliminarRol, toggleActivoRol } = useRoles();
+    const [busqueda, setBusqueda] = useState("");
+    const [rolModal, setRolModal] = useState({
+        isOpen: false,
+        rol: null
+    });
+    const [deleteDialog, setDeleteDialog] = useState({
+        isOpen: false,
+        rol: null
+    });
+    const [detallesDialog, setDetallesDialog] = useState({
+        isOpen: false,
+        rol: null
+    });
+    const rolesFiltrados = roles.filter((rol)=>rol.nombre.toLowerCase().includes(busqueda.toLowerCase()));
+    const handleCrearRol = async (rolData)=>{
+        const resultado = await crearRol({
+            nombre: rolData.nombre,
+            modulos: rolData.modulos || [],
+            activo: rolData.activo || true
+        });
+        if (resultado.success) {
+            toast.success("Rol creado exitosamente");
+            cerrarRolModal();
+        } else {
+            toast.error(resultado.error || "Error al crear rol");
+        }
+        return resultado;
+    };
+    const handleActualizarRol = async (rolData)=>{
+        if (!rolModal.rol) return {
+            success: false
+        };
+        const resultado = await actualizarRol(rolModal.rol.id, {
+            nombre: rolData.nombre,
+            modulos: rolData.modulos || [],
+            activo: rolData.activo
+        });
+        if (resultado.success) {
+            toast.success("Rol actualizado exitosamente");
+            cerrarRolModal();
+        } else {
+            toast.error(resultado.error || "Error al actualizar rol");
+        }
+        return resultado;
+    };
+    const handleEliminarRol = async ()=>{
+        if (!deleteDialog.rol) return;
+        const resultado = await eliminarRol(deleteDialog.rol.id);
+        if (resultado.success) {
+            toast.success("Rol eliminado exitosamente");
+        } else {
+            toast.error(resultado.error || "Error al eliminar rol");
+        }
+        setDeleteDialog({
+            isOpen: false,
+            rol: null
+        });
+    };
+    const handleToggleActivo = async (rol)=>{
+        const resultado = await toggleActivoRol(rol.id);
+        if (resultado.success) {
+            toast.success(`Rol ${rol.activo ? 'desactivado' : 'activado'} exitosamente`);
+        } else {
+            toast.error(resultado.error || "Error al cambiar estado del rol");
+        }
+    };
+    const abrirRolModal = (rol)=>{
+        setRolModal({
+            isOpen: true,
+            rol: rol || null
+        });
+    };
+    const cerrarRolModal = ()=>{
+        setRolModal({
+            isOpen: false,
+            rol: null
+        });
+    };
+    const rolesActivos = roles.filter((r)=>r.activo);
+    const totalModulos = roles.reduce((acc, r)=>acc + (r.modulos?.length || 0), 0);
+    const getColorForRole = (roleName)=>{
+        const colors = {
+            'Administrador': 'bg-red-600',
+            'Cliente': 'bg-blue-600',
+            'Asistente': 'bg-green-600'
+        };
+        return colors[roleName] || 'bg-gray-600';
+    };
+    return /*#__PURE__*/ _jsxDEV(_Fragment, {
+        children: [
+            /*#__PURE__*/ _jsxDEV("header", {
+                className: "bg-dark-bg border-b border-dark-color px-8 py-6",
+                children: /*#__PURE__*/ _jsxDEV("div", {
+                    className: "flex items-center justify-between",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("h1", {
+                                    className: "text-2xl font-semibold text-dark-primary",
+                                    children: "Gestión de Roles"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 108,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("p", {
+                                    className: "text-sm text-dark-secondary mt-1",
+                                    children: "Administra roles y permisos del sistema KaiVet Manager"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 109,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                            lineNumber: 107,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "flex items-center space-x-3",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "relative",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Search, {
+                                            className: "w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                            lineNumber: 113,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("input", {
+                                            type: "text",
+                                            placeholder: "Buscar roles...",
+                                            value: busqueda,
+                                            onChange: (e)=>setBusqueda(e.target.value),
+                                            className: "pl-10 pr-4 py-2 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                            lineNumber: 114,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 112,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("button", {
+                                    onClick: ()=>abrirRolModal(),
+                                    className: "dark-button-primary gap-2 flex items-center",
+                                    disabled: loading,
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Plus, {
+                                            className: "w-4 h-4"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                            lineNumber: 128,
+                                            columnNumber: 15
+                                        }, this),
+                                        "Nuevo Rol"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 123,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                            lineNumber: 111,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                    lineNumber: 106,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                lineNumber: 105,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("main", {
+                className: "flex-1 overflow-auto p-4 bg-dark-bg space-y-6",
+                children: [
+                    /*#__PURE__*/ _jsxDEV("div", {
+                        className: "grid grid-cols-1 md:grid-cols-3 gap-4",
+                        children: [
+                            /*#__PURE__*/ _jsxDEV("div", {
+                                className: "dark-card",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV("div", {
+                                        className: "flex items-center gap-3 mb-4",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                className: "w-12 h-12 bg-red-600 rounded-full flex items-center justify-center",
+                                                children: /*#__PURE__*/ _jsxDEV(Shield, {
+                                                    className: "w-6 h-6 text-white"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 141,
+                                                    columnNumber: 17
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                lineNumber: 140,
+                                                columnNumber: 15
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV("h4", {
+                                                        className: "font-semibold text-dark-primary",
+                                                        children: "Administrador"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                        lineNumber: 144,
+                                                        columnNumber: 17
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV("p", {
+                                                        className: "text-sm text-dark-secondary",
+                                                        children: "Control total"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                        lineNumber: 145,
+                                                        columnNumber: 17
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                lineNumber: 143,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                        lineNumber: 139,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("p", {
+                                        className: "text-sm text-dark-secondary",
+                                        children: "Acceso completo a todas las funcionalidades del sistema KaiVet Manager. Puede gestionar usuarios, configuraciones y generar reportes."
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                        lineNumber: 148,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                lineNumber: 138,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ _jsxDEV("div", {
+                                className: "dark-card",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV("div", {
+                                        className: "flex items-center gap-3 mb-4",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                className: "w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center",
+                                                children: /*#__PURE__*/ _jsxDEV(Users, {
+                                                    className: "w-6 h-6 text-white"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 157,
+                                                    columnNumber: 17
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                lineNumber: 156,
+                                                columnNumber: 15
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV("h4", {
+                                                        className: "font-semibold text-dark-primary",
+                                                        children: "Cliente"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                        lineNumber: 160,
+                                                        columnNumber: 17
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV("p", {
+                                                        className: "text-sm text-dark-secondary",
+                                                        children: "Acceso limitado"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                        lineNumber: 161,
+                                                        columnNumber: 17
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                lineNumber: 159,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                        lineNumber: 155,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("p", {
+                                        className: "text-sm text-dark-secondary",
+                                        children: "Permite a los clientes consultar el historial de sus mascotas y agendar citas de manera autónoma."
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                        lineNumber: 164,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                lineNumber: 154,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ _jsxDEV("div", {
+                                className: "dark-card",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV("div", {
+                                        className: "flex items-center gap-3 mb-4",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                className: "w-12 h-12 bg-green-600 rounded-full flex items-center justify-center",
+                                                children: /*#__PURE__*/ _jsxDEV(Users, {
+                                                    className: "w-6 h-6 text-white"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 173,
+                                                    columnNumber: 17
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                lineNumber: 172,
+                                                columnNumber: 15
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV("h4", {
+                                                        className: "font-semibold text-dark-primary",
+                                                        children: "Asistente"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                        lineNumber: 176,
+                                                        columnNumber: 17
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV("p", {
+                                                        className: "text-sm text-dark-secondary",
+                                                        children: "Operaciones diarias"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                        lineNumber: 177,
+                                                        columnNumber: 17
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                lineNumber: 175,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                        lineNumber: 171,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("p", {
+                                        className: "text-sm text-dark-secondary",
+                                        children: "Rol para personal de apoyo con acceso a operaciones diarias como agendamiento, inventario y asistencia en consultas."
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                        lineNumber: 180,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                lineNumber: 170,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                        lineNumber: 137,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ _jsxDEV("div", {
+                        className: "dark-card",
+                        children: /*#__PURE__*/ _jsxDEV("div", {
+                            className: "overflow-x-auto",
+                            children: /*#__PURE__*/ _jsxDEV(Table, {
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV(TableHeader, {
+                                        children: /*#__PURE__*/ _jsxDEV(TableRow, {
+                                            className: "border-dark-color hover:bg-dark-hover",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                    className: "text-dark-primary font-semibold",
+                                                    children: "Rol"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 192,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                    className: "text-dark-primary font-semibold",
+                                                    children: "Módulos"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 193,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                    className: "text-dark-primary font-semibold",
+                                                    children: "Estado"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 194,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                    className: "text-dark-primary font-semibold text-center",
+                                                    children: "Acciones"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 195,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                            lineNumber: 191,
+                                            columnNumber: 17
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                        lineNumber: 190,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV(TableBody, {
+                                        children: rolesFiltrados.map((rol)=>/*#__PURE__*/ _jsxDEV(TableRow, {
+                                                className: "border-dark-color hover:bg-dark-table-hover",
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                        className: "font-medium text-dark-primary",
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-3",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    className: `w-8 h-8 ${getColorForRole(rol.nombre)} rounded-full flex items-center justify-center`,
+                                                                    children: /*#__PURE__*/ _jsxDEV(Shield, {
+                                                                        className: "w-4 h-4 text-white"
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                        lineNumber: 204,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 203,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                                    className: "font-semibold",
+                                                                    children: rol.nombre
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 206,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 202,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                        lineNumber: 201,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                        className: "text-dark-primary",
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-1",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Lock, {
+                                                                    className: "w-4 h-4 text-dark-secondary"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 211,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                                    className: "font-medium",
+                                                                    children: rol.modulos.length
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 212,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                                    className: "text-dark-secondary text-sm",
+                                                                    children: "módulos"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 213,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 210,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                        lineNumber: 209,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-2",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Switch, {
+                                                                    checked: rol.activo,
+                                                                    onCheckedChange: ()=>handleToggleActivo(rol),
+                                                                    disabled: loading
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 218,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                                    className: "text-sm text-dark-secondary",
+                                                                    children: rol.activo ? 'Activo' : 'Inactivo'
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 223,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 217,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                        lineNumber: 216,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center justify-center space-x-1.5",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Button, {
+                                                                    onClick: ()=>setDetallesDialog({
+                                                                            isOpen: true,
+                                                                            rol
+                                                                        }),
+                                                                    variant: "outline",
+                                                                    size: "sm",
+                                                                    className: "p-2 h-9 w-9 border-dark-color text-blue-400 hover:bg-blue-900/20 hover:border-blue-400",
+                                                                    disabled: loading,
+                                                                    title: "Ver detalles",
+                                                                    children: /*#__PURE__*/ _jsxDEV(Eye, {
+                                                                        className: "w-4 h-4"
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                        lineNumber: 238,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 230,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Button, {
+                                                                    onClick: ()=>abrirRolModal(rol),
+                                                                    variant: "outline",
+                                                                    size: "sm",
+                                                                    className: "p-2 h-9 w-9 border-dark-color text-yellow-400 hover:bg-yellow-900/20 hover:border-yellow-400",
+                                                                    disabled: loading || rol.nombre.toLowerCase() === 'administrador',
+                                                                    title: rol.nombre.toLowerCase() === 'administrador' ? 'No se puede editar el rol administrador' : 'Editar rol',
+                                                                    children: /*#__PURE__*/ _jsxDEV(Edit, {
+                                                                        className: "w-4 h-4"
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                        lineNumber: 248,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 240,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Button, {
+                                                                    onClick: ()=>setDeleteDialog({
+                                                                            isOpen: true,
+                                                                            rol
+                                                                        }),
+                                                                    variant: "outline",
+                                                                    size: "sm",
+                                                                    className: "p-2 h-9 w-9 border-dark-color text-red-400 hover:bg-red-600/10 hover:border-red-400",
+                                                                    disabled: loading || rol.nombre.toLowerCase() === 'administrador',
+                                                                    title: rol.nombre.toLowerCase() === 'administrador' ? 'No se puede eliminar el rol administrador' : 'Eliminar rol',
+                                                                    children: /*#__PURE__*/ _jsxDEV(Trash2, {
+                                                                        className: "w-4 h-4"
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                        lineNumber: 258,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 250,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 229,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                        lineNumber: 228,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, rol.id, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                lineNumber: 200,
+                                                columnNumber: 19
+                                            }, this))
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                        lineNumber: 198,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                lineNumber: 189,
+                                columnNumber: 13
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                            lineNumber: 188,
+                            columnNumber: 11
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                        lineNumber: 187,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                lineNumber: 135,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV(RolModal, {
+                isOpen: rolModal.isOpen,
+                onClose: cerrarRolModal,
+                onSubmit: rolModal.rol ? handleActualizarRol : handleCrearRol,
+                rol: rolModal.rol,
+                loading: loading
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                lineNumber: 272,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV(Dialog, {
+                open: detallesDialog.isOpen,
+                onOpenChange: ()=>setDetallesDialog({
+                        isOpen: false,
+                        rol: null
+                    }),
+                children: /*#__PURE__*/ _jsxDEV(DialogContent, {
+                    className: "max-w-3xl bg-dark-card border-dark-color",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV(DialogHeader, {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(DialogTitle, {
+                                    className: "text-xl font-semibold text-dark-primary flex items-center gap-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Shield, {
+                                            className: "w-5 h-5 text-blue-400"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                            lineNumber: 285,
+                                            columnNumber: 15
+                                        }, this),
+                                        "Detalles del Rol"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 284,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(DialogDescription, {
+                                    className: "text-dark-secondary",
+                                    children: "Información completa del rol y sus permisos asignados"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 288,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                            lineNumber: 283,
+                            columnNumber: 11
+                        }, this),
+                        detallesDialog.rol && /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-6",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "bg-dark-hover border border-dark-color rounded-lg p-4",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("h3", {
+                                            className: "text-lg font-semibold text-dark-primary mb-4 flex items-center gap-2",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Shield, {
+                                                    className: "w-4 h-4"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 298,
+                                                    columnNumber: 19
+                                                }, this),
+                                                "Información General"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                            lineNumber: 297,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "grid grid-cols-2 gap-4",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("label", {
+                                                            className: "block text-sm font-medium text-dark-secondary mb-1",
+                                                            children: "Nombre del Rol"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 303,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-2",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    className: `w-8 h-8 ${getColorForRole(detallesDialog.rol.nombre)} rounded-full flex items-center justify-center`,
+                                                                    children: /*#__PURE__*/ _jsxDEV(Shield, {
+                                                                        className: "w-4 h-4 text-white"
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                        lineNumber: 306,
+                                                                        columnNumber: 25
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 305,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("p", {
+                                                                    className: "text-dark-primary font-semibold",
+                                                                    children: detallesDialog.rol.nombre
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 308,
+                                                                    columnNumber: 23
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 304,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 302,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("label", {
+                                                            className: "block text-sm font-medium text-dark-secondary mb-1",
+                                                            children: "Estado"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 312,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: `px-3 py-1 rounded-full text-sm font-medium w-fit ${detallesDialog.rol.activo ? 'bg-green-900/30 text-green-400 border border-green-700' : 'bg-red-900/30 text-red-400 border border-red-700'}`,
+                                                            children: detallesDialog.rol.activo ? 'Activo' : 'Inactivo'
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 313,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 311,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("label", {
+                                                            className: "block text-sm font-medium text-dark-secondary mb-1",
+                                                            children: "Total de Módulos"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 319,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                            className: "text-dark-primary font-semibold flex items-center gap-2",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Lock, {
+                                                                    className: "w-4 h-4 text-purple-400"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                                    lineNumber: 321,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                detallesDialog.rol.modulos.length,
+                                                                " módulos asignados"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 320,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 318,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("label", {
+                                                            className: "block text-sm font-medium text-dark-secondary mb-1",
+                                                            children: "Última Modificación"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 326,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                            className: "text-dark-primary",
+                                                            children: detallesDialog.rol.fechaModificacion
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 327,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 325,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                            lineNumber: 301,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 296,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "bg-dark-hover border border-dark-color rounded-lg p-4",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("h3", {
+                                            className: "text-lg font-semibold text-dark-primary mb-4 flex items-center gap-2",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Lock, {
+                                                    className: "w-4 h-4"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 335,
+                                                    columnNumber: 19
+                                                }, this),
+                                                "Módulos Asignados"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                            lineNumber: 334,
+                                            columnNumber: 17
+                                        }, this),
+                                        detallesDialog.rol.modulos.length > 0 ? /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "grid grid-cols-2 md:grid-cols-3 gap-2",
+                                            children: detallesDialog.rol.modulos.map((modulo, index)=>/*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "flex items-center gap-2 bg-dark-bg border border-dark-color rounded-lg px-3 py-2",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(CheckCircle, {
+                                                            className: "w-4 h-4 text-green-400 flex-shrink-0"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 342,
+                                                            columnNumber: 25
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("span", {
+                                                            className: "text-sm text-dark-primary",
+                                                            children: modulo
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                            lineNumber: 343,
+                                                            columnNumber: 25
+                                                        }, this)
+                                                    ]
+                                                }, index, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                                    lineNumber: 341,
+                                                    columnNumber: 23
+                                                }, this))
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                            lineNumber: 339,
+                                            columnNumber: 19
+                                        }, this) : /*#__PURE__*/ _jsxDEV("p", {
+                                            className: "text-dark-secondary text-center py-8",
+                                            children: "No hay módulos asignados a este rol"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                            lineNumber: 348,
+                                            columnNumber: 19
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 333,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                            lineNumber: 294,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogFooter, {
+                            children: /*#__PURE__*/ _jsxDEV(Button, {
+                                onClick: ()=>setDetallesDialog({
+                                        isOpen: false,
+                                        rol: null
+                                    }),
+                                className: "bg-dark-cta text-white hover:bg-blue-600",
+                                children: "Cerrar"
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                lineNumber: 355,
+                                columnNumber: 13
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                            lineNumber: 354,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                    lineNumber: 282,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                lineNumber: 281,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV(AlertDialog, {
+                open: deleteDialog.isOpen,
+                onOpenChange: ()=>setDeleteDialog({
+                        isOpen: false,
+                        rol: null
+                    }),
+                children: /*#__PURE__*/ _jsxDEV(AlertDialogContent, {
+                    className: "bg-dark-card border-dark-color",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV(AlertDialogHeader, {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(AlertDialogTitle, {
+                                    className: "text-dark-primary",
+                                    children: "¿Eliminar Rol?"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 369,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(AlertDialogDescription, {
+                                    className: "text-dark-secondary",
+                                    children: [
+                                        '¿Estás seguro de que deseas eliminar el rol "',
+                                        deleteDialog.rol?.nombre,
+                                        '"? Esta acción no se puede deshacer y afectará a los usuarios que tengan este rol asignado.'
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 370,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                            lineNumber: 368,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(AlertDialogFooter, {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(AlertDialogCancel, {
+                                    className: "border-dark-color text-dark-secondary hover:bg-dark-hover",
+                                    children: "Cancelar"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 376,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(AlertDialogAction, {
+                                    onClick: handleEliminarRol,
+                                    className: "bg-red-600 text-white hover:bg-red-700",
+                                    disabled: loading,
+                                    children: "Eliminar"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                                    lineNumber: 379,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                            lineNumber: 375,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                    lineNumber: 367,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx",
+                lineNumber: 366,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true);
+}
+_s(RolesPage, "hfHNrA6llNCjP/xQTfUh3xiHauI=", false, function() {
+    return [
+        useRoles
+    ];
+});
+_c = RolesPage;
+var _c;
+$RefreshReg$(_c, "RolesPage");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/RolesPage.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIlJvbGVzUGFnZS50c3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgdXNlU3RhdGUgfSBmcm9tIFwicmVhY3RcIjtcclxuaW1wb3J0IHsgQnV0dG9uIH0gZnJvbSBcIi4uL3VpL2J1dHRvblwiO1xyXG5pbXBvcnQgeyBUYWJsZSwgVGFibGVCb2R5LCBUYWJsZUNlbGwsIFRhYmxlSGVhZCwgVGFibGVIZWFkZXIsIFRhYmxlUm93IH0gZnJvbSBcIi4uL3VpL3RhYmxlXCI7XHJcbmltcG9ydCB7IEFsZXJ0RGlhbG9nLCBBbGVydERpYWxvZ0FjdGlvbiwgQWxlcnREaWFsb2dDYW5jZWwsIEFsZXJ0RGlhbG9nQ29udGVudCwgQWxlcnREaWFsb2dEZXNjcmlwdGlvbiwgQWxlcnREaWFsb2dGb290ZXIsIEFsZXJ0RGlhbG9nSGVhZGVyLCBBbGVydERpYWxvZ1RpdGxlIH0gZnJvbSBcIi4uL3VpL2FsZXJ0LWRpYWxvZ1wiO1xyXG5pbXBvcnQgeyBEaWFsb2csIERpYWxvZ0NvbnRlbnQsIERpYWxvZ0Rlc2NyaXB0aW9uLCBEaWFsb2dGb290ZXIsIERpYWxvZ0hlYWRlciwgRGlhbG9nVGl0bGUgfSBmcm9tIFwiLi4vdWkvZGlhbG9nXCI7XHJcbmltcG9ydCB7IHRvYXN0IH0gZnJvbSBcInNvbm5lclwiO1xyXG5pbXBvcnQgeyBTaGllbGQsIFBsdXMsIFNlYXJjaCwgVXNlcnMsIEV5ZSwgRWRpdCwgVHJhc2gyLCBMb2NrLCBDaGVja0NpcmNsZSwgWENpcmNsZSB9IGZyb20gXCJsdWNpZGUtcmVhY3RcIjtcclxuaW1wb3J0IHsgU3dpdGNoIH0gZnJvbSBcIi4uL3VpL3N3aXRjaFwiO1xyXG5pbXBvcnQgeyBSb2xNb2RhbCB9IGZyb20gXCIuLi9tb2RhbHMvUm9sTW9kYWxcIjtcclxuaW1wb3J0IHsgdXNlUm9sZXMsIFJvbCB9IGZyb20gXCIuLi9ob29rcy91c2VSb2xlc1wiO1xyXG5cclxuZXhwb3J0IGZ1bmN0aW9uIFJvbGVzUGFnZSgpIHtcclxuICBjb25zdCB7IHJvbGVzLCBsb2FkaW5nLCBjcmVhclJvbCwgYWN0dWFsaXphclJvbCwgZWxpbWluYXJSb2wsIHRvZ2dsZUFjdGl2b1JvbCB9ID0gdXNlUm9sZXMoKTtcclxuICBjb25zdCBbYnVzcXVlZGEsIHNldEJ1c3F1ZWRhXSA9IHVzZVN0YXRlKFwiXCIpO1xyXG4gIGNvbnN0IFtyb2xNb2RhbCwgc2V0Um9sTW9kYWxdID0gdXNlU3RhdGUoeyBpc09wZW46IGZhbHNlLCByb2w6IG51bGwgYXMgUm9sIHwgbnVsbCB9KTtcclxuICBjb25zdCBbZGVsZXRlRGlhbG9nLCBzZXREZWxldGVEaWFsb2ddID0gdXNlU3RhdGUoeyBpc09wZW46IGZhbHNlLCByb2w6IG51bGwgYXMgUm9sIHwgbnVsbCB9KTtcclxuICBjb25zdCBbZGV0YWxsZXNEaWFsb2csIHNldERldGFsbGVzRGlhbG9nXSA9IHVzZVN0YXRlKHsgaXNPcGVuOiBmYWxzZSwgcm9sOiBudWxsIGFzIFJvbCB8IG51bGwgfSk7XHJcblxyXG4gIGNvbnN0IHJvbGVzRmlsdHJhZG9zID0gcm9sZXMuZmlsdGVyKHJvbCA9PlxyXG4gICAgcm9sLm5vbWJyZS50b0xvd2VyQ2FzZSgpLmluY2x1ZGVzKGJ1c3F1ZWRhLnRvTG93ZXJDYXNlKCkpXHJcbiAgKTtcclxuXHJcbiAgY29uc3QgaGFuZGxlQ3JlYXJSb2wgPSBhc3luYyAocm9sRGF0YTogYW55KSA9PiB7XHJcbiAgICBjb25zdCByZXN1bHRhZG8gPSBhd2FpdCBjcmVhclJvbCh7XHJcbiAgICAgIG5vbWJyZTogcm9sRGF0YS5ub21icmUsXHJcbiAgICAgIG1vZHVsb3M6IHJvbERhdGEubW9kdWxvcyB8fCBbXSxcclxuICAgICAgYWN0aXZvOiByb2xEYXRhLmFjdGl2byB8fCB0cnVlXHJcbiAgICB9KTtcclxuXHJcbiAgICBpZiAocmVzdWx0YWRvLnN1Y2Nlc3MpIHtcclxuICAgICAgdG9hc3Quc3VjY2VzcyhcIlJvbCBjcmVhZG8gZXhpdG9zYW1lbnRlXCIpO1xyXG4gICAgICBjZXJyYXJSb2xNb2RhbCgpO1xyXG4gICAgfSBlbHNlIHtcclxuICAgICAgdG9hc3QuZXJyb3IocmVzdWx0YWRvLmVycm9yIHx8IFwiRXJyb3IgYWwgY3JlYXIgcm9sXCIpO1xyXG4gICAgfVxyXG5cclxuICAgIHJldHVybiByZXN1bHRhZG87XHJcbiAgfTtcclxuXHJcbiAgY29uc3QgaGFuZGxlQWN0dWFsaXphclJvbCA9IGFzeW5jIChyb2xEYXRhOiBhbnkpID0+IHtcclxuICAgIGlmICghcm9sTW9kYWwucm9sKSByZXR1cm4geyBzdWNjZXNzOiBmYWxzZSB9O1xyXG5cclxuICAgIGNvbnN0IHJlc3VsdGFkbyA9IGF3YWl0IGFjdHVhbGl6YXJSb2wocm9sTW9kYWwucm9sLmlkLCB7XHJcbiAgICAgIG5vbWJyZTogcm9sRGF0YS5ub21icmUsXHJcbiAgICAgIG1vZHVsb3M6IHJvbERhdGEubW9kdWxvcyB8fCBbXSxcclxuICAgICAgYWN0aXZvOiByb2xEYXRhLmFjdGl2b1xyXG4gICAgfSk7XHJcblxyXG4gICAgaWYgKHJlc3VsdGFkby5zdWNjZXNzKSB7XHJcbiAgICAgIHRvYXN0LnN1Y2Nlc3MoXCJSb2wgYWN0dWFsaXphZG8gZXhpdG9zYW1lbnRlXCIpO1xyXG4gICAgICBjZXJyYXJSb2xNb2RhbCgpO1xyXG4gICAgfSBlbHNlIHtcclxuICAgICAgdG9hc3QuZXJyb3IocmVzdWx0YWRvLmVycm9yIHx8IFwiRXJyb3IgYWwgYWN0dWFsaXphciByb2xcIik7XHJcbiAgICB9XHJcblxyXG4gICAgcmV0dXJuIHJlc3VsdGFkbztcclxuICB9O1xyXG5cclxuICBjb25zdCBoYW5kbGVFbGltaW5hclJvbCA9IGFzeW5jICgpID0+IHtcclxuICAgIGlmICghZGVsZXRlRGlhbG9nLnJvbCkgcmV0dXJuO1xyXG5cclxuICAgIGNvbnN0IHJlc3VsdGFkbyA9IGF3YWl0IGVsaW1pbmFyUm9sKGRlbGV0ZURpYWxvZy5yb2wuaWQpO1xyXG5cclxuICAgIGlmIChyZXN1bHRhZG8uc3VjY2Vzcykge1xyXG4gICAgICB0b2FzdC5zdWNjZXNzKFwiUm9sIGVsaW1pbmFkbyBleGl0b3NhbWVudGVcIik7XHJcbiAgICB9IGVsc2Uge1xyXG4gICAgICB0b2FzdC5lcnJvcihyZXN1bHRhZG8uZXJyb3IgfHwgXCJFcnJvciBhbCBlbGltaW5hciByb2xcIik7XHJcbiAgICB9XHJcblxyXG4gICAgc2V0RGVsZXRlRGlhbG9nKHsgaXNPcGVuOiBmYWxzZSwgcm9sOiBudWxsIH0pO1xyXG4gIH07XHJcblxyXG4gIGNvbnN0IGhhbmRsZVRvZ2dsZUFjdGl2byA9IGFzeW5jIChyb2w6IFJvbCkgPT4ge1xyXG4gICAgY29uc3QgcmVzdWx0YWRvID0gYXdhaXQgdG9nZ2xlQWN0aXZvUm9sKHJvbC5pZCk7XHJcblxyXG4gICAgaWYgKHJlc3VsdGFkby5zdWNjZXNzKSB7XHJcbiAgICAgIHRvYXN0LnN1Y2Nlc3MoYFJvbCAke3JvbC5hY3Rpdm8gPyAnZGVzYWN0aXZhZG8nIDogJ2FjdGl2YWRvJ30gZXhpdG9zYW1lbnRlYCk7XHJcbiAgICB9IGVsc2Uge1xyXG4gICAgICB0b2FzdC5lcnJvcihyZXN1bHRhZG8uZXJyb3IgfHwgXCJFcnJvciBhbCBjYW1iaWFyIGVzdGFkbyBkZWwgcm9sXCIpO1xyXG4gICAgfVxyXG4gIH07XHJcblxyXG4gIGNvbnN0IGFicmlyUm9sTW9kYWwgPSAocm9sPzogUm9sKSA9PiB7XHJcbiAgICBzZXRSb2xNb2RhbCh7IGlzT3BlbjogdHJ1ZSwgcm9sOiByb2wgfHwgbnVsbCB9KTtcclxuICB9O1xyXG5cclxuICBjb25zdCBjZXJyYXJSb2xNb2RhbCA9ICgpID0+IHtcclxuICAgIHNldFJvbE1vZGFsKHsgaXNPcGVuOiBmYWxzZSwgcm9sOiBudWxsIH0pO1xyXG4gIH07XHJcblxyXG4gIGNvbnN0IHJvbGVzQWN0aXZvcyA9IHJvbGVzLmZpbHRlcihyID0+IHIuYWN0aXZvKTtcclxuICBjb25zdCB0b3RhbE1vZHVsb3MgPSByb2xlcy5yZWR1Y2UoKGFjYywgcikgPT4gYWNjICsgKHIubW9kdWxvcz8ubGVuZ3RoIHx8IDApLCAwKTtcclxuXHJcbiAgY29uc3QgZ2V0Q29sb3JGb3JSb2xlID0gKHJvbGVOYW1lOiBzdHJpbmcpID0+IHtcclxuICAgIGNvbnN0IGNvbG9ycyA9IHtcclxuICAgICAgJ0FkbWluaXN0cmFkb3InOiAnYmctcmVkLTYwMCcsXHJcbiAgICAgICdDbGllbnRlJzogJ2JnLWJsdWUtNjAwJyxcclxuICAgICAgJ0FzaXN0ZW50ZSc6ICdiZy1ncmVlbi02MDAnXHJcbiAgICB9O1xyXG4gICAgcmV0dXJuIGNvbG9yc1tyb2xlTmFtZSBhcyBrZXlvZiB0eXBlb2YgY29sb3JzXSB8fCAnYmctZ3JheS02MDAnO1xyXG4gIH07XHJcblxyXG4gIHJldHVybiAoXHJcbiAgICA8PlxyXG4gICAgICA8aGVhZGVyIGNsYXNzTmFtZT1cImJnLWRhcmstYmcgYm9yZGVyLWIgYm9yZGVyLWRhcmstY29sb3IgcHgtOCBweS02XCI+XHJcbiAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWJldHdlZW5cIj5cclxuICAgICAgICAgIDxkaXY+XHJcbiAgICAgICAgICAgIDxoMSBjbGFzc05hbWU9XCJ0ZXh0LTJ4bCBmb250LXNlbWlib2xkIHRleHQtZGFyay1wcmltYXJ5XCI+R2VzdGnDs24gZGUgUm9sZXM8L2gxPlxyXG4gICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LXNtIHRleHQtZGFyay1zZWNvbmRhcnkgbXQtMVwiPkFkbWluaXN0cmEgcm9sZXMgeSBwZXJtaXNvcyBkZWwgc2lzdGVtYSBLYWlWZXQgTWFuYWdlcjwvcD5cclxuICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBzcGFjZS14LTNcIj5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJyZWxhdGl2ZVwiPlxyXG4gICAgICAgICAgICAgIDxTZWFyY2ggY2xhc3NOYW1lPVwidy00IGgtNCBhYnNvbHV0ZSBsZWZ0LTMgdG9wLTEvMiB0cmFuc2Zvcm0gLXRyYW5zbGF0ZS15LTEvMiB0ZXh0LWRhcmstc2Vjb25kYXJ5XCIgLz5cclxuICAgICAgICAgICAgICA8aW5wdXRcclxuICAgICAgICAgICAgICAgIHR5cGU9XCJ0ZXh0XCJcclxuICAgICAgICAgICAgICAgIHBsYWNlaG9sZGVyPVwiQnVzY2FyIHJvbGVzLi4uXCJcclxuICAgICAgICAgICAgICAgIHZhbHVlPXtidXNxdWVkYX1cclxuICAgICAgICAgICAgICAgIG9uQ2hhbmdlPXsoZSkgPT4gc2V0QnVzcXVlZGEoZS50YXJnZXQudmFsdWUpfVxyXG4gICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwicGwtMTAgcHItNCBweS0yIGJnLWRhcmstaG92ZXIgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yIHJvdW5kZWQtbGcgdGV4dC1kYXJrLXByaW1hcnkgcGxhY2Vob2xkZXItZGFyay1zZWNvbmRhcnkgZm9jdXM6Ym9yZGVyLWRhcmstY3RhIGZvY3VzOm91dGxpbmUtbm9uZVwiXHJcbiAgICAgICAgICAgICAgLz5cclxuICAgICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgICA8YnV0dG9uXHJcbiAgICAgICAgICAgICAgb25DbGljaz17KCkgPT4gYWJyaXJSb2xNb2RhbCgpfVxyXG4gICAgICAgICAgICAgIGNsYXNzTmFtZT1cImRhcmstYnV0dG9uLXByaW1hcnkgZ2FwLTIgZmxleCBpdGVtcy1jZW50ZXJcIlxyXG4gICAgICAgICAgICAgIGRpc2FibGVkPXtsb2FkaW5nfVxyXG4gICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgPFBsdXMgY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+XHJcbiAgICAgICAgICAgICAgTnVldm8gUm9sXHJcbiAgICAgICAgICAgIDwvYnV0dG9uPlxyXG4gICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgPC9kaXY+XHJcbiAgICAgIDwvaGVhZGVyPlxyXG5cclxuICAgICAgPG1haW4gY2xhc3NOYW1lPVwiZmxleC0xIG92ZXJmbG93LWF1dG8gcC00IGJnLWRhcmstYmcgc3BhY2UteS02XCI+XHJcbiAgICAgICAgey8qIERlc2NyaXBjacOzbiBkZSBSb2xlcyAtIEFob3JhIGVuIGxhIHBhcnRlIHN1cGVyaW9yICovfVxyXG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZ3JpZCBncmlkLWNvbHMtMSBtZDpncmlkLWNvbHMtMyBnYXAtNFwiPlxyXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJkYXJrLWNhcmRcIj5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMyBtYi00XCI+XHJcbiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ3LTEyIGgtMTIgYmctcmVkLTYwMCByb3VuZGVkLWZ1bGwgZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXJcIj5cclxuICAgICAgICAgICAgICAgIDxTaGllbGQgY2xhc3NOYW1lPVwidy02IGgtNiB0ZXh0LXdoaXRlXCIgLz5cclxuICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICAgICAgPGg0IGNsYXNzTmFtZT1cImZvbnQtc2VtaWJvbGQgdGV4dC1kYXJrLXByaW1hcnlcIj5BZG1pbmlzdHJhZG9yPC9oND5cclxuICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXNlY29uZGFyeVwiPkNvbnRyb2wgdG90YWw8L3A+XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LXNtIHRleHQtZGFyay1zZWNvbmRhcnlcIj5cclxuICAgICAgICAgICAgICBBY2Nlc28gY29tcGxldG8gYSB0b2RhcyBsYXMgZnVuY2lvbmFsaWRhZGVzIGRlbCBzaXN0ZW1hIEthaVZldCBNYW5hZ2VyLlxyXG4gICAgICAgICAgICAgIFB1ZWRlIGdlc3Rpb25hciB1c3VhcmlvcywgY29uZmlndXJhY2lvbmVzIHkgZ2VuZXJhciByZXBvcnRlcy5cclxuICAgICAgICAgICAgPC9wPlxyXG4gICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJkYXJrLWNhcmRcIj5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMyBtYi00XCI+XHJcbiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ3LTEyIGgtMTIgYmctYmx1ZS02MDAgcm91bmRlZC1mdWxsIGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyXCI+XHJcbiAgICAgICAgICAgICAgICA8VXNlcnMgY2xhc3NOYW1lPVwidy02IGgtNiB0ZXh0LXdoaXRlXCIgLz5cclxuICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICAgICAgPGg0IGNsYXNzTmFtZT1cImZvbnQtc2VtaWJvbGQgdGV4dC1kYXJrLXByaW1hcnlcIj5DbGllbnRlPC9oND5cclxuICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXNlY29uZGFyeVwiPkFjY2VzbyBsaW1pdGFkbzwvcD5cclxuICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXNlY29uZGFyeVwiPlxyXG4gICAgICAgICAgICAgIFBlcm1pdGUgYSBsb3MgY2xpZW50ZXMgY29uc3VsdGFyIGVsIGhpc3RvcmlhbCBkZSBzdXMgbWFzY290YXMgeVxyXG4gICAgICAgICAgICAgIGFnZW5kYXIgY2l0YXMgZGUgbWFuZXJhIGF1dMOzbm9tYS5cclxuICAgICAgICAgICAgPC9wPlxyXG4gICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJkYXJrLWNhcmRcIj5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMyBtYi00XCI+XHJcbiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ3LTEyIGgtMTIgYmctZ3JlZW4tNjAwIHJvdW5kZWQtZnVsbCBmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlclwiPlxyXG4gICAgICAgICAgICAgICAgPFVzZXJzIGNsYXNzTmFtZT1cInctNiBoLTYgdGV4dC13aGl0ZVwiIC8+XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgPGRpdj5cclxuICAgICAgICAgICAgICAgIDxoNCBjbGFzc05hbWU9XCJmb250LXNlbWlib2xkIHRleHQtZGFyay1wcmltYXJ5XCI+QXNpc3RlbnRlPC9oND5cclxuICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXNlY29uZGFyeVwiPk9wZXJhY2lvbmVzIGRpYXJpYXM8L3A+XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LXNtIHRleHQtZGFyay1zZWNvbmRhcnlcIj5cclxuICAgICAgICAgICAgICBSb2wgcGFyYSBwZXJzb25hbCBkZSBhcG95byBjb24gYWNjZXNvIGEgb3BlcmFjaW9uZXMgZGlhcmlhcyBjb21vXHJcbiAgICAgICAgICAgICAgYWdlbmRhbWllbnRvLCBpbnZlbnRhcmlvIHkgYXNpc3RlbmNpYSBlbiBjb25zdWx0YXMuXHJcbiAgICAgICAgICAgIDwvcD5cclxuICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImRhcmstY2FyZFwiPlxyXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJvdmVyZmxvdy14LWF1dG9cIj5cclxuICAgICAgICAgICAgPFRhYmxlPlxyXG4gICAgICAgICAgICAgIDxUYWJsZUhlYWRlcj5cclxuICAgICAgICAgICAgICAgIDxUYWJsZVJvdyBjbGFzc05hbWU9XCJib3JkZXItZGFyay1jb2xvciBob3ZlcjpiZy1kYXJrLWhvdmVyXCI+XHJcbiAgICAgICAgICAgICAgICAgIDxUYWJsZUhlYWQgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZm9udC1zZW1pYm9sZFwiPlJvbDwvVGFibGVIZWFkPlxyXG4gICAgICAgICAgICAgICAgICA8VGFibGVIZWFkIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5IGZvbnQtc2VtaWJvbGRcIj5Nw7NkdWxvczwvVGFibGVIZWFkPlxyXG4gICAgICAgICAgICAgICAgICA8VGFibGVIZWFkIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5IGZvbnQtc2VtaWJvbGRcIj5Fc3RhZG88L1RhYmxlSGVhZD5cclxuICAgICAgICAgICAgICAgICAgPFRhYmxlSGVhZCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSBmb250LXNlbWlib2xkIHRleHQtY2VudGVyXCI+QWNjaW9uZXM8L1RhYmxlSGVhZD5cclxuICAgICAgICAgICAgICAgIDwvVGFibGVSb3c+XHJcbiAgICAgICAgICAgICAgPC9UYWJsZUhlYWRlcj5cclxuICAgICAgICAgICAgICA8VGFibGVCb2R5PlxyXG4gICAgICAgICAgICAgICAge3JvbGVzRmlsdHJhZG9zLm1hcCgocm9sKSA9PiAoXHJcbiAgICAgICAgICAgICAgICAgIDxUYWJsZVJvdyBrZXk9e3JvbC5pZH0gY2xhc3NOYW1lPVwiYm9yZGVyLWRhcmstY29sb3IgaG92ZXI6YmctZGFyay10YWJsZS1ob3ZlclwiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxUYWJsZUNlbGwgY2xhc3NOYW1lPVwiZm9udC1tZWRpdW0gdGV4dC1kYXJrLXByaW1hcnlcIj5cclxuICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTNcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9e2B3LTggaC04ICR7Z2V0Q29sb3JGb3JSb2xlKHJvbC5ub21icmUpfSByb3VuZGVkLWZ1bGwgZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXJgfT5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICA8U2hpZWxkIGNsYXNzTmFtZT1cInctNCBoLTQgdGV4dC13aGl0ZVwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJmb250LXNlbWlib2xkXCI+e3JvbC5ub21icmV9PC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgPC9UYWJsZUNlbGw+XHJcbiAgICAgICAgICAgICAgICAgICAgPFRhYmxlQ2VsbCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeVwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMVwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8TG9jayBjbGFzc05hbWU9XCJ3LTQgaC00IHRleHQtZGFyay1zZWNvbmRhcnlcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJmb250LW1lZGl1bVwiPntyb2wubW9kdWxvcy5sZW5ndGh9PC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstc2Vjb25kYXJ5IHRleHQtc21cIj5tw7NkdWxvczwvc3Bhbj5cclxuICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDwvVGFibGVDZWxsPlxyXG4gICAgICAgICAgICAgICAgICAgIDxUYWJsZUNlbGw+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxTd2l0Y2hcclxuICAgICAgICAgICAgICAgICAgICAgICAgICBjaGVja2VkPXtyb2wuYWN0aXZvfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIG9uQ2hlY2tlZENoYW5nZT17KCkgPT4gaGFuZGxlVG9nZ2xlQWN0aXZvKHJvbCl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgZGlzYWJsZWQ9e2xvYWRpbmd9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXNlY29uZGFyeVwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIHtyb2wuYWN0aXZvID8gJ0FjdGl2bycgOiAnSW5hY3Rpdm8nfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8L3NwYW4+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICA8L1RhYmxlQ2VsbD5cclxuICAgICAgICAgICAgICAgICAgICA8VGFibGVDZWxsPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlciBzcGFjZS14LTEuNVwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8QnV0dG9uXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgb25DbGljaz17KCkgPT4gc2V0RGV0YWxsZXNEaWFsb2coeyBpc09wZW46IHRydWUsIHJvbCB9KX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICB2YXJpYW50PVwib3V0bGluZVwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgc2l6ZT1cInNtXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJwLTIgaC05IHctOSBib3JkZXItZGFyay1jb2xvciB0ZXh0LWJsdWUtNDAwIGhvdmVyOmJnLWJsdWUtOTAwLzIwIGhvdmVyOmJvcmRlci1ibHVlLTQwMFwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgZGlzYWJsZWQ9e2xvYWRpbmd9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdGl0bGU9XCJWZXIgZGV0YWxsZXNcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgPEV5ZSBjbGFzc05hbWU9XCJ3LTQgaC00XCIgLz5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICAgICAgICAgICAgICBvbkNsaWNrPXsoKSA9PiBhYnJpclJvbE1vZGFsKHJvbCl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdmFyaWFudD1cIm91dGxpbmVcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIHNpemU9XCJzbVwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwicC0yIGgtOSB3LTkgYm9yZGVyLWRhcmstY29sb3IgdGV4dC15ZWxsb3ctNDAwIGhvdmVyOmJnLXllbGxvdy05MDAvMjAgaG92ZXI6Ym9yZGVyLXllbGxvdy00MDBcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIGRpc2FibGVkPXtsb2FkaW5nIHx8IHJvbC5ub21icmUudG9Mb3dlckNhc2UoKSA9PT0gJ2FkbWluaXN0cmFkb3InfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIHRpdGxlPXtyb2wubm9tYnJlLnRvTG93ZXJDYXNlKCkgPT09ICdhZG1pbmlzdHJhZG9yJyA/ICdObyBzZSBwdWVkZSBlZGl0YXIgZWwgcm9sIGFkbWluaXN0cmFkb3InIDogJ0VkaXRhciByb2wnfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgPEVkaXQgY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDwvQnV0dG9uPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8QnV0dG9uXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgb25DbGljaz17KCkgPT4gc2V0RGVsZXRlRGlhbG9nKHsgaXNPcGVuOiB0cnVlLCByb2wgfSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdmFyaWFudD1cIm91dGxpbmVcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIHNpemU9XCJzbVwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwicC0yIGgtOSB3LTkgYm9yZGVyLWRhcmstY29sb3IgdGV4dC1yZWQtNDAwIGhvdmVyOmJnLXJlZC02MDAvMTAgaG92ZXI6Ym9yZGVyLXJlZC00MDBcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIGRpc2FibGVkPXtsb2FkaW5nIHx8IHJvbC5ub21icmUudG9Mb3dlckNhc2UoKSA9PT0gJ2FkbWluaXN0cmFkb3InfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIHRpdGxlPXtyb2wubm9tYnJlLnRvTG93ZXJDYXNlKCkgPT09ICdhZG1pbmlzdHJhZG9yJyA/ICdObyBzZSBwdWVkZSBlbGltaW5hciBlbCByb2wgYWRtaW5pc3RyYWRvcicgOiAnRWxpbWluYXIgcm9sJ31cclxuICAgICAgICAgICAgICAgICAgICAgICAgPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIDxUcmFzaDIgY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDwvQnV0dG9uPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgPC9UYWJsZUNlbGw+XHJcbiAgICAgICAgICAgICAgICAgIDwvVGFibGVSb3c+XHJcbiAgICAgICAgICAgICAgICApKX1cclxuICAgICAgICAgICAgICA8L1RhYmxlQm9keT5cclxuICAgICAgICAgICAgPC9UYWJsZT5cclxuICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgPC9tYWluPlxyXG5cclxuICAgICAgey8qIE1vZGFsZXMgKi99XHJcbiAgICAgIDxSb2xNb2RhbFxyXG4gICAgICAgIGlzT3Blbj17cm9sTW9kYWwuaXNPcGVufVxyXG4gICAgICAgIG9uQ2xvc2U9e2NlcnJhclJvbE1vZGFsfVxyXG4gICAgICAgIG9uU3VibWl0PXtyb2xNb2RhbC5yb2wgPyBoYW5kbGVBY3R1YWxpemFyUm9sIDogaGFuZGxlQ3JlYXJSb2x9XHJcbiAgICAgICAgcm9sPXtyb2xNb2RhbC5yb2x9XHJcbiAgICAgICAgbG9hZGluZz17bG9hZGluZ31cclxuICAgICAgLz5cclxuXHJcbiAgICAgIHsvKiBNb2RhbCBkZSBWZXIgRGV0YWxsZXMgKi99XHJcbiAgICAgIDxEaWFsb2cgb3Blbj17ZGV0YWxsZXNEaWFsb2cuaXNPcGVufSBvbk9wZW5DaGFuZ2U9eygpID0+IHNldERldGFsbGVzRGlhbG9nKHsgaXNPcGVuOiBmYWxzZSwgcm9sOiBudWxsIH0pfT5cclxuICAgICAgICA8RGlhbG9nQ29udGVudCBjbGFzc05hbWU9XCJtYXgtdy0zeGwgYmctZGFyay1jYXJkIGJvcmRlci1kYXJrLWNvbG9yXCI+XHJcbiAgICAgICAgICA8RGlhbG9nSGVhZGVyPlxyXG4gICAgICAgICAgICA8RGlhbG9nVGl0bGUgY2xhc3NOYW1lPVwidGV4dC14bCBmb250LXNlbWlib2xkIHRleHQtZGFyay1wcmltYXJ5IGZsZXggaXRlbXMtY2VudGVyIGdhcC0yXCI+XHJcbiAgICAgICAgICAgICAgPFNoaWVsZCBjbGFzc05hbWU9XCJ3LTUgaC01IHRleHQtYmx1ZS00MDBcIiAvPlxyXG4gICAgICAgICAgICAgIERldGFsbGVzIGRlbCBSb2xcclxuICAgICAgICAgICAgPC9EaWFsb2dUaXRsZT5cclxuICAgICAgICAgICAgPERpYWxvZ0Rlc2NyaXB0aW9uIGNsYXNzTmFtZT1cInRleHQtZGFyay1zZWNvbmRhcnlcIj5cclxuICAgICAgICAgICAgICBJbmZvcm1hY2nDs24gY29tcGxldGEgZGVsIHJvbCB5IHN1cyBwZXJtaXNvcyBhc2lnbmFkb3NcclxuICAgICAgICAgICAgPC9EaWFsb2dEZXNjcmlwdGlvbj5cclxuICAgICAgICAgIDwvRGlhbG9nSGVhZGVyPlxyXG5cclxuICAgICAgICAgIHtkZXRhbGxlc0RpYWxvZy5yb2wgJiYgKFxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktNlwiPlxyXG4gICAgICAgICAgICAgIHsvKiBJbmZvcm1hY2nDs24gR2VuZXJhbCAqL31cclxuICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImJnLWRhcmstaG92ZXIgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yIHJvdW5kZWQtbGcgcC00XCI+XHJcbiAgICAgICAgICAgICAgICA8aDMgY2xhc3NOYW1lPVwidGV4dC1sZyBmb250LXNlbWlib2xkIHRleHQtZGFyay1wcmltYXJ5IG1iLTQgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj5cclxuICAgICAgICAgICAgICAgICAgPFNoaWVsZCBjbGFzc05hbWU9XCJ3LTQgaC00XCIgLz5cclxuICAgICAgICAgICAgICAgICAgSW5mb3JtYWNpw7NuIEdlbmVyYWxcclxuICAgICAgICAgICAgICAgIDwvaDM+XHJcbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImdyaWQgZ3JpZC1jb2xzLTIgZ2FwLTRcIj5cclxuICAgICAgICAgICAgICAgICAgPGRpdj5cclxuICAgICAgICAgICAgICAgICAgICA8bGFiZWwgY2xhc3NOYW1lPVwiYmxvY2sgdGV4dC1zbSBmb250LW1lZGl1bSB0ZXh0LWRhcmstc2Vjb25kYXJ5IG1iLTFcIj5Ob21icmUgZGVsIFJvbDwvbGFiZWw+XHJcbiAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9e2B3LTggaC04ICR7Z2V0Q29sb3JGb3JSb2xlKGRldGFsbGVzRGlhbG9nLnJvbC5ub21icmUpfSByb3VuZGVkLWZ1bGwgZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXJgfT5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPFNoaWVsZCBjbGFzc05hbWU9XCJ3LTQgaC00IHRleHQtd2hpdGVcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSBmb250LXNlbWlib2xkXCI+e2RldGFsbGVzRGlhbG9nLnJvbC5ub21icmV9PC9wPlxyXG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgPGRpdj5cclxuICAgICAgICAgICAgICAgICAgICA8bGFiZWwgY2xhc3NOYW1lPVwiYmxvY2sgdGV4dC1zbSBmb250LW1lZGl1bSB0ZXh0LWRhcmstc2Vjb25kYXJ5IG1iLTFcIj5Fc3RhZG88L2xhYmVsPlxyXG4gICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPXtgcHgtMyBweS0xIHJvdW5kZWQtZnVsbCB0ZXh0LXNtIGZvbnQtbWVkaXVtIHctZml0ICR7ZGV0YWxsZXNEaWFsb2cucm9sLmFjdGl2byA/ICdiZy1ncmVlbi05MDAvMzAgdGV4dC1ncmVlbi00MDAgYm9yZGVyIGJvcmRlci1ncmVlbi03MDAnIDogJ2JnLXJlZC05MDAvMzAgdGV4dC1yZWQtNDAwIGJvcmRlciBib3JkZXItcmVkLTcwMCdcclxuICAgICAgICAgICAgICAgICAgICAgIH1gfT5cclxuICAgICAgICAgICAgICAgICAgICAgIHtkZXRhbGxlc0RpYWxvZy5yb2wuYWN0aXZvID8gJ0FjdGl2bycgOiAnSW5hY3Rpdm8nfVxyXG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgPGRpdj5cclxuICAgICAgICAgICAgICAgICAgICA8bGFiZWwgY2xhc3NOYW1lPVwiYmxvY2sgdGV4dC1zbSBmb250LW1lZGl1bSB0ZXh0LWRhcmstc2Vjb25kYXJ5IG1iLTFcIj5Ub3RhbCBkZSBNw7NkdWxvczwvbGFiZWw+XHJcbiAgICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZm9udC1zZW1pYm9sZCBmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPExvY2sgY2xhc3NOYW1lPVwidy00IGgtNCB0ZXh0LXB1cnBsZS00MDBcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAge2RldGFsbGVzRGlhbG9nLnJvbC5tb2R1bG9zLmxlbmd0aH0gbcOzZHVsb3MgYXNpZ25hZG9zXHJcbiAgICAgICAgICAgICAgICAgICAgPC9wPlxyXG4gICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgPGRpdj5cclxuICAgICAgICAgICAgICAgICAgICA8bGFiZWwgY2xhc3NOYW1lPVwiYmxvY2sgdGV4dC1zbSBmb250LW1lZGl1bSB0ZXh0LWRhcmstc2Vjb25kYXJ5IG1iLTFcIj7Dmmx0aW1hIE1vZGlmaWNhY2nDs248L2xhYmVsPlxyXG4gICAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5XCI+e2RldGFsbGVzRGlhbG9nLnJvbC5mZWNoYU1vZGlmaWNhY2lvbn08L3A+XHJcbiAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgICAgIHsvKiBNw7NkdWxvcyAqL31cclxuICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImJnLWRhcmstaG92ZXIgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yIHJvdW5kZWQtbGcgcC00XCI+XHJcbiAgICAgICAgICAgICAgICA8aDMgY2xhc3NOYW1lPVwidGV4dC1sZyBmb250LXNlbWlib2xkIHRleHQtZGFyay1wcmltYXJ5IG1iLTQgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj5cclxuICAgICAgICAgICAgICAgICAgPExvY2sgY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+XHJcbiAgICAgICAgICAgICAgICAgIE3Ds2R1bG9zIEFzaWduYWRvc1xyXG4gICAgICAgICAgICAgICAgPC9oMz5cclxuICAgICAgICAgICAgICAgIHtkZXRhbGxlc0RpYWxvZy5yb2wubW9kdWxvcy5sZW5ndGggPiAwID8gKFxyXG4gICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImdyaWQgZ3JpZC1jb2xzLTIgbWQ6Z3JpZC1jb2xzLTMgZ2FwLTJcIj5cclxuICAgICAgICAgICAgICAgICAgICB7ZGV0YWxsZXNEaWFsb2cucm9sLm1vZHVsb3MubWFwKChtb2R1bG8sIGluZGV4KSA9PiAoXHJcbiAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGtleT17aW5kZXh9IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0yIGJnLWRhcmstYmcgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yIHJvdW5kZWQtbGcgcHgtMyBweS0yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxDaGVja0NpcmNsZSBjbGFzc05hbWU9XCJ3LTQgaC00IHRleHQtZ3JlZW4tNDAwIGZsZXgtc2hyaW5rLTBcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJ0ZXh0LXNtIHRleHQtZGFyay1wcmltYXJ5XCI+e21vZHVsb308L3NwYW4+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICApKX1cclxuICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICApIDogKFxyXG4gICAgICAgICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstc2Vjb25kYXJ5IHRleHQtY2VudGVyIHB5LThcIj5ObyBoYXkgbcOzZHVsb3MgYXNpZ25hZG9zIGEgZXN0ZSByb2w8L3A+XHJcbiAgICAgICAgICAgICAgICApfVxyXG4gICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICl9XHJcblxyXG4gICAgICAgICAgPERpYWxvZ0Zvb3Rlcj5cclxuICAgICAgICAgICAgPEJ1dHRvblxyXG4gICAgICAgICAgICAgIG9uQ2xpY2s9eygpID0+IHNldERldGFsbGVzRGlhbG9nKHsgaXNPcGVuOiBmYWxzZSwgcm9sOiBudWxsIH0pfVxyXG4gICAgICAgICAgICAgIGNsYXNzTmFtZT1cImJnLWRhcmstY3RhIHRleHQtd2hpdGUgaG92ZXI6YmctYmx1ZS02MDBcIlxyXG4gICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgQ2VycmFyXHJcbiAgICAgICAgICAgIDwvQnV0dG9uPlxyXG4gICAgICAgICAgPC9EaWFsb2dGb290ZXI+XHJcbiAgICAgICAgPC9EaWFsb2dDb250ZW50PlxyXG4gICAgICA8L0RpYWxvZz5cclxuXHJcbiAgICAgIHsvKiBNb2RhbCBkZSBDb25maXJtYWNpw7NuIGRlIEVsaW1pbmFjacOzbiAqL31cclxuICAgICAgPEFsZXJ0RGlhbG9nIG9wZW49e2RlbGV0ZURpYWxvZy5pc09wZW59IG9uT3BlbkNoYW5nZT17KCkgPT4gc2V0RGVsZXRlRGlhbG9nKHsgaXNPcGVuOiBmYWxzZSwgcm9sOiBudWxsIH0pfT5cclxuICAgICAgICA8QWxlcnREaWFsb2dDb250ZW50IGNsYXNzTmFtZT1cImJnLWRhcmstY2FyZCBib3JkZXItZGFyay1jb2xvclwiPlxyXG4gICAgICAgICAgPEFsZXJ0RGlhbG9nSGVhZGVyPlxyXG4gICAgICAgICAgICA8QWxlcnREaWFsb2dUaXRsZSBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeVwiPsK/RWxpbWluYXIgUm9sPzwvQWxlcnREaWFsb2dUaXRsZT5cclxuICAgICAgICAgICAgPEFsZXJ0RGlhbG9nRGVzY3JpcHRpb24gY2xhc3NOYW1lPVwidGV4dC1kYXJrLXNlY29uZGFyeVwiPlxyXG4gICAgICAgICAgICAgIMK/RXN0w6FzIHNlZ3VybyBkZSBxdWUgZGVzZWFzIGVsaW1pbmFyIGVsIHJvbCBcIntkZWxldGVEaWFsb2cucm9sPy5ub21icmV9XCI/XHJcbiAgICAgICAgICAgICAgRXN0YSBhY2Npw7NuIG5vIHNlIHB1ZWRlIGRlc2hhY2VyIHkgYWZlY3RhcsOhIGEgbG9zIHVzdWFyaW9zIHF1ZSB0ZW5nYW4gZXN0ZSByb2wgYXNpZ25hZG8uXHJcbiAgICAgICAgICAgIDwvQWxlcnREaWFsb2dEZXNjcmlwdGlvbj5cclxuICAgICAgICAgIDwvQWxlcnREaWFsb2dIZWFkZXI+XHJcbiAgICAgICAgICA8QWxlcnREaWFsb2dGb290ZXI+XHJcbiAgICAgICAgICAgIDxBbGVydERpYWxvZ0NhbmNlbCBjbGFzc05hbWU9XCJib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstc2Vjb25kYXJ5IGhvdmVyOmJnLWRhcmstaG92ZXJcIj5cclxuICAgICAgICAgICAgICBDYW5jZWxhclxyXG4gICAgICAgICAgICA8L0FsZXJ0RGlhbG9nQ2FuY2VsPlxyXG4gICAgICAgICAgICA8QWxlcnREaWFsb2dBY3Rpb25cclxuICAgICAgICAgICAgICBvbkNsaWNrPXtoYW5kbGVFbGltaW5hclJvbH1cclxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJiZy1yZWQtNjAwIHRleHQtd2hpdGUgaG92ZXI6YmctcmVkLTcwMFwiXHJcbiAgICAgICAgICAgICAgZGlzYWJsZWQ9e2xvYWRpbmd9XHJcbiAgICAgICAgICAgID5cclxuICAgICAgICAgICAgICBFbGltaW5hclxyXG4gICAgICAgICAgICA8L0FsZXJ0RGlhbG9nQWN0aW9uPlxyXG4gICAgICAgICAgPC9BbGVydERpYWxvZ0Zvb3Rlcj5cclxuICAgICAgICA8L0FsZXJ0RGlhbG9nQ29udGVudD5cclxuICAgICAgPC9BbGVydERpYWxvZz5cclxuICAgIDwvPlxyXG4gICk7XHJcbn1cclxuIl0sIm5hbWVzIjpbInVzZVN0YXRlIiwiQnV0dG9uIiwiVGFibGUiLCJUYWJsZUJvZHkiLCJUYWJsZUNlbGwiLCJUYWJsZUhlYWQiLCJUYWJsZUhlYWRlciIsIlRhYmxlUm93IiwiQWxlcnREaWFsb2ciLCJBbGVydERpYWxvZ0FjdGlvbiIsIkFsZXJ0RGlhbG9nQ2FuY2VsIiwiQWxlcnREaWFsb2dDb250ZW50IiwiQWxlcnREaWFsb2dEZXNjcmlwdGlvbiIsIkFsZXJ0RGlhbG9nRm9vdGVyIiwiQWxlcnREaWFsb2dIZWFkZXIiLCJBbGVydERpYWxvZ1RpdGxlIiwiRGlhbG9nIiwiRGlhbG9nQ29udGVudCIsIkRpYWxvZ0Rlc2NyaXB0aW9uIiwiRGlhbG9nRm9vdGVyIiwiRGlhbG9nSGVhZGVyIiwiRGlhbG9nVGl0bGUiLCJ0b2FzdCIsIlNoaWVsZCIsIlBsdXMiLCJTZWFyY2giLCJVc2VycyIsIkV5ZSIsIkVkaXQiLCJUcmFzaDIiLCJMb2NrIiwiQ2hlY2tDaXJjbGUiLCJTd2l0Y2giLCJSb2xNb2RhbCIsInVzZVJvbGVzIiwiUm9sZXNQYWdlIiwicm9sZXMiLCJsb2FkaW5nIiwiY3JlYXJSb2wiLCJhY3R1YWxpemFyUm9sIiwiZWxpbWluYXJSb2wiLCJ0b2dnbGVBY3Rpdm9Sb2wiLCJidXNxdWVkYSIsInNldEJ1c3F1ZWRhIiwicm9sTW9kYWwiLCJzZXRSb2xNb2RhbCIsImlzT3BlbiIsInJvbCIsImRlbGV0ZURpYWxvZyIsInNldERlbGV0ZURpYWxvZyIsImRldGFsbGVzRGlhbG9nIiwic2V0RGV0YWxsZXNEaWFsb2ciLCJyb2xlc0ZpbHRyYWRvcyIsImZpbHRlciIsIm5vbWJyZSIsInRvTG93ZXJDYXNlIiwiaW5jbHVkZXMiLCJoYW5kbGVDcmVhclJvbCIsInJvbERhdGEiLCJyZXN1bHRhZG8iLCJtb2R1bG9zIiwiYWN0aXZvIiwic3VjY2VzcyIsImNlcnJhclJvbE1vZGFsIiwiZXJyb3IiLCJoYW5kbGVBY3R1YWxpemFyUm9sIiwiaWQiLCJoYW5kbGVFbGltaW5hclJvbCIsImhhbmRsZVRvZ2dsZUFjdGl2byIsImFicmlyUm9sTW9kYWwiLCJyb2xlc0FjdGl2b3MiLCJyIiwidG90YWxNb2R1bG9zIiwicmVkdWNlIiwiYWNjIiwibGVuZ3RoIiwiZ2V0Q29sb3JGb3JSb2xlIiwicm9sZU5hbWUiLCJjb2xvcnMiLCJoZWFkZXIiLCJjbGFzc05hbWUiLCJkaXYiLCJoMSIsInAiLCJpbnB1dCIsInR5cGUiLCJwbGFjZWhvbGRlciIsInZhbHVlIiwib25DaGFuZ2UiLCJlIiwidGFyZ2V0IiwiYnV0dG9uIiwib25DbGljayIsImRpc2FibGVkIiwibWFpbiIsImg0IiwibWFwIiwic3BhbiIsImNoZWNrZWQiLCJvbkNoZWNrZWRDaGFuZ2UiLCJ2YXJpYW50Iiwic2l6ZSIsInRpdGxlIiwib25DbG9zZSIsIm9uU3VibWl0Iiwib3BlbiIsIm9uT3BlbkNoYW5nZSIsImgzIiwibGFiZWwiLCJmZWNoYU1vZGlmaWNhY2lvbiIsIm1vZHVsbyIsImluZGV4Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFBQSxTQUFTQSxRQUFRLFFBQVEsUUFBUTtBQUNqQyxTQUFTQyxNQUFNLFFBQVEsZUFBZTtBQUN0QyxTQUFTQyxLQUFLLEVBQUVDLFNBQVMsRUFBRUMsU0FBUyxFQUFFQyxTQUFTLEVBQUVDLFdBQVcsRUFBRUMsUUFBUSxRQUFRLGNBQWM7QUFDNUYsU0FBU0MsV0FBVyxFQUFFQyxpQkFBaUIsRUFBRUMsaUJBQWlCLEVBQUVDLGtCQUFrQixFQUFFQyxzQkFBc0IsRUFBRUMsaUJBQWlCLEVBQUVDLGlCQUFpQixFQUFFQyxnQkFBZ0IsUUFBUSxxQkFBcUI7QUFDM0wsU0FBU0MsTUFBTSxFQUFFQyxhQUFhLEVBQUVDLGlCQUFpQixFQUFFQyxZQUFZLEVBQUVDLFlBQVksRUFB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

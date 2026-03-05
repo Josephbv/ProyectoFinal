@@ -1,0 +1,960 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 18px;
+  
+  /* Modern Dark Theme Color Palette */
+  --dark-bg: #020617;
+  --dark-card: #0f172a;
+  --dark-primary-text: #f8fafc;
+  --dark-secondary-text: #94a3b8;
+  --dark-positive: #10b981;
+  --dark-negative: #ef4444;
+  --dark-cta: #3b82f6;
+  --dark-tag: #1e293b;
+  --dark-hover: #1e2535;
+  --dark-table-hover: #1c2a3a;
+  --dark-border: #334155;
+  
+  /* Updated theme variables for modern dark mode */
+  --background: #020617;
+  --foreground: #f8fafc;
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+  --popover: #0f172a;
+  --popover-foreground: #f8fafc;
+  --primary: #3b82f6;
+  --primary-foreground: #f8fafc;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #3b82f6;
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --destructive-foreground: #f8fafc;
+  --border: #334155;
+  --input: #1e293b;
+  --input-background: #1e293b;
+  --switch-background: #374151;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: #3b82f6;
+  
+  /* Chart colors using modern dark theme palette */
+  --chart-1: #3b82f6;
+  --chart-2: #10b981;
+  --chart-3: #94a3b8;
+  --chart-4: #f59e0b;
+  --chart-5: #ef4444;
+  --chart-6: #8b5cf6;
+  --chart-7: #06b6d4;
+  --chart-8: #84cc16;
+  
+  --radius: 0.75rem;
+  
+  /* Sidebar colors for modern dark theme */
+  --sidebar: #020617;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #f8fafc;
+  --sidebar-primary-foreground: #020617;
+  --sidebar-accent: #3b82f6;
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: #334155;
+  --sidebar-ring: #3b82f6;
+
+  /* Glass morphism effects */
+  --glass-bg: rgba(15, 23, 42, 0.8);
+  --glass-border: rgba(148, 163, 184, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Light mode theme - Paleta Pastel Moderna (Lavanda-Azul-Cyan) */
+.light {
+  /* Light Theme Color Palette - Pasteles vibrantes pero suaves */
+  --dark-bg: #EEF2FF;              /* Indigo 50 - Fondo lavanda muy suave */
+  --dark-card: #FFFFFF;            /* Blanco puro - Tarjetas con elevación */
+  --dark-primary-text: #1E1B4B;    /* Indigo 950 - Texto principal oscuro */
+  --dark-secondary-text: #4C1D95;  /* Violet 900 - Texto secundario morado oscuro */
+  --dark-positive: #4ADE80;        /* Green 400 - Verde menta vibrante */
+  --dark-negative: #FB7185;        /* Rose 400 - Rosa coral */
+  --dark-cta: #6366F1;             /* Indigo 500 - Violeta-azul principal */
+  --dark-tag: #DDD6FE;             /* Violet 200 - Tag lavanda */
+  --dark-hover: #E0E7FF;           /* Indigo 100 - Hover lavanda claro */
+  --dark-table-hover: #F5F3FF;     /* Violet 50 - Table hover violeta muy suave */
+  --dark-border: #C7D2FE;          /* Indigo 200 - Bordes lavanda suaves */
+  
+  /* Light theme variables - Tonos pasteles vibrantes */
+  --background: #F8FAFC;           /* Slate 50 - Fondo base casi blanco */
+  --foreground: #1E1B4B;           /* Indigo 950 - Texto principal */
+  --card: #FFFFFF;                 /* Blanco puro - Tarjetas */
+  --card-foreground: #1E1B4B;      /* Indigo 950 - Texto en tarjetas */
+  --popover: #FFFFFF;              /* Blanco puro - Popovers */
+  --popover-foreground: #1E1B4B;   /* Indigo 950 - Texto en popovers */
+  --primary: #6366F1;              /* Indigo 500 - Primario violeta-azul */
+  --primary-foreground: #FFFFFF;   /* Blanco - Texto en botones primarios */
+  --secondary: #E0E7FF;            /* Indigo 100 - Secundario lavanda */
+  --secondary-foreground: #1E1B4B; /* Indigo 950 - Texto en secundario */
+  --muted: #EEF2FF;                /* Indigo 50 - Muted lavanda suave */
+  --muted-foreground: #6B7280;     /* Gray 500 - Texto muted neutral */
+  --accent: #A5B4FC;               /* Indigo 300 - Acento lavanda medio */
+  --accent-foreground: #1E1B4B;    /* Indigo 950 - Texto en acento */
+  --destructive: #FB7185;          /* Rose 400 - Destructivo rosa coral */
+  --destructive-foreground: #FFFFFF; /* Blanco - Texto destructivo */
+  --border: #C7D2FE;               /* Indigo 200 - Bordes lavanda */
+  --input: #FFFFFF;                /* Blanco puro - Inputs */
+  --input-background: #FFFFFF;     /* Blanco puro - Fondo inputs */
+  --switch-background: #DDD6FE;    /* Violet 200 - Switches lavanda */
+  --ring: #A5B4FC;                 /* Indigo 300 - Focus ring lavanda */
+  
+  /* Colores específicos para tablas y formularios - Pasteles lavanda */
+  --table-header: #E0E7FF;         /* Indigo 100 - Encabezados lavanda claro */
+  --table-row-even: #FFFFFF;       /* Blanco puro - Filas pares */
+  --table-row-odd: #FAFBFF;        /* Casi blanco con tinte lavanda */
+  --form-bg: #FFFFFF;              /* Blanco puro - Fondo formularios */
+  --form-section: #F8FAFC;         /* Slate 50 - Secciones formulario */
+  --form-field-border: #C7D2FE;    /* Indigo 200 - Bordes campos lavanda */
+  --form-field-focus: #A5B4FC;     /* Indigo 300 - Focus campos lavanda */
+  
+  /* Chart colors for light mode - Pasteles vibrantes coordinados */
+  --chart-1: #6366F1;              /* Indigo 500 - Violeta-azul */
+  --chart-2: #4ADE80;              /* Green 400 - Verde menta */
+  --chart-3: #A5B4FC;              /* Indigo 300 - Lavanda claro */
+  --chart-4: #FBBF24;              /* Amber 400 - Amarillo dorado */
+  --chart-5: #FB7185;              /* Rose 400 - Rosa coral */
+  --chart-6: #C084FC;              /* Purple 400 - Púrpura pastel */
+  --chart-7: #22D3EE;              /* Cyan 400 - Cyan brillante */
+  --chart-8: #A3E635;              /* Lime 400 - Lima vibrante */
+  
+  /* Sidebar colors for light mode - Blanco con acentos lavanda */
+  --sidebar: #FFFFFF;              /* Blanco puro - Sidebar */
+  --sidebar-foreground: #1E1B4B;   /* Indigo 950 - Texto sidebar */
+  --sidebar-primary: #1E1B4B;      /* Indigo 950 - Primario sidebar */
+  --sidebar-primary-foreground: #FFFFFF; /* Blanco - Texto primario */
+  --sidebar-accent: #6366F1;       /* Indigo 500 - Acento violeta-azul */
+  --sidebar-accent-foreground: #FFFFFF; /* Blanco - Texto acento */
+  --sidebar-border: #DDD6FE;       /* Violet 200 - Borde sidebar lavanda */
+  --sidebar-ring: #A5B4FC;         /* Indigo 300 - Focus ring lavanda */
+
+  /* Glass morphism effects for light mode - Blanco glass con tinte lavanda */
+  --glass-bg: rgba(255, 255, 255, 0.95); /* Blanco casi opaco */
+  --glass-border: rgba(99, 102, 241, 0.15); /* Borde indigo suave */
+  --glass-shadow: 0 8px 32px rgba(99, 102, 241, 0.12); /* Sombra indigo pastel */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* Modern dark theme specific colors */
+  --color-dark-bg: var(--dark-bg);
+  --color-dark-card: var(--dark-card);
+  --color-dark-primary-text: var(--dark-primary-text);
+  --color-dark-secondary-text: var(--dark-secondary-text);
+  --color-dark-positive: var(--dark-positive);
+  --color-dark-negative: var(--dark-negative);
+  --color-dark-cta: var(--dark-cta);
+  --color-dark-tag: var(--dark-tag);
+  --color-dark-hover: var(--dark-hover);
+  --color-dark-table-hover: var(--dark-table-hover);
+  --color-dark-border: var(--dark-border);
+  
+  /* Glass morphism colors */
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
+  
+  /* Table and form specific colors */
+  --color-table-header: var(--table-header, var(--dark-tag));
+  --color-table-row-even: var(--table-row-even, var(--card));
+  --color-table-row-odd: var(--table-row-odd, var(--dark-bg));
+  --color-form-bg: var(--form-bg, var(--card));
+  --color-form-section: var(--form-section, var(--dark-card));
+  --color-form-field-border: var(--form-field-border, var(--border));
+  --color-form-field-focus: var(--form-field-focus, var(--ring));
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-weight: 400;
+    font-feature-settings: 'rlig' 1, 'calt' 1, 'ss01' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
+
+  /* Scrollbar styling for light mode */
+  .light ::-webkit-scrollbar-thumb {
+    background: #A5B4FC;
+  }
+
+  .light ::-webkit-scrollbar-thumb:hover {
+    background: #6366F1;
+  }
+
+  /* Selection styling */
+  ::selection {
+    background: rgba(59, 130, 246, 0.3);
+    color: #f8fafc;
+  }
+
+  /* Selection styling for light mode */
+  .light ::selection {
+    background: rgba(99, 102, 241, 0.25);
+    color: #1E1B4B;
+  }
+}
+
+/**
+ * Modern typography with enhanced dark theme styling
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--dark-primary-text);
+      letter-spacing: -0.025em;
+    }
+
+    h2 {
+      font-size: 1.875rem;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--dark-primary-text);
+      letter-spacing: -0.015em;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--dark-primary-text);
+      letter-spacing: -0.01em;
+    }
+
+    h4 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--dark-primary-text);
+    }
+
+    p {
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.6;
+      color: var(--dark-secondary-text);
+    }
+
+    label {
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--dark-primary-text);
+    }
+
+    button {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    input {
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      background: rgba(148, 163, 184, 0.1);
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.375rem;
+      color: var(--dark-primary-text);
+    }
+
+    kbd {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      font-size: 0.875rem;
+      font-weight: 500;
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.375rem;
+      color: #94a3b8;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+/* Light mode specific element styling */
+.light {
+  kbd {
+    background: #DDD6FE !important;
+    border: 1px solid #A5B4FC !important;
+    color: #1E1B4B !important;
+    box-shadow: 0 1px 2px rgba(99, 102, 241, 0.15) !important;
+  }
+
+  code {
+    background: rgba(99, 102, 241, 0.12) !important;
+    color: #1E1B4B !important;
+  }
+
+  input, textarea, select {
+    color: #1E1B4B !important;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: rgba(30, 27, 75, 0.45) !important;
+  }
+}
+
+html {
+  font-size: var(--font-size);
+}
+
+/* Modern dark theme utility classes */
+@layer utilities {
+  /* Text colors */
+  .text-dark-primary { color: var(--color-dark-primary-text); }
+  .text-dark-secondary { color: var(--color-dark-secondary-text); }
+  .text-dark-positive { color: var(--color-dark-positive); }
+  .text-dark-negative { color: var(--color-dark-negative); }
+  .text-dark-cta { color: var(--color-dark-cta); }
+  
+  /* Background colors */
+  .bg-dark-bg { background-color: var(--color-dark-bg); }
+  .bg-dark-card { background-color: var(--color-dark-card); }
+  .bg-dark-tag { background-color: var(--color-dark-tag); }
+  .bg-dark-hover { background-color: var(--color-dark-hover); }
+  .bg-dark-table-hover { background-color: var(--color-dark-table-hover); }
+  
+  /* Border colors */
+  .border-dark-color { border-color: var(--color-dark-border); }
+
+  /* Glass morphism effects */
+  .glass-card {
+    background: var(--color-glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--color-glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-light {
+    background: rgba(248, 250, 252, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(248, 250, 252, 0.1);
+  }
+
+  /* Gradient utilities */
+  .gradient-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  }
+
+  .gradient-secondary {
+    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  }
+
+  .gradient-accent {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  /* Gradient utilities for light mode */
+  .light .gradient-primary {
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  }
+
+  .light .gradient-secondary {
+    background: linear-gradient(135deg, #22D3EE 0%, #6366F1 100%);
+  }
+
+  .light .gradient-accent {
+    background: linear-gradient(135deg, #4ADE80 0%, #10B981 100%);
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from { 
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to { 
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/* Enhanced component styling for modern dark theme */
+@layer components {
+  .dark-card {
+    border-radius: 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    padding: 1.5rem;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(148, 163, 184, 0.05);
+  }
+  
+  .dark-button-primary {
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  }
+  
+  .dark-button-primary:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+    transform: translateY(-1px);
+  }
+  
+  .dark-button-secondary {
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: transparent;
+    color: var(--color-dark-cta);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    backdrop-filter: blur(10px);
+  }
+  
+  .dark-button-secondary:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  }
+  
+  .dark-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--color-dark-secondary-text);
+    position: relative;
+  }
+  
+  .dark-nav-item-active {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    color: var(--color-dark-primary-text);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  }
+  
+  .dark-nav-item:hover {
+    background-color: rgba(148, 163, 184, 0.05);
+    color: var(--color-dark-primary-text);
+    transform: translateX(2px);
+  }
+
+  .dark-shadow {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .dark-shadow-lg {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  .dark-tag {
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+  }
+  
+  .dark-metric-positive {
+    color: var(--color-dark-positive);
+  }
+  
+  .dark-metric-negative {
+    color: var(--color-dark-negative);
+  }
+
+  /* Status indicators */
+  .status-online {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  .status-offline {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  }
+
+  .status-busy {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  .status-away {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+
+  /* Modern input styles */
+  .modern-input {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 0.75rem;
+    color: var(--color-dark-primary-text);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+  }
+
+  .modern-input:focus {
+    border-color: rgba(59, 130, 246, 0.5);
+    background: rgba(30, 41, 59, 0.8);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .modern-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  .modern-card:hover {
+    border-color: rgba(148, 163, 184, 0.2);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* Light mode specific component styles */
+@layer components {
+  .light .dark-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(199, 210, 254, 0.5);
+    box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08), 0 0 0 1px rgba(199, 210, 254, 0.3);
+  }
+  
+  .light .dark-button-primary {
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    color: #ffffff;
+  }
+  
+  .light .dark-button-primary:hover {
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+    transform: translateY(-1px);
+  }
+  
+  .light .dark-button-secondary {
+    background-color: rgba(224, 231, 255, 0.5);
+    color: #6366F1;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+  }
+  
+  .light .dark-button-secondary:hover {
+    background-color: rgba(224, 231, 255, 0.8);
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+  }
+  
+  .light .dark-nav-item {
+    color: #4C1D95;
+  }
+  
+  .light .dark-nav-item-active {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+    color: #1E1B4B;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+  }
+  
+  .light .dark-nav-item:hover {
+    background-color: rgba(224, 231, 255, 0.6);
+    color: #1E1B4B;
+  }
+
+  .light .dark-shadow {
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.12);
+  }
+  
+  .light .dark-shadow-lg {
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.18);
+  }
+  
+  .light .dark-tag {
+    background: linear-gradient(135deg, #DDD6FE 0%, #E0E7FF 100%);
+    border: 1px solid rgba(165, 180, 252, 0.4);
+    color: #4C1D95;
+  }
+
+  .light .modern-input {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(199, 210, 254, 0.5);
+    color: #1E1B4B;
+  }
+
+  .light .modern-input:focus {
+    border-color: rgba(99, 102, 241, 0.5);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+
+  .light .modern-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(199, 210, 254, 0.5);
+    box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08);
+  }
+
+  .light .modern-card:hover {
+    border-color: rgba(165, 180, 252, 0.6);
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.14);
+  }
+  
+  /* Status indicators for light mode */
+  .light .status-online {
+    background: linear-gradient(135deg, #4ADE80 0%, #10B981 100%);
+  }
+
+  .light .status-offline {
+    background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);
+  }
+
+  .light .status-busy {
+    background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+  }
+
+  .light .status-away {
+    background: linear-gradient(135deg, #FB7185 0%, #F43F5E 100%);
+  }
+
+  /* Action buttons for light mode - Colores más vibrantes y visibles */
+  .light button.text-blue-400,
+  .light .text-blue-400 {
+    color: #3B82F6 !important;
+  }
+
+  .light button.text-blue-400:hover,
+  .light button:hover.text-blue-400 {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    border-color: #3B82F6 !important;
+  }
+
+  .light button.text-yellow-400,
+  .light .text-yellow-400 {
+    color: #F59E0B !important;
+  }
+
+  .light button.text-yellow-400:hover,
+  .light button:hover.text-yellow-400 {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    border-color: #F59E0B !important;
+  }
+
+  .light button.text-red-400,
+  .light .text-red-400 {
+    color: #EF4444 !important;
+  }
+
+  .light button.text-red-400:hover,
+  .light button:hover.text-red-400 {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    border-color: #EF4444 !important;
+  }
+
+  .light button.text-green-400,
+  .light .text-green-400 {
+    color: #10B981 !important;
+  }
+
+  .light button.text-green-400:hover,
+  .light button:hover.text-green-400 {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    border-color: #10B981 !important;
+  }
+
+  /* Badge colors for light mode - Colores pasteles vibrantes */
+  .light .bg-green-900\/20 {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+  }
+
+  .light .text-green-400 {
+    color: #10B981 !important;
+  }
+
+  .light .bg-red-900\/20 {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+  }
+
+  .light .text-red-400 {
+    color: #EF4444 !important;
+  }
+
+  .light .bg-yellow-900\/20 {
+    background-color: rgba(245, 158, 11, 0.15) !important;
+  }
+
+  .light .text-yellow-400 {
+    color: #F59E0B !important;
+  }
+
+  .light .bg-blue-900\/20 {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+  }
+
+  .light .bg-gray-900\/20 {
+    background-color: rgba(107, 114, 128, 0.15) !important;
+  }
+
+  .light .text-gray-400 {
+    color: #6B7280 !important;
+  }
+
+  /* Estado badges específicos para light mode */
+  .light .bg-green-600 {
+    background-color: #10B981 !important;
+    color: white !important;
+  }
+
+  .light .bg-red-600 {
+    background-color: #EF4444 !important;
+    color: white !important;
+  }
+
+  .light .bg-yellow-600 {
+    background-color: #F59E0B !important;
+    color: white !important;
+  }
+
+  .light .bg-blue-600 {
+    background-color: #3B82F6 !important;
+    color: white !important;
+  }
+
+  .light .bg-gray-600 {
+    background-color: #6B7280 !important;
+    color: white !important;
+  }
+
+  /* Table styling for light mode */
+  .light table thead {
+    background-color: var(--color-table-header) !important;
+  }
+
+  .light table thead th {
+    color: #4C1D95 !important;
+    border-color: rgba(199, 210, 254, 0.5) !important;
+  }
+
+  .light table tbody tr {
+    border-color: rgba(199, 210, 254, 0.3) !important;
+  }
+
+  .light table tbody tr:hover {
+    background-color: rgba(224, 231, 255, 0.3) !important;
+  }
+
+  .light table tbody td {
+    color: #1E1B4B !important;
+    border-color: rgba(199, 210, 254, 0.3) !important;
+  }
+
+  /* Form styling for light mode */
+  .light input[type="text"],
+  .light input[type="email"],
+  .light input[type="password"],
+  .light input[type="number"],
+  .light input[type="tel"],
+  .light input[type="date"],
+  .light input[type="time"],
+  .light textarea,
+  .light select {
+    background-color: white !important;
+    border-color: rgba(199, 210, 254, 0.5) !important;
+    color: #1E1B4B !important;
+  }
+
+  .light input[type="text"]:focus,
+  .light input[type="email"]:focus,
+  .light input[type="password"]:focus,
+  .light input[type="number"]:focus,
+  .light input[type="tel"]:focus,
+  .light input[type="date"]:focus,
+  .light input[type="time"]:focus,
+  .light textarea:focus,
+  .light select:focus {
+    border-color: #6366F1 !important;
+    ring-color: rgba(99, 102, 241, 0.3) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+  }
+
+  /* Indicadores de estado en light mode */
+  .light .bg-green-400 {
+    background-color: #10B981 !important;
+  }
+
+  .light .bg-blue-400 {
+    background-color: #3B82F6 !important;
+  }
+
+  .light .bg-yellow-400 {
+    background-color: #F59E0B !important;
+  }
+
+  .light .bg-red-400 {
+    background-color: #EF4444 !important;
+  }
+
+  .light .bg-purple-400 {
+    background-color: #A855F7 !important;
+  }
+
+  .light .bg-cyan-400 {
+    background-color: #06B6D4 !important;
+  }
+
+  /* Animaciones de pulse más visibles en light mode */
+  .light .animate-pulse {
+    animation: pulse-light 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-light {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  /* Modal y Dialog backgrounds en light mode */
+  .light [data-radix-dialog-overlay],
+  .light [data-radix-alert-dialog-overlay] {
+    background-color: rgba(30, 27, 75, 0.4) !important;
+    backdrop-filter: blur(8px);
+  }
+
+  .light [data-radix-dialog-content],
+  .light [data-radix-alert-dialog-content] {
+    background-color: white !important;
+    border: 1px solid rgba(199, 210, 254, 0.5) !important;
+    box-shadow: 0 20px 50px rgba(99, 102, 241, 0.2) !important;
+  }
+
+  /* Scrollbar en modales light mode */
+  .light [data-radix-dialog-content] ::-webkit-scrollbar-thumb,
+  .light [data-radix-alert-dialog-content] ::-webkit-scrollbar-thumb {
+    background: #A5B4FC;
+  }
+
+  /* Separadores en light mode */
+  .light hr,
+  .light [data-orientation="horizontal"] {
+    border-color: rgba(199, 210, 254, 0.4) !important;
+  }
+
+  /* Tooltips en light mode */
+  .light [data-radix-tooltip-content] {
+    background-color: #1E1B4B !important;
+    color: white !important;
+    border: 1px solid rgba(165, 180, 252, 0.3) !important;
+  }
+}

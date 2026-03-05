@@ -1,0 +1,1015 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/pages/DashboardUnificado.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"]; const _Fragment = __vite__cjsImport2_react_jsxDevRuntime["Fragment"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"]; const useMemo = __vite__cjsImport3_react["useMemo"];
+import { Button } from "/src/components/ui/button.tsx?t=1772223881528";
+import { Card } from "/src/components/ui/card.tsx";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "/src/components/ui/tabs.tsx?t=1772223881773";
+import { Badge } from "/src/components/ui/badge.tsx?t=1772223881371";
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "/node_modules/.vite/deps/recharts.js?v=04e61ac6";
+import { BarChart3, Calendar, DollarSign, Users, Download, Shield, Loader2 } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+import { CitasHoy } from "/src/components/CitasHoy.tsx";
+import { useVentas } from "/src/components/hooks/useVentas.tsx";
+import { useClientes } from "/src/components/hooks/useClientes.tsx";
+import { useAgendamiento } from "/src/components/hooks/useAgendamiento.tsx";
+const COLORS = [
+    '#3B82F6',
+    '#22C55E',
+    '#F59E0B',
+    '#EF4444',
+    '#8B5CF6',
+    '#06B6D4'
+];
+export function DashboardUnificado({ onNavigate }) {
+    _s();
+    const [activeTab, setActiveTab] = useState('resumen');
+    const [periodo, setPeriodo] = useState('6m');
+    const { ventas, loading: loadingVentas } = useVentas();
+    const { clientes, loading: loadingClientes } = useClientes();
+    const { citas, loading: loadingCitas } = useAgendamiento();
+    // Procesar datos para gráficos
+    const chartData = useMemo(()=>{
+        // Agrupar ventas por mes
+        const ventasPorMes = {};
+        const meses = [
+            'Ene',
+            'Feb',
+            'Mar',
+            'Abr',
+            'May',
+            'Jun',
+            'Jul',
+            'Ago',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dic'
+        ];
+        // Inicializar con ceros últimos 6 meses (simplificado)
+        meses.slice(0, 6).forEach((mes)=>{
+            ventasPorMes[mes] = {
+                mes,
+                ventas: 0,
+                transacciones: 0
+            };
+        });
+        ventas.forEach((v)=>{
+            const fecha = new Date(v.fecha || v.fecha_venta);
+            const mesNombre = meses[fecha.getMonth()];
+            if (ventasPorMes[mesNombre]) {
+                ventasPorMes[mesNombre].ventas += Number(v.total);
+                ventasPorMes[mesNombre].transacciones += 1;
+            }
+        });
+        const ventasDataReal = Object.values(ventasPorMes);
+        // Agrupar clientes nuevos por mes
+        const clientesPorMes = {};
+        meses.slice(0, 6).forEach((mes)=>{
+            clientesPorMes[mes] = {
+                mes,
+                nuevos: 0,
+                activos: clientes.length
+            };
+        });
+        clientes.forEach((_, idx)=>{
+            // Distribuir clientes en el primer mes disponible como fallback
+            const mesNombre = meses[idx % 6];
+            if (clientesPorMes[mesNombre]) {
+                clientesPorMes[mesNombre].nuevos += 1;
+            }
+        });
+        const clientesDataReal = Object.values(clientesPorMes);
+        return {
+            ventasDataReal,
+            clientesDataReal
+        };
+    }, [
+        ventas,
+        clientes
+    ]);
+    // Métricas principales
+    const metrics = useMemo(()=>{
+        const totalVentas = ventas.reduce((sum, v)=>sum + Number(v.total), 0);
+        const totalClientes = clientes.length;
+        const hoy = new Date().toISOString().split('T')[0];
+        const citasHoy = citas.filter((c)=>c.fecha === hoy).length;
+        // Ventas de hoy
+        const ventasHoyCount = ventas.filter((v)=>{
+            const f = new Date(v.fecha || v.fecha_venta).toISOString().split('T')[0];
+            return f === hoy;
+        }).reduce((sum, v)=>sum + Number(v.total), 0);
+        return {
+            ventasTotal: totalVentas,
+            ventasHoy: ventasHoyCount,
+            clientesTotal: totalClientes,
+            citasHoy: citasHoy,
+            ticketPromedio: ventas.length > 0 ? totalVentas / ventas.length : 0
+        };
+    }, [
+        ventas,
+        clientes,
+        citas
+    ]);
+    const loading = loadingVentas || loadingClientes || loadingCitas;
+    const getUrgenciaColor = (urgencia)=>{
+        switch(urgencia){
+            case "urgente":
+                return "text-red-400 bg-red-900/20 border-red-500/30";
+            case "alta":
+                return "text-orange-400 bg-orange-900/20 border-orange-500/30";
+            case "info":
+                return "text-cyan-400 bg-cyan-900/20 border-cyan-500/30";
+            default:
+                return "text-blue-400 bg-blue-900/20 border-blue-500/30";
+        }
+    };
+    const getEstadoInsumo = (estado)=>{
+        switch(estado){
+            case "critico":
+                return "text-red-400 bg-red-900/20";
+            case "bajo":
+                return "text-orange-400 bg-orange-900/20";
+            case "bueno":
+                return "text-green-400 bg-green-900/20";
+            case "excelente":
+                return "text-blue-400 bg-blue-900/20";
+            default:
+                return "text-gray-400 bg-gray-900/20";
+        }
+    };
+    return /*#__PURE__*/ _jsxDEV(_Fragment, {
+        children: [
+            /*#__PURE__*/ _jsxDEV("header", {
+                className: "bg-dark-card/50 backdrop-blur-sm border-b border-dark-color/50 px-10 py-4 flex items-center justify-between sticky top-0 z-10 transition-colors duration-300",
+                children: [
+                    /*#__PURE__*/ _jsxDEV("div", {
+                        children: /*#__PURE__*/ _jsxDEV("h1", {
+                            className: "text-2xl font-semibold text-dark-primary",
+                            children: "Dashboard"
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                            lineNumber: 125,
+                            columnNumber: 11
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                        lineNumber: 124,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ _jsxDEV("div", {
+                        className: "flex items-center space-x-3",
+                        children: [
+                            loading && /*#__PURE__*/ _jsxDEV(Loader2, {
+                                className: "w-5 h-5 text-blue-500 animate-spin"
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                lineNumber: 128,
+                                columnNumber: 23
+                            }, this),
+                            /*#__PURE__*/ _jsxDEV("select", {
+                                value: periodo,
+                                onChange: (e)=>setPeriodo(e.target.value),
+                                className: "px-3 py-2 bg-dark-hover border border-dark-color rounded-lg text-dark-primary focus:border-dark-cta focus:outline-none",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV("option", {
+                                        value: "1d",
+                                        children: "Hoy"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 134,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("option", {
+                                        value: "7d",
+                                        children: "Última semana"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 135,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("option", {
+                                        value: "1m",
+                                        children: "Último mes"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 136,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("option", {
+                                        value: "3m",
+                                        children: "Últimos 3 meses"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 137,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("option", {
+                                        value: "6m",
+                                        children: "Últimos 6 meses"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 138,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("option", {
+                                        value: "1y",
+                                        children: "Último año"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 139,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                lineNumber: 129,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ _jsxDEV(Button, {
+                                className: "dark-button-primary gap-2",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV(Download, {
+                                        className: "w-4 h-4"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 142,
+                                        columnNumber: 13
+                                    }, this),
+                                    "Exportar Reporte"
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                lineNumber: 141,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                        lineNumber: 127,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                lineNumber: 123,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("main", {
+                className: "flex-1 overflow-auto p-8 bg-dark-bg",
+                children: /*#__PURE__*/ _jsxDEV("div", {
+                    className: "max-w-6xl mx-auto",
+                    children: /*#__PURE__*/ _jsxDEV(Tabs, {
+                        value: activeTab,
+                        onValueChange: setActiveTab,
+                        className: "space-y-6",
+                        children: [
+                            /*#__PURE__*/ _jsxDEV(TabsList, {
+                                className: "grid w-full grid-cols-3 bg-dark-card border border-dark-color",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV(TabsTrigger, {
+                                        value: "resumen",
+                                        children: "Vista General"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 153,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV(TabsTrigger, {
+                                        value: "analytics",
+                                        children: "Analytics Ventas"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 154,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV(TabsTrigger, {
+                                        value: "alertas",
+                                        children: "Sistema"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 155,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                lineNumber: 152,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ _jsxDEV(TabsContent, {
+                                value: "resumen",
+                                className: "space-y-8",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV("div", {
+                                        className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                className: "dark-card hover:dark-shadow-lg transition-all duration-300 hover:-translate-y-1",
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV("div", {
+                                                        className: "flex items-center justify-between mb-4",
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center",
+                                                            children: /*#__PURE__*/ _jsxDEV(DollarSign, {
+                                                                className: "w-7 h-7 text-white"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 164,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 163,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 162,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV("div", {
+                                                        children: [
+                                                            /*#__PURE__*/ _jsxDEV("h3", {
+                                                                className: "text-3xl font-bold text-dark-primary mb-1",
+                                                                children: [
+                                                                    "$",
+                                                                    metrics.ventasHoy.toLocaleString()
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 168,
+                                                                columnNumber: 21
+                                                            }, this),
+                                                            /*#__PURE__*/ _jsxDEV("p", {
+                                                                className: "text-sm font-medium text-dark-secondary",
+                                                                children: "Ventas Hoy"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 171,
+                                                                columnNumber: 21
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 167,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                lineNumber: 161,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                className: "dark-card hover:dark-shadow-lg transition-all duration-300 hover:-translate-y-1",
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV("div", {
+                                                        className: "flex items-center justify-between mb-4",
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center",
+                                                            children: /*#__PURE__*/ _jsxDEV(Users, {
+                                                                className: "w-7 h-7 text-white"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 178,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 177,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 176,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV("div", {
+                                                        children: [
+                                                            /*#__PURE__*/ _jsxDEV("h3", {
+                                                                className: "text-3xl font-bold text-dark-primary mb-1",
+                                                                children: metrics.clientesTotal
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 182,
+                                                                columnNumber: 21
+                                                            }, this),
+                                                            /*#__PURE__*/ _jsxDEV("p", {
+                                                                className: "text-sm font-medium text-dark-secondary",
+                                                                children: "Clientes Totales"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 183,
+                                                                columnNumber: 21
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 181,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                lineNumber: 175,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                className: "dark-card hover:dark-shadow-lg transition-all duration-300 hover:-translate-y-1",
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV("div", {
+                                                        className: "flex items-center justify-between mb-4",
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center",
+                                                            children: /*#__PURE__*/ _jsxDEV(Calendar, {
+                                                                className: "w-7 h-7 text-white"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 190,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 189,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 188,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV("div", {
+                                                        children: [
+                                                            /*#__PURE__*/ _jsxDEV("h3", {
+                                                                className: "text-3xl font-bold text-dark-primary mb-1",
+                                                                children: metrics.citasHoy
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 194,
+                                                                columnNumber: 21
+                                                            }, this),
+                                                            /*#__PURE__*/ _jsxDEV("p", {
+                                                                className: "text-sm font-medium text-dark-secondary",
+                                                                children: "Citas Hoy"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 195,
+                                                                columnNumber: 21
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 193,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                lineNumber: 187,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                className: "dark-card hover:dark-shadow-lg transition-all duration-300 hover:-translate-y-1",
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV("div", {
+                                                        className: "flex items-center justify-between mb-4",
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center",
+                                                            children: /*#__PURE__*/ _jsxDEV(BarChart3, {
+                                                                className: "w-7 h-7 text-white"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 202,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 201,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 200,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV("div", {
+                                                        children: [
+                                                            /*#__PURE__*/ _jsxDEV("h3", {
+                                                                className: "text-3xl font-bold text-dark-primary mb-1",
+                                                                children: [
+                                                                    "$",
+                                                                    Math.round(metrics.ticketPromedio)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 206,
+                                                                columnNumber: 21
+                                                            }, this),
+                                                            /*#__PURE__*/ _jsxDEV("p", {
+                                                                className: "text-sm font-medium text-dark-secondary",
+                                                                children: "Ticket Promedio"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 207,
+                                                                columnNumber: 21
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 205,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                lineNumber: 199,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 160,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("div", {
+                                        className: "flex justify-center w-full",
+                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "w-full max-w-4xl",
+                                            children: /*#__PURE__*/ _jsxDEV(CitasHoy, {
+                                                onVerCalendario: ()=>onNavigate?.("Agendamiento")
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                lineNumber: 216,
+                                                columnNumber: 19
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                            lineNumber: 215,
+                                            columnNumber: 17
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                        lineNumber: 214,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                lineNumber: 159,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ _jsxDEV(TabsContent, {
+                                value: "analytics",
+                                className: "space-y-6",
+                                children: /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "grid grid-cols-1 lg:grid-cols-2 gap-6",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Card, {
+                                            className: "dark-card",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "flex items-center justify-between pb-4",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("h3", {
+                                                            className: "text-lg font-semibold text-dark-primary",
+                                                            children: "Ventas por Mes"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 226,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(Button, {
+                                                            variant: "outline",
+                                                            size: "sm",
+                                                            className: "border-dark-color text-dark-secondary",
+                                                            children: /*#__PURE__*/ _jsxDEV(DollarSign, {
+                                                                className: "w-4 h-4"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 228,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 227,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                    lineNumber: 225,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "h-80",
+                                                    children: /*#__PURE__*/ _jsxDEV(ResponsiveContainer, {
+                                                        width: "100%",
+                                                        height: "100%",
+                                                        children: /*#__PURE__*/ _jsxDEV(AreaChart, {
+                                                            data: chartData.ventasDataReal,
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(CartesianGrid, {
+                                                                    strokeDasharray: "3 3",
+                                                                    stroke: "#374151"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 234,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(XAxis, {
+                                                                    dataKey: "mes",
+                                                                    stroke: "#94A3B8"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 235,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(YAxis, {
+                                                                    stroke: "#94A3B8"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 236,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Tooltip, {
+                                                                    contentStyle: {
+                                                                        backgroundColor: '#1E293B',
+                                                                        border: '1px solid #374151',
+                                                                        borderRadius: '8px'
+                                                                    }
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 237,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Area, {
+                                                                    type: "monotone",
+                                                                    dataKey: "ventas",
+                                                                    stroke: "#3B82F6",
+                                                                    fill: "#3B82F620",
+                                                                    strokeWidth: 3,
+                                                                    name: "Ventas ($)"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 244,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 233,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 232,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                    lineNumber: 231,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                            lineNumber: 224,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(Card, {
+                                            className: "dark-card",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "flex items-center justify-between pb-4",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("h3", {
+                                                            className: "text-lg font-semibold text-dark-primary",
+                                                            children: "Nuevos Clientes"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 252,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(Button, {
+                                                            variant: "outline",
+                                                            size: "sm",
+                                                            className: "border-dark-color text-dark-secondary",
+                                                            children: /*#__PURE__*/ _jsxDEV(Users, {
+                                                                className: "w-4 h-4"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 254,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 253,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                    lineNumber: 251,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "h-80",
+                                                    children: /*#__PURE__*/ _jsxDEV(ResponsiveContainer, {
+                                                        width: "100%",
+                                                        height: "100%",
+                                                        children: /*#__PURE__*/ _jsxDEV(LineChart, {
+                                                            data: chartData.clientesDataReal,
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(CartesianGrid, {
+                                                                    strokeDasharray: "3 3",
+                                                                    stroke: "#374151"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 260,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(XAxis, {
+                                                                    dataKey: "mes",
+                                                                    stroke: "#94A3B8"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 261,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(YAxis, {
+                                                                    stroke: "#94A3B8"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 262,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Tooltip, {
+                                                                    contentStyle: {
+                                                                        backgroundColor: '#1E293B',
+                                                                        border: '1px solid #374151',
+                                                                        borderRadius: '8px'
+                                                                    }
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 263,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Line, {
+                                                                    type: "monotone",
+                                                                    dataKey: "nuevos",
+                                                                    stroke: "#22C55E",
+                                                                    strokeWidth: 3,
+                                                                    name: "Nuevos Clientes"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 270,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 259,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 258,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                    lineNumber: 257,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                            lineNumber: 250,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                    lineNumber: 223,
+                                    columnNumber: 15
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                lineNumber: 222,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ _jsxDEV(TabsContent, {
+                                value: "alertas",
+                                className: "space-y-6",
+                                children: /*#__PURE__*/ _jsxDEV(Card, {
+                                    className: "dark-card",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "flex items-center justify-between pb-6",
+                                            children: /*#__PURE__*/ _jsxDEV("div", {
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV("h3", {
+                                                        className: "text-xl font-bold text-dark-primary mb-2 flex items-center gap-2",
+                                                        children: [
+                                                            /*#__PURE__*/ _jsxDEV(Shield, {
+                                                                className: "w-5 h-5 text-blue-400"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                lineNumber: 284,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            "Estado del Sistema"
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 283,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV("p", {
+                                                        className: "text-dark-secondary font-medium",
+                                                        children: "Información técnica y conectividad en tiempo real"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                        lineNumber: 287,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                lineNumber: 282,
+                                                columnNumber: 19
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                            lineNumber: 281,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "space-y-4",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "flex items-center justify-between p-4 rounded-xl bg-dark-hover border border-dark-color",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-3",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    className: "w-3 h-3 rounded-full bg-green-500 animate-pulse"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 295,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                                    className: "font-medium text-dark-primary",
+                                                                    children: "Base de Datos MS SQL Server"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 296,
+                                                                    columnNumber: 23
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 294,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(Badge, {
+                                                            className: "bg-green-900/20 text-green-400 border-green-500/30",
+                                                            children: "CONECTADO"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 298,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                    lineNumber: 293,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "flex items-center justify-between p-4 rounded-xl bg-dark-hover border border-dark-color",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-3",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    className: "w-3 h-3 rounded-full bg-green-500 animate-pulse"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 302,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                                    className: "font-medium text-dark-primary",
+                                                                    children: "API Server (Express)"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                                    lineNumber: 303,
+                                                                    columnNumber: 23
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 301,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(Badge, {
+                                                            className: "bg-green-900/20 text-green-400 border-green-500/30",
+                                                            children: "ONLINE"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                            lineNumber: 305,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                                    lineNumber: 300,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                            lineNumber: 292,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                    lineNumber: 280,
+                                    columnNumber: 15
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                                lineNumber: 279,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                        lineNumber: 151,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                    lineNumber: 149,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx",
+                lineNumber: 148,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true);
+}
+_s(DashboardUnificado, "e5yZV4SnvNDyeOTMZntDBfDJG0Y=", false, function() {
+    return [
+        useVentas,
+        useClientes,
+        useAgendamiento
+    ];
+});
+_c = DashboardUnificado;
+var _c;
+$RefreshReg$(_c, "DashboardUnificado");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/DashboardUnificado.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIkRhc2hib2FyZFVuaWZpY2Fkby50c3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgdXNlU3RhdGUsIHVzZU1lbW8gfSBmcm9tIFwicmVhY3RcIjtcclxuaW1wb3J0IHsgQnV0dG9uIH0gZnJvbSBcIi4uL3VpL2J1dHRvblwiO1xyXG5pbXBvcnQgeyBDYXJkIH0gZnJvbSBcIi4uL3VpL2NhcmRcIjtcclxuaW1wb3J0IHsgVGFicywgVGFic0NvbnRlbnQsIFRhYnNMaXN0LCBUYWJzVHJpZ2dlciB9IGZyb20gXCIuLi91aS90YWJzXCI7XHJcbmltcG9ydCB7IEJhZGdlIH0gZnJvbSBcIi4uL3VpL2JhZGdlXCI7XHJcbmltcG9ydCB7XHJcbiAgTGluZUNoYXJ0LCBMaW5lLCBBcmVhQ2hhcnQsIEFyZWEsIEJhckNoYXJ0LCBCYXIsIFBpZUNoYXJ0LCBQaWUsIENlbGwsXHJcbiAgWEF4aXMsIFlBeGlzLCBDYXJ0ZXNpYW5HcmlkLCBUb29sdGlwLCBMZWdlbmQsIFJlc3BvbnNpdmVDb250YWluZXJcclxufSBmcm9tIFwicmVjaGFydHNcIjtcclxuaW1wb3J0IHtcclxuICBUcmVuZGluZ1VwLCBUcmVuZGluZ0Rvd24sIEJhckNoYXJ0MywgQ2FsZW5kYXIsIERvbGxhclNpZ24sIFVzZXJzLCBIZWFydCxcclxuICBQYWNrYWdlLCBDbG9jaywgRmlsdGVyLCBEb3dubG9hZCwgU2hvcHBpbmdDYXJ0LCBNYXBQaW4sIFN0ZXRob3Njb3BlLFxyXG4gIFNoaWVsZCwgQWN0aXZpdHksIEZpbGVUZXh0LCBFeWUsIEFsZXJ0Q2lyY2xlLCBCZWxsLCBMb2FkZXIyXHJcbn0gZnJvbSBcImx1Y2lkZS1yZWFjdFwiO1xyXG5pbXBvcnQgeyBDaXRhc0hveSB9IGZyb20gXCIuLi9DaXRhc0hveVwiO1xyXG5pbXBvcnQgeyB1c2VWZW50YXMgfSBmcm9tIFwiLi4vaG9va3MvdXNlVmVudGFzXCI7XHJcbmltcG9ydCB7IHVzZUNsaWVudGVzIH0gZnJvbSBcIi4uL2hvb2tzL3VzZUNsaWVudGVzXCI7XHJcbmltcG9ydCB7IHVzZUFnZW5kYW1pZW50byB9IGZyb20gXCIuLi9ob29rcy91c2VBZ2VuZGFtaWVudG9cIjtcclxuaW1wb3J0IHsgdXNlTWFzY290YXMgfSBmcm9tIFwiLi4vaG9va3MvdXNlTWFzY290YXNcIjtcclxuXHJcbmNvbnN0IENPTE9SUyA9IFsnIzNCODJGNicsICcjMjJDNTVFJywgJyNGNTlFMEInLCAnI0VGNDQ0NCcsICcjOEI1Q0Y2JywgJyMwNkI2RDQnXTtcclxuXHJcbmV4cG9ydCBmdW5jdGlvbiBEYXNoYm9hcmRVbmlmaWNhZG8oeyBvbk5hdmlnYXRlIH06IHsgb25OYXZpZ2F0ZT86IChwYWdlOiBzdHJpbmcpID0+IHZvaWQgfSkge1xyXG4gIGNvbnN0IFthY3RpdmVUYWIsIHNldEFjdGl2ZVRhYl0gPSB1c2VTdGF0ZSgncmVzdW1lbicpO1xyXG4gIGNvbnN0IFtwZXJpb2RvLCBzZXRQZXJpb2RvXSA9IHVzZVN0YXRlKCc2bScpO1xyXG5cclxuICBjb25zdCB7IHZlbnRhcywgbG9hZGluZzogbG9hZGluZ1ZlbnRhcyB9ID0gdXNlVmVudGFzKCk7XHJcbiAgY29uc3QgeyBjbGllbnRlcywgbG9hZGluZzogbG9hZGluZ0NsaWVudGVzIH0gPSB1c2VDbGllbnRlcygpO1xyXG4gIGNvbnN0IHsgY2l0YXMsIGxvYWRpbmc6IGxvYWRpbmdDaXRhcyB9ID0gdXNlQWdlbmRhbWllbnRvKCk7XHJcblxyXG4gIC8vIFByb2Nlc2FyIGRhdG9zIHBhcmEgZ3LDoWZpY29zXHJcbiAgY29uc3QgY2hhcnREYXRhID0gdXNlTWVtbygoKSA9PiB7XHJcbiAgICAvLyBBZ3J1cGFyIHZlbnRhcyBwb3IgbWVzXHJcbiAgICBjb25zdCB2ZW50YXNQb3JNZXM6IFJlY29yZDxzdHJpbmcsIGFueT4gPSB7fTtcclxuICAgIGNvbnN0IG1lc2VzID0gWydFbmUnLCAnRmViJywgJ01hcicsICdBYnInLCAnTWF5JywgJ0p1bicsICdKdWwnLCAnQWdvJywgJ1NlcCcsICdPY3QnLCAnTm92JywgJ0RpYyddO1xyXG5cclxuICAgIC8vIEluaWNpYWxpemFyIGNvbiBjZXJvcyDDumx0aW1vcyA2IG1lc2VzIChzaW1wbGlmaWNhZG8pXHJcbiAgICBtZXNlcy5zbGljZSgwLCA2KS5mb3JFYWNoKG1lcyA9PiB7XHJcbiAgICAgIHZlbnRhc1Bvck1lc1ttZXNdID0geyBtZXMsIHZlbnRhczogMCwgdHJhbnNhY2Npb25lczogMCB9O1xyXG4gICAgfSk7XHJcblxyXG4gICAgdmVudGFzLmZvckVhY2godiA9PiB7XHJcbiAgICAgIGNvbnN0IGZlY2hhID0gbmV3IERhdGUodi5mZWNoYSB8fCAodiBhcyBhbnkpLmZlY2hhX3ZlbnRhKTtcclxuICAgICAgY29uc3QgbWVzTm9tYnJlID0gbWVzZXNbZmVjaGEuZ2V0TW9udGgoKV07XHJcbiAgICAgIGlmICh2ZW50YXNQb3JNZXNbbWVzTm9tYnJlXSkge1xyXG4gICAgICAgIHZlbnRhc1Bvck1lc1ttZXNOb21icmVdLnZlbnRhcyArPSBOdW1iZXIodi50b3RhbCk7XHJcbiAgICAgICAgdmVudGFzUG9yTWVzW21lc05vbWJyZV0udHJhbnNhY2Npb25lcyArPSAxO1xyXG4gICAgICB9XHJcbiAgICB9KTtcclxuXHJcbiAgICBjb25zdCB2ZW50YXNEYXRhUmVhbCA9IE9iamVjdC52YWx1ZXModmVudGFzUG9yTWVzKTtcclxuXHJcbiAgICAvLyBBZ3J1cGFyIGNsaWVudGVzIG51ZXZvcyBwb3IgbWVzXHJcbiAgICBjb25zdCBjbGllbnRlc1Bvck1lczogUmVjb3JkPHN0cmluZywgYW55PiA9IHt9O1xyXG4gICAgbWVzZXMuc2xpY2UoMCwgNikuZm9yRWFjaChtZXMgPT4ge1xyXG4gICAgICBjbGllbnRlc1Bvck1lc1ttZXNdID0geyBtZXMsIG51ZXZvczogMCwgYWN0aXZvczogY2xpZW50ZXMubGVuZ3RoIH07XHJcbiAgICB9KTtcclxuXHJcbiAgICBjbGllbnRlcy5mb3JFYWNoKChfLCBpZHgpID0+IHtcclxuICAgICAgLy8gRGlzdHJpYnVpciBjbGllbnRlcyBlbiBlbCBwcmltZXIgbWVzIGRpc3BvbmlibGUgY29tbyBmYWxsYmFja1xyXG4gICAgICBjb25zdCBtZXNOb21icmUgPSBtZXNlc1tpZHggJSA2XTtcclxuICAgICAgaWYgKGNsaWVudGVzUG9yTWVzW21lc05vbWJyZV0pIHtcclxuICAgICAgICBjbGllbnRlc1Bvck1lc1ttZXNOb21icmVdLm51ZXZvcyArPSAxO1xyXG4gICAgICB9XHJcbiAgICB9KTtcclxuXHJcbiAgICBjb25zdCBjbGllbnRlc0RhdGFSZWFsID0gT2JqZWN0LnZhbHVlcyhjbGllbnRlc1Bvck1lcyk7XHJcblxyXG4gICAgcmV0dXJuIHsgdmVudGFzRGF0YVJlYWwsIGNsaWVudGVzRGF0YVJlYWwgfTtcclxuICB9LCBbdmVudGFzLCBjbGllbnRlc10pO1xyXG5cclxuICAvLyBNw6l0cmljYXMgcHJpbmNpcGFsZXNcclxuICBjb25zdCBtZXRyaWNzID0gdXNlTWVtbygoKSA9PiB7XHJcbiAgICBjb25zdCB0b3RhbFZlbnRhcyA9IHZlbnRhcy5yZWR1Y2UoKHN1bSwgdikgPT4gc3VtICsgTnVtYmVyKHYudG90YWwpLCAwKTtcclxuICAgIGNvbnN0IHRvdGFsQ2xpZW50ZXMgPSBjbGllbnRlcy5sZW5ndGg7XHJcbiAgICBjb25zdCBob3kgPSBuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCkuc3BsaXQoJ1QnKVswXTtcclxuICAgIGNvbnN0IGNpdGFzSG95ID0gY2l0YXMuZmlsdGVyKGMgPT4gYy5mZWNoYSA9PT0gaG95KS5sZW5ndGg7XHJcblxyXG4gICAgLy8gVmVudGFzIGRlIGhveVxyXG4gICAgY29uc3QgdmVudGFzSG95Q291bnQgPSB2ZW50YXMuZmlsdGVyKHYgPT4ge1xyXG4gICAgICBjb25zdCBmID0gbmV3IERhdGUodi5mZWNoYSB8fCAodiBhcyBhbnkpLmZlY2hhX3ZlbnRhKS50b0lTT1N0cmluZygpLnNwbGl0KCdUJylbMF07XHJcbiAgICAgIHJldHVybiBmID09PSBob3k7XHJcbiAgICB9KS5yZWR1Y2UoKHN1bSwgdikgPT4gc3VtICsgTnVtYmVyKHYudG90YWwpLCAwKTtcclxuXHJcbiAgICByZXR1cm4ge1xyXG4gICAgICB2ZW50YXNUb3RhbDogdG90YWxWZW50YXMsXHJcbiAgICAgIHZlbnRhc0hveTogdmVudGFzSG95Q291bnQsXHJcbiAgICAgIGNsaWVudGVzVG90YWw6IHRvdGFsQ2xpZW50ZXMsXHJcbiAgICAgIGNpdGFzSG95OiBjaXRhc0hveSxcclxuICAgICAgdGlja2V0UHJvbWVkaW86IHZlbnRhcy5sZW5ndGggPiAwID8gdG90YWxWZW50YXMgLyB2ZW50YXMubGVuZ3RoIDogMFxyXG4gICAgfTtcclxuICB9LCBbdmVudGFzLCBjbGllbnRlcywgY2l0YXNdKTtcclxuXHJcbiAgY29uc3QgbG9hZGluZyA9IGxvYWRpbmdWZW50YXMgfHwgbG9hZGluZ0NsaWVudGVzIHx8IGxvYWRpbmdDaXRhcztcclxuXHJcbiAgY29uc3QgZ2V0VXJnZW5jaWFDb2xvciA9ICh1cmdlbmNpYTogc3RyaW5nKSA9PiB7XHJcbiAgICBzd2l0Y2ggKHVyZ2VuY2lhKSB7XHJcbiAgICAgIGNhc2UgXCJ1cmdlbnRlXCI6IHJldHVybiBcInRleHQtcmVkLTQwMCBiZy1yZWQtOTAwLzIwIGJvcmRlci1yZWQtNTAwLzMwXCI7XHJcbiAgICAgIGNhc2UgXCJhbHRhXCI6IHJldHVybiBcInRleHQtb3JhbmdlLTQwMCBiZy1vcmFuZ2UtOTAwLzIwIGJvcmRlci1vcmFuZ2UtNTAwLzMwXCI7XHJcbiAgICAgIGNhc2UgXCJpbmZvXCI6IHJldHVybiBcInRleHQtY3lhbi00MDAgYmctY3lhbi05MDAvMjAgYm9yZGVyLWN5YW4tNTAwLzMwXCI7XHJcbiAgICAgIGRlZmF1bHQ6IHJldHVybiBcInRleHQtYmx1ZS00MDAgYmctYmx1ZS05MDAvMjAgYm9yZGVyLWJsdWUtNTAwLzMwXCI7XHJcbiAgICB9XHJcbiAgfTtcclxuXHJcbiAgY29uc3QgZ2V0RXN0YWRvSW5zdW1vID0gKGVzdGFkbzogc3RyaW5nKSA9PiB7XHJcbiAgICBzd2l0Y2ggKGVzdGFkbykge1xyXG4gICAgICBjYXNlIFwiY3JpdGljb1wiOlxyXG4gICAgICAgIHJldHVybiBcInRleHQtcmVkLTQwMCBiZy1yZWQtOTAwLzIwXCI7XHJcbiAgICAgIGNhc2UgXCJiYWpvXCI6XHJcbiAgICAgICAgcmV0dXJuIFwidGV4dC1vcmFuZ2UtNDAwIGJnLW9yYW5nZS05MDAvMjBcIjtcclxuICAgICAgY2FzZSBcImJ1ZW5vXCI6XHJcbiAgICAgICAgcmV0dXJuIFwidGV4dC1ncmVlbi00MDAgYmctZ3JlZW4tOTAwLzIwXCI7XHJcbiAgICAgIGNhc2UgXCJleGNlbGVudGVcIjpcclxuICAgICAgICByZXR1cm4gXCJ0ZXh0LWJsdWUtNDAwIGJnLWJsdWUtOTAwLzIwXCI7XHJcbiAgICAgIGRlZmF1bHQ6XHJcbiAgICAgICAgcmV0dXJuIFwidGV4dC1ncmF5LTQwMCBiZy1ncmF5LTkwMC8yMFwiO1xyXG4gICAgfVxyXG4gIH07XHJcblxyXG4gIHJldHVybiAoXHJcbiAgICA8PlxyXG4gICAgICB7LyogSGVhZGVyICovfVxyXG4gICAgICA8aGVhZGVyIGNsYXNzTmFtZT1cImJnLWRhcmstY2FyZC81MCBiYWNrZHJvcC1ibHVyLXNtIGJvcmRlci1iIGJvcmRlci1kYXJrLWNvbG9yLzUwIHB4LTEwIHB5LTQgZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1iZXR3ZWVuIHN0aWNreSB0b3AtMCB6LTEwIHRyYW5zaXRpb24tY29sb3JzIGR1cmF0aW9uLTMwMFwiPlxyXG4gICAgICAgIDxkaXY+XHJcbiAgICAgICAgICA8aDEgY2xhc3NOYW1lPVwidGV4dC0yeGwgZm9udC1zZW1pYm9sZCB0ZXh0LWRhcmstcHJpbWFyeVwiPkRhc2hib2FyZDwvaDE+XHJcbiAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBzcGFjZS14LTNcIj5cclxuICAgICAgICAgIHtsb2FkaW5nICYmIDxMb2FkZXIyIGNsYXNzTmFtZT1cInctNSBoLTUgdGV4dC1ibHVlLTUwMCBhbmltYXRlLXNwaW5cIiAvPn1cclxuICAgICAgICAgIDxzZWxlY3RcclxuICAgICAgICAgICAgdmFsdWU9e3BlcmlvZG99XHJcbiAgICAgICAgICAgIG9uQ2hhbmdlPXsoZSkgPT4gc2V0UGVyaW9kbyhlLnRhcmdldC52YWx1ZSl9XHJcbiAgICAgICAgICAgIGNsYXNzTmFtZT1cInB4LTMgcHktMiBiZy1kYXJrLWhvdmVyIGJvcmRlciBib3JkZXItZGFyay1jb2xvciByb3VuZGVkLWxnIHRleHQtZGFyay1wcmltYXJ5IGZvY3VzOmJvcmRlci1kYXJrLWN0YSBmb2N1czpvdXRsaW5lLW5vbmVcIlxyXG4gICAgICAgICAgPlxyXG4gICAgICAgICAgICA8b3B0aW9uIHZhbHVlPVwiMWRcIj5Ib3k8L29wdGlvbj5cclxuICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT1cIjdkXCI+w5psdGltYSBzZW1hbmE8L29wdGlvbj5cclxuICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT1cIjFtXCI+w5psdGltbyBtZXM8L29wdGlvbj5cclxuICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT1cIjNtXCI+w5psdGltb3MgMyBtZXNlczwvb3B0aW9uPlxyXG4gICAgICAgICAgICA8b3B0aW9uIHZhbHVlPVwiNm1cIj7Dmmx0aW1vcyA2IG1lc2VzPC9vcHRpb24+XHJcbiAgICAgICAgICAgIDxvcHRpb24gdmFsdWU9XCIxeVwiPsOabHRpbW8gYcOxbzwvb3B0aW9uPlxyXG4gICAgICAgICAgPC9zZWxlY3Q+XHJcbiAgICAgICAgICA8QnV0dG9uIGNsYXNzTmFtZT1cImRhcmstYnV0dG9uLXByaW1hcnkgZ2FwLTJcIj5cclxuICAgICAgICAgICAgPERvd25sb2FkIGNsYXNzTmFtZT1cInctNCBoLTRcIiAvPlxyXG4gICAgICAgICAgICBFeHBvcnRhciBSZXBvcnRlXHJcbiAgICAgICAgICA8L0J1dHRvbj5cclxuICAgICAgICA8L2Rpdj5cclxuICAgICAgPC9oZWFkZXI+XHJcblxyXG4gICAgICA8bWFpbiBjbGFzc05hbWU9XCJmbGV4LTEgb3ZlcmZsb3ctYXV0byBwLTggYmctZGFyay1iZ1wiPlxyXG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwibWF4LXctNnhsIG14LWF1dG9cIj5cclxuICAgICAgICAgIHsvKiBUYWJzIHByaW5jaXBhbGVzICovfVxyXG4gICAgICAgICAgPFRhYnMgdmFsdWU9e2FjdGl2ZVRhYn0gb25WYWx1ZUNoYW5nZT17c2V0QWN0aXZlVGFifSBjbGFzc05hbWU9XCJzcGFjZS15LTZcIj5cclxuICAgICAgICAgICAgPFRhYnNMaXN0IGNsYXNzTmFtZT1cImdyaWQgdy1mdWxsIGdyaWQtY29scy0zIGJnLWRhcmstY2FyZCBib3JkZXIgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICAgICAgICA8VGFic1RyaWdnZXIgdmFsdWU9XCJyZXN1bWVuXCI+VmlzdGEgR2VuZXJhbDwvVGFic1RyaWdnZXI+XHJcbiAgICAgICAgICAgICAgPFRhYnNUcmlnZ2VyIHZhbHVlPVwiYW5hbHl0aWNzXCI+QW5hbHl0aWNzIFZlbnRhczwvVGFic1RyaWdnZXI+XHJcbiAgICAgICAgICAgICAgPFRhYnNUcmlnZ2VyIHZhbHVlPVwiYWxlcnRhc1wiPlNpc3RlbWE8L1RhYnNUcmlnZ2VyPlxyXG4gICAgICAgICAgICA8L1RhYnNMaXN0PlxyXG5cclxuICAgICAgICAgICAgey8qIFRhYjogVmlzdGEgR2VuZXJhbCAqL31cclxuICAgICAgICAgICAgPFRhYnNDb250ZW50IHZhbHVlPVwicmVzdW1lblwiIGNsYXNzTmFtZT1cInNwYWNlLXktOFwiPlxyXG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZ3JpZCBncmlkLWNvbHMtMSBtZDpncmlkLWNvbHMtMiBsZzpncmlkLWNvbHMtNCBnYXAtNlwiPlxyXG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJkYXJrLWNhcmQgaG92ZXI6ZGFyay1zaGFkb3ctbGcgdHJhbnNpdGlvbi1hbGwgZHVyYXRpb24tMzAwIGhvdmVyOi10cmFuc2xhdGUteS0xXCI+XHJcbiAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1iZXR3ZWVuIG1iLTRcIj5cclxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInctMTQgaC0xNCByb3VuZGVkLTJ4bCBiZy1ncmFkaWVudC10by1iciBmcm9tLWdyZWVuLTUwMCB0by1lbWVyYWxkLTYwMCBmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlclwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPERvbGxhclNpZ24gY2xhc3NOYW1lPVwidy03IGgtNyB0ZXh0LXdoaXRlXCIgLz5cclxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgIDxkaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgPGgzIGNsYXNzTmFtZT1cInRleHQtM3hsIGZvbnQtYm9sZCB0ZXh0LWRhcmstcHJpbWFyeSBtYi0xXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAke21ldHJpY3MudmVudGFzSG95LnRvTG9jYWxlU3RyaW5nKCl9XHJcbiAgICAgICAgICAgICAgICAgICAgPC9oMz5cclxuICAgICAgICAgICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LXNtIGZvbnQtbWVkaXVtIHRleHQtZGFyay1zZWNvbmRhcnlcIj5WZW50YXMgSG95PC9wPlxyXG4gICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZGFyay1jYXJkIGhvdmVyOmRhcmstc2hhZG93LWxnIHRyYW5zaXRpb24tYWxsIGR1cmF0aW9uLTMwMCBob3ZlcjotdHJhbnNsYXRlLXktMVwiPlxyXG4gICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktYmV0d2VlbiBtYi00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ3LTE0IGgtMTQgcm91bmRlZC0yeGwgYmctZ3JhZGllbnQtdG8tYnIgZnJvbS1ibHVlLTUwMCB0by1ibHVlLTYwMCBmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlclwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPFVzZXJzIGNsYXNzTmFtZT1cInctNyBoLTcgdGV4dC13aGl0ZVwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDxoMyBjbGFzc05hbWU9XCJ0ZXh0LTN4bCBmb250LWJvbGQgdGV4dC1kYXJrLXByaW1hcnkgbWItMVwiPnttZXRyaWNzLmNsaWVudGVzVG90YWx9PC9oMz5cclxuICAgICAgICAgICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LXNtIGZvbnQtbWVkaXVtIHRleHQtZGFyay1zZWNvbmRhcnlcIj5DbGllbnRlcyBUb3RhbGVzPC9wPlxyXG4gICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZGFyay1jYXJkIGhvdmVyOmRhcmstc2hhZG93LWxnIHRyYW5zaXRpb24tYWxsIGR1cmF0aW9uLTMwMCBob3ZlcjotdHJhbnNsYXRlLXktMVwiPlxyXG4gICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktYmV0d2VlbiBtYi00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ3LTE0IGgtMTQgcm91bmRlZC0yeGwgYmctZ3JhZGllbnQtdG8tYnIgZnJvbS1wdXJwbGUtNTAwIHRvLXB1cnBsZS02MDAgZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgIDxDYWxlbmRhciBjbGFzc05hbWU9XCJ3LTcgaC03IHRleHQtd2hpdGVcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgPGRpdj5cclxuICAgICAgICAgICAgICAgICAgICA8aDMgY2xhc3NOYW1lPVwidGV4dC0zeGwgZm9udC1ib2xkIHRleHQtZGFyay1wcmltYXJ5IG1iLTFcIj57bWV0cmljcy5jaXRhc0hveX08L2gzPlxyXG4gICAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gZm9udC1tZWRpdW0gdGV4dC1kYXJrLXNlY29uZGFyeVwiPkNpdGFzIEhveTwvcD5cclxuICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImRhcmstY2FyZCBob3ZlcjpkYXJrLXNoYWRvdy1sZyB0cmFuc2l0aW9uLWFsbCBkdXJhdGlvbi0zMDAgaG92ZXI6LXRyYW5zbGF0ZS15LTFcIj5cclxuICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWJldHdlZW4gbWItNFwiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidy0xNCBoLTE0IHJvdW5kZWQtMnhsIGJnLWdyYWRpZW50LXRvLWJyIGZyb20tb3JhbmdlLTUwMCB0by1vcmFuZ2UtNjAwIGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8QmFyQ2hhcnQzIGNsYXNzTmFtZT1cInctNyBoLTcgdGV4dC13aGl0ZVwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDxoMyBjbGFzc05hbWU9XCJ0ZXh0LTN4bCBmb250LWJvbGQgdGV4dC1kYXJrLXByaW1hcnkgbWItMVwiPiR7TWF0aC5yb3VuZChtZXRyaWNzLnRpY2tldFByb21lZGlvKX08L2gzPlxyXG4gICAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gZm9udC1tZWRpdW0gdGV4dC1kYXJrLXNlY29uZGFyeVwiPlRpY2tldCBQcm9tZWRpbzwvcD5cclxuICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICA8L2Rpdj5cclxuXHJcblxyXG4gICAgICAgICAgICAgIHsvKiBTZWNjacOzbiBkZSBDaXRhcyAqL31cclxuICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXgganVzdGlmeS1jZW50ZXIgdy1mdWxsXCI+XHJcbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInctZnVsbCBtYXgtdy00eGxcIj5cclxuICAgICAgICAgICAgICAgICAgPENpdGFzSG95IG9uVmVyQ2FsZW5kYXJpbz17KCkgPT4gb25OYXZpZ2F0ZT8uKFwiQWdlbmRhbWllbnRvXCIpfSAvPlxyXG4gICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgIDwvVGFic0NvbnRlbnQ+XHJcblxyXG4gICAgICAgICAgICB7LyogVGFiOiBBbmFseXRpY3MgKi99XHJcbiAgICAgICAgICAgIDxUYWJzQ29udGVudCB2YWx1ZT1cImFuYWx5dGljc1wiIGNsYXNzTmFtZT1cInNwYWNlLXktNlwiPlxyXG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZ3JpZCBncmlkLWNvbHMtMSBsZzpncmlkLWNvbHMtMiBnYXAtNlwiPlxyXG4gICAgICAgICAgICAgICAgPENhcmQgY2xhc3NOYW1lPVwiZGFyay1jYXJkXCI+XHJcbiAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1iZXR3ZWVuIHBiLTRcIj5cclxuICAgICAgICAgICAgICAgICAgICA8aDMgY2xhc3NOYW1lPVwidGV4dC1sZyBmb250LXNlbWlib2xkIHRleHQtZGFyay1wcmltYXJ5XCI+VmVudGFzIHBvciBNZXM8L2gzPlxyXG4gICAgICAgICAgICAgICAgICAgIDxCdXR0b24gdmFyaWFudD1cIm91dGxpbmVcIiBzaXplPVwic21cIiBjbGFzc05hbWU9XCJib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstc2Vjb25kYXJ5XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8RG9sbGFyU2lnbiBjbGFzc05hbWU9XCJ3LTQgaC00XCIgLz5cclxuICAgICAgICAgICAgICAgICAgICA8L0J1dHRvbj5cclxuICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiaC04MFwiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxSZXNwb25zaXZlQ29udGFpbmVyIHdpZHRoPVwiMTAwJVwiIGhlaWdodD1cIjEwMCVcIj5cclxuICAgICAgICAgICAgICAgICAgICAgIDxBcmVhQ2hhcnQgZGF0YT17Y2hhcnREYXRhLnZlbnRhc0RhdGFSZWFsfT5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPENhcnRlc2lhbkdyaWQgc3Ryb2tlRGFzaGFycmF5PVwiMyAzXCIgc3Ryb2tlPVwiIzM3NDE1MVwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxYQXhpcyBkYXRhS2V5PVwibWVzXCIgc3Ryb2tlPVwiIzk0QTNCOFwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxZQXhpcyBzdHJva2U9XCIjOTRBM0I4XCIgLz5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPFRvb2x0aXBcclxuICAgICAgICAgICAgICAgICAgICAgICAgICBjb250ZW50U3R5bGU9e3tcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIGJhY2tncm91bmRDb2xvcjogJyMxRTI5M0InLFxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgYm9yZGVyOiAnMXB4IHNvbGlkICMzNzQxNTEnLFxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgYm9yZGVyUmFkaXVzOiAnOHB4J1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIH19XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxBcmVhIHR5cGU9XCJtb25vdG9uZVwiIGRhdGFLZXk9XCJ2ZW50YXNcIiBzdHJva2U9XCIjM0I4MkY2XCIgZmlsbD1cIiMzQjgyRjYyMFwiIHN0cm9rZVdpZHRoPXszfSBuYW1lPVwiVmVudGFzICgkKVwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8L0FyZWFDaGFydD5cclxuICAgICAgICAgICAgICAgICAgICA8L1Jlc3BvbnNpdmVDb250YWluZXI+XHJcbiAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgPC9DYXJkPlxyXG5cclxuICAgICAgICAgICAgICAgIDxDYXJkIGNsYXNzTmFtZT1cImRhcmstY2FyZFwiPlxyXG4gICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktYmV0d2VlbiBwYi00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgPGgzIGNsYXNzTmFtZT1cInRleHQtbGcgZm9udC1zZW1pYm9sZCB0ZXh0LWRhcmstcHJpbWFyeVwiPk51ZXZvcyBDbGllbnRlczwvaDM+XHJcbiAgICAgICAgICAgICAgICAgICAgPEJ1dHRvbiB2YXJpYW50PVwib3V0bGluZVwiIHNpemU9XCJzbVwiIGNsYXNzTmFtZT1cImJvcmRlci1kYXJrLWNvbG9yIHRleHQtZGFyay1zZWNvbmRhcnlcIj5cclxuICAgICAgICAgICAgICAgICAgICAgIDxVc2VycyBjbGFzc05hbWU9XCJ3LTQgaC00XCIgLz5cclxuICAgICAgICAgICAgICAgICAgICA8L0J1dHRvbj5cclxuICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiaC04MFwiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxSZXNwb25zaXZlQ29udGFpbmVyIHdpZHRoPVwiMTAwJVwiIGhlaWdodD1cIjEwMCVcIj5cclxuICAgICAgICAgICAgICAgICAgICAgIDxMaW5lQ2hhcnQgZGF0YT17Y2hhcnREYXRhLmNsaWVudGVzRGF0YVJlYWx9PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8Q2FydGVzaWFuR3JpZCBzdHJva2VEYXNoYXJyYXk9XCIzIDNcIiBzdHJva2U9XCIjMzc0MTUxXCIgLz5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPFhBeGlzIGRhdGFLZXk9XCJtZXNcIiBzdHJva2U9XCIjOTRBM0I4XCIgLz5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPFlBeGlzIHN0cm9rZT1cIiM5NEEzQjhcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8VG9vbHRpcFxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnRlbnRTdHlsZT17e1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgYmFja2dyb3VuZENvbG9yOiAnIzFFMjkzQicsXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICBib3JkZXI6ICcxcHggc29saWQgIzM3NDE1MScsXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICBib3JkZXJSYWRpdXM6ICc4cHgnXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgfX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgLz5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPExpbmUgdHlwZT1cIm1vbm90b25lXCIgZGF0YUtleT1cIm51ZXZvc1wiIHN0cm9rZT1cIiMyMkM1NUVcIiBzdHJva2VXaWR0aD17M30gbmFtZT1cIk51ZXZvcyBDbGllbnRlc1wiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8L0xpbmVDaGFydD5cclxuICAgICAgICAgICAgICAgICAgICA8L1Jlc3BvbnNpdmVDb250YWluZXI+XHJcbiAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgPC9DYXJkPlxyXG4gICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICA8L1RhYnNDb250ZW50PlxyXG5cclxuICAgICAgICAgICAgey8qIFRhYjogU2lzdGVtYS9BbGVydGFzICovfVxyXG4gICAgICAgICAgICA8VGFic0NvbnRlbnQgdmFsdWU9XCJhbGVydGFzXCIgY2xhc3NOYW1lPVwic3BhY2UteS02XCI+XHJcbiAgICAgICAgICAgICAgPENhcmQgY2xhc3NOYW1lPVwiZGFyay1jYXJkXCI+XHJcbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktYmV0d2VlbiBwYi02XCI+XHJcbiAgICAgICAgICAgICAgICAgIDxkaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgPGgzIGNsYXNzTmFtZT1cInRleHQteGwgZm9udC1ib2xkIHRleHQtZGFyay1wcmltYXJ5IG1iLTIgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgIDxTaGllbGQgY2xhc3NOYW1lPVwidy01IGgtNSB0ZXh0LWJsdWUtNDAwXCIgLz5cclxuICAgICAgICAgICAgICAgICAgICAgIEVzdGFkbyBkZWwgU2lzdGVtYVxyXG4gICAgICAgICAgICAgICAgICAgIDwvaDM+XHJcbiAgICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXNlY29uZGFyeSBmb250LW1lZGl1bVwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgSW5mb3JtYWNpw7NuIHTDqWNuaWNhIHkgY29uZWN0aXZpZGFkIGVuIHRpZW1wbyByZWFsXHJcbiAgICAgICAgICAgICAgICAgICAgPC9wPlxyXG4gICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTRcIj5cclxuICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWJldHdlZW4gcC00IHJvdW5kZWQteGwgYmctZGFyay1ob3ZlciBib3JkZXIgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0zXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInctMyBoLTMgcm91bmRlZC1mdWxsIGJnLWdyZWVuLTUwMCBhbmltYXRlLXB1bHNlXCI+PC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJmb250LW1lZGl1bSB0ZXh0LWRhcmstcHJpbWFyeVwiPkJhc2UgZGUgRGF0b3MgTVMgU1FMIFNlcnZlcjwvc3Bhbj5cclxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICA8QmFkZ2UgY2xhc3NOYW1lPVwiYmctZ3JlZW4tOTAwLzIwIHRleHQtZ3JlZW4tNDAwIGJvcmRlci1ncmVlbi01MDAvMzBcIj5DT05FQ1RBRE88L0JhZGdlPlxyXG4gICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWJldHdlZW4gcC00IHJvdW5kZWQteGwgYmctZGFyay1ob3ZlciBib3JkZXIgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0zXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInctMyBoLTMgcm91bmRlZC1mdWxsIGJnLWdyZWVuLTUwMCBhbmltYXRlLXB1bHNlXCI+PC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJmb250LW1lZGl1bSB0ZXh0LWRhcmstcHJpbWFyeVwiPkFQSSBTZXJ2ZXIgKEV4cHJlc3MpPC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDxCYWRnZSBjbGFzc05hbWU9XCJiZy1ncmVlbi05MDAvMjAgdGV4dC1ncmVlbi00MDAgYm9yZGVyLWdyZWVuLTUwMC8zMFwiPk9OTElORTwvQmFkZ2U+XHJcbiAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgPC9DYXJkPlxyXG4gICAgICAgICAgICA8L1RhYnNDb250ZW50PlxyXG4gICAgICAgICAgPC9UYWJzPlxyXG4gICAgICAgIDwvZGl2PlxyXG4gICAgICA8L21haW4+XHJcbiAgICA8Lz5cclxuICApO1xyXG59XHJcbiJdLCJuYW1lcyI6WyJ1c2VTdGF0ZSIsInVzZU1lbW8iLCJCdXR0b24iLCJDYXJkIiwiVGFicyIsIlRhYnNDb250ZW50IiwiVGFic0xpc3QiLCJUYWJzVHJpZ2dlciIsIkJhZGdlIiwiTGluZUNoYXJ0IiwiTGluZSIsIkFyZWFDaGFydCIsIkFyZWEiLCJYQXhpcyIsIllBeGlzIiwiQ2FydGVzaWFuR3JpZCIsIlRvb2x0aXAiLCJSZXNwb25zaXZlQ29udGFpbmVyIiwiQmFyQ2hhcnQzIiwiQ2FsZW5kYXIiLCJEb2xsYXJTaWduIiwiVXNlcnMiLCJEb3dubG9hZCIsIlNoaWVsZCIsIkxvYWRlcjIiLCJDaXRhc0hveSIsInVzZVZlbnRhcyIsInVzZUNsaWVudGVzIiwidXNlQWdlbmRhbWllbnRvIiwiQ09MT1JTIiwiRGFzaGJvYXJkVW5pZmljYWRvIiwib25OYXZpZ2F0ZSIsImFjdGl2ZVRhYiIsInNldEFjdGl2ZVRhYiIsInBlcmlvZG8iLCJzZXRQZXJpb2RvIiwidmVudGFzIiwibG9hZGluZyIsImxvYWRpbmdWZW50YXMiLCJjbGllbnRlcyIsImxvYWRpbmdDbGllbnRlcyIsImNpdGFzIiwibG9hZGluZ0NpdGFzIiwiY2hhcnREYXRhIiwidmVudGFzUG9yTWVzIiwibWVzZXMiLCJzbGljZSIsImZvckVhY2giLCJtZXMiLCJ0cmFuc2FjY2lvbmVzIiwidiIsImZlY2hhIiwiRGF0ZSIsImZlY2hhX3ZlbnRhIiwibWVzTm9tYnJlIiwiZ2V0TW9udGgiLCJOdW1iZXIiLCJ0b3RhbCIsInZlbnRhc0RhdGFSZWFsIiwiT2JqZWN0IiwidmFsdWVzIiwiY2xpZW50ZXNQb3JNZXMiLCJudWV2b3MiLCJhY3Rpdm9zIiwibGVuZ3RoIiwiXyIsImlkeCIsImNsaWVudGVzRGF0YVJlYWwiLCJtZXRyaWNzIiwidG90YWxWZW50YXMiLCJyZWR1Y2UiLCJzdW0iLCJ0b3RhbENsaWVudGVzIiwiaG95IiwidG9JU09TdHJpbmciLCJzcGxpdCIsImNpdGFzSG95IiwiZmlsdGVyIiwiYyIsInZlbnRhc0hveUNvdW50IiwiZiIsInZlbnRhc1RvdGFsIiwidmVudGFzSG95IiwiY2xpZW50ZXNUb3RhbCIsInRpY2tldFByb21lZGlvIiwiZ2V0VXJnZW5jaWFDb2xvciIsInVyZ2VuY2lhIiwiZ2V0RXN0YWRvSW5zdW1vIiwiZXN0YWRvIiwiaGVhZGVyIiwiY2xhc3NOYW1lIiwiZGl2IiwiaDEiLCJzZWxlY3QiLCJ2YWx1ZSIsIm9uQ2hhbmdlIiwiZSIsInRhcmdldCIsIm9wdGlvbiIsIm1haW4iLCJvblZhbHVlQ2hhbmdlIiwiaDMiLCJ0b0xvY2FsZVN0cmluZyIsInAiLCJNYXRoIiwicm91bmQiLCJvblZlckNhbGVuZGFyaW8iLCJ2YXJpYW50Iiwic2l6ZSIsIndpZHRoIiwiaGVpZ2h0IiwiZGF0YSIsInN0cm9rZURhc2hhcnJheSIsInN0cm9rZSIsImRhdGFLZXkiLCJjb250ZW50U3R5bGUiLCJiYWNrZ3JvdW5kQ29sb3IiLCJib3JkZXIiLCJib3JkZXJSYWRpdXMiLCJ0eXBlIiwiZmlsbCIsInN0cm9rZVdpZHRoIiwibmFtZSIsInNwYW4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUFBLFNBQVNBLFFBQVEsRUFBRUMsT0FBTyxRQUFRLFFBQVE7QUFDMUMsU0FBU0MsTUFBTSxRQUFRLGVBQWU7QUFDdEMsU0FBU0MsSUFBSSxRQUFRLGFBQWE7QUFDbEMsU0FBU0MsSUFBSSxFQUFFQyxXQUFXLEVBQUVDLFFBQVEsRUFBRUMsV0FBVyxRQUFRLGFBQWE7QUFDdEUsU0FBU0MsS0FBSyxRQUFRLGNBQWM7QUFDcEMsU0FDRUMsU0FBUyxFQUFFQyxJQUFJLEVBQUVDLFNBQVMsRUFBRUMsSUFBSSxFQUNoQ0MsS0FBSyxFQUFFQyxLQUFLLEVBQUVDLGFBQWEsRUFBRUMsT0FBTyxFQUFVQyxtQkFBbUIsUUFDNUQsV0FBVztBQUNsQixTQUM0QkMsU0FBUyxFQUFFQyxRQUFRLEVBQUVDLFVBQVUsRUFBRUMsS0FBSyxFQUN4Q0MsUUFBUSxFQUNoQ0MsTUFBTSxFQUE4Q0MsT0FBTyxRQUN0RCxlQUFlO0FBQ3RCLFNBQVNDLFFBQVEsUUFBUSxjQUFjO0FBQ3ZDLFNBQVNDLFNBQVMsUUFBUSxxQkFBcUI7QUFDL0MsU0FBU0MsV0FBVyxRQUFRLHVCQUF1QjtBQUNuRCxTQUFTQyxlQUFlLFFBQVEsMkJBQTJCO0FBRzNELE1BQU1DLFNBQVM7SUFBQztJQUFXO0lBQVc7SUFBVztJQUFXO0lBQVc7Q0FBVTtBQUVqRixPQUFPLFNBQVNDLG1CQUFtQixFQUFFQyxVQUFVLEVBQTJDOztJQUN4RixNQUFNLENBQUNDLFdBQVdDLGFBQWEsR0FBR2pDLFNBQVM7SUFDM0MsTUFBTSxDQUFDa0MsU0FBU0MsV0FBVyxHQUFHbkMsU0FBUztJQUV2QyxNQUFNLEVBQUVvQyxNQUFNLEVBQUVDLFNBQVNDLGFBQWEsRUFBRSxHQUFHWjtJQUMzQyxN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

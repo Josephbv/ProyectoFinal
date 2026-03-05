@@ -1,0 +1,324 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/modals/ClienteModal.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"]; const useEffect = __vite__cjsImport3_react["useEffect"];
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "/src/components/ui/dialog.tsx?t=1772223881594";
+import { Button } from "/src/components/ui/button.tsx?t=1772223881528";
+import { Input } from "/src/components/ui/input.tsx";
+import { Label } from "/src/components/ui/label.tsx?t=1772223881635";
+import { User } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+import { useClientes } from "/src/components/hooks/useClientes.tsx";
+export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, readOnly = false }) {
+    _s();
+    const { clientes } = useClientes();
+    const [formData, setFormData] = useState({
+        nombre: '',
+        telefono: '',
+        correo: ''
+    });
+    const [errors, setErrors] = useState({});
+    useEffect(()=>{
+        if (cliente) {
+            setFormData({
+                nombre: cliente.nombre,
+                telefono: cliente.telefono || '',
+                correo: cliente.correo || ''
+            });
+        } else {
+            setFormData({
+                nombre: '',
+                telefono: '',
+                correo: ''
+            });
+        }
+        setErrors({});
+    }, [
+        cliente,
+        isOpen
+    ]);
+    const validateForm = ()=>{
+        const newErrors = {};
+        if (!formData.nombre.trim()) newErrors.nombre = 'El nombre es requerido';
+        if (formData.correo.trim() && !/\S+@\S+\.\S+/.test(formData.correo)) {
+            newErrors.correo = 'El email no es válido';
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        if (!validateForm()) return;
+        const clienteData = {
+            ...formData,
+            id_cliente: cliente?.id_cliente
+        };
+        const result = await onSubmit(clienteData);
+        if (result.success) {
+            onClose();
+        }
+    };
+    const handleChange = (field, value)=>{
+        setFormData((prev)=>({
+                ...prev,
+                [field]: value
+            }));
+        if (errors[field]) {
+            setErrors((prev)=>({
+                    ...prev,
+                    [field]: ''
+                }));
+        }
+    };
+    return /*#__PURE__*/ _jsxDEV(Dialog, {
+        open: isOpen,
+        onOpenChange: onClose,
+        children: /*#__PURE__*/ _jsxDEV(DialogContent, {
+            className: "max-w-md max-h-[90vh] overflow-y-auto bg-dark-card border-dark-color",
+            children: [
+                /*#__PURE__*/ _jsxDEV(DialogHeader, {
+                    children: [
+                        /*#__PURE__*/ _jsxDEV(DialogTitle, {
+                            className: "text-xl font-semibold text-dark-primary flex items-center gap-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(User, {
+                                    className: "w-5 h-5 text-blue-400"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                    lineNumber: 87,
+                                    columnNumber: 13
+                                }, this),
+                                readOnly ? 'Detalles del Cliente' : cliente ? 'Editar Cliente' : 'Nuevo Cliente'
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                            lineNumber: 86,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogDescription, {
+                            className: "text-dark-secondary",
+                            children: readOnly ? 'Información del cliente' : cliente ? 'Actualiza la información del cliente' : 'Completa los datos del nuevo cliente'
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                            lineNumber: 90,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                    lineNumber: 85,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV("form", {
+                    onSubmit: handleSubmit,
+                    className: "space-y-6",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            htmlFor: "nombre",
+                                            className: "text-dark-primary",
+                                            children: "Nombre *"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                            lineNumber: 98,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(Input, {
+                                            id: "nombre",
+                                            value: formData.nombre,
+                                            onChange: (e)=>handleChange('nombre', e.target.value),
+                                            className: "bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta",
+                                            placeholder: "Ingresa el nombre",
+                                            readOnly: readOnly
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                            lineNumber: 99,
+                                            columnNumber: 15
+                                        }, this),
+                                        errors.nombre && /*#__PURE__*/ _jsxDEV("p", {
+                                            className: "text-red-400 text-sm",
+                                            children: errors.nombre
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                            lineNumber: 107,
+                                            columnNumber: 33
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                    lineNumber: 97,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            htmlFor: "telefono",
+                                            className: "text-dark-primary",
+                                            children: "Teléfono"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                            lineNumber: 111,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(Input, {
+                                            id: "telefono",
+                                            value: formData.telefono,
+                                            onChange: (e)=>handleChange('telefono', e.target.value),
+                                            className: "bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta",
+                                            placeholder: "300-123-4567",
+                                            readOnly: readOnly
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                            lineNumber: 112,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                    lineNumber: 110,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            htmlFor: "correo",
+                                            className: "text-dark-primary",
+                                            children: "Email"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                            lineNumber: 123,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(Input, {
+                                            id: "correo",
+                                            type: "email",
+                                            value: formData.correo,
+                                            onChange: (e)=>handleChange('correo', e.target.value),
+                                            className: "bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta",
+                                            placeholder: "cliente@email.com",
+                                            readOnly: readOnly
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                            lineNumber: 124,
+                                            columnNumber: 15
+                                        }, this),
+                                        errors.correo && /*#__PURE__*/ _jsxDEV("p", {
+                                            className: "text-red-400 text-sm",
+                                            children: errors.correo
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                            lineNumber: 133,
+                                            columnNumber: 33
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                    lineNumber: 122,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                            lineNumber: 96,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogFooter, {
+                            className: "gap-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "button",
+                                    variant: "outline",
+                                    onClick: onClose,
+                                    className: "border-dark-color text-dark-secondary hover:bg-dark-hover",
+                                    children: readOnly ? 'Cerrar' : 'Cancelar'
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                    lineNumber: 138,
+                                    columnNumber: 13
+                                }, this),
+                                !readOnly && /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "submit",
+                                    disabled: loading,
+                                    className: "bg-dark-cta text-white hover:bg-blue-600",
+                                    children: loading ? 'Guardando...' : cliente ? 'Actualizar' : 'Crear Cliente'
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                                    lineNumber: 147,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                            lineNumber: 137,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+                    lineNumber: 95,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+            lineNumber: 84,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx",
+        lineNumber: 83,
+        columnNumber: 5
+    }, this);
+}
+_s(ClienteModal, "SLUxmpJuLzwmJrm8m7CyV9EAwhM=", false, function() {
+    return [
+        useClientes
+    ];
+});
+_c = ClienteModal;
+var _c;
+$RefreshReg$(_c, "ClienteModal");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ClienteModal.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIkNsaWVudGVNb2RhbC50c3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgdXNlU3RhdGUsIHVzZUVmZmVjdCB9IGZyb20gJ3JlYWN0JztcclxuaW1wb3J0IHsgRGlhbG9nLCBEaWFsb2dDb250ZW50LCBEaWFsb2dEZXNjcmlwdGlvbiwgRGlhbG9nRm9vdGVyLCBEaWFsb2dIZWFkZXIsIERpYWxvZ1RpdGxlIH0gZnJvbSAnLi4vdWkvZGlhbG9nJztcclxuaW1wb3J0IHsgQnV0dG9uIH0gZnJvbSAnLi4vdWkvYnV0dG9uJztcclxuaW1wb3J0IHsgSW5wdXQgfSBmcm9tICcuLi91aS9pbnB1dCc7XHJcbmltcG9ydCB7IExhYmVsIH0gZnJvbSAnLi4vdWkvbGFiZWwnO1xyXG5pbXBvcnQgeyBDbGllbnRlIH0gZnJvbSAnLi4vaG9va3MvdXNlQ2xpZW50ZXMnO1xyXG5pbXBvcnQgeyBVc2VyLCBQaG9uZSwgTWFpbCB9IGZyb20gJ2x1Y2lkZS1yZWFjdCc7XHJcbmltcG9ydCB7IHVzZUNsaWVudGVzIH0gZnJvbSAnLi4vaG9va3MvdXNlQ2xpZW50ZXMnO1xyXG5cclxuaW50ZXJmYWNlIENsaWVudGVNb2RhbFByb3BzIHtcclxuICBpc09wZW46IGJvb2xlYW47XHJcbiAgb25DbG9zZTogKCkgPT4gdm9pZDtcclxuICBvblN1Ym1pdDogKGNsaWVudGU6IE9taXQ8Q2xpZW50ZSwgJ2lkX2NsaWVudGUnIHwgJ21hc2NvdGFzJz4pID0+IFByb21pc2U8YW55PjtcclxuICBjbGllbnRlPzogQ2xpZW50ZSB8IG51bGw7XHJcbiAgbG9hZGluZz86IGJvb2xlYW47XHJcbiAgcmVhZE9ubHk/OiBib29sZWFuO1xyXG59XHJcblxyXG5leHBvcnQgZnVuY3Rpb24gQ2xpZW50ZU1vZGFsKHsgaXNPcGVuLCBvbkNsb3NlLCBvblN1Ym1pdCwgY2xpZW50ZSwgbG9hZGluZywgcmVhZE9ubHkgPSBmYWxzZSB9OiBDbGllbnRlTW9kYWxQcm9wcykge1xyXG4gIGNvbnN0IHsgY2xpZW50ZXMgfSA9IHVzZUNsaWVudGVzKCk7XHJcbiAgY29uc3QgW2Zvcm1EYXRhLCBzZXRGb3JtRGF0YV0gPSB1c2VTdGF0ZSh7XHJcbiAgICBub21icmU6ICcnLFxyXG4gICAgdGVsZWZvbm86ICcnLFxyXG4gICAgY29ycmVvOiAnJ1xyXG4gIH0pO1xyXG5cclxuICBjb25zdCBbZXJyb3JzLCBzZXRFcnJvcnNdID0gdXNlU3RhdGU8UmVjb3JkPHN0cmluZywgc3RyaW5nPj4oe30pO1xyXG5cclxuICB1c2VFZmZlY3QoKCkgPT4ge1xyXG4gICAgaWYgKGNsaWVudGUpIHtcclxuICAgICAgc2V0Rm9ybURhdGEoe1xyXG4gICAgICAgIG5vbWJyZTogY2xpZW50ZS5ub21icmUsXHJcbiAgICAgICAgdGVsZWZvbm86IGNsaWVudGUudGVsZWZvbm8gfHwgJycsXHJcbiAgICAgICAgY29ycmVvOiBjbGllbnRlLmNvcnJlbyB8fCAnJ1xyXG4gICAgICB9KTtcclxuICAgIH0gZWxzZSB7XHJcbiAgICAgIHNldEZvcm1EYXRhKHtcclxuICAgICAgICBub21icmU6ICcnLFxyXG4gICAgICAgIHRlbGVmb25vOiAnJyxcclxuICAgICAgICBjb3JyZW86ICcnXHJcbiAgICAgIH0pO1xyXG4gICAgfVxyXG4gICAgc2V0RXJyb3JzKHt9KTtcclxuICB9LCBbY2xpZW50ZSwgaXNPcGVuXSk7XHJcblxyXG4gIGNvbnN0IHZhbGlkYXRlRm9ybSA9ICgpID0+IHtcclxuICAgIGNvbnN0IG5ld0Vycm9yczogUmVjb3JkPHN0cmluZywgc3RyaW5nPiA9IHt9O1xyXG5cclxuICAgIGlmICghZm9ybURhdGEubm9tYnJlLnRyaW0oKSkgbmV3RXJyb3JzLm5vbWJyZSA9ICdFbCBub21icmUgZXMgcmVxdWVyaWRvJztcclxuXHJcbiAgICBpZiAoZm9ybURhdGEuY29ycmVvLnRyaW0oKSAmJiAhL1xcUytAXFxTK1xcLlxcUysvLnRlc3QoZm9ybURhdGEuY29ycmVvKSkge1xyXG4gICAgICBuZXdFcnJvcnMuY29ycmVvID0gJ0VsIGVtYWlsIG5vIGVzIHbDoWxpZG8nO1xyXG4gICAgfVxyXG5cclxuICAgIHNldEVycm9ycyhuZXdFcnJvcnMpO1xyXG4gICAgcmV0dXJuIE9iamVjdC5rZXlzKG5ld0Vycm9ycykubGVuZ3RoID09PSAwO1xyXG4gIH07XHJcblxyXG4gIGNvbnN0IGhhbmRsZVN1Ym1pdCA9IGFzeW5jIChlOiBSZWFjdC5Gb3JtRXZlbnQpID0+IHtcclxuICAgIGUucHJldmVudERlZmF1bHQoKTtcclxuXHJcbiAgICBpZiAoIXZhbGlkYXRlRm9ybSgpKSByZXR1cm47XHJcblxyXG4gICAgY29uc3QgY2xpZW50ZURhdGEgPSB7XHJcbiAgICAgIC4uLmZvcm1EYXRhLFxyXG4gICAgICBpZF9jbGllbnRlOiBjbGllbnRlPy5pZF9jbGllbnRlXHJcbiAgICB9IGFzIGFueTtcclxuXHJcbiAgICBjb25zdCByZXN1bHQgPSBhd2FpdCBvblN1Ym1pdChjbGllbnRlRGF0YSk7XHJcbiAgICBpZiAocmVzdWx0LnN1Y2Nlc3MpIHtcclxuICAgICAgb25DbG9zZSgpO1xyXG4gICAgfVxyXG4gIH07XHJcblxyXG4gIGNvbnN0IGhhbmRsZUNoYW5nZSA9IChmaWVsZDogc3RyaW5nLCB2YWx1ZTogc3RyaW5nKSA9PiB7XHJcbiAgICBzZXRGb3JtRGF0YShwcmV2ID0+ICh7IC4uLnByZXYsIFtmaWVsZF06IHZhbHVlIH0pKTtcclxuICAgIGlmIChlcnJvcnNbZmllbGRdKSB7XHJcbiAgICAgIHNldEVycm9ycyhwcmV2ID0+ICh7IC4uLnByZXYsIFtmaWVsZF06ICcnIH0pKTtcclxuICAgIH1cclxuICB9O1xyXG5cclxuICByZXR1cm4gKFxyXG4gICAgPERpYWxvZyBvcGVuPXtpc09wZW59IG9uT3BlbkNoYW5nZT17b25DbG9zZX0+XHJcbiAgICAgIDxEaWFsb2dDb250ZW50IGNsYXNzTmFtZT1cIm1heC13LW1kIG1heC1oLVs5MHZoXSBvdmVyZmxvdy15LWF1dG8gYmctZGFyay1jYXJkIGJvcmRlci1kYXJrLWNvbG9yXCI+XHJcbiAgICAgICAgPERpYWxvZ0hlYWRlcj5cclxuICAgICAgICAgIDxEaWFsb2dUaXRsZSBjbGFzc05hbWU9XCJ0ZXh0LXhsIGZvbnQtc2VtaWJvbGQgdGV4dC1kYXJrLXByaW1hcnkgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj5cclxuICAgICAgICAgICAgPFVzZXIgY2xhc3NOYW1lPVwidy01IGgtNSB0ZXh0LWJsdWUtNDAwXCIgLz5cclxuICAgICAgICAgICAge3JlYWRPbmx5ID8gJ0RldGFsbGVzIGRlbCBDbGllbnRlJyA6IGNsaWVudGUgPyAnRWRpdGFyIENsaWVudGUnIDogJ051ZXZvIENsaWVudGUnfVxyXG4gICAgICAgICAgPC9EaWFsb2dUaXRsZT5cclxuICAgICAgICAgIDxEaWFsb2dEZXNjcmlwdGlvbiBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstc2Vjb25kYXJ5XCI+XHJcbiAgICAgICAgICAgIHtyZWFkT25seSA/ICdJbmZvcm1hY2nDs24gZGVsIGNsaWVudGUnIDogY2xpZW50ZSA/ICdBY3R1YWxpemEgbGEgaW5mb3JtYWNpw7NuIGRlbCBjbGllbnRlJyA6ICdDb21wbGV0YSBsb3MgZGF0b3MgZGVsIG51ZXZvIGNsaWVudGUnfVxyXG4gICAgICAgICAgPC9EaWFsb2dEZXNjcmlwdGlvbj5cclxuICAgICAgICA8L0RpYWxvZ0hlYWRlcj5cclxuXHJcbiAgICAgICAgPGZvcm0gb25TdWJtaXQ9e2hhbmRsZVN1Ym1pdH0gY2xhc3NOYW1lPVwic3BhY2UteS02XCI+XHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktNFwiPlxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktMlwiPlxyXG4gICAgICAgICAgICAgIDxMYWJlbCBodG1sRm9yPVwibm9tYnJlXCIgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnlcIj5Ob21icmUgKjwvTGFiZWw+XHJcbiAgICAgICAgICAgICAgPElucHV0XHJcbiAgICAgICAgICAgICAgICBpZD1cIm5vbWJyZVwiXHJcbiAgICAgICAgICAgICAgICB2YWx1ZT17Zm9ybURhdGEubm9tYnJlfVxyXG4gICAgICAgICAgICAgICAgb25DaGFuZ2U9eyhlKSA9PiBoYW5kbGVDaGFuZ2UoJ25vbWJyZScsIGUudGFyZ2V0LnZhbHVlKX1cclxuICAgICAgICAgICAgICAgIGNsYXNzTmFtZT1cImJnLWRhcmstaG92ZXIgYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXByaW1hcnkgZm9jdXM6Ym9yZGVyLWRhcmstY3RhXCJcclxuICAgICAgICAgICAgICAgIHBsYWNlaG9sZGVyPVwiSW5ncmVzYSBlbCBub21icmVcIlxyXG4gICAgICAgICAgICAgICAgcmVhZE9ubHk9e3JlYWRPbmx5fVxyXG4gICAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgICAge2Vycm9ycy5ub21icmUgJiYgPHAgY2xhc3NOYW1lPVwidGV4dC1yZWQtNDAwIHRleHQtc21cIj57ZXJyb3JzLm5vbWJyZX08L3A+fVxyXG4gICAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BhY2UteS0yXCI+XHJcbiAgICAgICAgICAgICAgPExhYmVsIGh0bWxGb3I9XCJ0ZWxlZm9ub1wiIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5XCI+VGVsw6lmb25vPC9MYWJlbD5cclxuICAgICAgICAgICAgICA8SW5wdXRcclxuICAgICAgICAgICAgICAgIGlkPVwidGVsZWZvbm9cIlxyXG4gICAgICAgICAgICAgICAgdmFsdWU9e2Zvcm1EYXRhLnRlbGVmb25vfVxyXG4gICAgICAgICAgICAgICAgb25DaGFuZ2U9eyhlKSA9PiBoYW5kbGVDaGFuZ2UoJ3RlbGVmb25vJywgZS50YXJnZXQudmFsdWUpfVxyXG4gICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwiYmctZGFyay1ob3ZlciBib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstcHJpbWFyeSBmb2N1czpib3JkZXItZGFyay1jdGFcIlxyXG4gICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9XCIzMDAtMTIzLTQ1NjdcIlxyXG4gICAgICAgICAgICAgICAgcmVhZE9ubHk9e3JlYWRPbmx5fVxyXG4gICAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTJcIj5cclxuICAgICAgICAgICAgICA8TGFiZWwgaHRtbEZvcj1cImNvcnJlb1wiIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5XCI+RW1haWw8L0xhYmVsPlxyXG4gICAgICAgICAgICAgIDxJbnB1dFxyXG4gICAgICAgICAgICAgICAgaWQ9XCJjb3JyZW9cIlxyXG4gICAgICAgICAgICAgICAgdHlwZT1cImVtYWlsXCJcclxuICAgICAgICAgICAgICAgIHZhbHVlPXtmb3JtRGF0YS5jb3JyZW99XHJcbiAgICAgICAgICAgICAgICBvbkNoYW5nZT17KGUpID0+IGhhbmRsZUNoYW5nZSgnY29ycmVvJywgZS50YXJnZXQudmFsdWUpfVxyXG4gICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwiYmctZGFyay1ob3ZlciBib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstcHJpbWFyeSBmb2N1czpib3JkZXItZGFyay1jdGFcIlxyXG4gICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9XCJjbGllbnRlQGVtYWlsLmNvbVwiXHJcbiAgICAgICAgICAgICAgICByZWFkT25seT17cmVhZE9ubHl9XHJcbiAgICAgICAgICAgICAgLz5cclxuICAgICAgICAgICAgICB7ZXJyb3JzLmNvcnJlbyAmJiA8cCBjbGFzc05hbWU9XCJ0ZXh0LXJlZC00MDAgdGV4dC1zbVwiPntlcnJvcnMuY29ycmVvfTwvcD59XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgPERpYWxvZ0Zvb3RlciBjbGFzc05hbWU9XCJnYXAtMlwiPlxyXG4gICAgICAgICAgICA8QnV0dG9uXHJcbiAgICAgICAgICAgICAgdHlwZT1cImJ1dHRvblwiXHJcbiAgICAgICAgICAgICAgdmFyaWFudD1cIm91dGxpbmVcIlxyXG4gICAgICAgICAgICAgIG9uQ2xpY2s9e29uQ2xvc2V9XHJcbiAgICAgICAgICAgICAgY2xhc3NOYW1lPVwiYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXNlY29uZGFyeSBob3ZlcjpiZy1kYXJrLWhvdmVyXCJcclxuICAgICAgICAgICAgPlxyXG4gICAgICAgICAgICAgIHtyZWFkT25seSA/ICdDZXJyYXInIDogJ0NhbmNlbGFyJ31cclxuICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICAgIHshcmVhZE9ubHkgJiYgKFxyXG4gICAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICAgIHR5cGU9XCJzdWJtaXRcIlxyXG4gICAgICAgICAgICAgICAgZGlzYWJsZWQ9e2xvYWRpbmd9XHJcbiAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJiZy1kYXJrLWN0YSB0ZXh0LXdoaXRlIGhvdmVyOmJnLWJsdWUtNjAwXCJcclxuICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICB7bG9hZGluZyA/ICdHdWFyZGFuZG8uLi4nIDogY2xpZW50ZSA/ICdBY3R1YWxpemFyJyA6ICdDcmVhciBDbGllbnRlJ31cclxuICAgICAgICAgICAgICA8L0J1dHRvbj5cclxuICAgICAgICAgICAgKX1cclxuICAgICAgICAgIDwvRGlhbG9nRm9vdGVyPlxyXG4gICAgICAgIDwvZm9ybT5cclxuICAgICAgPC9EaWFsb2dDb250ZW50PlxyXG4gICAgPC9EaWFsb2c+XHJcbiAgKTtcclxufVxyXG4iXSwibmFtZXMiOlsidXNlU3RhdGUiLCJ1c2VFZmZlY3QiLCJEaWFsb2ciLCJEaWFsb2dDb250ZW50IiwiRGlhbG9nRGVzY3JpcHRpb24iLCJEaWFsb2dGb290ZXIiLCJEaWFsb2dIZWFkZXIiLCJEaWFsb2dUaXRsZSIsIkJ1dHRvbiIsIklucHV0IiwiTGFiZWwiLCJVc2VyIiwidXNlQ2xpZW50ZXMiLCJDbGllbnRlTW9kYWwiLCJpc09wZW4iLCJvbkNsb3NlIiwib25TdWJtaXQiLCJjbGllbnRlIiwibG9hZGluZyIsInJlYWRPbmx5IiwiY2xpZW50ZXMiLCJmb3JtRGF0YSIsInNldEZvcm1EYXRhIiwibm9tYnJlIiwidGVsZWZvbm8iLCJjb3JyZW8iLCJlcnJvcnMiLCJzZXRFcnJvcnMiLCJ2YWxpZGF0ZUZvcm0iLCJuZXdFcnJvcnMiLCJ0cmltIiwidGVzdCIsIk9iamVjdCIsImtleXMiLCJsZW5ndGgiLCJoYW5kbGVTdWJtaXQiLCJlIiwicHJldmVudERlZmF1bHQiLCJjbGllbnRlRGF0YSIsImlkX2NsaWVudGUiLCJyZXN1bHQiLCJzdWNjZXNzIiwiaGFuZGxlQ2hhbmdlIiwiZmllbGQiLCJ2YWx1ZSIsInByZXYiLCJvcGVuIiwib25PcGVuQ2hhbmdlIiwiY2xhc3NOYW1lIiwiZm9ybSIsImRpdiIsImh0bWxGb3IiLCJpZCIsIm9uQ2hhbmdlIiwidGFyZ2V0IiwicGxhY2Vob2xkZXIiLCJwIiwidHlwZSIsInZhcmlhbnQiLCJvbkNsaWNrIiwiZGlzYWJsZWQiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUFBLFNBQVNBLFFBQVEsRUFBRUMsU0FBUyxRQUFRLFFBQVE7QUFDNUMsU0FBU0MsTUFBTSxFQUFFQyxhQUFhLEVBQUVDLGlCQUFpQixFQUFFQyxZQUFZLEVBQUVDLFlBQVksRUFBRUMsV0FBVyxRQUFRLGVBQWU7QUFDakgsU0FBU0MsTUFBTSxRQUFRLGVBQWU7QUFDdEMsU0FBU0MsS0FBSyxRQUFRLGNBQWM7QUFDcEMsU0FBU0MsS0FBSyxRQUFRLGNBQWM7QUFFcEMsU0FBU0MsSUFBSSxRQUFxQixlQUFlO0FBQ2pELFNBQVNDLFdBQVcsUUFBUSx1QkFBdUI7QUFXbkQsT0FBTyxTQUFTQyxhQUFhLEVBQUVDLE1BQU0sRUFBRUMsT0FBTyxFQUFFQyxRQUFRLEVBQUVDLE9BQU8sRUFBRUMsT0FBTyxFQUFFQyxXQUFXLEtBQUssRUFBcUI7O0lBQy9HLE1BQU0sRUFBRUMsUUFBUSxFQUFF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

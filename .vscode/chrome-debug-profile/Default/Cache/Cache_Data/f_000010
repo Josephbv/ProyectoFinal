@@ -1,0 +1,733 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/pages/AgendamientoPage.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"]; const _Fragment = __vite__cjsImport2_react_jsxDevRuntime["Fragment"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"]; const useEffect = __vite__cjsImport3_react["useEffect"];
+import { Button } from "/src/components/ui/button.tsx?t=1772223881528";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "/src/components/ui/table.tsx";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "/src/components/ui/alert-dialog.tsx?t=1772223881329";
+import { toast } from "/node_modules/.vite/deps/sonner.js?v=04e61ac6";
+import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+import { useAgendamiento } from "/src/components/hooks/useAgendamiento.tsx";
+import { CitaModal } from "/src/components/modals/CitaModal.tsx?t=1772223881681";
+export function AgendamientoPage() {
+    _s();
+    const { citas, loading, agendarCita, actualizarCita, eliminarCita } = useAgendamiento();
+    const [busqueda, setBusqueda] = useState("");
+    const [citaModal, setCitaModal] = useState({
+        isOpen: false,
+        cita: null
+    });
+    const [deleteDialog, setDeleteDialog] = useState({
+        isOpen: false,
+        cita: null
+    });
+    // Estados para paginación
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(8);
+    const citasFiltradas = citas.filter((cita)=>{
+        const matchBusqueda = (cita.cliente?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) || (cita.empleado?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) || (cita.fecha || '').includes(busqueda);
+        return matchBusqueda;
+    });
+    // Cálculos de paginación
+    const totalPages = Math.ceil(citasFiltradas.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const citasPaginadas = citasFiltradas.slice(startIndex, endIndex);
+    // Resetear página cuando cambia la búsqueda
+    useEffect(()=>{
+        setCurrentPage(1);
+    }, [
+        busqueda
+    ]);
+    const handleCrearCita = async (citaData)=>{
+        const result = await agendarCita(citaData);
+        if (result.success) {
+            toast.success("Cita agendada exitosamente");
+            return {
+                success: true
+            };
+        } else {
+            toast.error(result.error || "Error al crear cita");
+            return {
+                success: false
+            };
+        }
+    };
+    const handleActualizarCita = async (citaData)=>{
+        if (!citaModal.cita) return {
+            success: false
+        };
+        const result = await actualizarCita(citaModal.cita.id_agendamiento, citaData);
+        if (result.success) {
+            toast.success("Cita actualizada exitosamente");
+            return {
+                success: true
+            };
+        } else {
+            toast.error(result.error || "Error al actualizar cita");
+            return {
+                success: false
+            };
+        }
+    };
+    const handleEliminarCita = async ()=>{
+        if (!deleteDialog.cita) return;
+        const result = await eliminarCita(deleteDialog.cita.id_agendamiento);
+        if (result.success) {
+            toast.success("Cita eliminada exitosamente");
+            setDeleteDialog({
+                isOpen: false,
+                cita: null
+            });
+        } else {
+            toast.error(result.error || "Error al eliminar cita");
+        }
+    };
+    const abrirCitaModal = (cita)=>{
+        setCitaModal({
+            isOpen: true,
+            cita: cita || null
+        });
+    };
+    const cerrarCitaModal = ()=>{
+        setCitaModal({
+            isOpen: false,
+            cita: null
+        });
+    };
+    const formatearServicios = (agendamiento_servicios)=>{
+        if (!agendamiento_servicios || agendamiento_servicios.length === 0) return 'Sin servicios';
+        return agendamiento_servicios.map((s)=>s.servicio?.nombre_servicio).join(', ');
+    };
+    return /*#__PURE__*/ _jsxDEV(_Fragment, {
+        children: [
+            /*#__PURE__*/ _jsxDEV("header", {
+                className: "bg-dark-bg border-b border-dark-color px-8 py-6",
+                children: /*#__PURE__*/ _jsxDEV("div", {
+                    className: "flex items-center justify-between",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("h1", {
+                                    className: "text-2xl font-semibold text-dark-primary",
+                                    children: "Agendamiento de Citas"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 93,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("p", {
+                                    className: "text-sm text-dark-secondary mt-1",
+                                    children: "Programa citas y asigna empleados a los pacientes"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 94,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                            lineNumber: 92,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "flex items-center space-x-3",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "relative",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Search, {
+                                            className: "w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                            lineNumber: 98,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("input", {
+                                            type: "text",
+                                            placeholder: "Buscar por cliente, empleado o fecha...",
+                                            value: busqueda,
+                                            onChange: (e)=>setBusqueda(e.target.value),
+                                            className: "pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                            lineNumber: 99,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 97,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("button", {
+                                    onClick: ()=>abrirCitaModal(),
+                                    className: "dark-button-primary gap-2 flex items-center",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Plus, {
+                                            className: "w-4 h-4"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                            lineNumber: 111,
+                                            columnNumber: 15
+                                        }, this),
+                                        "Agendar Cita"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 107,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                            lineNumber: 96,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                    lineNumber: 91,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                lineNumber: 90,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("main", {
+                className: "flex-1 overflow-auto p-8 bg-dark-bg",
+                children: /*#__PURE__*/ _jsxDEV("div", {
+                    className: "dark-card",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "overflow-x-auto",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Table, {
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(TableHeader, {
+                                            children: /*#__PURE__*/ _jsxDEV(TableRow, {
+                                                className: "border-dark-color hover:bg-dark-hover",
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                        className: "text-dark-primary font-semibold min-w-[120px]",
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-2",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Calendar, {
+                                                                    className: "w-4 h-4"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                                    lineNumber: 125,
+                                                                    columnNumber: 62
+                                                                }, this),
+                                                                "Fecha"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                            lineNumber: 125,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                        lineNumber: 124,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                        className: "text-dark-primary font-semibold min-w-[100px]",
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-2",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Clock, {
+                                                                    className: "w-4 h-4"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                                    lineNumber: 128,
+                                                                    columnNumber: 62
+                                                                }, this),
+                                                                "Hora"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                            lineNumber: 128,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                        lineNumber: 127,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                        className: "text-dark-primary font-semibold w-[250px]",
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-2",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(User, {
+                                                                    className: "w-4 h-4"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                                    lineNumber: 131,
+                                                                    columnNumber: 62
+                                                                }, this),
+                                                                "Cliente"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                            lineNumber: 131,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                        lineNumber: 130,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                        className: "text-dark-primary font-semibold min-w-[200px]",
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-2",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Stethoscope, {
+                                                                    className: "w-4 h-4"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                                    lineNumber: 134,
+                                                                    columnNumber: 62
+                                                                }, this),
+                                                                "Empleado Asignado"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                            lineNumber: 134,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                        lineNumber: 133,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                        className: "text-dark-primary font-semibold min-w-[250px]",
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center gap-2",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Ticket, {
+                                                                    className: "w-4 h-4"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                                    lineNumber: 137,
+                                                                    columnNumber: 62
+                                                                }, this),
+                                                                "Servicios"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                            lineNumber: 137,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                        lineNumber: 136,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV(TableHead, {
+                                                        className: "text-dark-primary font-semibold text-center w-32",
+                                                        children: "Acciones"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                        lineNumber: 139,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                lineNumber: 123,
+                                                columnNumber: 17
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                            lineNumber: 122,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(TableBody, {
+                                            children: citasPaginadas.map((cita)=>/*#__PURE__*/ _jsxDEV(TableRow, {
+                                                    className: "border-dark-color hover:bg-dark-table-hover transition-colors",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                            className: "font-medium text-dark-primary",
+                                                            children: cita.fecha
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                            lineNumber: 145,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                            className: "text-dark-primary",
+                                                            children: (cita.hora || '').substring(0, 5)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                            lineNumber: 148,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                            children: /*#__PURE__*/ _jsxDEV("span", {
+                                                                className: "font-medium text-dark-primary",
+                                                                children: cita.cliente?.nombre || 'Desconocido'
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                                lineNumber: 152,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                            lineNumber: 151,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                            className: "text-dark-secondary",
+                                                            children: cita.empleado?.nombre || 'Sin empleado'
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                            lineNumber: 154,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                            className: "text-dark-secondary truncate max-w-[250px]",
+                                                            title: formatearServicios(cita.agendamiento_servicios),
+                                                            children: formatearServicios(cita.agendamiento_servicios)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                            lineNumber: 157,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(TableCell, {
+                                                            children: /*#__PURE__*/ _jsxDEV("div", {
+                                                                className: "flex items-center justify-center gap-2",
+                                                                children: [
+                                                                    /*#__PURE__*/ _jsxDEV(Button, {
+                                                                        onClick: ()=>abrirCitaModal(cita),
+                                                                        variant: "outline",
+                                                                        size: "sm",
+                                                                        className: "p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30",
+                                                                        disabled: loading,
+                                                                        title: "Editar cita",
+                                                                        children: /*#__PURE__*/ _jsxDEV(Edit, {
+                                                                            className: "w-4 h-4"
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                                            lineNumber: 170,
+                                                                            columnNumber: 27
+                                                                        }, this)
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                                        lineNumber: 162,
+                                                                        columnNumber: 25
+                                                                    }, this),
+                                                                    /*#__PURE__*/ _jsxDEV(Button, {
+                                                                        onClick: ()=>setDeleteDialog({
+                                                                                isOpen: true,
+                                                                                cita
+                                                                            }),
+                                                                        variant: "outline",
+                                                                        size: "sm",
+                                                                        className: "p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30",
+                                                                        disabled: loading,
+                                                                        title: "Eliminar cita",
+                                                                        children: /*#__PURE__*/ _jsxDEV(Trash2, {
+                                                                            className: "w-4 h-4"
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                                            lineNumber: 180,
+                                                                            columnNumber: 27
+                                                                        }, this)
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                                        lineNumber: 172,
+                                                                        columnNumber: 25
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                                lineNumber: 161,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                            lineNumber: 160,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, cita.id_agendamiento, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                    lineNumber: 144,
+                                                    columnNumber: 19
+                                                }, this))
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                            lineNumber: 142,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 121,
+                                    columnNumber: 13
+                                }, this),
+                                citasFiltradas.length === 0 && /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "text-center py-12",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Calendar, {
+                                            className: "w-16 h-16 text-dark-secondary mx-auto mb-4 opacity-50"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                            lineNumber: 191,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("h3", {
+                                            className: "text-lg font-semibold text-dark-primary mb-2",
+                                            children: busqueda ? 'No se encontraron citas' : 'No hay citas programadas'
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                            lineNumber: 192,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("p", {
+                                            className: "text-dark-secondary mb-6",
+                                            children: busqueda ? 'Intenta con otras fechas o términos' : 'Comienza agendando tu primera cita'
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                            lineNumber: 195,
+                                            columnNumber: 17
+                                        }, this),
+                                        !busqueda && /*#__PURE__*/ _jsxDEV(Button, {
+                                            onClick: ()=>abrirCitaModal(),
+                                            className: "dark-button-primary",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Plus, {
+                                                    className: "w-4 h-4 mr-2"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                                    lineNumber: 206,
+                                                    columnNumber: 21
+                                                }, this),
+                                                "Agendar Cita"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                            lineNumber: 202,
+                                            columnNumber: 19
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 190,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                            lineNumber: 120,
+                            columnNumber: 11
+                        }, this),
+                        citasFiltradas.length > 0 && /*#__PURE__*/ _jsxDEV("div", {
+                            className: "flex items-center justify-between pt-4 mt-4 border-t border-dark-color",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "text-sm text-dark-secondary",
+                                    children: [
+                                        "Mostrando ",
+                                        startIndex + 1,
+                                        "-",
+                                        Math.min(endIndex, citasFiltradas.length),
+                                        " de ",
+                                        citasFiltradas.length,
+                                        " citas"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 217,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "flex items-center gap-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Button, {
+                                            onClick: ()=>setCurrentPage((prev)=>Math.max(prev - 1, 1)),
+                                            disabled: currentPage === 1 || loading,
+                                            variant: "outline",
+                                            size: "sm",
+                                            className: "border-dark-color text-dark-secondary",
+                                            children: "Anterior"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                            lineNumber: 221,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(Button, {
+                                            onClick: ()=>setCurrentPage((prev)=>Math.min(prev + 1, totalPages)),
+                                            disabled: currentPage === totalPages || loading,
+                                            variant: "outline",
+                                            size: "sm",
+                                            className: "border-dark-color text-dark-secondary",
+                                            children: "Siguiente"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                            lineNumber: 225,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 220,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                            lineNumber: 216,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                    lineNumber: 119,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                lineNumber: 118,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV(CitaModal, {
+                isOpen: citaModal.isOpen,
+                onClose: cerrarCitaModal,
+                onSubmit: citaModal.cita ? handleActualizarCita : handleCrearCita,
+                cita: citaModal.cita,
+                loading: loading
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                lineNumber: 235,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV(AlertDialog, {
+                open: deleteDialog.isOpen,
+                onOpenChange: ()=>setDeleteDialog({
+                        isOpen: false,
+                        cita: null
+                    }),
+                children: /*#__PURE__*/ _jsxDEV(AlertDialogContent, {
+                    className: "bg-dark-card border-dark-color",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV(AlertDialogHeader, {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(AlertDialogTitle, {
+                                    className: "text-dark-primary",
+                                    children: "¿Eliminar Cita?"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 246,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(AlertDialogDescription, {
+                                    className: "text-dark-secondary",
+                                    children: [
+                                        "Estás a punto de eliminar la cita seleccionada del ",
+                                        deleteDialog.cita?.fecha,
+                                        ". Esta acción no se puede deshacer."
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 247,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                            lineNumber: 245,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(AlertDialogFooter, {
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(AlertDialogCancel, {
+                                    className: "border-dark-color text-dark-secondary hover:bg-dark-hover",
+                                    children: "Cancelar"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 253,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(AlertDialogAction, {
+                                    onClick: handleEliminarCita,
+                                    className: "bg-red-600 text-white hover:bg-red-700 font-bold",
+                                    disabled: loading,
+                                    children: "Eliminar Cita"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                                    lineNumber: 256,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                            lineNumber: 252,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                    lineNumber: 244,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx",
+                lineNumber: 243,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true);
+}
+_s(AgendamientoPage, "/GEZwYvW0d3ADjFk44xC2MBRVDw=", false, function() {
+    return [
+        useAgendamiento
+    ];
+});
+_c = AgendamientoPage;
+var _c;
+$RefreshReg$(_c, "AgendamientoPage");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/AgendamientoPage.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIkFnZW5kYW1pZW50b1BhZ2UudHN4Il0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IHVzZVN0YXRlLCB1c2VFZmZlY3QgfSBmcm9tIFwicmVhY3RcIjtcclxuaW1wb3J0IHsgQnV0dG9uIH0gZnJvbSBcIi4uL3VpL2J1dHRvblwiO1xyXG5pbXBvcnQgeyBUYWJsZSwgVGFibGVCb2R5LCBUYWJsZUNlbGwsIFRhYmxlSGVhZCwgVGFibGVIZWFkZXIsIFRhYmxlUm93IH0gZnJvbSBcIi4uL3VpL3RhYmxlXCI7XHJcbmltcG9ydCB7IEFsZXJ0RGlhbG9nLCBBbGVydERpYWxvZ0FjdGlvbiwgQWxlcnREaWFsb2dDYW5jZWwsIEFsZXJ0RGlhbG9nQ29udGVudCwgQWxlcnREaWFsb2dEZXNjcmlwdGlvbiwgQWxlcnREaWFsb2dGb290ZXIsIEFsZXJ0RGlhbG9nSGVhZGVyLCBBbGVydERpYWxvZ1RpdGxlIH0gZnJvbSBcIi4uL3VpL2FsZXJ0LWRpYWxvZ1wiO1xyXG5pbXBvcnQgeyB0b2FzdCB9IGZyb20gXCJzb25uZXJcIjtcclxuaW1wb3J0IHsgQ2FsZW5kYXIsIFBsdXMsIFNlYXJjaCwgQ2xvY2ssIEVkaXQsIFRyYXNoMiwgVXNlciwgU3RldGhvc2NvcGUsIFRpY2tldCB9IGZyb20gXCJsdWNpZGUtcmVhY3RcIjtcclxuaW1wb3J0IHsgdXNlQWdlbmRhbWllbnRvLCBBZ2VuZGFtaWVudG8sIEFnZW5kYW1pZW50b1NlcnZpY2lvIH0gZnJvbSBcIi4uL2hvb2tzL3VzZUFnZW5kYW1pZW50b1wiO1xyXG5pbXBvcnQgeyBDaXRhTW9kYWwgfSBmcm9tIFwiLi4vbW9kYWxzL0NpdGFNb2RhbFwiO1xyXG5cclxuZXhwb3J0IGZ1bmN0aW9uIEFnZW5kYW1pZW50b1BhZ2UoKSB7XHJcbiAgY29uc3QgeyBjaXRhcywgbG9hZGluZywgYWdlbmRhckNpdGEsIGFjdHVhbGl6YXJDaXRhLCBlbGltaW5hckNpdGEgfSA9IHVzZUFnZW5kYW1pZW50bygpO1xyXG5cclxuICBjb25zdCBbYnVzcXVlZGEsIHNldEJ1c3F1ZWRhXSA9IHVzZVN0YXRlKFwiXCIpO1xyXG4gIGNvbnN0IFtjaXRhTW9kYWwsIHNldENpdGFNb2RhbF0gPSB1c2VTdGF0ZSh7IGlzT3BlbjogZmFsc2UsIGNpdGE6IG51bGwgYXMgQWdlbmRhbWllbnRvIHwgbnVsbCB9KTtcclxuICBjb25zdCBbZGVsZXRlRGlhbG9nLCBzZXREZWxldGVEaWFsb2ddID0gdXNlU3RhdGUoeyBpc09wZW46IGZhbHNlLCBjaXRhOiBudWxsIGFzIEFnZW5kYW1pZW50byB8IG51bGwgfSk7XHJcblxyXG4gIC8vIEVzdGFkb3MgcGFyYSBwYWdpbmFjacOzblxyXG4gIGNvbnN0IFtjdXJyZW50UGFnZSwgc2V0Q3VycmVudFBhZ2VdID0gdXNlU3RhdGUoMSk7XHJcbiAgY29uc3QgW2l0ZW1zUGVyUGFnZV0gPSB1c2VTdGF0ZSg4KTtcclxuXHJcbiAgY29uc3QgY2l0YXNGaWx0cmFkYXMgPSBjaXRhcy5maWx0ZXIoY2l0YSA9PiB7XHJcbiAgICBjb25zdCBtYXRjaEJ1c3F1ZWRhID0gKGNpdGEuY2xpZW50ZT8ubm9tYnJlIHx8ICcnKS50b0xvd2VyQ2FzZSgpLmluY2x1ZGVzKGJ1c3F1ZWRhLnRvTG93ZXJDYXNlKCkpIHx8XHJcbiAgICAgIChjaXRhLmVtcGxlYWRvPy5ub21icmUgfHwgJycpLnRvTG93ZXJDYXNlKCkuaW5jbHVkZXMoYnVzcXVlZGEudG9Mb3dlckNhc2UoKSkgfHxcclxuICAgICAgKGNpdGEuZmVjaGEgfHwgJycpLmluY2x1ZGVzKGJ1c3F1ZWRhKTtcclxuICAgIHJldHVybiBtYXRjaEJ1c3F1ZWRhO1xyXG4gIH0pO1xyXG5cclxuICAvLyBDw6FsY3Vsb3MgZGUgcGFnaW5hY2nDs25cclxuICBjb25zdCB0b3RhbFBhZ2VzID0gTWF0aC5jZWlsKGNpdGFzRmlsdHJhZGFzLmxlbmd0aCAvIGl0ZW1zUGVyUGFnZSk7XHJcbiAgY29uc3Qgc3RhcnRJbmRleCA9IChjdXJyZW50UGFnZSAtIDEpICogaXRlbXNQZXJQYWdlO1xyXG4gIGNvbnN0IGVuZEluZGV4ID0gc3RhcnRJbmRleCArIGl0ZW1zUGVyUGFnZTtcclxuICBjb25zdCBjaXRhc1BhZ2luYWRhcyA9IGNpdGFzRmlsdHJhZGFzLnNsaWNlKHN0YXJ0SW5kZXgsIGVuZEluZGV4KTtcclxuXHJcbiAgLy8gUmVzZXRlYXIgcMOhZ2luYSBjdWFuZG8gY2FtYmlhIGxhIGLDunNxdWVkYVxyXG4gIHVzZUVmZmVjdCgoKSA9PiB7XHJcbiAgICBzZXRDdXJyZW50UGFnZSgxKTtcclxuICB9LCBbYnVzcXVlZGFdKTtcclxuXHJcbiAgY29uc3QgaGFuZGxlQ3JlYXJDaXRhID0gYXN5bmMgKGNpdGFEYXRhOiBQYXJ0aWFsPEFnZW5kYW1pZW50bz4pID0+IHtcclxuICAgIGNvbnN0IHJlc3VsdCA9IGF3YWl0IGFnZW5kYXJDaXRhKGNpdGFEYXRhKTtcclxuICAgIGlmIChyZXN1bHQuc3VjY2Vzcykge1xyXG4gICAgICB0b2FzdC5zdWNjZXNzKFwiQ2l0YSBhZ2VuZGFkYSBleGl0b3NhbWVudGVcIik7XHJcbiAgICAgIHJldHVybiB7IHN1Y2Nlc3M6IHRydWUgfTtcclxuICAgIH0gZWxzZSB7XHJcbiAgICAgIHRvYXN0LmVycm9yKHJlc3VsdC5lcnJvciB8fCBcIkVycm9yIGFsIGNyZWFyIGNpdGFcIik7XHJcbiAgICAgIHJldHVybiB7IHN1Y2Nlc3M6IGZhbHNlIH07XHJcbiAgICB9XHJcbiAgfTtcclxuXHJcbiAgY29uc3QgaGFuZGxlQWN0dWFsaXphckNpdGEgPSBhc3luYyAoY2l0YURhdGE6IFBhcnRpYWw8QWdlbmRhbWllbnRvPikgPT4ge1xyXG4gICAgaWYgKCFjaXRhTW9kYWwuY2l0YSkgcmV0dXJuIHsgc3VjY2VzczogZmFsc2UgfTtcclxuXHJcbiAgICBjb25zdCByZXN1bHQgPSBhd2FpdCBhY3R1YWxpemFyQ2l0YShjaXRhTW9kYWwuY2l0YS5pZF9hZ2VuZGFtaWVudG8sIGNpdGFEYXRhKTtcclxuICAgIGlmIChyZXN1bHQuc3VjY2Vzcykge1xyXG4gICAgICB0b2FzdC5zdWNjZXNzKFwiQ2l0YSBhY3R1YWxpemFkYSBleGl0b3NhbWVudGVcIik7XHJcbiAgICAgIHJldHVybiB7IHN1Y2Nlc3M6IHRydWUgfTtcclxuICAgIH0gZWxzZSB7XHJcbiAgICAgIHRvYXN0LmVycm9yKHJlc3VsdC5lcnJvciB8fCBcIkVycm9yIGFsIGFjdHVhbGl6YXIgY2l0YVwiKTtcclxuICAgICAgcmV0dXJuIHsgc3VjY2VzczogZmFsc2UgfTtcclxuICAgIH1cclxuICB9O1xyXG5cclxuICBjb25zdCBoYW5kbGVFbGltaW5hckNpdGEgPSBhc3luYyAoKSA9PiB7XHJcbiAgICBpZiAoIWRlbGV0ZURpYWxvZy5jaXRhKSByZXR1cm47XHJcblxyXG4gICAgY29uc3QgcmVzdWx0ID0gYXdhaXQgZWxpbWluYXJDaXRhKGRlbGV0ZURpYWxvZy5jaXRhLmlkX2FnZW5kYW1pZW50byk7XHJcbiAgICBpZiAocmVzdWx0LnN1Y2Nlc3MpIHtcclxuICAgICAgdG9hc3Quc3VjY2VzcyhcIkNpdGEgZWxpbWluYWRhIGV4aXRvc2FtZW50ZVwiKTtcclxuICAgICAgc2V0RGVsZXRlRGlhbG9nKHsgaXNPcGVuOiBmYWxzZSwgY2l0YTogbnVsbCB9KTtcclxuICAgIH0gZWxzZSB7XHJcbiAgICAgIHRvYXN0LmVycm9yKHJlc3VsdC5lcnJvciB8fCBcIkVycm9yIGFsIGVsaW1pbmFyIGNpdGFcIik7XHJcbiAgICB9XHJcbiAgfTtcclxuXHJcbiAgY29uc3QgYWJyaXJDaXRhTW9kYWwgPSAoY2l0YT86IEFnZW5kYW1pZW50bykgPT4ge1xyXG4gICAgc2V0Q2l0YU1vZGFsKHsgaXNPcGVuOiB0cnVlLCBjaXRhOiBjaXRhIHx8IG51bGwgfSk7XHJcbiAgfTtcclxuXHJcbiAgY29uc3QgY2VycmFyQ2l0YU1vZGFsID0gKCkgPT4ge1xyXG4gICAgc2V0Q2l0YU1vZGFsKHsgaXNPcGVuOiBmYWxzZSwgY2l0YTogbnVsbCB9KTtcclxuICB9O1xyXG5cclxuICBjb25zdCBmb3JtYXRlYXJTZXJ2aWNpb3MgPSAoYWdlbmRhbWllbnRvX3NlcnZpY2lvcz86IEFnZW5kYW1pZW50b1NlcnZpY2lvW10pID0+IHtcclxuICAgIGlmICghYWdlbmRhbWllbnRvX3NlcnZpY2lvcyB8fCBhZ2VuZGFtaWVudG9fc2VydmljaW9zLmxlbmd0aCA9PT0gMCkgcmV0dXJuICdTaW4gc2VydmljaW9zJztcclxuICAgIHJldHVybiBhZ2VuZGFtaWVudG9fc2VydmljaW9zLm1hcChzID0+IHMuc2VydmljaW8/Lm5vbWJyZV9zZXJ2aWNpbykuam9pbignLCAnKTtcclxuICB9O1xyXG5cclxuICByZXR1cm4gKFxyXG4gICAgPD5cclxuICAgICAgPGhlYWRlciBjbGFzc05hbWU9XCJiZy1kYXJrLWJnIGJvcmRlci1iIGJvcmRlci1kYXJrLWNvbG9yIHB4LTggcHktNlwiPlxyXG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1iZXR3ZWVuXCI+XHJcbiAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICA8aDEgY2xhc3NOYW1lPVwidGV4dC0yeGwgZm9udC1zZW1pYm9sZCB0ZXh0LWRhcmstcHJpbWFyeVwiPkFnZW5kYW1pZW50byBkZSBDaXRhczwvaDE+XHJcbiAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXNlY29uZGFyeSBtdC0xXCI+UHJvZ3JhbWEgY2l0YXMgeSBhc2lnbmEgZW1wbGVhZG9zIGEgbG9zIHBhY2llbnRlczwvcD5cclxuICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBzcGFjZS14LTNcIj5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJyZWxhdGl2ZVwiPlxyXG4gICAgICAgICAgICAgIDxTZWFyY2ggY2xhc3NOYW1lPVwidy00IGgtNCBhYnNvbHV0ZSBsZWZ0LTMgdG9wLTEvMiB0cmFuc2Zvcm0gLXRyYW5zbGF0ZS15LTEvMiB0ZXh0LWRhcmstc2Vjb25kYXJ5XCIgLz5cclxuICAgICAgICAgICAgICA8aW5wdXRcclxuICAgICAgICAgICAgICAgIHR5cGU9XCJ0ZXh0XCJcclxuICAgICAgICAgICAgICAgIHBsYWNlaG9sZGVyPVwiQnVzY2FyIHBvciBjbGllbnRlLCBlbXBsZWFkbyBvIGZlY2hhLi4uXCJcclxuICAgICAgICAgICAgICAgIHZhbHVlPXtidXNxdWVkYX1cclxuICAgICAgICAgICAgICAgIG9uQ2hhbmdlPXsoZSkgPT4gc2V0QnVzcXVlZGEoZS50YXJnZXQudmFsdWUpfVxyXG4gICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwicGwtMTAgcHItNCBweS0yIHctNzIgYmctZGFyay1ob3ZlciBib3JkZXIgYm9yZGVyLWRhcmstY29sb3Igcm91bmRlZC1sZyB0ZXh0LWRhcmstcHJpbWFyeSBwbGFjZWhvbGRlci1kYXJrLXNlY29uZGFyeSBmb2N1czpib3JkZXItZGFyay1jdGEgZm9jdXM6b3V0bGluZS1ub25lXCJcclxuICAgICAgICAgICAgICAvPlxyXG4gICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgPGJ1dHRvblxyXG4gICAgICAgICAgICAgIG9uQ2xpY2s9eygpID0+IGFicmlyQ2l0YU1vZGFsKCl9XHJcbiAgICAgICAgICAgICAgY2xhc3NOYW1lPVwiZGFyay1idXR0b24tcHJpbWFyeSBnYXAtMiBmbGV4IGl0ZW1zLWNlbnRlclwiXHJcbiAgICAgICAgICAgID5cclxuICAgICAgICAgICAgICA8UGx1cyBjbGFzc05hbWU9XCJ3LTQgaC00XCIgLz5cclxuICAgICAgICAgICAgICBBZ2VuZGFyIENpdGFcclxuICAgICAgICAgICAgPC9idXR0b24+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICA8L2Rpdj5cclxuICAgICAgPC9oZWFkZXI+XHJcblxyXG4gICAgICA8bWFpbiBjbGFzc05hbWU9XCJmbGV4LTEgb3ZlcmZsb3ctYXV0byBwLTggYmctZGFyay1iZ1wiPlxyXG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZGFyay1jYXJkXCI+XHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cIm92ZXJmbG93LXgtYXV0b1wiPlxyXG4gICAgICAgICAgICA8VGFibGU+XHJcbiAgICAgICAgICAgICAgPFRhYmxlSGVhZGVyPlxyXG4gICAgICAgICAgICAgICAgPFRhYmxlUm93IGNsYXNzTmFtZT1cImJvcmRlci1kYXJrLWNvbG9yIGhvdmVyOmJnLWRhcmstaG92ZXJcIj5cclxuICAgICAgICAgICAgICAgICAgPFRhYmxlSGVhZCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSBmb250LXNlbWlib2xkIG1pbi13LVsxMjBweF1cIj5cclxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0yXCI+PENhbGVuZGFyIGNsYXNzTmFtZT1cInctNCBoLTRcIiAvPkZlY2hhPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgIDwvVGFibGVIZWFkPlxyXG4gICAgICAgICAgICAgICAgICA8VGFibGVIZWFkIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5IGZvbnQtc2VtaWJvbGQgbWluLXctWzEwMHB4XVwiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj48Q2xvY2sgY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+SG9yYTwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICA8L1RhYmxlSGVhZD5cclxuICAgICAgICAgICAgICAgICAgPFRhYmxlSGVhZCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSBmb250LXNlbWlib2xkIHctWzI1MHB4XVwiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj48VXNlciBjbGFzc05hbWU9XCJ3LTQgaC00XCIgLz5DbGllbnRlPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgIDwvVGFibGVIZWFkPlxyXG4gICAgICAgICAgICAgICAgICA8VGFibGVIZWFkIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5IGZvbnQtc2VtaWJvbGQgbWluLXctWzIwMHB4XVwiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj48U3RldGhvc2NvcGUgY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+RW1wbGVhZG8gQXNpZ25hZG88L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgPC9UYWJsZUhlYWQ+XHJcbiAgICAgICAgICAgICAgICAgIDxUYWJsZUhlYWQgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZm9udC1zZW1pYm9sZCBtaW4tdy1bMjUwcHhdXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPjxUaWNrZXQgY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+U2VydmljaW9zPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgIDwvVGFibGVIZWFkPlxyXG4gICAgICAgICAgICAgICAgICA8VGFibGVIZWFkIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5IGZvbnQtc2VtaWJvbGQgdGV4dC1jZW50ZXIgdy0zMlwiPkFjY2lvbmVzPC9UYWJsZUhlYWQ+XHJcbiAgICAgICAgICAgICAgICA8L1RhYmxlUm93PlxyXG4gICAgICAgICAgICAgIDwvVGFibGVIZWFkZXI+XHJcbiAgICAgICAgICAgICAgPFRhYmxlQm9keT5cclxuICAgICAgICAgICAgICAgIHtjaXRhc1BhZ2luYWRhcy5tYXAoKGNpdGE6IEFnZW5kYW1pZW50bykgPT4gKFxyXG4gICAgICAgICAgICAgICAgICA8VGFibGVSb3cga2V5PXtjaXRhLmlkX2FnZW5kYW1pZW50b30gY2xhc3NOYW1lPVwiYm9yZGVyLWRhcmstY29sb3IgaG92ZXI6YmctZGFyay10YWJsZS1ob3ZlciB0cmFuc2l0aW9uLWNvbG9yc1wiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxUYWJsZUNlbGwgY2xhc3NOYW1lPVwiZm9udC1tZWRpdW0gdGV4dC1kYXJrLXByaW1hcnlcIj5cclxuICAgICAgICAgICAgICAgICAgICAgIHtjaXRhLmZlY2hhfVxyXG4gICAgICAgICAgICAgICAgICAgIDwvVGFibGVDZWxsPlxyXG4gICAgICAgICAgICAgICAgICAgIDxUYWJsZUNlbGwgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnlcIj5cclxuICAgICAgICAgICAgICAgICAgICAgIHsoY2l0YS5ob3JhIHx8ICcnKS5zdWJzdHJpbmcoMCwgNSl9XHJcbiAgICAgICAgICAgICAgICAgICAgPC9UYWJsZUNlbGw+XHJcbiAgICAgICAgICAgICAgICAgICAgPFRhYmxlQ2VsbD5cclxuICAgICAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cImZvbnQtbWVkaXVtIHRleHQtZGFyay1wcmltYXJ5XCI+e2NpdGEuY2xpZW50ZT8ubm9tYnJlIHx8ICdEZXNjb25vY2lkbyd9PC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgIDwvVGFibGVDZWxsPlxyXG4gICAgICAgICAgICAgICAgICAgIDxUYWJsZUNlbGwgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXNlY29uZGFyeVwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAge2NpdGEuZW1wbGVhZG8/Lm5vbWJyZSB8fCAnU2luIGVtcGxlYWRvJ31cclxuICAgICAgICAgICAgICAgICAgICA8L1RhYmxlQ2VsbD5cclxuICAgICAgICAgICAgICAgICAgICA8VGFibGVDZWxsIGNsYXNzTmFtZT1cInRleHQtZGFyay1zZWNvbmRhcnkgdHJ1bmNhdGUgbWF4LXctWzI1MHB4XVwiIHRpdGxlPXtmb3JtYXRlYXJTZXJ2aWNpb3MoY2l0YS5hZ2VuZGFtaWVudG9fc2VydmljaW9zKX0+XHJcbiAgICAgICAgICAgICAgICAgICAgICB7Zm9ybWF0ZWFyU2VydmljaW9zKGNpdGEuYWdlbmRhbWllbnRvX3NlcnZpY2lvcyl9XHJcbiAgICAgICAgICAgICAgICAgICAgPC9UYWJsZUNlbGw+XHJcbiAgICAgICAgICAgICAgICAgICAgPFRhYmxlQ2VsbD5cclxuICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXIgZ2FwLTJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPEJ1dHRvblxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIG9uQ2xpY2s9eygpID0+IGFicmlyQ2l0YU1vZGFsKGNpdGEpfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIHZhcmlhbnQ9XCJvdXRsaW5lXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICBzaXplPVwic21cIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT1cInAtMiBoLTkgdy05IGJnLWFtYmVyLTUwMC8yMCBib3JkZXItYW1iZXItNTAwIHRleHQtYW1iZXItNDAwIGhvdmVyOmJnLWFtYmVyLTUwMC8zMFwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgZGlzYWJsZWQ9e2xvYWRpbmd9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdGl0bGU9XCJFZGl0YXIgY2l0YVwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgID5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICA8RWRpdCBjbGFzc05hbWU9XCJ3LTQgaC00XCIgLz5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICAgICAgICAgICAgICBvbkNsaWNrPXsoKSA9PiBzZXREZWxldGVEaWFsb2coeyBpc09wZW46IHRydWUsIGNpdGEgfSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdmFyaWFudD1cIm91dGxpbmVcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIHNpemU9XCJzbVwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwicC0yIGgtOSB3LTkgYmctcmVkLTUwMC8yMCBib3JkZXItcmVkLTUwMCB0ZXh0LXJlZC00MDAgaG92ZXI6YmctcmVkLTUwMC8zMFwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgZGlzYWJsZWQ9e2xvYWRpbmd9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdGl0bGU9XCJFbGltaW5hciBjaXRhXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIDxUcmFzaDIgY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDwvQnV0dG9uPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgPC9UYWJsZUNlbGw+XHJcbiAgICAgICAgICAgICAgICAgIDwvVGFibGVSb3c+XHJcbiAgICAgICAgICAgICAgICApKX1cclxuICAgICAgICAgICAgICA8L1RhYmxlQm9keT5cclxuICAgICAgICAgICAgPC9UYWJsZT5cclxuXHJcbiAgICAgICAgICAgIHtjaXRhc0ZpbHRyYWRhcy5sZW5ndGggPT09IDAgJiYgKFxyXG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidGV4dC1jZW50ZXIgcHktMTJcIj5cclxuICAgICAgICAgICAgICAgIDxDYWxlbmRhciBjbGFzc05hbWU9XCJ3LTE2IGgtMTYgdGV4dC1kYXJrLXNlY29uZGFyeSBteC1hdXRvIG1iLTQgb3BhY2l0eS01MFwiIC8+XHJcbiAgICAgICAgICAgICAgICA8aDMgY2xhc3NOYW1lPVwidGV4dC1sZyBmb250LXNlbWlib2xkIHRleHQtZGFyay1wcmltYXJ5IG1iLTJcIj5cclxuICAgICAgICAgICAgICAgICAge2J1c3F1ZWRhID8gJ05vIHNlIGVuY29udHJhcm9uIGNpdGFzJyA6ICdObyBoYXkgY2l0YXMgcHJvZ3JhbWFkYXMnfVxyXG4gICAgICAgICAgICAgICAgPC9oMz5cclxuICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtZGFyay1zZWNvbmRhcnkgbWItNlwiPlxyXG4gICAgICAgICAgICAgICAgICB7YnVzcXVlZGFcclxuICAgICAgICAgICAgICAgICAgICA/ICdJbnRlbnRhIGNvbiBvdHJhcyBmZWNoYXMgbyB0w6lybWlub3MnXHJcbiAgICAgICAgICAgICAgICAgICAgOiAnQ29taWVuemEgYWdlbmRhbmRvIHR1IHByaW1lcmEgY2l0YSdcclxuICAgICAgICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICAgICAgPC9wPlxyXG4gICAgICAgICAgICAgICAgeyFidXNxdWVkYSAmJiAoXHJcbiAgICAgICAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICAgICAgICBvbkNsaWNrPXsoKSA9PiBhYnJpckNpdGFNb2RhbCgpfVxyXG4gICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT1cImRhcmstYnV0dG9uLXByaW1hcnlcIlxyXG4gICAgICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICAgICAgPFBsdXMgY2xhc3NOYW1lPVwidy00IGgtNCBtci0yXCIgLz5cclxuICAgICAgICAgICAgICAgICAgICBBZ2VuZGFyIENpdGFcclxuICAgICAgICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICAgICAgICApfVxyXG4gICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICApfVxyXG4gICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgey8qIFBhZ2luYWNpw7NuICovfVxyXG4gICAgICAgICAge2NpdGFzRmlsdHJhZGFzLmxlbmd0aCA+IDAgJiYgKFxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktYmV0d2VlbiBwdC00IG10LTQgYm9yZGVyLXQgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXNlY29uZGFyeVwiPlxyXG4gICAgICAgICAgICAgICAgTW9zdHJhbmRvIHtzdGFydEluZGV4ICsgMX0te01hdGgubWluKGVuZEluZGV4LCBjaXRhc0ZpbHRyYWRhcy5sZW5ndGgpfSBkZSB7Y2l0YXNGaWx0cmFkYXMubGVuZ3RofSBjaXRhc1xyXG4gICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj5cclxuICAgICAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICAgICAgb25DbGljaz17KCkgPT4gc2V0Q3VycmVudFBhZ2UocHJldiA9PiBNYXRoLm1heChwcmV2IC0gMSwgMSkpfVxyXG4gICAgICAgICAgICAgICAgICBkaXNhYmxlZD17Y3VycmVudFBhZ2UgPT09IDEgfHwgbG9hZGluZ31cclxuICAgICAgICAgICAgICAgICAgdmFyaWFudD1cIm91dGxpbmVcIiBzaXplPVwic21cIiBjbGFzc05hbWU9XCJib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstc2Vjb25kYXJ5XCI+QW50ZXJpb3I8L0J1dHRvbj5cclxuICAgICAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICAgICAgb25DbGljaz17KCkgPT4gc2V0Q3VycmVudFBhZ2UocHJldiA9PiBNYXRoLm1pbihwcmV2ICsgMSwgdG90YWxQYWdlcykpfVxyXG4gICAgICAgICAgICAgICAgICBkaXNhYmxlZD17Y3VycmVudFBhZ2UgPT09IHRvdGFsUGFnZXMgfHwgbG9hZGluZ31cclxuICAgICAgICAgICAgICAgICAgdmFyaWFudD1cIm91dGxpbmVcIiBzaXplPVwic21cIiBjbGFzc05hbWU9XCJib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstc2Vjb25kYXJ5XCI+U2lndWllbnRlPC9CdXR0b24+XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgKX1cclxuICAgICAgICA8L2Rpdj5cclxuICAgICAgPC9tYWluPlxyXG5cclxuICAgICAgPENpdGFNb2RhbFxyXG4gICAgICAgIGlzT3Blbj17Y2l0YU1vZGFsLmlzT3Blbn1cclxuICAgICAgICBvbkNsb3NlPXtjZXJyYXJDaXRhTW9kYWx9XHJcbiAgICAgICAgb25TdWJtaXQ9e2NpdGFNb2RhbC5jaXRhID8gaGFuZGxlQWN0dWFsaXphckNpdGEgOiBoYW5kbGVDcmVhckNpdGF9XHJcbiAgICAgICAgY2l0YT17Y2l0YU1vZGFsLmNpdGF9XHJcbiAgICAgICAgbG9hZGluZz17bG9hZGluZ31cclxuICAgICAgLz5cclxuXHJcbiAgICAgIDxBbGVydERpYWxvZyBvcGVuPXtkZWxldGVEaWFsb2cuaXNPcGVufSBvbk9wZW5DaGFuZ2U9eygpID0+IHNldERlbGV0ZURpYWxvZyh7IGlzT3BlbjogZmFsc2UsIGNpdGE6IG51bGwgfSl9PlxyXG4gICAgICAgIDxBbGVydERpYWxvZ0NvbnRlbnQgY2xhc3NOYW1lPVwiYmctZGFyay1jYXJkIGJvcmRlci1kYXJrLWNvbG9yXCI+XHJcbiAgICAgICAgICA8QWxlcnREaWFsb2dIZWFkZXI+XHJcbiAgICAgICAgICAgIDxBbGVydERpYWxvZ1RpdGxlIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5XCI+wr9FbGltaW5hciBDaXRhPzwvQWxlcnREaWFsb2dUaXRsZT5cclxuICAgICAgICAgICAgPEFsZXJ0RGlhbG9nRGVzY3JpcHRpb24gY2xhc3NOYW1lPVwidGV4dC1kYXJrLXNlY29uZGFyeVwiPlxyXG4gICAgICAgICAgICAgIEVzdMOhcyBhIHB1bnRvIGRlIGVsaW1pbmFyIGxhIGNpdGEgc2VsZWNjaW9uYWRhIGRlbCB7ZGVsZXRlRGlhbG9nLmNpdGE/LmZlY2hhfS5cclxuICAgICAgICAgICAgICBFc3RhIGFjY2nDs24gbm8gc2UgcHVlZGUgZGVzaGFjZXIuXHJcbiAgICAgICAgICAgIDwvQWxlcnREaWFsb2dEZXNjcmlwdGlvbj5cclxuICAgICAgICAgIDwvQWxlcnREaWFsb2dIZWFkZXI+XHJcbiAgICAgICAgICA8QWxlcnREaWFsb2dGb290ZXI+XHJcbiAgICAgICAgICAgIDxBbGVydERpYWxvZ0NhbmNlbCBjbGFzc05hbWU9XCJib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstc2Vjb25kYXJ5IGhvdmVyOmJnLWRhcmstaG92ZXJcIj5cclxuICAgICAgICAgICAgICBDYW5jZWxhclxyXG4gICAgICAgICAgICA8L0FsZXJ0RGlhbG9nQ2FuY2VsPlxyXG4gICAgICAgICAgICA8QWxlcnREaWFsb2dBY3Rpb25cclxuICAgICAgICAgICAgICBvbkNsaWNrPXtoYW5kbGVFbGltaW5hckNpdGF9XHJcbiAgICAgICAgICAgICAgY2xhc3NOYW1lPVwiYmctcmVkLTYwMCB0ZXh0LXdoaXRlIGhvdmVyOmJnLXJlZC03MDAgZm9udC1ib2xkXCJcclxuICAgICAgICAgICAgICBkaXNhYmxlZD17bG9hZGluZ31cclxuICAgICAgICAgICAgPlxyXG4gICAgICAgICAgICAgIEVsaW1pbmFyIENpdGFcclxuICAgICAgICAgICAgPC9BbGVydERpYWxvZ0FjdGlvbj5cclxuICAgICAgICAgIDwvQWxlcnREaWFsb2dGb290ZXI+XHJcbiAgICAgICAgPC9BbGVydERpYWxvZ0NvbnRlbnQ+XHJcbiAgICAgIDwvQWxlcnREaWFsb2c+XHJcbiAgICA8Lz5cclxuICApO1xyXG59XHJcbiJdLCJuYW1lcyI6WyJ1c2VTdGF0ZSIsInVzZUVmZmVjdCIsIkJ1dHRvbiIsIlRhYmxlIiwiVGFibGVCb2R5IiwiVGFibGVDZWxsIiwiVGFibGVIZWFkIiwiVGFibGVIZWFkZXIiLCJUYWJsZVJvdyIsIkFsZXJ0RGlhbG9nIiwiQWxlcnREaWFsb2dBY3Rpb24iLCJBbGVydERpYWxvZ0NhbmNlbCIsIkFsZXJ0RGlhbG9nQ29udGVudCIsIkFsZXJ0RGlhbG9nRGVzY3JpcHRpb24iLCJBbGVydERpYWxvZ0Zvb3RlciIsIkFsZXJ0RGlhbG9nSGVhZGVyIiwiQWxlcnREaWFsb2dUaXRsZSIsInRvYXN0IiwiQ2FsZW5kYXIiLCJQbHVzIiwiU2VhcmNoIiwiQ2xvY2siLCJFZGl0IiwiVHJhc2gyIiwiVXNlciIsIlN0ZXRob3Njb3BlIiwiVGlja2V0IiwidXNlQWdlbmRhbWllbnRvIiwiQ2l0YU1vZGFsIiwiQWdlbmRhbWllbnRvUGFnZSIsImNpdGFzIiwibG9hZGluZyIsImFnZW5kYXJDaXRhIiwiYWN0dWFsaXphckNpdGEiLCJlbGltaW5hckNpdGEiLCJidXNxdWVkYSIsInNldEJ1c3F1ZWRhIiwiY2l0YU1vZGFsIiwic2V0Q2l0YU1vZGFsIiwiaXNPcGVuIiwiY2l0YSIsImRlbGV0ZURpYWxvZyIsInNldERlbGV0ZURpYWxvZyIsImN1cnJlbnRQYWdlIiwic2V0Q3VycmVudFBhZ2UiLCJpdGVtc1BlclBhZ2UiLCJjaXRhc0ZpbHRyYWRhcyIsImZpbHRlciIsIm1hdGNoQnVzcXVlZGEiLCJjbGllbnRlIiwibm9tYnJlIiwidG9Mb3dlckNhc2UiLCJpbmNsdWRlcyIsImVtcGxlYWRvIiwiZmVjaGEiLCJ0b3RhbFBhZ2VzIiwiTWF0aCIsImNlaWwiLCJsZW5ndGgiLCJzdGFydEluZGV4IiwiZW5kSW5kZXgiLCJjaXRhc1BhZ2luYWRhcyIsInNsaWNlIiwiaGFuZGxlQ3JlYXJDaXRhIiwiY2l0YURhdGEiLCJyZXN1bHQiLCJzdWNjZXNzIiwiZXJyb3IiLCJoYW5kbGVBY3R1YWxpemFyQ2l0YSIsImlkX2FnZW5kYW1pZW50byIsImhhbmRsZUVsaW1pbmFyQ2l0YSIsImFicmlyQ2l0YU1vZGFsIiwiY2VycmFyQ2l0YU1vZGFsIiwiZm9ybWF0ZWFyU2VydmljaW9zIiwiYWdlbmRhbWllbnRvX3NlcnZpY2lvcyIsIm1hcCIsInMiLCJzZXJ2aWNpbyIsIm5vbWJyZV9zZXJ2aWNpbyIsImpvaW4iLCJoZWFkZXIiLCJjbGFzc05hbWUiLCJkaXYiLCJoMSIsInAiLCJpbnB1dCIsInR5cGUiLCJwbGFjZWhvbGRlciIsInZhbHVlIiwib25DaGFuZ2UiLCJlIiwidGFyZ2V0IiwiYnV0dG9uIiwib25DbGljayIsIm1haW4iLCJob3JhIiwic3Vic3RyaW5nIiwic3BhbiIsInRpdGxlIiwidmFyaWFudCIsInNpemUiLCJkaXNhYmxlZCIsImgzIiwibWluIiwicHJldiIsIm1heCIsIm9uQ2xvc2UiLCJvblN1Ym1pdCIsIm9wZW4iLCJvbk9wZW5DaGFuZ2UiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUFBLFNBQVNBLFFBQVEsRUFBRUMsU0FBUyxRQUFRLFFBQVE7QUFDNUMsU0FBU0MsTUFBTSxRQUFRLGVBQWU7QUFDdEMsU0FBU0MsS0FBSyxFQUFFQyxTQUFTLEVBQUVDLFNBQVMsRUFBRUMsU0FBUyxFQUFFQyxXQUFXLEVBQUVDLFFBQVEsUUFBUSxjQUFjO0FBQzVGLFNBQVNDLFdBQVcsRUFBRUMsaUJBQWlCLEVBQUVDLGlCQUFpQixFQUFFQyxrQkFBa0IsRUFBRUMsc0JBQXNCLEVBQUVDLGlCQUFpQixFQUFFQyxpQkFBaUIsRUFBRUMsZ0JBQWdCLFFBQVEscUJBQXFCO0FBQzNMLFNBQVNDLEtBQUssUUFBUSxTQUFTO0FBQy9CLFNBQVNDLFFBQVEsRUFBRUMsSUFBSSxFQUFFQyxNQUFNLEVBQUVDLEtBQUssRUFBRUMsSUFBSSxFQUFFQyxNQUFNLEVBQUVDLElBQUksRUFBRUMsV0FBVyxFQUFFQyxNQUFNLFFBQVEsZUFBZTtBQUN0RyxTQUFTQyxlQUFlLFFBQTRDLDJCQUEyQjtBQUMvRixTQUFTQyxTQUFTLFFBQVEsc0JBQXNCO0FBRWhELE9BQU8sU0FBU0M7O0lBQ2QsTUFBTSxFQUFFQyxLQUFLLEVBQUVDLE9BQU8sRUFBRUMsV0FBVyxFQUFFQyxjQUFjLEVBQUVDLFlBQVksRUFBRSxHQUFHUDtJQUV0RSxNQUFNLENBQUNRLFVBQVVDLFlBQVksR0FBR3BDLFNBQVM7SUFDekMsTUFBTSxDQUFDcUMsV0FBV0MsYUFBYSxHQUFHdEMsU0FBUztRQUFFdUMsUUFBUTtRQUFPQyxNQUFNO0lBQTRCO0lBQzlGLE1BQU0sQ0FBQ0MsY0FBY0MsZ0JBQWdCLEdBQUcx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

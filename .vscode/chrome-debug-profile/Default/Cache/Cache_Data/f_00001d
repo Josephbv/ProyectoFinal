@@ -1,0 +1,641 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/modals/CitaModal.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"]; const useEffect = __vite__cjsImport3_react["useEffect"];
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "/src/components/ui/dialog.tsx?t=1772223881594";
+import { Button } from "/src/components/ui/button.tsx?t=1772223881528";
+import { Input } from "/src/components/ui/input.tsx";
+import { Label } from "/src/components/ui/label.tsx?t=1772223881635";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "/src/components/ui/select.tsx?t=1772223881681";
+import { Calendar, Clock, User, Stethoscope, ListPlus, Trash2 } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+import { useEmpleados } from "/src/components/hooks/useEmpleados.tsx";
+import { useClientes } from "/src/components/hooks/useClientes.tsx";
+import { useServicios } from "/src/components/hooks/useServicios.tsx";
+export function CitaModal({ isOpen, onClose, onSubmit, cita, loading }) {
+    _s();
+    const { empleados } = useEmpleados();
+    const { clientes } = useClientes();
+    const { servicios } = useServicios();
+    const [formData, setFormData] = useState({
+        fecha: new Date().toISOString().split('T')[0],
+        hora: '09:00',
+        id_cliente: '',
+        id_empleado: '',
+        serviciosSeleccionados: []
+    });
+    const [errors, setErrors] = useState({});
+    useEffect(()=>{
+        if (cita) {
+            setFormData({
+                fecha: cita.fecha,
+                hora: cita.hora,
+                id_cliente: cita.id_cliente.toString(),
+                id_empleado: cita.id_empleado.toString(),
+                serviciosSeleccionados: cita.agendamiento_servicios ? cita.agendamiento_servicios.map((s)=>s.id_servicio) : []
+            });
+        } else {
+            setFormData({
+                fecha: new Date().toISOString().split('T')[0],
+                hora: '09:00',
+                id_cliente: '',
+                id_empleado: '',
+                serviciosSeleccionados: []
+            });
+        }
+        setErrors({});
+    }, [
+        cita,
+        isOpen
+    ]);
+    const validateForm = ()=>{
+        const newErrors = {};
+        if (!formData.id_cliente) newErrors.id_cliente = 'Selecciona un cliente';
+        if (!formData.id_empleado) newErrors.id_empleado = 'Selecciona un empleado';
+        if (!formData.fecha) newErrors.fecha = 'La fecha es requerida';
+        if (!formData.hora) newErrors.hora = 'La hora es requerida';
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        if (!validateForm()) return;
+        // Convertir a formato de Cita
+        const agendamientoData = {
+            fecha: formData.fecha,
+            hora: formData.hora,
+            id_cliente: parseInt(formData.id_cliente),
+            id_empleado: parseInt(formData.id_empleado),
+            agendamiento_servicios: formData.serviciosSeleccionados.map((id_servicio)=>({
+                    id_servicio
+                }))
+        };
+        if (cita) {
+            agendamientoData.id_agendamiento = cita.id_agendamiento;
+        }
+        const result = await onSubmit(agendamientoData);
+        if (result.success) onClose();
+    };
+    const handleChange = (field, value)=>{
+        setFormData((prev)=>({
+                ...prev,
+                [field]: value
+            }));
+        if (errors[field]) setErrors((prev)=>({
+                ...prev,
+                [field]: ''
+            }));
+    };
+    const agregarServicio = (id_servicio)=>{
+        const id = parseInt(id_servicio);
+        if (id && !formData.serviciosSeleccionados.includes(id)) {
+            setFormData((prev)=>({
+                    ...prev,
+                    serviciosSeleccionados: [
+                        ...prev.serviciosSeleccionados,
+                        id
+                    ]
+                }));
+        }
+    };
+    const quitarServicio = (id_servicio)=>{
+        setFormData((prev)=>({
+                ...prev,
+                serviciosSeleccionados: prev.serviciosSeleccionados.filter((id)=>id !== id_servicio)
+            }));
+    };
+    return /*#__PURE__*/ _jsxDEV(Dialog, {
+        open: isOpen,
+        onOpenChange: onClose,
+        children: /*#__PURE__*/ _jsxDEV(DialogContent, {
+            className: "max-w-2xl bg-dark-card border-dark-color border-opacity-50",
+            children: [
+                /*#__PURE__*/ _jsxDEV(DialogHeader, {
+                    className: "border-b border-dark-color pb-4",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV(DialogTitle, {
+                            className: "text-xl font-bold text-dark-primary flex items-center gap-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "p-2 bg-blue-500/10 rounded-lg",
+                                    children: /*#__PURE__*/ _jsxDEV(Calendar, {
+                                        className: "w-5 h-5 text-blue-400"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                        lineNumber: 120,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                    lineNumber: 119,
+                                    columnNumber: 13
+                                }, this),
+                                cita ? 'Agendamiento: Editar Cita' : 'Agendamiento: Nueva Cita'
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                            lineNumber: 118,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogDescription, {
+                            className: "text-dark-secondary",
+                            children: "Programa y gestiona las citas asignándolas a un empleado específico."
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                            lineNumber: 124,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                    lineNumber: 117,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV("form", {
+                    onSubmit: handleSubmit,
+                    className: "space-y-6 pt-4",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "grid grid-cols-1 md:grid-cols-2 gap-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            className: "text-dark-primary flex items-center gap-1.5",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(User, {
+                                                    className: "w-4 h-4 text-indigo-400"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                    lineNumber: 134,
+                                                    columnNumber: 78
+                                                }, this),
+                                                "Cliente *"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 134,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(Select, {
+                                            value: formData.id_cliente,
+                                            onValueChange: (val)=>handleChange('id_cliente', val),
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(SelectTrigger, {
+                                                    className: "bg-dark-hover border-dark-color text-dark-primary h-10",
+                                                    children: /*#__PURE__*/ _jsxDEV(SelectValue, {
+                                                        placeholder: "Seleccionar cliente..."
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                        lineNumber: 137,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                    lineNumber: 136,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(SelectContent, {
+                                                    className: "bg-dark-card border-dark-color",
+                                                    children: clientes.map((c)=>/*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                            value: c.id_cliente.toString(),
+                                                            children: c.nombre
+                                                        }, c.id_cliente, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                            lineNumber: 141,
+                                                            columnNumber: 21
+                                                        }, this))
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                    lineNumber: 139,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 135,
+                                            columnNumber: 15
+                                        }, this),
+                                        errors.id_cliente && /*#__PURE__*/ _jsxDEV("p", {
+                                            className: "text-red-400 text-xs",
+                                            children: errors.id_cliente
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 147,
+                                            columnNumber: 37
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                    lineNumber: 133,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            className: "text-dark-primary flex items-center gap-1.5",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Stethoscope, {
+                                                    className: "w-4 h-4 text-blue-400"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                    lineNumber: 152,
+                                                    columnNumber: 78
+                                                }, this),
+                                                "Empleado Asignado *"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 152,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(Select, {
+                                            value: formData.id_empleado,
+                                            onValueChange: (val)=>handleChange('id_empleado', val),
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(SelectTrigger, {
+                                                    className: "bg-dark-hover border-dark-color text-dark-primary h-10",
+                                                    children: /*#__PURE__*/ _jsxDEV(SelectValue, {
+                                                        placeholder: "Asignar empleado..."
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                        lineNumber: 155,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                    lineNumber: 154,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(SelectContent, {
+                                                    className: "bg-dark-card border-dark-color",
+                                                    children: empleados.map((e)=>/*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                            value: e.id_empleado.toString(),
+                                                            children: [
+                                                                e.nombre,
+                                                                " (",
+                                                                e.cargo,
+                                                                ")"
+                                                            ]
+                                                        }, e.id_empleado, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                            lineNumber: 159,
+                                                            columnNumber: 21
+                                                        }, this))
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                    lineNumber: 157,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 153,
+                                            columnNumber: 15
+                                        }, this),
+                                        errors.id_empleado && /*#__PURE__*/ _jsxDEV("p", {
+                                            className: "text-red-400 text-xs",
+                                            children: errors.id_empleado
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 165,
+                                            columnNumber: 38
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                    lineNumber: 151,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            className: "text-dark-primary flex items-center gap-1.5",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Calendar, {
+                                                    className: "w-4 h-4 text-pink-400"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                    lineNumber: 170,
+                                                    columnNumber: 78
+                                                }, this),
+                                                "Fecha *"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 170,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(Input, {
+                                            type: "date",
+                                            value: formData.fecha,
+                                            onChange: (e)=>handleChange('fecha', e.target.value),
+                                            className: "bg-dark-hover border-dark-color h-10"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 171,
+                                            columnNumber: 15
+                                        }, this),
+                                        errors.fecha && /*#__PURE__*/ _jsxDEV("p", {
+                                            className: "text-red-400 text-xs",
+                                            children: errors.fecha
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 172,
+                                            columnNumber: 32
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                    lineNumber: 169,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            className: "text-dark-primary flex items-center gap-1.5",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Clock, {
+                                                    className: "w-4 h-4 text-amber-400"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                    lineNumber: 177,
+                                                    columnNumber: 78
+                                                }, this),
+                                                "Hora *"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 177,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV(Input, {
+                                            type: "time",
+                                            value: formData.hora,
+                                            onChange: (e)=>handleChange('hora', e.target.value),
+                                            className: "bg-dark-hover border-dark-color h-10"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 178,
+                                            columnNumber: 15
+                                        }, this),
+                                        errors.hora && /*#__PURE__*/ _jsxDEV("p", {
+                                            className: "text-red-400 text-xs",
+                                            children: errors.hora
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 179,
+                                            columnNumber: 31
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                    lineNumber: 176,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                            lineNumber: 131,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-4 pt-4 border-t border-dark-color",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Label, {
+                                    className: "text-dark-primary flex items-center gap-1.5",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(ListPlus, {
+                                            className: "w-4 h-4 text-emerald-400"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 185,
+                                            columnNumber: 76
+                                        }, this),
+                                        "Servicios a Realizar"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                    lineNumber: 185,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "flex gap-2",
+                                    children: /*#__PURE__*/ _jsxDEV(Select, {
+                                        onValueChange: agregarServicio,
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV(SelectTrigger, {
+                                                className: "bg-dark-hover border-dark-color text-dark-primary flex-1",
+                                                children: /*#__PURE__*/ _jsxDEV(SelectValue, {
+                                                    placeholder: "Agregar un servicio..."
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                    lineNumber: 190,
+                                                    columnNumber: 19
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                lineNumber: 189,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV(SelectContent, {
+                                                className: "bg-dark-card border-dark-color",
+                                                children: servicios.map((s)=>/*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                        value: s.id_servicio.toString(),
+                                                        children: [
+                                                            s.nombre_servicio,
+                                                            " - $",
+                                                            s.precio
+                                                        ]
+                                                    }, s.id_servicio, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                        lineNumber: 194,
+                                                        columnNumber: 21
+                                                    }, this))
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                lineNumber: 192,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                        lineNumber: 188,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                    lineNumber: 187,
+                                    columnNumber: 13
+                                }, this),
+                                formData.serviciosSeleccionados.length > 0 && /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2 mt-2",
+                                    children: formData.serviciosSeleccionados.map((id_servicio)=>{
+                                        const servicio = servicios.find((s)=>s.id_servicio === id_servicio);
+                                        if (!servicio) return null;
+                                        return /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "flex items-center justify-between p-2 rounded-lg bg-dark-hover border border-dark-color",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                    className: "text-sm text-dark-primary",
+                                                    children: servicio.nombre_servicio
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                    lineNumber: 209,
+                                                    columnNumber: 23
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "flex items-center gap-4",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("span", {
+                                                            className: "text-sm text-emerald-400 font-semibold",
+                                                            children: [
+                                                                "$",
+                                                                servicio.precio
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                            lineNumber: 211,
+                                                            columnNumber: 25
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(Button, {
+                                                            type: "button",
+                                                            variant: "ghost",
+                                                            size: "sm",
+                                                            onClick: ()=>quitarServicio(id_servicio),
+                                                            className: "h-6 w-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-400/10",
+                                                            children: /*#__PURE__*/ _jsxDEV(Trash2, {
+                                                                className: "w-3.5 h-3.5"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                                lineNumber: 219,
+                                                                columnNumber: 27
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                            lineNumber: 212,
+                                                            columnNumber: 25
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                                    lineNumber: 210,
+                                                    columnNumber: 23
+                                                }, this)
+                                            ]
+                                        }, id_servicio, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                            lineNumber: 208,
+                                            columnNumber: 21
+                                        }, this);
+                                    })
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                    lineNumber: 203,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                            lineNumber: 184,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogFooter, {
+                            className: "gap-2 border-t border-dark-color pt-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "button",
+                                    variant: "ghost",
+                                    onClick: onClose,
+                                    className: "text-dark-secondary hover:bg-dark-hover",
+                                    children: "Cancelar"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                    lineNumber: 230,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "submit",
+                                    disabled: loading,
+                                    className: "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 px-6",
+                                    children: loading ? 'Procesando...' : cita ? 'Guardar Cambios' : 'Agendar Cita'
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                                    lineNumber: 231,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                            lineNumber: 229,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+                    lineNumber: 129,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+            lineNumber: 116,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx",
+        lineNumber: 115,
+        columnNumber: 5
+    }, this);
+}
+_s(CitaModal, "7MZM8FDJEzUjX1qs5TPyEYhkSzw=", false, function() {
+    return [
+        useEmpleados,
+        useClientes,
+        useServicios
+    ];
+});
+_c = CitaModal;
+var _c;
+$RefreshReg$(_c, "CitaModal");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/CitaModal.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIkNpdGFNb2RhbC50c3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgdXNlU3RhdGUsIHVzZUVmZmVjdCB9IGZyb20gJ3JlYWN0JztcclxuaW1wb3J0IHsgRGlhbG9nLCBEaWFsb2dDb250ZW50LCBEaWFsb2dEZXNjcmlwdGlvbiwgRGlhbG9nRm9vdGVyLCBEaWFsb2dIZWFkZXIsIERpYWxvZ1RpdGxlIH0gZnJvbSAnLi4vdWkvZGlhbG9nJztcclxuaW1wb3J0IHsgQnV0dG9uIH0gZnJvbSAnLi4vdWkvYnV0dG9uJztcclxuaW1wb3J0IHsgSW5wdXQgfSBmcm9tICcuLi91aS9pbnB1dCc7XHJcbmltcG9ydCB7IExhYmVsIH0gZnJvbSAnLi4vdWkvbGFiZWwnO1xyXG5pbXBvcnQgeyBTZWxlY3QsIFNlbGVjdENvbnRlbnQsIFNlbGVjdEl0ZW0sIFNlbGVjdFRyaWdnZXIsIFNlbGVjdFZhbHVlIH0gZnJvbSAnLi4vdWkvc2VsZWN0JztcclxuaW1wb3J0IHsgQ2FsZW5kYXIsIENsb2NrLCBVc2VyLCBTdGV0aG9zY29wZSwgTGlzdFBsdXMsIFRyYXNoMiB9IGZyb20gJ2x1Y2lkZS1yZWFjdCc7XHJcbmltcG9ydCB7IENpdGEsIEFnZW5kYW1pZW50b1NlcnZpY2lvIH0gZnJvbSAnLi4vaG9va3MvdXNlQWdlbmRhbWllbnRvJztcclxuaW1wb3J0IHsgdXNlRW1wbGVhZG9zIH0gZnJvbSAnLi4vaG9va3MvdXNlRW1wbGVhZG9zJztcclxuaW1wb3J0IHsgdXNlQ2xpZW50ZXMgfSBmcm9tICcuLi9ob29rcy91c2VDbGllbnRlcyc7XHJcbmltcG9ydCB7IHVzZVNlcnZpY2lvcyB9IGZyb20gJy4uL2hvb2tzL3VzZVNlcnZpY2lvcyc7XHJcblxyXG5pbnRlcmZhY2UgQ2l0YU1vZGFsUHJvcHMge1xyXG4gIGlzT3BlbjogYm9vbGVhbjtcclxuICBvbkNsb3NlOiAoKSA9PiB2b2lkO1xyXG4gIG9uU3VibWl0OiAoY2l0YTogUGFydGlhbDxDaXRhPikgPT4gUHJvbWlzZTxhbnk+O1xyXG4gIGNpdGE/OiBDaXRhIHwgbnVsbDtcclxuICBsb2FkaW5nPzogYm9vbGVhbjtcclxufVxyXG5cclxuZXhwb3J0IGZ1bmN0aW9uIENpdGFNb2RhbCh7IGlzT3Blbiwgb25DbG9zZSwgb25TdWJtaXQsIGNpdGEsIGxvYWRpbmcgfTogQ2l0YU1vZGFsUHJvcHMpIHtcclxuICBjb25zdCB7IGVtcGxlYWRvcyB9ID0gdXNlRW1wbGVhZG9zKCk7XHJcbiAgY29uc3QgeyBjbGllbnRlcyB9ID0gdXNlQ2xpZW50ZXMoKTtcclxuICBjb25zdCB7IHNlcnZpY2lvcyB9ID0gdXNlU2VydmljaW9zKCk7XHJcblxyXG4gIGNvbnN0IFtmb3JtRGF0YSwgc2V0Rm9ybURhdGFdID0gdXNlU3RhdGUoe1xyXG4gICAgZmVjaGE6IG5ldyBEYXRlKCkudG9JU09TdHJpbmcoKS5zcGxpdCgnVCcpWzBdLFxyXG4gICAgaG9yYTogJzA5OjAwJyxcclxuICAgIGlkX2NsaWVudGU6ICcnLFxyXG4gICAgaWRfZW1wbGVhZG86ICcnLFxyXG4gICAgc2VydmljaW9zU2VsZWNjaW9uYWRvczogW10gYXMgbnVtYmVyW11cclxuICB9KTtcclxuXHJcbiAgY29uc3QgW2Vycm9ycywgc2V0RXJyb3JzXSA9IHVzZVN0YXRlPFJlY29yZDxzdHJpbmcsIHN0cmluZz4+KHt9KTtcclxuXHJcbiAgdXNlRWZmZWN0KCgpID0+IHtcclxuICAgIGlmIChjaXRhKSB7XHJcbiAgICAgIHNldEZvcm1EYXRhKHtcclxuICAgICAgICBmZWNoYTogY2l0YS5mZWNoYSxcclxuICAgICAgICBob3JhOiBjaXRhLmhvcmEsXHJcbiAgICAgICAgaWRfY2xpZW50ZTogY2l0YS5pZF9jbGllbnRlLnRvU3RyaW5nKCksXHJcbiAgICAgICAgaWRfZW1wbGVhZG86IGNpdGEuaWRfZW1wbGVhZG8udG9TdHJpbmcoKSxcclxuICAgICAgICBzZXJ2aWNpb3NTZWxlY2Npb25hZG9zOiBjaXRhLmFnZW5kYW1pZW50b19zZXJ2aWNpb3MgPyBjaXRhLmFnZW5kYW1pZW50b19zZXJ2aWNpb3MubWFwKHMgPT4gcy5pZF9zZXJ2aWNpbykgOiBbXVxyXG4gICAgICB9KTtcclxuICAgIH0gZWxzZSB7XHJcbiAgICAgIHNldEZvcm1EYXRhKHtcclxuICAgICAgICBmZWNoYTogbmV3IERhdGUoKS50b0lTT1N0cmluZygpLnNwbGl0KCdUJylbMF0sXHJcbiAgICAgICAgaG9yYTogJzA5OjAwJyxcclxuICAgICAgICBpZF9jbGllbnRlOiAnJyxcclxuICAgICAgICBpZF9lbXBsZWFkbzogJycsXHJcbiAgICAgICAgc2VydmljaW9zU2VsZWNjaW9uYWRvczogW11cclxuICAgICAgfSk7XHJcbiAgICB9XHJcbiAgICBzZXRFcnJvcnMoe30pO1xyXG4gIH0sIFtjaXRhLCBpc09wZW5dKTtcclxuXHJcbiAgY29uc3QgdmFsaWRhdGVGb3JtID0gKCkgPT4ge1xyXG4gICAgY29uc3QgbmV3RXJyb3JzOiBSZWNvcmQ8c3RyaW5nLCBzdHJpbmc+ID0ge307XHJcblxyXG4gICAgaWYgKCFmb3JtRGF0YS5pZF9jbGllbnRlKSBuZXdFcnJvcnMuaWRfY2xpZW50ZSA9ICdTZWxlY2Npb25hIHVuIGNsaWVudGUnO1xyXG4gICAgaWYgKCFmb3JtRGF0YS5pZF9lbXBsZWFkbykgbmV3RXJyb3JzLmlkX2VtcGxlYWRvID0gJ1NlbGVjY2lvbmEgdW4gZW1wbGVhZG8nO1xyXG4gICAgaWYgKCFmb3JtRGF0YS5mZWNoYSkgbmV3RXJyb3JzLmZlY2hhID0gJ0xhIGZlY2hhIGVzIHJlcXVlcmlkYSc7XHJcbiAgICBpZiAoIWZvcm1EYXRhLmhvcmEpIG5ld0Vycm9ycy5ob3JhID0gJ0xhIGhvcmEgZXMgcmVxdWVyaWRhJztcclxuXHJcbiAgICBzZXRFcnJvcnMobmV3RXJyb3JzKTtcclxuICAgIHJldHVybiBPYmplY3Qua2V5cyhuZXdFcnJvcnMpLmxlbmd0aCA9PT0gMDtcclxuICB9O1xyXG5cclxuICBjb25zdCBoYW5kbGVTdWJtaXQgPSBhc3luYyAoZTogUmVhY3QuRm9ybUV2ZW50KSA9PiB7XHJcbiAgICBlLnByZXZlbnREZWZhdWx0KCk7XHJcbiAgICBpZiAoIXZhbGlkYXRlRm9ybSgpKSByZXR1cm47XHJcblxyXG4gICAgLy8gQ29udmVydGlyIGEgZm9ybWF0byBkZSBDaXRhXHJcbiAgICBjb25zdCBhZ2VuZGFtaWVudG9EYXRhOiBQYXJ0aWFsPENpdGE+ID0ge1xyXG4gICAgICBmZWNoYTogZm9ybURhdGEuZmVjaGEsXHJcbiAgICAgIGhvcmE6IGZvcm1EYXRhLmhvcmEsXHJcbiAgICAgIGlkX2NsaWVudGU6IHBhcnNlSW50KGZvcm1EYXRhLmlkX2NsaWVudGUpLFxyXG4gICAgICBpZF9lbXBsZWFkbzogcGFyc2VJbnQoZm9ybURhdGEuaWRfZW1wbGVhZG8pLFxyXG4gICAgICBhZ2VuZGFtaWVudG9fc2VydmljaW9zOiBmb3JtRGF0YS5zZXJ2aWNpb3NTZWxlY2Npb25hZG9zLm1hcChpZF9zZXJ2aWNpbyA9PiAoe1xyXG4gICAgICAgIGlkX3NlcnZpY2lvXHJcbiAgICAgIH0pKSBhcyBBZ2VuZGFtaWVudG9TZXJ2aWNpb1tdXHJcbiAgICB9O1xyXG5cclxuICAgIGlmIChjaXRhKSB7XHJcbiAgICAgIGFnZW5kYW1pZW50b0RhdGEuaWRfYWdlbmRhbWllbnRvID0gY2l0YS5pZF9hZ2VuZGFtaWVudG87XHJcbiAgICB9XHJcblxyXG4gICAgY29uc3QgcmVzdWx0ID0gYXdhaXQgb25TdWJtaXQoYWdlbmRhbWllbnRvRGF0YSk7XHJcbiAgICBpZiAocmVzdWx0LnN1Y2Nlc3MpIG9uQ2xvc2UoKTtcclxuICB9O1xyXG5cclxuICBjb25zdCBoYW5kbGVDaGFuZ2UgPSAoZmllbGQ6IHN0cmluZywgdmFsdWU6IGFueSkgPT4ge1xyXG4gICAgc2V0Rm9ybURhdGEocHJldiA9PiAoeyAuLi5wcmV2LCBbZmllbGRdOiB2YWx1ZSB9KSk7XHJcbiAgICBpZiAoZXJyb3JzW2ZpZWxkXSkgc2V0RXJyb3JzKHByZXYgPT4gKHsgLi4ucHJldiwgW2ZpZWxkXTogJycgfSkpO1xyXG4gIH07XHJcblxyXG4gIGNvbnN0IGFncmVnYXJTZXJ2aWNpbyA9IChpZF9zZXJ2aWNpbzogc3RyaW5nKSA9PiB7XHJcbiAgICBjb25zdCBpZCA9IHBhcnNlSW50KGlkX3NlcnZpY2lvKTtcclxuICAgIGlmIChpZCAmJiAhZm9ybURhdGEuc2VydmljaW9zU2VsZWNjaW9uYWRvcy5pbmNsdWRlcyhpZCkpIHtcclxuICAgICAgc2V0Rm9ybURhdGEocHJldiA9PiAoe1xyXG4gICAgICAgIC4uLnByZXYsXHJcbiAgICAgICAgc2VydmljaW9zU2VsZWNjaW9uYWRvczogWy4uLnByZXYuc2VydmljaW9zU2VsZWNjaW9uYWRvcywgaWRdXHJcbiAgICAgIH0pKTtcclxuICAgIH1cclxuICB9O1xyXG5cclxuICBjb25zdCBxdWl0YXJTZXJ2aWNpbyA9IChpZF9zZXJ2aWNpbzogbnVtYmVyKSA9PiB7XHJcbiAgICBzZXRGb3JtRGF0YShwcmV2ID0+ICh7XHJcbiAgICAgIC4uLnByZXYsXHJcbiAgICAgIHNlcnZpY2lvc1NlbGVjY2lvbmFkb3M6IHByZXYuc2VydmljaW9zU2VsZWNjaW9uYWRvcy5maWx0ZXIoaWQgPT4gaWQgIT09IGlkX3NlcnZpY2lvKVxyXG4gICAgfSkpO1xyXG4gIH07XHJcblxyXG4gIHJldHVybiAoXHJcbiAgICA8RGlhbG9nIG9wZW49e2lzT3Blbn0gb25PcGVuQ2hhbmdlPXtvbkNsb3NlfT5cclxuICAgICAgPERpYWxvZ0NvbnRlbnQgY2xhc3NOYW1lPVwibWF4LXctMnhsIGJnLWRhcmstY2FyZCBib3JkZXItZGFyay1jb2xvciBib3JkZXItb3BhY2l0eS01MFwiPlxyXG4gICAgICAgIDxEaWFsb2dIZWFkZXIgY2xhc3NOYW1lPVwiYm9yZGVyLWIgYm9yZGVyLWRhcmstY29sb3IgcGItNFwiPlxyXG4gICAgICAgICAgPERpYWxvZ1RpdGxlIGNsYXNzTmFtZT1cInRleHQteGwgZm9udC1ib2xkIHRleHQtZGFyay1wcmltYXJ5IGZsZXggaXRlbXMtY2VudGVyIGdhcC0yXCI+XHJcbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwicC0yIGJnLWJsdWUtNTAwLzEwIHJvdW5kZWQtbGdcIj5cclxuICAgICAgICAgICAgICA8Q2FsZW5kYXIgY2xhc3NOYW1lPVwidy01IGgtNSB0ZXh0LWJsdWUtNDAwXCIgLz5cclxuICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgIHtjaXRhID8gJ0FnZW5kYW1pZW50bzogRWRpdGFyIENpdGEnIDogJ0FnZW5kYW1pZW50bzogTnVldmEgQ2l0YSd9XHJcbiAgICAgICAgICA8L0RpYWxvZ1RpdGxlPlxyXG4gICAgICAgICAgPERpYWxvZ0Rlc2NyaXB0aW9uIGNsYXNzTmFtZT1cInRleHQtZGFyay1zZWNvbmRhcnlcIj5cclxuICAgICAgICAgICAgUHJvZ3JhbWEgeSBnZXN0aW9uYSBsYXMgY2l0YXMgYXNpZ27DoW5kb2xhcyBhIHVuIGVtcGxlYWRvIGVzcGVjw61maWNvLlxyXG4gICAgICAgICAgPC9EaWFsb2dEZXNjcmlwdGlvbj5cclxuICAgICAgICA8L0RpYWxvZ0hlYWRlcj5cclxuXHJcbiAgICAgICAgPGZvcm0gb25TdWJtaXQ9e2hhbmRsZVN1Ym1pdH0gY2xhc3NOYW1lPVwic3BhY2UteS02IHB0LTRcIj5cclxuXHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImdyaWQgZ3JpZC1jb2xzLTEgbWQ6Z3JpZC1jb2xzLTIgZ2FwLTRcIj5cclxuICAgICAgICAgICAgey8qIENsaWVudGUgKi99XHJcbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BhY2UteS0yXCI+XHJcbiAgICAgICAgICAgICAgPExhYmVsIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5IGZsZXggaXRlbXMtY2VudGVyIGdhcC0xLjVcIj48VXNlciBjbGFzc05hbWU9XCJ3LTQgaC00IHRleHQtaW5kaWdvLTQwMFwiIC8+Q2xpZW50ZSAqPC9MYWJlbD5cclxuICAgICAgICAgICAgICA8U2VsZWN0IHZhbHVlPXtmb3JtRGF0YS5pZF9jbGllbnRlfSBvblZhbHVlQ2hhbmdlPXsodmFsOiBzdHJpbmcpID0+IGhhbmRsZUNoYW5nZSgnaWRfY2xpZW50ZScsIHZhbCl9PlxyXG4gICAgICAgICAgICAgICAgPFNlbGVjdFRyaWdnZXIgY2xhc3NOYW1lPVwiYmctZGFyay1ob3ZlciBib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstcHJpbWFyeSBoLTEwXCI+XHJcbiAgICAgICAgICAgICAgICAgIDxTZWxlY3RWYWx1ZSBwbGFjZWhvbGRlcj1cIlNlbGVjY2lvbmFyIGNsaWVudGUuLi5cIiAvPlxyXG4gICAgICAgICAgICAgICAgPC9TZWxlY3RUcmlnZ2VyPlxyXG4gICAgICAgICAgICAgICAgPFNlbGVjdENvbnRlbnQgY2xhc3NOYW1lPVwiYmctZGFyay1jYXJkIGJvcmRlci1kYXJrLWNvbG9yXCI+XHJcbiAgICAgICAgICAgICAgICAgIHtjbGllbnRlcy5tYXAoYyA9PiAoXHJcbiAgICAgICAgICAgICAgICAgICAgPFNlbGVjdEl0ZW0ga2V5PXtjLmlkX2NsaWVudGV9IHZhbHVlPXtjLmlkX2NsaWVudGUudG9TdHJpbmcoKX0+XHJcbiAgICAgICAgICAgICAgICAgICAgICB7Yy5ub21icmV9XHJcbiAgICAgICAgICAgICAgICAgICAgPC9TZWxlY3RJdGVtPlxyXG4gICAgICAgICAgICAgICAgICApKX1cclxuICAgICAgICAgICAgICAgIDwvU2VsZWN0Q29udGVudD5cclxuICAgICAgICAgICAgICA8L1NlbGVjdD5cclxuICAgICAgICAgICAgICB7ZXJyb3JzLmlkX2NsaWVudGUgJiYgPHAgY2xhc3NOYW1lPVwidGV4dC1yZWQtNDAwIHRleHQteHNcIj57ZXJyb3JzLmlkX2NsaWVudGV9PC9wPn1cclxuICAgICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgICB7LyogRW1wbGVhZG8gKi99XHJcbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BhY2UteS0yXCI+XHJcbiAgICAgICAgICAgICAgPExhYmVsIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5IGZsZXggaXRlbXMtY2VudGVyIGdhcC0xLjVcIj48U3RldGhvc2NvcGUgY2xhc3NOYW1lPVwidy00IGgtNCB0ZXh0LWJsdWUtNDAwXCIgLz5FbXBsZWFkbyBBc2lnbmFkbyAqPC9MYWJlbD5cclxuICAgICAgICAgICAgICA8U2VsZWN0IHZhbHVlPXtmb3JtRGF0YS5pZF9lbXBsZWFkb30gb25WYWx1ZUNoYW5nZT17KHZhbDogc3RyaW5nKSA9PiBoYW5kbGVDaGFuZ2UoJ2lkX2VtcGxlYWRvJywgdmFsKX0+XHJcbiAgICAgICAgICAgICAgICA8U2VsZWN0VHJpZ2dlciBjbGFzc05hbWU9XCJiZy1kYXJrLWhvdmVyIGJvcmRlci1kYXJrLWNvbG9yIHRleHQtZGFyay1wcmltYXJ5IGgtMTBcIj5cclxuICAgICAgICAgICAgICAgICAgPFNlbGVjdFZhbHVlIHBsYWNlaG9sZGVyPVwiQXNpZ25hciBlbXBsZWFkby4uLlwiIC8+XHJcbiAgICAgICAgICAgICAgICA8L1NlbGVjdFRyaWdnZXI+XHJcbiAgICAgICAgICAgICAgICA8U2VsZWN0Q29udGVudCBjbGFzc05hbWU9XCJiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICAgICAgICAgICAge2VtcGxlYWRvcy5tYXAoZSA9PiAoXHJcbiAgICAgICAgICAgICAgICAgICAgPFNlbGVjdEl0ZW0ga2V5PXtlLmlkX2VtcGxlYWRvfSB2YWx1ZT17ZS5pZF9lbXBsZWFkby50b1N0cmluZygpfT5cclxuICAgICAgICAgICAgICAgICAgICAgIHtlLm5vbWJyZX0gKHtlLmNhcmdvfSlcclxuICAgICAgICAgICAgICAgICAgICA8L1NlbGVjdEl0ZW0+XHJcbiAgICAgICAgICAgICAgICAgICkpfVxyXG4gICAgICAgICAgICAgICAgPC9TZWxlY3RDb250ZW50PlxyXG4gICAgICAgICAgICAgIDwvU2VsZWN0PlxyXG4gICAgICAgICAgICAgIHtlcnJvcnMuaWRfZW1wbGVhZG8gJiYgPHAgY2xhc3NOYW1lPVwidGV4dC1yZWQtNDAwIHRleHQteHNcIj57ZXJyb3JzLmlkX2VtcGxlYWRvfTwvcD59XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgey8qIEZlY2hhICovfVxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktMlwiPlxyXG4gICAgICAgICAgICAgIDxMYWJlbCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSBmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMS41XCI+PENhbGVuZGFyIGNsYXNzTmFtZT1cInctNCBoLTQgdGV4dC1waW5rLTQwMFwiIC8+RmVjaGEgKjwvTGFiZWw+XHJcbiAgICAgICAgICAgICAgPElucHV0IHR5cGU9XCJkYXRlXCIgdmFsdWU9e2Zvcm1EYXRhLmZlY2hhfSBvbkNoYW5nZT17KGUpID0+IGhhbmRsZUNoYW5nZSgnZmVjaGEnLCBlLnRhcmdldC52YWx1ZSl9IGNsYXNzTmFtZT1cImJnLWRhcmstaG92ZXIgYm9yZGVyLWRhcmstY29sb3IgaC0xMFwiIC8+XHJcbiAgICAgICAgICAgICAge2Vycm9ycy5mZWNoYSAmJiA8cCBjbGFzc05hbWU9XCJ0ZXh0LXJlZC00MDAgdGV4dC14c1wiPntlcnJvcnMuZmVjaGF9PC9wPn1cclxuICAgICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgICB7LyogSG9yYSAqL31cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTJcIj5cclxuICAgICAgICAgICAgICA8TGFiZWwgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTEuNVwiPjxDbG9jayBjbGFzc05hbWU9XCJ3LTQgaC00IHRleHQtYW1iZXItNDAwXCIgLz5Ib3JhICo8L0xhYmVsPlxyXG4gICAgICAgICAgICAgIDxJbnB1dCB0eXBlPVwidGltZVwiIHZhbHVlPXtmb3JtRGF0YS5ob3JhfSBvbkNoYW5nZT17KGUpID0+IGhhbmRsZUNoYW5nZSgnaG9yYScsIGUudGFyZ2V0LnZhbHVlKX0gY2xhc3NOYW1lPVwiYmctZGFyay1ob3ZlciBib3JkZXItZGFyay1jb2xvciBoLTEwXCIgLz5cclxuICAgICAgICAgICAgICB7ZXJyb3JzLmhvcmEgJiYgPHAgY2xhc3NOYW1lPVwidGV4dC1yZWQtNDAwIHRleHQteHNcIj57ZXJyb3JzLmhvcmF9PC9wPn1cclxuICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICB7LyogU2VydmljaW9zICovfVxyXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTQgcHQtNCBib3JkZXItdCBib3JkZXItZGFyay1jb2xvclwiPlxyXG4gICAgICAgICAgICA8TGFiZWwgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTEuNVwiPjxMaXN0UGx1cyBjbGFzc05hbWU9XCJ3LTQgaC00IHRleHQtZW1lcmFsZC00MDBcIiAvPlNlcnZpY2lvcyBhIFJlYWxpemFyPC9MYWJlbD5cclxuXHJcbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgIDxTZWxlY3Qgb25WYWx1ZUNoYW5nZT17YWdyZWdhclNlcnZpY2lvfT5cclxuICAgICAgICAgICAgICAgIDxTZWxlY3RUcmlnZ2VyIGNsYXNzTmFtZT1cImJnLWRhcmstaG92ZXIgYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXByaW1hcnkgZmxleC0xXCI+XHJcbiAgICAgICAgICAgICAgICAgIDxTZWxlY3RWYWx1ZSBwbGFjZWhvbGRlcj1cIkFncmVnYXIgdW4gc2VydmljaW8uLi5cIiAvPlxyXG4gICAgICAgICAgICAgICAgPC9TZWxlY3RUcmlnZ2VyPlxyXG4gICAgICAgICAgICAgICAgPFNlbGVjdENvbnRlbnQgY2xhc3NOYW1lPVwiYmctZGFyay1jYXJkIGJvcmRlci1kYXJrLWNvbG9yXCI+XHJcbiAgICAgICAgICAgICAgICAgIHtzZXJ2aWNpb3MubWFwKHMgPT4gKFxyXG4gICAgICAgICAgICAgICAgICAgIDxTZWxlY3RJdGVtIGtleT17cy5pZF9zZXJ2aWNpb30gdmFsdWU9e3MuaWRfc2VydmljaW8udG9TdHJpbmcoKX0+XHJcbiAgICAgICAgICAgICAgICAgICAgICB7cy5ub21icmVfc2VydmljaW99IC0gJHtzLnByZWNpb31cclxuICAgICAgICAgICAgICAgICAgICA8L1NlbGVjdEl0ZW0+XHJcbiAgICAgICAgICAgICAgICAgICkpfVxyXG4gICAgICAgICAgICAgICAgPC9TZWxlY3RDb250ZW50PlxyXG4gICAgICAgICAgICAgIDwvU2VsZWN0PlxyXG4gICAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICAgIHtmb3JtRGF0YS5zZXJ2aWNpb3NTZWxlY2Npb25hZG9zLmxlbmd0aCA+IDAgJiYgKFxyXG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BhY2UteS0yIG10LTJcIj5cclxuICAgICAgICAgICAgICAgIHtmb3JtRGF0YS5zZXJ2aWNpb3NTZWxlY2Npb25hZG9zLm1hcChpZF9zZXJ2aWNpbyA9PiB7XHJcbiAgICAgICAgICAgICAgICAgIGNvbnN0IHNlcnZpY2lvID0gc2VydmljaW9zLmZpbmQocyA9PiBzLmlkX3NlcnZpY2lvID09PSBpZF9zZXJ2aWNpbyk7XHJcbiAgICAgICAgICAgICAgICAgIGlmICghc2VydmljaW8pIHJldHVybiBudWxsO1xyXG4gICAgICAgICAgICAgICAgICByZXR1cm4gKFxyXG4gICAgICAgICAgICAgICAgICAgIDxkaXYga2V5PXtpZF9zZXJ2aWNpb30gY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1iZXR3ZWVuIHAtMiByb3VuZGVkLWxnIGJnLWRhcmstaG92ZXIgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJ0ZXh0LXNtIHRleHQtZGFyay1wcmltYXJ5XCI+e3NlcnZpY2lvLm5vbWJyZV9zZXJ2aWNpb308L3NwYW4+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1lbWVyYWxkLTQwMCBmb250LXNlbWlib2xkXCI+JHtzZXJ2aWNpby5wcmVjaW99PC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8QnV0dG9uXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdHlwZT1cImJ1dHRvblwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgdmFyaWFudD1cImdob3N0XCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICBzaXplPVwic21cIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIG9uQ2xpY2s9eygpID0+IHF1aXRhclNlcnZpY2lvKGlkX3NlcnZpY2lvKX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJoLTYgdy02IHAtMCB0ZXh0LXJlZC00MDAgaG92ZXI6dGV4dC1yZWQtMzAwIGhvdmVyOmJnLXJlZC00MDAvMTBcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgPFRyYXNoMiBjbGFzc05hbWU9XCJ3LTMuNSBoLTMuNVwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDwvQnV0dG9uPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICk7XHJcbiAgICAgICAgICAgICAgICB9KX1cclxuICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgKX1cclxuICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgIDxEaWFsb2dGb290ZXIgY2xhc3NOYW1lPVwiZ2FwLTIgYm9yZGVyLXQgYm9yZGVyLWRhcmstY29sb3IgcHQtNFwiPlxyXG4gICAgICAgICAgICA8QnV0dG9uIHR5cGU9XCJidXR0b25cIiB2YXJpYW50PVwiZ2hvc3RcIiBvbkNsaWNrPXtvbkNsb3NlfSBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstc2Vjb25kYXJ5IGhvdmVyOmJnLWRhcmstaG92ZXJcIj5DYW5jZWxhcjwvQnV0dG9uPlxyXG4gICAgICAgICAgICA8QnV0dG9uIHR5cGU9XCJzdWJtaXRcIiBkaXNhYmxlZD17bG9hZGluZ30gY2xhc3NOYW1lPVwiYmctYmx1ZS02MDAgaG92ZXI6YmctYmx1ZS03MDAgdGV4dC13aGl0ZSBzaGFkb3ctbGcgc2hhZG93LWJsdWUtNTAwLzIwIHB4LTZcIj5cclxuICAgICAgICAgICAgICB7bG9hZGluZyA/ICdQcm9jZXNhbmRvLi4uJyA6IChjaXRhID8gJ0d1YXJkYXIgQ2FtYmlvcycgOiAnQWdlbmRhciBDaXRhJyl9XHJcbiAgICAgICAgICAgIDwvQnV0dG9uPlxyXG4gICAgICAgICAgPC9EaWFsb2dGb290ZXI+XHJcbiAgICAgICAgPC9mb3JtPlxyXG4gICAgICA8L0RpYWxvZ0NvbnRlbnQ+XHJcbiAgICA8L0RpYWxvZz5cclxuICApO1xyXG59XHJcbiJdLCJuYW1lcyI6WyJ1c2VTdGF0ZSIsInVzZUVmZmVjdCIsIkRpYWxvZyIsIkRpYWxvZ0NvbnRlbnQiLCJEaWFsb2dEZXNjcmlwdGlvbiIsIkRpYWxvZ0Zvb3RlciIsIkRpYWxvZ0hlYWRlciIsIkRpYWxvZ1RpdGxlIiwiQnV0dG9uIiwiSW5wdXQiLCJMYWJlbCIsIlNlbGVjdCIsIlNlbGVjdENvbnRlbnQiLCJTZWxlY3RJdGVtIiwiU2VsZWN0VHJpZ2dlciIsIlNlbGVjdFZhbHVlIiwiQ2FsZW5kYXIiLCJDbG9jayIsIlVzZXIiLCJTdGV0aG9zY29wZSIsIkxpc3RQbHVzIiwiVHJhc2gyIiwidXNlRW1wbGVhZG9zIiwidXNlQ2xpZW50ZXMiLCJ1c2VTZXJ2aWNpb3MiLCJDaXRhTW9kYWwiLCJpc09wZW4iLCJvbkNsb3NlIiwib25TdWJtaXQiLCJjaXRhIiwibG9hZGluZyIsImVtcGxlYWRvcyIsImNsaWVudGVzIiwic2VydmljaW9zIiwiZm9ybURhdGEiLCJzZXRGb3JtRGF0YSIsImZlY2hhIiwiRGF0ZSIsInRvSVNPU3RyaW5nIiwic3BsaXQiLCJob3JhIiwiaWRfY2xpZW50ZSIsImlkX2VtcGxlYWRvIiwic2VydmljaW9zU2VsZWNjaW9uYWRvcyIsImVycm9ycyIsInNldEVycm9ycyIsInRvU3RyaW5nIiwiYWdlbmRhbWllbnRvX3NlcnZpY2lvcyIsIm1hcCIsInMiLCJpZF9zZXJ2aWNpbyIsInZhbGlkYXRlRm9ybSIsIm5ld0Vycm9ycyIsIk9iamVjdCIsImtleXMiLCJsZW5ndGgiLCJoYW5kbGVTdWJtaXQiLCJlIiwicHJldmVudERlZmF1bHQiLCJhZ2VuZGFtaWVudG9EYXRhIiwicGFyc2VJbnQiLCJpZF9hZ2VuZGFtaWVudG8iLCJyZXN1bHQiLCJzdWNjZXNzIiwiaGFuZGxlQ2hhbmdlIiwiZmllbGQiLCJ2YWx1ZSIsInByZXYiLCJhZ3JlZ2FyU2VydmljaW8iLCJpZCIsImluY2x1ZGVzIiwicXVpdGFyU2VydmljaW8iLCJmaWx0ZXIiLCJvcGVuIiwib25PcGVuQ2hhbmdlIiwiY2xhc3NOYW1lIiwiZGl2IiwiZm9ybSIsIm9uVmFsdWVDaGFuZ2UiLCJ2YWwiLCJwbGFjZWhvbGRlciIsImMiLCJub21icmUiLCJwIiwiY2FyZ28iLCJ0eXBlIiwib25DaGFuZ2UiLCJ0YXJnZXQiLCJub21icmVfc2VydmljaW8iLCJwcmVjaW8iLCJzZXJ2aWNpbyIsImZpbmQiLCJzcGFuIiwidmFyaWFudCIsInNpemUiLCJvbkNsaWNrIiwiZGlzYWJsZWQiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUFBLFNBQVNBLFFBQVEsRUFBRUMsU0FBUyxRQUFRLFFBQVE7QUFDNUMsU0FBU0MsTUFBTSxFQUFFQyxhQUFhLEVBQUVDLGlCQUFpQixFQUFFQyxZQUFZLEVBQUVDLFlBQVksRUFBRUMsV0FBVyxRQUFRLGVBQWU7QUFDakgsU0FBU0MsTUFBTSxRQUFRLGVB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

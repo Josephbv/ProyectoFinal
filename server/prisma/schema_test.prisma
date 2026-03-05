@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model cliente {
+  id_cliente     Int            @id @default(autoincrement())
+  nombre         String         @db.VarChar(100)
+  tipo_documento String?        @db.VarChar(20)
+  cedula         String?        @unique @db.VarChar(20)
+  telefono       String?        @db.VarChar(20)
+  correo         String?        @unique @db.VarChar(100)
+  direccion      String?        @db.VarChar(255)
+  usuario        usuario?
+  agendaciones   agendamiento[]
+  mascotas       mascotas[]
+  ventas         ventas[]
+}
+
+model usuario {
+  id_usuario     Int       @id @default(autoincrement())
+  nombre_usuario String    @db.VarChar(50)
+  contrasena     String    @db.VarChar(100)
+  correo         String?   @unique @db.VarChar(100)
+  id_rol         Int
+  rol            roles     @relation(fields: [id_rol], references: [id_rol])
+  id_cliente     Int?      @unique
+  id_empleado    Int?      @unique
+  cliente        cliente?  @relation(fields: [id_cliente], references: [id_cliente])
+  empleado       empleado? @relation(fields: [id_empleado], references: [id_empleado])
+}
+
+model roles {
+  id_rol         Int              @id @default(autoincrement())
+  nombre_rol     String           @db.VarChar(50)
+  usuarios       usuario[]
+}
+
+model mascotas {
+  id_mascota         Int                  @id @default(autoincrement())
+  nombre             String               @db.VarChar(50)
+  especie            String?              @db.VarChar(50)
+  raza               String?              @db.VarChar(50)
+  edad               Int?
+  fecha_nacimiento   DateTime?            @db.Date
+  foto               String?              @db.Text
+  observaciones      String?              @db.Text
+  vacunas            String?              @db.Text
+  id_cliente         Int
+  historial_mascotas historial_mascotas[]
+  cliente            cliente              @relation(fields: [id_cliente], references: [id_cliente])
+}
+
+model historial_mascotas {
+  id_historial Int      @id @default(autoincrement())
+  id_mascota   Int
+  mascota      mascotas @relation(fields: [id_mascota], references: [id_mascota], onDelete: Cascade)
+}
+
+model empleado {
+  id_empleado    Int            @id @default(autoincrement())
+  tipo_documento String?        @db.VarChar(20)
+  cedula         String?        @unique @db.VarChar(20)
+  nombre         String         @db.VarChar(100)
+  correo         String?        @db.VarChar(100)
+  usuario        usuario?
+  agendaciones   agendamiento[]
+}
+
+model agendamiento {
+  id_agendamiento Int      @id @default(autoincrement())
+  id_cliente      Int
+  id_empleado     Int
+  cliente         cliente  @relation(fields: [id_cliente], references: [id_cliente])
+  empleado        empleado @relation(fields: [id_empleado], references: [id_empleado])
+}
+
+model ventas {
+  id_venta        Int               @id @default(autoincrement())
+  fecha           DateTime?         @db.Date
+  total           Decimal?          @db.Decimal(10, 2)
+  id_cliente      Int
+  estado          String?           @default("aprobada") @db.VarChar(20)
+  cliente         cliente           @relation(fields: [id_cliente], references: [id_cliente])
+}

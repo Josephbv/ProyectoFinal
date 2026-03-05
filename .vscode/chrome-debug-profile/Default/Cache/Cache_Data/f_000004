@@ -1,0 +1,231 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/App.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"]; const _Fragment = __vite__cjsImport2_react_jsxDevRuntime["Fragment"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"]; const useEffect = __vite__cjsImport3_react["useEffect"];
+import { Dashboard } from "/src/components/Dashboard.tsx?t=1772223881773";
+import { LoginPage } from "/src/components/pages/LoginPage.tsx?t=1772223881635";
+import { LandingPage } from "/src/components/pages/LandingPage.tsx?t=1772223881528";
+import { Toaster } from "/src/components/ui/sonner.tsx";
+import { toast } from "/node_modules/.vite/deps/sonner.js?v=04e61ac6";
+export default function App() {
+    _s();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [showLanding, setShowLanding] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+    // Verificar si hay una sesión guardada al cargar la app
+    useEffect(()=>{
+        const checkSavedSession = ()=>{
+            try {
+                const savedAuthData = localStorage.getItem("kaivet_auth_data");
+                if (savedAuthData) {
+                    const data = JSON.parse(savedAuthData);
+                    if (data.token && data.usuario) {
+                        setIsAuthenticated(true);
+                        setShowLanding(false);
+                        toast.success(`¡Bienvenido de vuelta, ${data.usuario.nombre_usuario || 'Usuario'}!`);
+                    } else {
+                        handleLogout();
+                    }
+                }
+            } catch (error) {
+                console.error("Error al verificar sesión guardada:", error);
+                handleLogout();
+            } finally{
+                setIsLoading(false);
+            }
+        };
+        setTimeout(checkSavedSession, 500);
+    }, []);
+    const handleLogin = (user)=>{
+        setIsAuthenticated(true);
+        setShowLanding(false);
+    // Nota: La persistencia real ya se maneja en useEmailAuth
+    // Pero mantenemos este callback si es necesario para otros fines de UI
+    };
+    const handleLogout = ()=>{
+        setIsAuthenticated(false);
+        setShowLanding(true);
+        // Limpiar datos de autenticación
+        localStorage.removeItem("kaivet_auth_data");
+        toast.info("Sesión cerrada exitosamente");
+    };
+    const handleGetStarted = ()=>{
+        setShowLanding(false);
+    };
+    // Mostrar loading inicial
+    if (isLoading) {
+        return /*#__PURE__*/ _jsxDEV("div", {
+            className: "min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center",
+            children: [
+                /*#__PURE__*/ _jsxDEV("div", {
+                    className: "text-center space-y-4",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "w-20 h-20 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/25 relative overflow-hidden mx-auto animate-pulse",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                                    lineNumber: 67,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "w-10 h-10 bg-white rounded-full relative z-10"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                                    lineNumber: 68,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                            lineNumber: 66,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("h1", {
+                                    className: "text-2xl font-bold text-white",
+                                    children: "KaiVet Manager"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                                    lineNumber: 73,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("p", {
+                                    className: "text-blue-200",
+                                    children: "Cargando..."
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                                    lineNumber: 76,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                            lineNumber: 72,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "flex justify-center",
+                            children: /*#__PURE__*/ _jsxDEV("div", {
+                                className: "w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                                lineNumber: 81,
+                                columnNumber: 13
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                            lineNumber: 80,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                    lineNumber: 64,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV(Toaster, {
+                    position: "top-right",
+                    theme: "dark",
+                    richColors: true
+                }, void 0, false, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                    lineNumber: 85,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+            lineNumber: 63,
+            columnNumber: 7
+        }, this);
+    }
+    return /*#__PURE__*/ _jsxDEV(_Fragment, {
+        children: [
+            showLanding && !isAuthenticated ? /*#__PURE__*/ _jsxDEV(LandingPage, {
+                onGetStarted: handleGetStarted
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                lineNumber: 93,
+                columnNumber: 9
+            }, this) : !isAuthenticated ? /*#__PURE__*/ _jsxDEV(LoginPage, {
+                onLogin: handleLogin
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                lineNumber: 95,
+                columnNumber: 9
+            }, this) : /*#__PURE__*/ _jsxDEV(Dashboard, {
+                onLogout: handleLogout
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                lineNumber: 97,
+                columnNumber: 9
+            }, this),
+            /*#__PURE__*/ _jsxDEV(Toaster, {
+                position: "top-right",
+                theme: "dark",
+                richColors: true,
+                expand: true,
+                toastOptions: {
+                    duration: 4000,
+                    style: {
+                        background: "rgba(15, 23, 42, 0.9)",
+                        border: "1px solid rgba(148, 163, 184, 0.2)",
+                        color: "#f8fafc",
+                        backdropFilter: "blur(10px)"
+                    }
+                }
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx",
+                lineNumber: 99,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true);
+}
+_s(App, "Lg1ZTHzsY/+/hZcE3SiT0eaNl88=");
+_c = App;
+var _c;
+$RefreshReg$(_c, "App");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/App.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIkFwcC50c3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgdXNlU3RhdGUsIHVzZUVmZmVjdCB9IGZyb20gXCJyZWFjdFwiO1xyXG5pbXBvcnQgeyBEYXNoYm9hcmQgfSBmcm9tIFwiLi9jb21wb25lbnRzL0Rhc2hib2FyZFwiO1xyXG5pbXBvcnQgeyBMb2dpblBhZ2UgfSBmcm9tIFwiLi9jb21wb25lbnRzL3BhZ2VzL0xvZ2luUGFnZVwiO1xyXG5pbXBvcnQgeyBMYW5kaW5nUGFnZSB9IGZyb20gXCIuL2NvbXBvbmVudHMvcGFnZXMvTGFuZGluZ1BhZ2VcIjtcclxuaW1wb3J0IHsgVG9hc3RlciB9IGZyb20gXCIuL2NvbXBvbmVudHMvdWkvc29ubmVyXCI7XHJcbmltcG9ydCB7IHRvYXN0IH0gZnJvbSBcInNvbm5lclwiO1xyXG5cclxuZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gQXBwKCkge1xyXG4gIGNvbnN0IFtpc0F1dGhlbnRpY2F0ZWQsIHNldElzQXV0aGVudGljYXRlZF0gPSB1c2VTdGF0ZShmYWxzZSk7XHJcbiAgY29uc3QgW3Nob3dMYW5kaW5nLCBzZXRTaG93TGFuZGluZ10gPSB1c2VTdGF0ZSh0cnVlKTtcclxuICBjb25zdCBbaXNMb2FkaW5nLCBzZXRJc0xvYWRpbmddID0gdXNlU3RhdGUodHJ1ZSk7XHJcblxyXG4gIC8vIFZlcmlmaWNhciBzaSBoYXkgdW5hIHNlc2nDs24gZ3VhcmRhZGEgYWwgY2FyZ2FyIGxhIGFwcFxyXG4gIHVzZUVmZmVjdCgoKSA9PiB7XHJcbiAgICBjb25zdCBjaGVja1NhdmVkU2Vzc2lvbiA9ICgpID0+IHtcclxuICAgICAgdHJ5IHtcclxuICAgICAgICBjb25zdCBzYXZlZEF1dGhEYXRhID0gbG9jYWxTdG9yYWdlLmdldEl0ZW0oXCJrYWl2ZXRfYXV0aF9kYXRhXCIpO1xyXG5cclxuICAgICAgICBpZiAoc2F2ZWRBdXRoRGF0YSkge1xyXG4gICAgICAgICAgY29uc3QgZGF0YSA9IEpTT04ucGFyc2Uoc2F2ZWRBdXRoRGF0YSk7XHJcbiAgICAgICAgICBpZiAoZGF0YS50b2tlbiAmJiBkYXRhLnVzdWFyaW8pIHtcclxuICAgICAgICAgICAgc2V0SXNBdXRoZW50aWNhdGVkKHRydWUpO1xyXG4gICAgICAgICAgICBzZXRTaG93TGFuZGluZyhmYWxzZSk7XHJcbiAgICAgICAgICAgIHRvYXN0LnN1Y2Nlc3MoYMKhQmllbnZlbmlkbyBkZSB2dWVsdGEsICR7ZGF0YS51c3VhcmlvLm5vbWJyZV91c3VhcmlvIHx8ICdVc3VhcmlvJ30hYCk7XHJcbiAgICAgICAgICB9IGVsc2Uge1xyXG4gICAgICAgICAgICBoYW5kbGVMb2dvdXQoKTtcclxuICAgICAgICAgIH1cclxuICAgICAgICB9XHJcbiAgICAgIH0gY2F0Y2ggKGVycm9yKSB7XHJcbiAgICAgICAgY29uc29sZS5lcnJvcihcIkVycm9yIGFsIHZlcmlmaWNhciBzZXNpw7NuIGd1YXJkYWRhOlwiLCBlcnJvcik7XHJcbiAgICAgICAgaGFuZGxlTG9nb3V0KCk7XHJcbiAgICAgIH0gZmluYWxseSB7XHJcbiAgICAgICAgc2V0SXNMb2FkaW5nKGZhbHNlKTtcclxuICAgICAgfVxyXG4gICAgfTtcclxuXHJcbiAgICBzZXRUaW1lb3V0KGNoZWNrU2F2ZWRTZXNzaW9uLCA1MDApO1xyXG4gIH0sIFtdKTtcclxuXHJcbiAgY29uc3QgaGFuZGxlTG9naW4gPSAodXNlcj86IGFueSkgPT4ge1xyXG4gICAgc2V0SXNBdXRoZW50aWNhdGVkKHRydWUpO1xyXG4gICAgc2V0U2hvd0xhbmRpbmcoZmFsc2UpO1xyXG4gICAgLy8gTm90YTogTGEgcGVyc2lzdGVuY2lhIHJlYWwgeWEgc2UgbWFuZWphIGVuIHVzZUVtYWlsQXV0aFxyXG4gICAgLy8gUGVybyBtYW50ZW5lbW9zIGVzdGUgY2FsbGJhY2sgc2kgZXMgbmVjZXNhcmlvIHBhcmEgb3Ryb3MgZmluZXMgZGUgVUlcclxuICB9O1xyXG5cclxuICBjb25zdCBoYW5kbGVMb2dvdXQgPSAoKSA9PiB7XHJcbiAgICBzZXRJc0F1dGhlbnRpY2F0ZWQoZmFsc2UpO1xyXG4gICAgc2V0U2hvd0xhbmRpbmcodHJ1ZSk7XHJcblxyXG4gICAgLy8gTGltcGlhciBkYXRvcyBkZSBhdXRlbnRpY2FjacOzblxyXG4gICAgbG9jYWxTdG9yYWdlLnJlbW92ZUl0ZW0oXCJrYWl2ZXRfYXV0aF9kYXRhXCIpO1xyXG4gICAgdG9hc3QuaW5mbyhcIlNlc2nDs24gY2VycmFkYSBleGl0b3NhbWVudGVcIik7XHJcbiAgfTtcclxuXHJcbiAgY29uc3QgaGFuZGxlR2V0U3RhcnRlZCA9ICgpID0+IHtcclxuICAgIHNldFNob3dMYW5kaW5nKGZhbHNlKTtcclxuICB9O1xyXG5cclxuICAvLyBNb3N0cmFyIGxvYWRpbmcgaW5pY2lhbFxyXG4gIGlmIChpc0xvYWRpbmcpIHtcclxuICAgIHJldHVybiAoXHJcbiAgICAgIDxkaXYgY2xhc3NOYW1lPVwibWluLWgtc2NyZWVuIGJnLWdyYWRpZW50LXRvLWJyIGZyb20tc2xhdGUtOTAwIHZpYS1ibHVlLTkwMCB0by1zbGF0ZS05MDAgZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXJcIj5cclxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInRleHQtY2VudGVyIHNwYWNlLXktNFwiPlxyXG4gICAgICAgICAgey8qIExvZ28gYW5pbWFkbyAqL31cclxuICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidy0yMCBoLTIwIGJnLWdyYWRpZW50LXRvLWJyIGZyb20tYmx1ZS00MDAgdmlhLWJsdWUtNTAwIHRvLWJsdWUtNjAwIHJvdW5kZWQtM3hsIGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIHNoYWRvdy0yeGwgc2hhZG93LWJsdWUtNTAwLzI1IHJlbGF0aXZlIG92ZXJmbG93LWhpZGRlbiBteC1hdXRvIGFuaW1hdGUtcHVsc2VcIj5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJhYnNvbHV0ZSBpbnNldC0wIGJnLWdyYWRpZW50LXRvLXRyIGZyb20tdHJhbnNwYXJlbnQgdmlhLXdoaXRlLzIwIHRvLXRyYW5zcGFyZW50XCI+PC9kaXY+XHJcbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidy0xMCBoLTEwIGJnLXdoaXRlIHJvdW5kZWQtZnVsbCByZWxhdGl2ZSB6LTEwXCI+PC9kaXY+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICB7LyogVGV4dG8gKi99XHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktMlwiPlxyXG4gICAgICAgICAgICA8aDEgY2xhc3NOYW1lPVwidGV4dC0yeGwgZm9udC1ib2xkIHRleHQtd2hpdGVcIj5cclxuICAgICAgICAgICAgICBLYWlWZXQgTWFuYWdlclxyXG4gICAgICAgICAgICA8L2gxPlxyXG4gICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LWJsdWUtMjAwXCI+Q2FyZ2FuZG8uLi48L3A+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICB7LyogU3Bpbm5lciAqL31cclxuICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBqdXN0aWZ5LWNlbnRlclwiPlxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInctNiBoLTYgYm9yZGVyLTIgYm9yZGVyLWJsdWUtNDAwIGJvcmRlci10LXRyYW5zcGFyZW50IHJvdW5kZWQtZnVsbCBhbmltYXRlLXNwaW5cIj48L2Rpdj5cclxuICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICA8VG9hc3RlciBwb3NpdGlvbj1cInRvcC1yaWdodFwiIHRoZW1lPVwiZGFya1wiIHJpY2hDb2xvcnMgLz5cclxuICAgICAgPC9kaXY+XHJcbiAgICApO1xyXG4gIH1cclxuXHJcbiAgcmV0dXJuIChcclxuICAgIDw+XHJcbiAgICAgIHtzaG93TGFuZGluZyAmJiAhaXNBdXRoZW50aWNhdGVkID8gKFxyXG4gICAgICAgIDxMYW5kaW5nUGFnZSBvbkdldFN0YXJ0ZWQ9e2hhbmRsZUdldFN0YXJ0ZWR9IC8+XHJcbiAgICAgICkgOiAhaXNBdXRoZW50aWNhdGVkID8gKFxyXG4gICAgICAgIDxMb2dpblBhZ2Ugb25Mb2dpbj17aGFuZGxlTG9naW59IC8+XHJcbiAgICAgICkgOiAoXHJcbiAgICAgICAgPERhc2hib2FyZCBvbkxvZ291dD17aGFuZGxlTG9nb3V0fSAvPlxyXG4gICAgICApfVxyXG4gICAgICA8VG9hc3RlclxyXG4gICAgICAgIHBvc2l0aW9uPVwidG9wLXJpZ2h0XCJcclxuICAgICAgICB0aGVtZT1cImRhcmtcIlxyXG4gICAgICAgIHJpY2hDb2xvcnNcclxuICAgICAgICBleHBhbmQ9e3RydWV9XHJcbiAgICAgICAgdG9hc3RPcHRpb25zPXt7XHJcbiAgICAgICAgICBkdXJhdGlvbjogNDAwMCxcclxuICAgICAgICAgIHN0eWxlOiB7XHJcbiAgICAgICAgICAgIGJhY2tncm91bmQ6IFwicmdiYSgxNSwgMjMsIDQyLCAwLjkpXCIsXHJcbiAgICAgICAgICAgIGJvcmRlcjogXCIxcHggc29saWQgcmdiYSgxNDgsIDE2MywgMTg0LCAwLjIpXCIsXHJcbiAgICAgICAgICAgIGNvbG9yOiBcIiNmOGZhZmNcIixcclxuICAgICAgICAgICAgYmFja2Ryb3BGaWx0ZXI6IFwiYmx1cigxMHB4KVwiLFxyXG4gICAgICAgICAgfSxcclxuICAgICAgICB9fVxyXG4gICAgICAvPlxyXG4gICAgPC8+XHJcbiAgKTtcclxufVxyXG4iXSwibmFtZXMiOlsidXNlU3RhdGUiLCJ1c2VFZmZlY3QiLCJEYXNoYm9hcmQiLCJMb2dpblBhZ2UiLCJMYW5kaW5nUGFnZSIsIlRvYXN0ZXIiLCJ0b2FzdCIsIkFwcCIsImlzQXV0aGVudGljYXRlZCIsInNldElzQXV0aGVudGljYXRlZCIsInNob3dMYW5kaW5nIiwic2V0U2hvd0xhbmRpbmciLCJpc0xvYWRpbmciLCJzZXRJc0xvYWRpbmciLCJjaGVja1NhdmVkU2Vzc2lvbiIsInNhdmVkQXV0aERhdGEiLCJsb2NhbFN0b3JhZ2UiLCJnZXRJdGVtIiwiZGF0YSIsIkpTT04iLCJwYXJzZSIsInRva2VuIiwidXN1YXJpbyIsInN1Y2Nlc3MiLCJub21icmVfdXN1YXJpbyIsImhhbmRsZUxvZ291dCIsImVycm9yIiwiY29uc29sZSIsInNldFRpbWVvdXQiLCJoYW5kbGVMb2dpbiIsInVzZXIiLCJyZW1vdmVJdGVtIiwiaW5mbyIsImhhbmRsZUdldFN0YXJ0ZWQiLCJkaXYiLCJjbGFzc05hbWUiLCJoMSIsInAiLCJwb3NpdGlvbiIsInRoZW1lIiwicmljaENvbG9ycyIsIm9uR2V0U3RhcnRlZCIsIm9uTG9naW4iLCJvbkxvZ291dCIsImV4cGFuZCIsInRvYXN0T3B0aW9ucyIsImR1cmF0aW9uIiwic3R5bGUiLCJiYWNrZ3JvdW5kIiwiYm9yZGVyIiwiY29sb3IiLCJiYWNrZHJvcEZpbHRlciJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBQUEsU0FBU0EsUUFBUSxFQUFFQyxTQUFTLFFBQVEsUUFBUTtBQUM1QyxTQUFTQyxTQUFTLFFBQVEseUJBQXlCO0FBQ25ELFNBQVNDLFNBQVMsUUFBUSwrQkFBK0I7QUFDekQsU0FBU0MsV0FBVyxRQUFRLGlDQUFpQztBQUM3RCxTQUFTQyxPQUFPLFFBQVEseUJBQXlCO0FBQ2pELFNBQVNDLEtBQUssUUFBUSxTQUFTO0FBRS9CLGVBQWUsU0FBU0M7O0lBQ3RCLE1BQU0sQ0FBQ0MsaUJBQWlCQyxtQkFBbUIsR0FBR1QsU0FBUztJQUN2RCxNQUFNLENBQUNVLGFBQWFDLGVBQWUsR0FBR1gsU0FBUztJQUMvQyxNQUFNLENBQUNZLFdBQVdDLGFBQWEsR0FBR2IsU0FBUztJQUUzQyx3REFBd0Q7SUFDeERDLFVBQVU7UUFDUixNQUFNYSxvQkFBb0I7WUFDeEIsSUFBSTtnQkFDRixNQUFNQyxnQkFBZ0JDLGFBQWFDLE9BQU8sQ0FBQztnQkFFM0MsSUFBSUYsZUFBZTtvQkFDakIsTUFBTUcsT0FBT0MsS0FBS0MsS0FBSyxDQUFDTDtvQkFDeEIsSUFBSUcsS0FBS0csS0FBSyxJQUFJSCxLQUFLSSxPQUFPLEVBQUU7d0JBQzlCYixtQkFBbUI7d0JBQ25CRSxlQUFlO3dCQUNmTCxNQUFNaUIsT0FBTyxDQUFDLENBQUMsdUJBQXVCLEVBQUVMLEtBQUtJLE9BQU8sQ0FBQ0UsY0FBYyxJQUFJLFVBQVUsQ0FBQyxDQUFDO29CQUNyRixPQUFPO3dCQUNMQztvQkFDRjtnQkFDRjtZQUNGLEVBQUUsT0FBT0MsT0FBTztnQkFDZEMsUUFBUUQsS0FBSyxDQUFDLHVDQUF1Q0E7Z0JBQ3JERDtZQUNGLFNBQVU7Z0JBQ1JaLGFBQWE7WUFDZjtRQUNGO1FBRUFlLFdBQVdkLG1CQUFtQjtJQUNoQyxHQUFHLEVBQUU7SUFFTCxNQUFNZSxjQUFjLENBQUNDO1FBQ25CckIsbUJBQW1CO1FBQ25CRSxlQUFlO0lBQ2YsMERBQTBEO0lBQzFELHVFQUF1RTtJQUN6RTtJQUVBLE1BQU1jLGVBQWU7UUFDbkJoQixtQkFBbUI7UUFDbkJFLGVBQWU7UUFFZixpQ0FBaUM7UUFDakNLLGFBQWFlLFVBQVUsQ0FBQztRQUN4QnpCLE1BQU0wQixJQUFJLENBQUM7SUFDYjtJQUVBLE1BQU1DLG1CQUFtQjtRQUN2QnRCLGVBQWU7SUFDakI7SUFFQSwwQkFBMEI7SUFDMUIsSUFBSUMsV0FBVztRQUNiLHFCQUNFLFFBQUNzQjtZQUFJQyxXQUFVOzs4QkFDYixRQUFDRDtvQkFBSUMsV0FBVTs7c0NBRWIsUUFBQ0Q7NEJBQUlDLFdBQVU7OzhDQUNiLFFBQUNEO29DQUFJQyxXQUFVOzs7Ozs7OENBQ2YsUUFBQ0Q7b0NBQUlDLFdBQVU7Ozs7Ozs7Ozs7OztzQ0FJakIsUUFBQ0Q7NEJBQUlDLFdBQVU7OzhDQUNiLFFBQUNDO29DQUFHRCxXQUFVOzhDQUFnQzs7Ozs7OzhDQUc5QyxRQUFDRTtvQ0FBRUYsV0FBVTs4Q0FBZ0I7Ozs7Ozs7Ozs7OztzQ0FJL0IsUUFBQ0Q7NEJBQUlDLFdBQVU7c0NBQ2IsY0FBQSxRQUFDRDtnQ0FBSUMsV0FBVTs7Ozs7Ozs7Ozs7Ozs7Ozs7OEJBSW5CLFFBQUM5QjtvQkFBUWlDLFVBQVM7b0JBQVlDLE9BQU07b0JBQU9DLFVBQVU7Ozs7Ozs7Ozs7OztJQUczRDtJQUVBLHFCQUNFOztZQUNHOUIsZUFBZSxDQUFDRixnQ0FDZixRQUFDSjtnQkFBWXFDLGNBQWNSOzs7Ozt1QkFDekIsQ0FBQ3pCLGdDQUNILFFBQUNMO2dCQUFVdUMsU0FBU2I7Ozs7O3FDQUVwQixRQUFDM0I7Z0JBQVV5QyxVQUFVbEI7Ozs7OzswQkFFdkIsUUFBQ3BCO2dCQUNDaUMsVUFBUztnQkFDVEMsT0FBTTtnQkFDTkMsVUFBVTtnQkFDVkksUUFBUTtnQkFDUkMsY0FBYztvQkFDWkMsVUFBVTtvQkFDVkMsT0FBTzt3QkFDTEMsWUFBWTt3QkFDWkMsUUFBUTt3QkFDUkMsT0FBTzt3QkFDUEMsZ0JBQWdCO29CQUNsQjtnQkFDRjs7Ozs7Ozs7QUFJUjtHQTVHd0I1QztLQUFBQSJ9

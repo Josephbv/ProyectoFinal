@@ -1,0 +1,418 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/modals/RolModal.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"]; const useEffect = __vite__cjsImport3_react["useEffect"];
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "/src/components/ui/dialog.tsx?t=1772223881594";
+import { Button } from "/src/components/ui/button.tsx?t=1772223881528";
+import { Label } from "/src/components/ui/label.tsx?t=1772223881635";
+import { Switch } from "/src/components/ui/switch.tsx?t=1772223881771";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "/src/components/ui/select.tsx?t=1772223881681";
+import { Shield, Lock } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+const rolesDisponibles = [
+    {
+        value: 'Administrador',
+        label: 'Administrador',
+        description: 'Acceso completo al sistema'
+    },
+    {
+        value: 'Cliente',
+        label: 'Cliente',
+        description: 'Acceso limitado a información personal'
+    },
+    {
+        value: 'Asistente',
+        label: 'Asistente',
+        description: 'Operaciones diarias y asistencia'
+    }
+];
+const modulosDisponibles = [
+    'Dashboard',
+    'Ventas',
+    'Clientes',
+    'Agendamiento',
+    'Mascotas',
+    'Historial Mascotas',
+    'Horario',
+    'Servicios',
+    'Empleados',
+    'Roles'
+];
+const defaultModulosPorRol = {
+    'Administrador': [
+        ...modulosDisponibles
+    ],
+    'Asistente': [
+        'Dashboard',
+        'Ventas',
+        'Clientes',
+        'Agendamiento',
+        'Mascotas',
+        'Historial Mascotas',
+        'Horario',
+        'Servicios'
+    ],
+    'Cliente': [
+        'Dashboard',
+        'Agendamiento',
+        'Mascotas',
+        'Historial Mascotas'
+    ]
+};
+export function RolModal({ isOpen, onClose, onSubmit, rol, loading }) {
+    _s();
+    const [formData, setFormData] = useState({
+        nombre: '',
+        modulos: []
+    });
+    const [errors, setErrors] = useState({});
+    useEffect(()=>{
+        if (rol) {
+            setFormData({
+                nombre: rol.nombre,
+                modulos: rol.modulos || []
+            });
+        } else {
+            setFormData({
+                nombre: '',
+                modulos: []
+            });
+        }
+        setErrors({});
+    }, [
+        rol,
+        isOpen
+    ]);
+    const validateForm = ()=>{
+        const newErrors = {};
+        if (!formData.nombre) newErrors.nombre = 'Debe seleccionar un tipo de rol';
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        if (!validateForm()) return;
+        const result = await onSubmit(formData);
+        if (result.success) {
+            onClose();
+        }
+    };
+    const handleChange = (field, value)=>{
+        if (field === 'nombre' && !rol) {
+            // Auto-asignar módulos predeterminados al crear nuevo rol
+            setFormData((prev)=>({
+                    ...prev,
+                    [field]: value,
+                    modulos: defaultModulosPorRol[value] || []
+                }));
+        } else {
+            setFormData((prev)=>({
+                    ...prev,
+                    [field]: value
+                }));
+        }
+        if (errors[field]) {
+            setErrors((prev)=>({
+                    ...prev,
+                    [field]: ''
+                }));
+        }
+    };
+    const handleModuloToggle = (modulo)=>{
+        setFormData((prev)=>({
+                ...prev,
+                modulos: prev.modulos.includes(modulo) ? prev.modulos.filter((m)=>m !== modulo) : [
+                    ...prev.modulos,
+                    modulo
+                ]
+            }));
+    };
+    return /*#__PURE__*/ _jsxDEV(Dialog, {
+        open: isOpen,
+        onOpenChange: onClose,
+        children: /*#__PURE__*/ _jsxDEV(DialogContent, {
+            className: "max-w-2xl max-h-[90vh] overflow-y-auto bg-dark-card border-dark-color",
+            children: [
+                /*#__PURE__*/ _jsxDEV(DialogHeader, {
+                    children: [
+                        /*#__PURE__*/ _jsxDEV(DialogTitle, {
+                            className: "text-xl font-semibold text-dark-primary flex items-center gap-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Shield, {
+                                    className: "w-5 h-5 text-blue-400"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                    lineNumber: 116,
+                                    columnNumber: 13
+                                }, this),
+                                rol ? 'Editar Rol' : 'Nuevo Rol'
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                            lineNumber: 115,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogDescription, {
+                            className: "text-dark-secondary",
+                            children: rol ? 'Actualiza la información del rol' : 'Define un nuevo rol con sus permisos correspondientes'
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                            lineNumber: 119,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                    lineNumber: 114,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV("form", {
+                    onSubmit: handleSubmit,
+                    className: "space-y-6",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-4",
+                            children: /*#__PURE__*/ _jsxDEV("div", {
+                                className: "space-y-2",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV(Label, {
+                                        htmlFor: "nombre",
+                                        className: "text-dark-primary",
+                                        children: "Tipo de Rol *"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                        lineNumber: 127,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV(Select, {
+                                        value: formData.nombre,
+                                        onValueChange: (value)=>handleChange('nombre', value),
+                                        disabled: !!rol,
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV(SelectTrigger, {
+                                                className: "bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta",
+                                                children: /*#__PURE__*/ _jsxDEV(SelectValue, {
+                                                    placeholder: "Seleccionar tipo de rol..."
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                                    lineNumber: 134,
+                                                    columnNumber: 19
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                                lineNumber: 133,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV(SelectContent, {
+                                                className: "bg-dark-card border-dark-color",
+                                                children: rolesDisponibles.map((rolOption)=>/*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                        value: rolOption.value,
+                                                        children: /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex flex-col",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                                    className: "font-medium",
+                                                                    children: rolOption.label
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                                                    lineNumber: 140,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                                    className: "text-sm text-dark-secondary",
+                                                                    children: rolOption.description
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                                                    lineNumber: 141,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                                            lineNumber: 139,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, rolOption.value, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                                        lineNumber: 138,
+                                                        columnNumber: 21
+                                                    }, this))
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                                lineNumber: 136,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                        lineNumber: 128,
+                                        columnNumber: 15
+                                    }, this),
+                                    errors.nombre && /*#__PURE__*/ _jsxDEV("p", {
+                                        className: "text-red-400 text-sm",
+                                        children: errors.nombre
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                        lineNumber: 147,
+                                        columnNumber: 33
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                lineNumber: 126,
+                                columnNumber: 13
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                            lineNumber: 125,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("h3", {
+                                    className: "text-lg font-semibold text-dark-primary flex items-center gap-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Lock, {
+                                            className: "w-4 h-4"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                            lineNumber: 153,
+                                            columnNumber: 15
+                                        }, this),
+                                        "Módulos (",
+                                        formData.modulos.length,
+                                        ")"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                    lineNumber: 152,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "grid grid-cols-1 md:grid-cols-2 gap-3",
+                                    children: modulosDisponibles.map((modulo)=>/*#__PURE__*/ _jsxDEV("div", {
+                                            className: "flex items-center space-x-3 p-3 bg-dark-hover rounded-lg border border-dark-color",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Switch, {
+                                                    checked: formData.modulos.includes(modulo),
+                                                    onCheckedChange: ()=>handleModuloToggle(modulo)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                                    lineNumber: 159,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(Label, {
+                                                    className: "text-dark-primary text-sm font-medium flex-1",
+                                                    children: modulo
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                                    lineNumber: 163,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, modulo, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                            lineNumber: 158,
+                                            columnNumber: 17
+                                        }, this))
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                    lineNumber: 156,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                            lineNumber: 151,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogFooter, {
+                            className: "gap-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "button",
+                                    variant: "outline",
+                                    onClick: onClose,
+                                    className: "border-dark-color text-dark-secondary hover:bg-dark-hover",
+                                    children: "Cancelar"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                    lineNumber: 172,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "submit",
+                                    disabled: loading,
+                                    className: "bg-dark-cta text-white hover:bg-blue-600",
+                                    children: loading ? 'Guardando...' : rol ? 'Actualizar' : 'Crear Rol'
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                                    lineNumber: 180,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                            lineNumber: 171,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+                    lineNumber: 124,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+            lineNumber: 113,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx",
+        lineNumber: 112,
+        columnNumber: 5
+    }, this);
+}
+_s(RolModal, "n5z8z8mA2usUTlcHSUqO6W9DtLM=");
+_c = RolModal;
+var _c;
+$RefreshReg$(_c, "RolModal");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/RolModal.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIlJvbE1vZGFsLnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyB1c2VTdGF0ZSwgdXNlRWZmZWN0IH0gZnJvbSAncmVhY3QnO1xyXG5pbXBvcnQgeyBEaWFsb2csIERpYWxvZ0NvbnRlbnQsIERpYWxvZ0Rlc2NyaXB0aW9uLCBEaWFsb2dGb290ZXIsIERpYWxvZ0hlYWRlciwgRGlhbG9nVGl0bGUgfSBmcm9tICcuLi91aS9kaWFsb2cnO1xyXG5pbXBvcnQgeyBCdXR0b24gfSBmcm9tICcuLi91aS9idXR0b24nO1xyXG5pbXBvcnQgeyBJbnB1dCB9IGZyb20gJy4uL3VpL2lucHV0JztcclxuaW1wb3J0IHsgTGFiZWwgfSBmcm9tICcuLi91aS9sYWJlbCc7XHJcbmltcG9ydCB7IFN3aXRjaCB9IGZyb20gJy4uL3VpL3N3aXRjaCc7XHJcbmltcG9ydCB7IFNlbGVjdCwgU2VsZWN0Q29udGVudCwgU2VsZWN0SXRlbSwgU2VsZWN0VHJpZ2dlciwgU2VsZWN0VmFsdWUgfSBmcm9tICcuLi91aS9zZWxlY3QnO1xyXG5pbXBvcnQgeyBTaGllbGQsIExvY2sgfSBmcm9tICdsdWNpZGUtcmVhY3QnO1xyXG5cclxuaW50ZXJmYWNlIFJvbCB7XHJcbiAgaWQ6IHN0cmluZztcclxuICBub21icmU6IHN0cmluZztcclxuICBtb2R1bG9zOiBzdHJpbmdbXTtcclxufVxyXG5cclxuaW50ZXJmYWNlIFJvbE1vZGFsUHJvcHMge1xyXG4gIGlzT3BlbjogYm9vbGVhbjtcclxuICBvbkNsb3NlOiAoKSA9PiB2b2lkO1xyXG4gIG9uU3VibWl0OiAocm9sOiBPbWl0PFJvbCwgJ2lkJz4pID0+IFByb21pc2U8YW55PjtcclxuICByb2w/OiBSb2wgfCBudWxsO1xyXG4gIGxvYWRpbmc/OiBib29sZWFuO1xyXG59XHJcblxyXG5jb25zdCByb2xlc0Rpc3BvbmlibGVzID0gW1xyXG4gIHsgdmFsdWU6ICdBZG1pbmlzdHJhZG9yJywgbGFiZWw6ICdBZG1pbmlzdHJhZG9yJywgZGVzY3JpcHRpb246ICdBY2Nlc28gY29tcGxldG8gYWwgc2lzdGVtYScgfSxcclxuICB7IHZhbHVlOiAnQ2xpZW50ZScsIGxhYmVsOiAnQ2xpZW50ZScsIGRlc2NyaXB0aW9uOiAnQWNjZXNvIGxpbWl0YWRvIGEgaW5mb3JtYWNpw7NuIHBlcnNvbmFsJyB9LFxyXG4gIHsgdmFsdWU6ICdBc2lzdGVudGUnLCBsYWJlbDogJ0FzaXN0ZW50ZScsIGRlc2NyaXB0aW9uOiAnT3BlcmFjaW9uZXMgZGlhcmlhcyB5IGFzaXN0ZW5jaWEnIH1cclxuXTtcclxuXHJcbmNvbnN0IG1vZHVsb3NEaXNwb25pYmxlcyA9IFtcclxuICAnRGFzaGJvYXJkJywgJ1ZlbnRhcycsICdDbGllbnRlcycsICdBZ2VuZGFtaWVudG8nLFxyXG4gICdNYXNjb3RhcycsICdIaXN0b3JpYWwgTWFzY290YXMnLCAnSG9yYXJpbycsICdTZXJ2aWNpb3MnLFxyXG4gICdFbXBsZWFkb3MnLCAnUm9sZXMnXHJcbl07XHJcblxyXG5jb25zdCBkZWZhdWx0TW9kdWxvc1BvclJvbDogUmVjb3JkPHN0cmluZywgc3RyaW5nW10+ID0ge1xyXG4gICdBZG1pbmlzdHJhZG9yJzogWy4uLm1vZHVsb3NEaXNwb25pYmxlc10sXHJcbiAgJ0FzaXN0ZW50ZSc6IFsnRGFzaGJvYXJkJywgJ1ZlbnRhcycsICdDbGllbnRlcycsICdBZ2VuZGFtaWVudG8nLCAnTWFzY290YXMnLCAnSGlzdG9yaWFsIE1hc2NvdGFzJywgJ0hvcmFyaW8nLCAnU2VydmljaW9zJ10sXHJcbiAgJ0NsaWVudGUnOiBbJ0Rhc2hib2FyZCcsICdBZ2VuZGFtaWVudG8nLCAnTWFzY290YXMnLCAnSGlzdG9yaWFsIE1hc2NvdGFzJ11cclxufTtcclxuXHJcbmV4cG9ydCBmdW5jdGlvbiBSb2xNb2RhbCh7IGlzT3Blbiwgb25DbG9zZSwgb25TdWJtaXQsIHJvbCwgbG9hZGluZyB9OiBSb2xNb2RhbFByb3BzKSB7XHJcbiAgY29uc3QgW2Zvcm1EYXRhLCBzZXRGb3JtRGF0YV0gPSB1c2VTdGF0ZSh7XHJcbiAgICBub21icmU6ICcnLFxyXG4gICAgbW9kdWxvczogW10gYXMgc3RyaW5nW11cclxuICB9KTtcclxuXHJcbiAgY29uc3QgW2Vycm9ycywgc2V0RXJyb3JzXSA9IHVzZVN0YXRlPFJlY29yZDxzdHJpbmcsIHN0cmluZz4+KHt9KTtcclxuXHJcbiAgdXNlRWZmZWN0KCgpID0+IHtcclxuICAgIGlmIChyb2wpIHtcclxuICAgICAgc2V0Rm9ybURhdGEoe1xyXG4gICAgICAgIG5vbWJyZTogcm9sLm5vbWJyZSxcclxuICAgICAgICBtb2R1bG9zOiByb2wubW9kdWxvcyB8fCBbXVxyXG4gICAgICB9KTtcclxuICAgIH0gZWxzZSB7XHJcbiAgICAgIHNldEZvcm1EYXRhKHtcclxuICAgICAgICBub21icmU6ICcnLFxyXG4gICAgICAgIG1vZHVsb3M6IFtdXHJcbiAgICAgIH0pO1xyXG4gICAgfVxyXG4gICAgc2V0RXJyb3JzKHt9KTtcclxuICB9LCBbcm9sLCBpc09wZW5dKTtcclxuXHJcbiAgY29uc3QgdmFsaWRhdGVGb3JtID0gKCkgPT4ge1xyXG4gICAgY29uc3QgbmV3RXJyb3JzOiBSZWNvcmQ8c3RyaW5nLCBzdHJpbmc+ID0ge307XHJcblxyXG4gICAgaWYgKCFmb3JtRGF0YS5ub21icmUpIG5ld0Vycm9ycy5ub21icmUgPSAnRGViZSBzZWxlY2Npb25hciB1biB0aXBvIGRlIHJvbCc7XHJcblxyXG4gICAgc2V0RXJyb3JzKG5ld0Vycm9ycyk7XHJcbiAgICByZXR1cm4gT2JqZWN0LmtleXMobmV3RXJyb3JzKS5sZW5ndGggPT09IDA7XHJcbiAgfTtcclxuXHJcbiAgY29uc3QgaGFuZGxlU3VibWl0ID0gYXN5bmMgKGU6IFJlYWN0LkZvcm1FdmVudCkgPT4ge1xyXG4gICAgZS5wcmV2ZW50RGVmYXVsdCgpO1xyXG5cclxuICAgIGlmICghdmFsaWRhdGVGb3JtKCkpIHJldHVybjtcclxuXHJcbiAgICBjb25zdCByZXN1bHQgPSBhd2FpdCBvblN1Ym1pdChmb3JtRGF0YSk7XHJcbiAgICBpZiAocmVzdWx0LnN1Y2Nlc3MpIHtcclxuICAgICAgb25DbG9zZSgpO1xyXG4gICAgfVxyXG4gIH07XHJcblxyXG4gIGNvbnN0IGhhbmRsZUNoYW5nZSA9IChmaWVsZDogc3RyaW5nLCB2YWx1ZTogYW55KSA9PiB7XHJcbiAgICBpZiAoZmllbGQgPT09ICdub21icmUnICYmICFyb2wpIHtcclxuICAgICAgLy8gQXV0by1hc2lnbmFyIG3Ds2R1bG9zIHByZWRldGVybWluYWRvcyBhbCBjcmVhciBudWV2byByb2xcclxuICAgICAgc2V0Rm9ybURhdGEocHJldiA9PiAoe1xyXG4gICAgICAgIC4uLnByZXYsXHJcbiAgICAgICAgW2ZpZWxkXTogdmFsdWUsXHJcbiAgICAgICAgbW9kdWxvczogZGVmYXVsdE1vZHVsb3NQb3JSb2xbdmFsdWVdIHx8IFtdXHJcbiAgICAgIH0pKTtcclxuICAgIH0gZWxzZSB7XHJcbiAgICAgIHNldEZvcm1EYXRhKHByZXYgPT4gKHsgLi4ucHJldiwgW2ZpZWxkXTogdmFsdWUgfSkpO1xyXG4gICAgfVxyXG5cclxuICAgIGlmIChlcnJvcnNbZmllbGRdKSB7XHJcbiAgICAgIHNldEVycm9ycyhwcmV2ID0+ICh7IC4uLnByZXYsIFtmaWVsZF06ICcnIH0pKTtcclxuICAgIH1cclxuICB9O1xyXG5cclxuICBjb25zdCBoYW5kbGVNb2R1bG9Ub2dnbGUgPSAobW9kdWxvOiBzdHJpbmcpID0+IHtcclxuICAgIHNldEZvcm1EYXRhKHByZXYgPT4gKHtcclxuICAgICAgLi4ucHJldixcclxuICAgICAgbW9kdWxvczogcHJldi5tb2R1bG9zLmluY2x1ZGVzKG1vZHVsbylcclxuICAgICAgICA/IHByZXYubW9kdWxvcy5maWx0ZXIobSA9PiBtICE9PSBtb2R1bG8pXHJcbiAgICAgICAgOiBbLi4ucHJldi5tb2R1bG9zLCBtb2R1bG9dXHJcbiAgICB9KSk7XHJcbiAgfTtcclxuXHJcbiAgcmV0dXJuIChcclxuICAgIDxEaWFsb2cgb3Blbj17aXNPcGVufSBvbk9wZW5DaGFuZ2U9e29uQ2xvc2V9PlxyXG4gICAgICA8RGlhbG9nQ29udGVudCBjbGFzc05hbWU9XCJtYXgtdy0yeGwgbWF4LWgtWzkwdmhdIG92ZXJmbG93LXktYXV0byBiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICA8RGlhbG9nSGVhZGVyPlxyXG4gICAgICAgICAgPERpYWxvZ1RpdGxlIGNsYXNzTmFtZT1cInRleHQteGwgZm9udC1zZW1pYm9sZCB0ZXh0LWRhcmstcHJpbWFyeSBmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICA8U2hpZWxkIGNsYXNzTmFtZT1cInctNSBoLTUgdGV4dC1ibHVlLTQwMFwiIC8+XHJcbiAgICAgICAgICAgIHtyb2wgPyAnRWRpdGFyIFJvbCcgOiAnTnVldm8gUm9sJ31cclxuICAgICAgICAgIDwvRGlhbG9nVGl0bGU+XHJcbiAgICAgICAgICA8RGlhbG9nRGVzY3JpcHRpb24gY2xhc3NOYW1lPVwidGV4dC1kYXJrLXNlY29uZGFyeVwiPlxyXG4gICAgICAgICAgICB7cm9sID8gJ0FjdHVhbGl6YSBsYSBpbmZvcm1hY2nDs24gZGVsIHJvbCcgOiAnRGVmaW5lIHVuIG51ZXZvIHJvbCBjb24gc3VzIHBlcm1pc29zIGNvcnJlc3BvbmRpZW50ZXMnfVxyXG4gICAgICAgICAgPC9EaWFsb2dEZXNjcmlwdGlvbj5cclxuICAgICAgICA8L0RpYWxvZ0hlYWRlcj5cclxuXHJcbiAgICAgICAgPGZvcm0gb25TdWJtaXQ9e2hhbmRsZVN1Ym1pdH0gY2xhc3NOYW1lPVwic3BhY2UteS02XCI+XHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktNFwiPlxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktMlwiPlxyXG4gICAgICAgICAgICAgIDxMYWJlbCBodG1sRm9yPVwibm9tYnJlXCIgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnlcIj5UaXBvIGRlIFJvbCAqPC9MYWJlbD5cclxuICAgICAgICAgICAgICA8U2VsZWN0XHJcbiAgICAgICAgICAgICAgICB2YWx1ZT17Zm9ybURhdGEubm9tYnJlfVxyXG4gICAgICAgICAgICAgICAgb25WYWx1ZUNoYW5nZT17KHZhbHVlOiBzdHJpbmcpID0+IGhhbmRsZUNoYW5nZSgnbm9tYnJlJywgdmFsdWUpfVxyXG4gICAgICAgICAgICAgICAgZGlzYWJsZWQ9eyEhcm9sfSAvLyBEZXNoYWJpbGl0YXIgZWRpY2nDs24gZW4gbW9kbyBlZGl0YXJcclxuICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICA8U2VsZWN0VHJpZ2dlciBjbGFzc05hbWU9XCJiZy1kYXJrLWhvdmVyIGJvcmRlci1kYXJrLWNvbG9yIHRleHQtZGFyay1wcmltYXJ5IGZvY3VzOmJvcmRlci1kYXJrLWN0YVwiPlxyXG4gICAgICAgICAgICAgICAgICA8U2VsZWN0VmFsdWUgcGxhY2Vob2xkZXI9XCJTZWxlY2Npb25hciB0aXBvIGRlIHJvbC4uLlwiIC8+XHJcbiAgICAgICAgICAgICAgICA8L1NlbGVjdFRyaWdnZXI+XHJcbiAgICAgICAgICAgICAgICA8U2VsZWN0Q29udGVudCBjbGFzc05hbWU9XCJiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICAgICAgICAgICAge3JvbGVzRGlzcG9uaWJsZXMubWFwKChyb2xPcHRpb24pID0+IChcclxuICAgICAgICAgICAgICAgICAgICA8U2VsZWN0SXRlbSBrZXk9e3JvbE9wdGlvbi52YWx1ZX0gdmFsdWU9e3JvbE9wdGlvbi52YWx1ZX0+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggZmxleC1jb2xcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwiZm9udC1tZWRpdW1cIj57cm9sT3B0aW9uLmxhYmVsfTwvc3Bhbj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwidGV4dC1zbSB0ZXh0LWRhcmstc2Vjb25kYXJ5XCI+e3JvbE9wdGlvbi5kZXNjcmlwdGlvbn08L3NwYW4+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICA8L1NlbGVjdEl0ZW0+XHJcbiAgICAgICAgICAgICAgICAgICkpfVxyXG4gICAgICAgICAgICAgICAgPC9TZWxlY3RDb250ZW50PlxyXG4gICAgICAgICAgICAgIDwvU2VsZWN0PlxyXG4gICAgICAgICAgICAgIHtlcnJvcnMubm9tYnJlICYmIDxwIGNsYXNzTmFtZT1cInRleHQtcmVkLTQwMCB0ZXh0LXNtXCI+e2Vycm9ycy5ub21icmV9PC9wPn1cclxuICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktNFwiPlxyXG4gICAgICAgICAgICA8aDMgY2xhc3NOYW1lPVwidGV4dC1sZyBmb250LXNlbWlib2xkIHRleHQtZGFyay1wcmltYXJ5IGZsZXggaXRlbXMtY2VudGVyIGdhcC0yXCI+XHJcbiAgICAgICAgICAgICAgPExvY2sgY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+XHJcbiAgICAgICAgICAgICAgTcOzZHVsb3MgKHtmb3JtRGF0YS5tb2R1bG9zLmxlbmd0aH0pXHJcbiAgICAgICAgICAgIDwvaDM+XHJcbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZ3JpZCBncmlkLWNvbHMtMSBtZDpncmlkLWNvbHMtMiBnYXAtM1wiPlxyXG4gICAgICAgICAgICAgIHttb2R1bG9zRGlzcG9uaWJsZXMubWFwKChtb2R1bG8pID0+IChcclxuICAgICAgICAgICAgICAgIDxkaXYga2V5PXttb2R1bG99IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIHNwYWNlLXgtMyBwLTMgYmctZGFyay1ob3ZlciByb3VuZGVkLWxnIGJvcmRlciBib3JkZXItZGFyay1jb2xvclwiPlxyXG4gICAgICAgICAgICAgICAgICA8U3dpdGNoXHJcbiAgICAgICAgICAgICAgICAgICAgY2hlY2tlZD17Zm9ybURhdGEubW9kdWxvcy5pbmNsdWRlcyhtb2R1bG8pfVxyXG4gICAgICAgICAgICAgICAgICAgIG9uQ2hlY2tlZENoYW5nZT17KCkgPT4gaGFuZGxlTW9kdWxvVG9nZ2xlKG1vZHVsbyl9XHJcbiAgICAgICAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgICAgICAgIDxMYWJlbCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSB0ZXh0LXNtIGZvbnQtbWVkaXVtIGZsZXgtMVwiPlxyXG4gICAgICAgICAgICAgICAgICAgIHttb2R1bG99XHJcbiAgICAgICAgICAgICAgICAgIDwvTGFiZWw+XHJcbiAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICApKX1cclxuICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICA8RGlhbG9nRm9vdGVyIGNsYXNzTmFtZT1cImdhcC0yXCI+XHJcbiAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICB0eXBlPVwiYnV0dG9uXCJcclxuICAgICAgICAgICAgICB2YXJpYW50PVwib3V0bGluZVwiXHJcbiAgICAgICAgICAgICAgb25DbGljaz17b25DbG9zZX1cclxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstc2Vjb25kYXJ5IGhvdmVyOmJnLWRhcmstaG92ZXJcIlxyXG4gICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgQ2FuY2VsYXJcclxuICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICB0eXBlPVwic3VibWl0XCJcclxuICAgICAgICAgICAgICBkaXNhYmxlZD17bG9hZGluZ31cclxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJiZy1kYXJrLWN0YSB0ZXh0LXdoaXRlIGhvdmVyOmJnLWJsdWUtNjAwXCJcclxuICAgICAgICAgICAgPlxyXG4gICAgICAgICAgICAgIHtsb2FkaW5nID8gJ0d1YXJkYW5kby4uLicgOiByb2wgPyAnQWN0dWFsaXphcicgOiAnQ3JlYXIgUm9sJ31cclxuICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICA8L0RpYWxvZ0Zvb3Rlcj5cclxuICAgICAgICA8L2Zvcm0+XHJcbiAgICAgIDwvRGlhbG9nQ29udGVudD5cclxuICAgIDwvRGlhbG9nPlxyXG4gICk7XHJcbn1cclxuIl0sIm5hbWVzIjpbInVzZVN0YXRlIiwidXNlRWZmZWN0IiwiRGlhbG9nIiwiRGlhbG9nQ29udGVudCIsIkRpYWxvZ0Rlc2NyaXB0aW9uIiwiRGlhbG9nRm9vdGVyIiwiRGlhbG9nSGVhZGVyIiwiRGlhbG9nVGl0bGUiLCJCdXR0b24iLCJMYWJlbCIsIlN3aXRjaCIsIlNlbGVjdCIsIlNlbGVjdENvbnRlbnQiLCJTZWxlY3RJdGVtIiwiU2VsZWN0VHJpZ2dlciIsIlNlbGVjdFZhbHVlIiwiU2hpZWxkIiwiTG9jayIsInJvbGVzRGlzcG9uaWJsZXMiLCJ2YWx1ZSIsImxhYmVsIiwiZGVzY3JpcHRpb24iLCJtb2R1bG9zRGlzcG9uaWJsZXMiLCJkZWZhdWx0TW9kdWxvc1BvclJvbCIsIlJvbE1vZGFsIiwiaXNPcGVuIiwib25DbG9zZSIsIm9uU3VibWl0Iiwicm9sIiwibG9hZGluZyIsImZvcm1EYXRhIiwic2V0Rm9ybURhdGEiLCJub21icmUiLCJtb2R1bG9zIiwiZXJyb3JzIiwic2V0RXJyb3JzIiwidmFsaWRhdGVGb3JtIiwibmV3RXJyb3JzIiwiT2JqZWN0Iiwia2V5cyIsImxlbmd0aCIsImhhbmRsZVN1Ym1pdCIsImUiLCJwcmV2ZW50RGVmYXVsdCIsInJlc3VsdCIsInN1Y2Nlc3MiLCJoYW5kbGVDaGFuZ2UiLCJmaWVsZCIsInByZXYiLCJoYW5kbGVNb2R1bG9Ub2dnbGUiLCJtb2R1bG8iLCJpbmNsdWRlcyIsImZpbHRlciIsIm0iLCJvcGVuIiwib25PcGVuQ2hhbmdlIiwiY2xhc3NOYW1lIiwiZm9ybSIsImRpdiIsImh0bWxGb3IiLCJvblZhbHVlQ2hhbmdlIiwiZGlzYWJsZWQiLCJwbGFjZWhvbGRlciIsIm1hcCIsInJvbE9wdGlvbiIsInNwYW4iLCJwIiwiaDMiLCJjaGVja2VkIiwib25DaGVja2VkQ2hhbmdlIiwidHlwZSIsInZhcmlhbnQiLCJvbkNsaWNrIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFBQSxTQUFTQSxRQUFRLEVBQUVDLFNBQVMsUUFBUSxRQUFRO0FBQzVDLFNBQVNDLE1BQU0sRUFBRUMsYUFBYSxFQUFFQyxpQkFBaUIsRUFBRUMsWUFBWSxFQUFFQyxZQUFZLEVBQUVDLFdBQVcsUUFBUSxlQUFlO0FBQ2pILFNBQVNDLE1BQU0sUUFBUSxlQUFlO0FBRXRDLFNBQVNDLEtBQUssUUFBUSxjQUFjO0FBQ3BDLFNBQVNDLE1BQU0sUUFBUSxlQUFlO0FBQ3RDLFNBQVNDLE1BQU0sRUFBRUMsYUFBYSxFQUFFQyxVQUFVLEVBQUVDLGFBQWEsRUFBRUMsV0FBVyxRQUFRLGVBQWU7QUFDN0YsU0FBU0MsTUFBTSxFQUFFQyxJQUFJLFFBQVEsZUFBZTtBQWdCNUMsTUFBTUMsbUJBQW1CO0lBQ3ZCO1FBQUVDLE9BQU87UUFBaUJDLE9BQU87UUFBaUJDLGFBQWE7SUFBNkI7SUFDNUY7UUFBRUYsT0FBTztRQUFXQyxPQUFPO1FBQVdDLGFBQWE7SUFBeUM7SUFDNUY7UUFBRUYsT0FBTztRQUFhQyxPQUFPO1FBQWFDLGFBQWE7SUFBbUM7Q0FDM0Y7QUFFRCxNQUFNQyxxQkFBcUI7SUFDekI7SUFBYTtJQUFVO0lBQVk7SUFDbkM7SUFBWTtJQUFzQjtJQUFXO0lBQzdDO0lBQWE7Q0FDZDtBQUVELE1BQU1DLHVCQUFpRDtJQUNyRCxpQkFBaUI7V0FBSUQ7S0FBbUI7SUFDeEMsYUFBYTtRQUFDO1FBQWE7UUFBVTtRQUFZO1FBQWdCO1FBQVk7UUFBc0I7UUFBVztLQUFZO0lBQzFILFdBQVc7UUFBQztRQUFhO1FBQWdCO1FBQVk7S0FBcUI7QUFDNUU7QUFFQSxPQUFPLFNBQVNFLFNBQVMs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

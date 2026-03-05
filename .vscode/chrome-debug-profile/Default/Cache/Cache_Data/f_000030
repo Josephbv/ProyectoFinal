@@ -1,0 +1,1450 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/modals/HorarioModal.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"]; const useEffect = __vite__cjsImport3_react["useEffect"];
+import { Button } from "/src/components/ui/button.tsx?t=1772223881528";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "/src/components/ui/dialog.tsx?t=1772223881594";
+import { Input } from "/src/components/ui/input.tsx";
+import { Label } from "/src/components/ui/label.tsx?t=1772223881635";
+import { Textarea } from "/src/components/ui/textarea.tsx";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "/src/components/ui/select.tsx?t=1772223881681";
+import { Switch } from "/src/components/ui/switch.tsx?t=1772223881771";
+import { Badge } from "/src/components/ui/badge.tsx?t=1772223881371";
+import { Card, CardContent } from "/src/components/ui/card.tsx";
+import { useUsuario } from "/src/components/hooks/useUsuario.tsx?t=1772224243374";
+import { Search, Calendar, CheckCircle } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+export function HorarioModal({ isOpen, onClose, onSubmit, horario, loading = false }) {
+    _s();
+    const { usuarios } = useUsuario();
+    const [busquedaEmpleado, setBusquedaEmpleado] = useState('');
+    const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(null);
+    const [mostrarListaEmpleados, setMostrarListaEmpleados] = useState(false);
+    const [mostrarListaHorarios, setMostrarListaHorarios] = useState(false);
+    const [diasSeleccionados, setDiasSeleccionados] = useState([]);
+    // Horarios por día - cada día puede tener horas diferentes
+    const [horariosPorDia, setHorariosPorDia] = useState({});
+    const [formData, setFormData] = useState({
+        cc: '',
+        nombre: '',
+        apellido: '',
+        horario: '',
+        dia: '',
+        horaInicio: '',
+        horaFin: '',
+        disponible: true,
+        tipoServicio: 'consulta',
+        sala: '',
+        observaciones: ''
+    });
+    // Filtrar empleados (solo administradores y asistentes)
+    const empleadosDisponibles = usuarios.filter((user)=>(user.rol === 'administrador' || user.rol === 'asistente') && (user.nombre.toLowerCase().includes(busquedaEmpleado.toLowerCase()) || user.apellido.toLowerCase().includes(busquedaEmpleado.toLowerCase()) || user.cedula?.includes(busquedaEmpleado) || user.numeroDocumento?.includes(busquedaEmpleado)));
+    useEffect(()=>{
+        if (horario) {
+            setFormData({
+                cc: horario.cc,
+                nombre: horario.nombre,
+                apellido: horario.apellido,
+                horario: horario.horario,
+                dia: horario.dia,
+                horaInicio: horario.horaInicio,
+                horaFin: horario.horaFin,
+                disponible: horario.disponible,
+                tipoServicio: horario.tipoServicio,
+                sala: horario.sala,
+                observaciones: horario.observaciones
+            });
+            setDiasSeleccionados(horario.dia ? [
+                horario.dia
+            ] : []);
+            // Inicializar horarios por día para edición
+            if (horario.dia) {
+                setHorariosPorDia({
+                    [horario.dia]: {
+                        horaInicio: horario.horaInicio,
+                        horaFin: horario.horaFin
+                    }
+                });
+            }
+            // Buscar el empleado correspondiente
+            const empleado = usuarios.find((u)=>u.cedula === horario.cc || u.numeroDocumento === horario.cc);
+            if (empleado) {
+                setEmpleadoSeleccionado(empleado);
+                setBusquedaEmpleado(`${empleado.nombre} ${empleado.apellido}`);
+            }
+        } else {
+            setFormData({
+                cc: '',
+                nombre: '',
+                apellido: '',
+                horario: '',
+                dia: '',
+                horaInicio: '',
+                horaFin: '',
+                disponible: true,
+                tipoServicio: 'consulta',
+                sala: '',
+                observaciones: ''
+            });
+            setDiasSeleccionados([]);
+            setHorariosPorDia({});
+            setEmpleadoSeleccionado(null);
+            setBusquedaEmpleado('');
+        }
+        setMostrarListaEmpleados(false);
+    }, [
+        horario,
+        isOpen,
+        usuarios
+    ]);
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        // Si estamos editando un horario existente
+        if (horario) {
+            const resultado = await onSubmit({
+                ...formData,
+                dia: diasSeleccionados[0] || formData.dia,
+                horaInicio: horariosPorDia[diasSeleccionados[0]]?.horaInicio || formData.horaInicio,
+                horaFin: horariosPorDia[diasSeleccionados[0]]?.horaFin || formData.horaFin
+            });
+            if (resultado.success) {
+                onClose();
+            }
+        } else {
+            // Si estamos creando nuevos horarios
+            let todosExitosos = true;
+            for (const dia of diasSeleccionados){
+                const horarioDia = horariosPorDia[dia];
+                if (!horarioDia || !horarioDia.horaInicio || !horarioDia.horaFin) {
+                    continue; // Saltar días sin horarios configurados
+                }
+                const resultado = await onSubmit({
+                    ...formData,
+                    dia: dia,
+                    horaInicio: horarioDia.horaInicio,
+                    horaFin: horarioDia.horaFin
+                });
+                if (!resultado.success) {
+                    todosExitosos = false;
+                    break;
+                }
+            }
+            if (todosExitosos) {
+                onClose();
+            }
+        }
+    };
+    const handleChange = (field, value)=>{
+        setFormData((prev)=>({
+                ...prev,
+                [field]: value
+            }));
+    };
+    const seleccionarEmpleado = (empleado)=>{
+        setEmpleadoSeleccionado(empleado);
+        setBusquedaEmpleado(`${empleado.nombre} ${empleado.apellido}`);
+        setMostrarListaEmpleados(false);
+        // Auto-completar datos del empleado
+        setFormData((prev)=>({
+                ...prev,
+                cc: empleado.cedula || empleado.numeroDocumento || '',
+                nombre: empleado.nombre,
+                apellido: empleado.apellido
+            }));
+    };
+    const toggleDia = (dia)=>{
+        setDiasSeleccionados((prev)=>{
+            if (prev.includes(dia)) {
+                // Remover día y sus horarios
+                const nuevosDias = prev.filter((d)=>d !== dia);
+                const nuevosHorarios = {
+                    ...horariosPorDia
+                };
+                delete nuevosHorarios[dia];
+                setHorariosPorDia(nuevosHorarios);
+                return nuevosDias;
+            } else {
+                // Agregar día con horarios por defecto
+                const nuevosDias = [
+                    ...prev,
+                    dia
+                ];
+                setHorariosPorDia((prevHorarios)=>({
+                        ...prevHorarios,
+                        [dia]: {
+                            horaInicio: '08:00',
+                            horaFin: '17:00'
+                        }
+                    }));
+                return nuevosDias;
+            }
+        });
+    };
+    const actualizarHorarioDia = (dia, campo, valor)=>{
+        setHorariosPorDia((prev)=>({
+                ...prev,
+                [dia]: {
+                    ...prev[dia],
+                    [campo]: valor
+                }
+            }));
+    };
+    const diasSemana = [
+        'Lunes',
+        'Martes',
+        'Miércoles',
+        'Jueves',
+        'Viernes',
+        'Sábado',
+        'Domingo'
+    ];
+    const salas = [
+        'Consultorio 1',
+        'Consultorio 2',
+        'Consultorio 3',
+        'Quirófano A',
+        'Quirófano B',
+        'Urgencias',
+        'Sala de Procedimientos'
+    ];
+    const horariosDisponibles = [
+        'Lunes a Viernes 8:00 AM - 5:00 PM',
+        'Lunes a Viernes 7:00 AM - 3:00 PM',
+        'Lunes a Viernes 9:00 AM - 6:00 PM',
+        'Lunes a Viernes 8:00 AM - 12:00 PM',
+        'Lunes a Viernes 2:00 PM - 8:00 PM',
+        'Lunes a Sábado 8:00 AM - 5:00 PM',
+        'Lunes a Sábado 9:00 AM - 6:00 PM',
+        'Turno Mañana: 6:00 AM - 2:00 PM',
+        'Turno Tarde: 2:00 PM - 10:00 PM',
+        'Turno Noche: 10:00 PM - 6:00 AM',
+        'Horario de Consulta General',
+        'Horario de Cirugía',
+        'Horario de Urgencias 24/7',
+        'Horario de Domicilio',
+        'Horario Especialista',
+        'Horario de Guardia'
+    ];
+    const horariosFiltrados = horariosDisponibles.filter((horario)=>horario.toLowerCase().includes(formData.horario.toLowerCase()));
+    return /*#__PURE__*/ _jsxDEV(Dialog, {
+        open: isOpen,
+        onOpenChange: onClose,
+        children: /*#__PURE__*/ _jsxDEV(DialogContent, {
+            className: "bg-dark-card border-dark-color max-w-2xl",
+            onClick: ()=>{
+                setMostrarListaEmpleados(false);
+                setMostrarListaHorarios(false);
+            },
+            children: [
+                /*#__PURE__*/ _jsxDEV(DialogHeader, {
+                    children: [
+                        /*#__PURE__*/ _jsxDEV(DialogTitle, {
+                            className: "text-dark-primary",
+                            children: horario ? 'Editar Horario de Personal' : 'Nuevo Horario de Personal'
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 257,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogDescription, {
+                            className: "text-sm text-dark-secondary",
+                            children: horario ? 'Modifica los detalles del horario seleccionado' : 'Completa la información para crear un nuevo horario de personal'
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 260,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                    lineNumber: 256,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV("form", {
+                    onSubmit: handleSubmit,
+                    className: "space-y-6",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("h3", {
+                                    className: "text-lg font-semibold text-dark-primary border-b border-dark-color pb-2",
+                                    children: "Seleccionar Personal"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 268,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            className: "text-dark-primary",
+                                            children: "Buscar Empleado *"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 273,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "relative",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "relative",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(Search, {
+                                                            className: "w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 276,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(Input, {
+                                                            value: busquedaEmpleado,
+                                                            onChange: (e)=>{
+                                                                setBusquedaEmpleado(e.target.value);
+                                                                setMostrarListaEmpleados(true);
+                                                            },
+                                                            onFocus: ()=>setMostrarListaEmpleados(true),
+                                                            onClick: (e)=>e.stopPropagation(),
+                                                            className: "pl-10 bg-dark-hover border-dark-color text-dark-primary",
+                                                            placeholder: "Buscar por nombre, apellido o cédula..."
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 277,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 275,
+                                                    columnNumber: 17
+                                                }, this),
+                                                mostrarListaEmpleados && empleadosDisponibles.length > 0 && /*#__PURE__*/ _jsxDEV(Card, {
+                                                    className: "absolute top-full left-0 right-0 z-50 mt-1 bg-dark-card border-dark-color max-h-32 overflow-y-auto",
+                                                    children: /*#__PURE__*/ _jsxDEV(CardContent, {
+                                                        className: "p-0",
+                                                        onClick: (e)=>e.stopPropagation(),
+                                                        children: [
+                                                            empleadosDisponibles.slice(0, 3).map((empleado)=>/*#__PURE__*/ _jsxDEV("button", {
+                                                                    type: "button",
+                                                                    onClick: (e)=>{
+                                                                        e.stopPropagation();
+                                                                        seleccionarEmpleado(empleado);
+                                                                    },
+                                                                    className: "w-full p-2 text-left hover:bg-dark-hover transition-colors border-b border-dark-color last:border-b-0",
+                                                                    children: /*#__PURE__*/ _jsxDEV("div", {
+                                                                        className: "flex items-center gap-2",
+                                                                        children: [
+                                                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                                                className: "w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold",
+                                                                                children: empleado.nombre.charAt(0).toUpperCase()
+                                                                            }, void 0, false, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                                lineNumber: 304,
+                                                                                columnNumber: 29
+                                                                            }, this),
+                                                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                                                className: "flex-1 min-w-0",
+                                                                                children: [
+                                                                                    /*#__PURE__*/ _jsxDEV("div", {
+                                                                                        className: "font-medium text-dark-primary text-sm truncate",
+                                                                                        children: [
+                                                                                            empleado.nombre,
+                                                                                            " ",
+                                                                                            empleado.apellido
+                                                                                        ]
+                                                                                    }, void 0, true, {
+                                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                                        lineNumber: 308,
+                                                                                        columnNumber: 31
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ _jsxDEV("div", {
+                                                                                        className: "text-xs text-dark-secondary truncate",
+                                                                                        children: empleado.cedula || empleado.numeroDocumento
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                                        lineNumber: 311,
+                                                                                        columnNumber: 31
+                                                                                    }, this)
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                                lineNumber: 307,
+                                                                                columnNumber: 29
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                        lineNumber: 303,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                }, empleado.id, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                    lineNumber: 294,
+                                                                    columnNumber: 25
+                                                                }, this)),
+                                                            empleadosDisponibles.length > 3 && /*#__PURE__*/ _jsxDEV("div", {
+                                                                className: "p-2 text-center text-xs text-dark-secondary border-t border-dark-color",
+                                                                children: [
+                                                                    empleadosDisponibles.length - 3,
+                                                                    " más resultados..."
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                lineNumber: 319,
+                                                                columnNumber: 25
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                        lineNumber: 292,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 291,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 274,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 272,
+                                    columnNumber: 13
+                                }, this),
+                                empleadoSeleccionado && /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "bg-dark-hover border border-dark-color rounded-lg p-4",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "flex items-center gap-3 mb-3",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold",
+                                                    children: /*#__PURE__*/ _jsxDEV(CheckCircle, {
+                                                        className: "w-5 h-5"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                        lineNumber: 333,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 332,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("h4", {
+                                                            className: "font-semibold text-dark-primary",
+                                                            children: "Empleado Seleccionado"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 336,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                            className: "text-sm text-dark-secondary",
+                                                            children: "Los datos se han completado automáticamente"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 337,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 335,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 331,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "grid grid-cols-3 gap-4",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                                            className: "text-dark-secondary text-xs",
+                                                            children: "Cédula"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 343,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                            className: "text-dark-primary font-medium",
+                                                            children: empleadoSeleccionado.cedula || empleadoSeleccionado.numeroDocumento
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 344,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 342,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                                            className: "text-dark-secondary text-xs",
+                                                            children: "Nombre"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 347,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                            className: "text-dark-primary font-medium",
+                                                            children: empleadoSeleccionado.nombre
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 348,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 346,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                                            className: "text-dark-secondary text-xs",
+                                                            children: "Apellido"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 351,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                            className: "text-dark-primary font-medium",
+                                                            children: empleadoSeleccionado.apellido
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 352,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 350,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 341,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 330,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("input", {
+                                    type: "hidden",
+                                    value: formData.cc
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 359,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("input", {
+                                    type: "hidden",
+                                    value: formData.nombre
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 360,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("input", {
+                                    type: "hidden",
+                                    value: formData.apellido
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 361,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            htmlFor: "horario",
+                                            className: "text-dark-primary",
+                                            children: "Descripción del Horario *"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 364,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "relative",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Input, {
+                                                    id: "horario",
+                                                    value: formData.horario,
+                                                    onChange: (e)=>{
+                                                        handleChange('horario', e.target.value);
+                                                        setMostrarListaHorarios(true);
+                                                    },
+                                                    onFocus: ()=>setMostrarListaHorarios(true),
+                                                    onClick: (e)=>e.stopPropagation(),
+                                                    className: "bg-dark-hover border-dark-color text-dark-primary",
+                                                    placeholder: "Ej: Lunes a Viernes 8:00 AM - 5:00 PM",
+                                                    required: true
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 366,
+                                                    columnNumber: 17
+                                                }, this),
+                                                mostrarListaHorarios && horariosFiltrados.length > 0 && /*#__PURE__*/ _jsxDEV(Card, {
+                                                    className: "absolute top-full left-0 right-0 z-50 mt-1 bg-dark-card border-dark-color max-h-40 overflow-y-auto",
+                                                    children: /*#__PURE__*/ _jsxDEV(CardContent, {
+                                                        className: "p-0",
+                                                        onClick: (e)=>e.stopPropagation(),
+                                                        children: [
+                                                            horariosFiltrados.slice(0, 5).map((horario, index)=>/*#__PURE__*/ _jsxDEV("button", {
+                                                                    type: "button",
+                                                                    onClick: (e)=>{
+                                                                        e.stopPropagation();
+                                                                        handleChange('horario', horario);
+                                                                        setMostrarListaHorarios(false);
+                                                                    },
+                                                                    className: "w-full p-2 text-left hover:bg-dark-hover transition-colors border-b border-dark-color last:border-b-0",
+                                                                    children: /*#__PURE__*/ _jsxDEV("div", {
+                                                                        className: "flex items-center gap-2",
+                                                                        children: [
+                                                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                                                className: "w-5 h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold",
+                                                                                children: /*#__PURE__*/ _jsxDEV(CheckCircle, {
+                                                                                    className: "w-3 h-3"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                                    lineNumber: 396,
+                                                                                    columnNumber: 31
+                                                                                }, this)
+                                                                            }, void 0, false, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                                lineNumber: 395,
+                                                                                columnNumber: 29
+                                                                            }, this),
+                                                                            /*#__PURE__*/ _jsxDEV("span", {
+                                                                                className: "text-dark-primary text-sm",
+                                                                                children: horario
+                                                                            }, void 0, false, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                                lineNumber: 398,
+                                                                                columnNumber: 29
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                        lineNumber: 394,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                }, index, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                    lineNumber: 384,
+                                                                    columnNumber: 25
+                                                                }, this)),
+                                                            horariosFiltrados.length > 5 && /*#__PURE__*/ _jsxDEV("div", {
+                                                                className: "p-2 text-center text-xs text-dark-secondary border-t border-dark-color",
+                                                                children: [
+                                                                    horariosFiltrados.length - 5,
+                                                                    " más opciones..."
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                lineNumber: 403,
+                                                                columnNumber: 25
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                        lineNumber: 382,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 381,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 365,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 363,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 267,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("h3", {
+                                    className: "text-lg font-semibold text-dark-primary border-b border-dark-color pb-2",
+                                    children: "Detalles del Horario"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 416,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-3",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                            className: "text-dark-primary flex items-center gap-2",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Calendar, {
+                                                    className: "w-4 h-4"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 423,
+                                                    columnNumber: 17
+                                                }, this),
+                                                "Días de la Semana *"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 422,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "grid grid-cols-7 gap-2",
+                                            children: diasSemana.map((dia)=>{
+                                                const isSelected = diasSeleccionados.includes(dia);
+                                                const isEditMode = !!horario; // Si estamos editando, solo permitir un día
+                                                return /*#__PURE__*/ _jsxDEV("button", {
+                                                    type: "button",
+                                                    onClick: ()=>{
+                                                        if (isEditMode) {
+                                                            // En modo edición, solo un día seleccionado
+                                                            setDiasSeleccionados([
+                                                                dia
+                                                            ]);
+                                                        } else {
+                                                            // En modo creación, múltiples días
+                                                            toggleDia(dia);
+                                                        }
+                                                    },
+                                                    className: `
+                        p-3 rounded-lg text-sm font-medium transition-all duration-200 border
+                        ${isSelected ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/25' : 'bg-dark-hover text-dark-secondary border-dark-color hover:bg-dark-table-hover hover:border-blue-400 hover:text-blue-400'}
+                      `,
+                                                    children: /*#__PURE__*/ _jsxDEV("div", {
+                                                        className: "text-center",
+                                                        children: [
+                                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                                className: "text-xs opacity-75 mb-1",
+                                                                children: dia.slice(0, 3).toUpperCase()
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                lineNumber: 453,
+                                                                columnNumber: 25
+                                                            }, this),
+                                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                                children: dia.slice(0, 1)
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                lineNumber: 456,
+                                                                columnNumber: 25
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                        lineNumber: 452,
+                                                        columnNumber: 23
+                                                    }, this)
+                                                }, dia, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 432,
+                                                    columnNumber: 21
+                                                }, this);
+                                            })
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 426,
+                                            columnNumber: 15
+                                        }, this),
+                                        diasSeleccionados.length > 0 && /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "flex flex-wrap gap-2 mt-3",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                    className: "text-sm text-dark-secondary",
+                                                    children: "Días seleccionados:"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 467,
+                                                    columnNumber: 19
+                                                }, this),
+                                                diasSeleccionados.map((dia)=>/*#__PURE__*/ _jsxDEV(Badge, {
+                                                        className: "bg-blue-900/20 text-blue-400 border-0",
+                                                        children: dia
+                                                    }, dia, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                        lineNumber: 469,
+                                                        columnNumber: 21
+                                                    }, this))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 466,
+                                            columnNumber: 17
+                                        }, this),
+                                        !horario && diasSeleccionados.length > 1 && /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "bg-blue-900/20 border border-blue-600 rounded-lg p-3",
+                                            children: /*#__PURE__*/ _jsxDEV("p", {
+                                                className: "text-blue-400 text-sm",
+                                                children: "ℹ️ Se creará un horario separado para cada día con las horas específicas configuradas."
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                lineNumber: 478,
+                                                columnNumber: 19
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 477,
+                                            columnNumber: 17
+                                        }, this),
+                                        !horario && diasSeleccionados.length === 1 && /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "bg-emerald-900/20 border border-emerald-600 rounded-lg p-3",
+                                            children: /*#__PURE__*/ _jsxDEV("p", {
+                                                className: "text-emerald-400 text-sm",
+                                                children: [
+                                                    "✓ Configura las horas de inicio y fin para ",
+                                                    diasSeleccionados[0],
+                                                    "."
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                lineNumber: 486,
+                                                columnNumber: 19
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 485,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 421,
+                                    columnNumber: 13
+                                }, this),
+                                diasSeleccionados.length > 0 && /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "space-y-4",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "flex items-center gap-2 mb-3",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Clock, {
+                                                    className: "w-4 h-4 text-blue-400"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 497,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(Label, {
+                                                    className: "text-dark-primary font-semibold",
+                                                    children: "Configurar Horarios por Día"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 498,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 496,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "space-y-3 max-h-64 overflow-y-auto pr-2",
+                                            children: diasSeleccionados.map((dia)=>{
+                                                const horarioDia = horariosPorDia[dia] || {
+                                                    horaInicio: '',
+                                                    horaFin: ''
+                                                };
+                                                const esInvalido = horarioDia.horaInicio && horarioDia.horaFin && horarioDia.horaInicio >= horarioDia.horaFin;
+                                                return /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "bg-dark-hover border border-dark-color rounded-lg p-4",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center justify-between mb-3",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Badge, {
+                                                                    className: "bg-blue-900/20 text-blue-400 border-0",
+                                                                    children: dia
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                    lineNumber: 509,
+                                                                    columnNumber: 27
+                                                                }, this),
+                                                                esInvalido && /*#__PURE__*/ _jsxDEV("span", {
+                                                                    className: "text-xs text-red-400",
+                                                                    children: "Hora inválida"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                    lineNumber: 513,
+                                                                    columnNumber: 29
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 508,
+                                                            columnNumber: 25
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "grid grid-cols-2 gap-3",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    className: "space-y-2",
+                                                                    children: [
+                                                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                                                            className: "text-dark-secondary text-xs",
+                                                                            children: "Hora Inicio"
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                            lineNumber: 519,
+                                                                            columnNumber: 29
+                                                                        }, this),
+                                                                        /*#__PURE__*/ _jsxDEV(Input, {
+                                                                            type: "time",
+                                                                            value: horarioDia.horaInicio,
+                                                                            onChange: (e)=>actualizarHorarioDia(dia, 'horaInicio', e.target.value),
+                                                                            className: `bg-dark-card border-dark-color text-dark-primary ${esInvalido ? 'border-red-500' : ''}`,
+                                                                            required: true
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                            lineNumber: 520,
+                                                                            columnNumber: 29
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                    lineNumber: 518,
+                                                                    columnNumber: 27
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    className: "space-y-2",
+                                                                    children: [
+                                                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                                                            className: "text-dark-secondary text-xs",
+                                                                            children: "Hora Fin"
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                            lineNumber: 530,
+                                                                            columnNumber: 29
+                                                                        }, this),
+                                                                        /*#__PURE__*/ _jsxDEV(Input, {
+                                                                            type: "time",
+                                                                            value: horarioDia.horaFin,
+                                                                            onChange: (e)=>actualizarHorarioDia(dia, 'horaFin', e.target.value),
+                                                                            className: `bg-dark-card border-dark-color text-dark-primary ${esInvalido ? 'border-red-500' : ''}`,
+                                                                            required: true
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                            lineNumber: 531,
+                                                                            columnNumber: 29
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                    lineNumber: 529,
+                                                                    columnNumber: 27
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 517,
+                                                            columnNumber: 25
+                                                        }, this)
+                                                    ]
+                                                }, dia, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 507,
+                                                    columnNumber: 23
+                                                }, this);
+                                            })
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 501,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 495,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "grid grid-cols-1 md:grid-cols-2 gap-4",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "space-y-2",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Label, {
+                                                    htmlFor: "tipoServicio",
+                                                    className: "text-dark-primary",
+                                                    children: "Tipo de Servicio"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 549,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(Select, {
+                                                    value: formData.tipoServicio,
+                                                    onValueChange: (value)=>handleChange('tipoServicio', value),
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(SelectTrigger, {
+                                                            className: "bg-dark-hover border-dark-color text-dark-primary",
+                                                            children: /*#__PURE__*/ _jsxDEV(SelectValue, {}, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                lineNumber: 552,
+                                                                columnNumber: 21
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 551,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(SelectContent, {
+                                                            className: "bg-dark-card border-dark-color",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                                    value: "peluqueria_canina",
+                                                                    children: "Peluquería Canina"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                    lineNumber: 555,
+                                                                    columnNumber: 21
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                                    value: "esterilizacion",
+                                                                    children: "Esterilización"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                    lineNumber: 556,
+                                                                    columnNumber: 21
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                                    value: "vacunacion",
+                                                                    children: "Vacunación"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                    lineNumber: 557,
+                                                                    columnNumber: 21
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                                    value: "bano_mascotas",
+                                                                    children: "Baño de Mascotas"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                    lineNumber: 558,
+                                                                    columnNumber: 21
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 554,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 550,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 548,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "space-y-2",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Label, {
+                                                    htmlFor: "sala",
+                                                    className: "text-dark-primary",
+                                                    children: "Sala/Consultorio"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 564,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(Select, {
+                                                    value: formData.sala,
+                                                    onValueChange: (value)=>handleChange('sala', value),
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(SelectTrigger, {
+                                                            className: "bg-dark-hover border-dark-color text-dark-primary",
+                                                            children: /*#__PURE__*/ _jsxDEV(SelectValue, {
+                                                                placeholder: "Seleccionar sala"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                lineNumber: 567,
+                                                                columnNumber: 21
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 566,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(SelectContent, {
+                                                            className: "bg-dark-card border-dark-color",
+                                                            children: salas.map((sala)=>/*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                                    value: sala,
+                                                                    children: sala
+                                                                }, sala, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                                    lineNumber: 571,
+                                                                    columnNumber: 23
+                                                                }, this))
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 569,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 565,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 563,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "space-y-2",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Label, {
+                                                    htmlFor: "disponible",
+                                                    className: "text-dark-primary",
+                                                    children: "Disponibilidad"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 578,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "flex items-center space-x-2",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(Switch, {
+                                                            id: "disponible",
+                                                            checked: formData.disponible,
+                                                            onCheckedChange: (checked)=>handleChange('disponible', checked)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 580,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("span", {
+                                                            className: "text-dark-secondary",
+                                                            children: formData.disponible ? 'Disponible' : 'No disponible'
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                            lineNumber: 585,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                                    lineNumber: 579,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                            lineNumber: 577,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 547,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 415,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Label, {
+                                    htmlFor: "observaciones",
+                                    className: "text-dark-primary",
+                                    children: "Observaciones"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 594,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(Textarea, {
+                                    id: "observaciones",
+                                    value: formData.observaciones,
+                                    onChange: (e)=>handleChange('observaciones', e.target.value),
+                                    className: "bg-dark-hover border-dark-color text-dark-primary",
+                                    placeholder: "Notas especiales sobre el horario...",
+                                    rows: 3
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 595,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 593,
+                            columnNumber: 11
+                        }, this),
+                        !empleadoSeleccionado && /*#__PURE__*/ _jsxDEV("div", {
+                            className: "bg-red-900/20 border border-red-600 rounded-lg p-3",
+                            children: /*#__PURE__*/ _jsxDEV("p", {
+                                className: "text-red-400 text-sm",
+                                children: "⚠️ Debes seleccionar un empleado para continuar."
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                lineNumber: 608,
+                                columnNumber: 15
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 607,
+                            columnNumber: 13
+                        }, this),
+                        !formData.horario.trim() && /*#__PURE__*/ _jsxDEV("div", {
+                            className: "bg-red-900/20 border border-red-600 rounded-lg p-3",
+                            children: /*#__PURE__*/ _jsxDEV("p", {
+                                className: "text-red-400 text-sm",
+                                children: "⚠️ La descripción del horario es obligatoria."
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                lineNumber: 616,
+                                columnNumber: 15
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 615,
+                            columnNumber: 13
+                        }, this),
+                        diasSeleccionados.length === 0 && /*#__PURE__*/ _jsxDEV("div", {
+                            className: "bg-red-900/20 border border-red-600 rounded-lg p-3",
+                            children: /*#__PURE__*/ _jsxDEV("p", {
+                                className: "text-red-400 text-sm",
+                                children: "⚠️ Debes seleccionar al menos un día de la semana."
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                lineNumber: 624,
+                                columnNumber: 15
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 623,
+                            columnNumber: 13
+                        }, this),
+                        diasSeleccionados.some((dia)=>{
+                            const horarioDia = horariosPorDia[dia];
+                            return horarioDia && horarioDia.horaInicio >= horarioDia.horaFin;
+                        }) && /*#__PURE__*/ _jsxDEV("div", {
+                            className: "bg-red-900/20 border border-red-600 rounded-lg p-3",
+                            children: /*#__PURE__*/ _jsxDEV("p", {
+                                className: "text-red-400 text-sm",
+                                children: "⚠️ Algunos días tienen horarios inválidos. La hora de inicio debe ser anterior a la hora de fin."
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                lineNumber: 635,
+                                columnNumber: 15
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 634,
+                            columnNumber: 13
+                        }, this),
+                        diasSeleccionados.some((dia)=>{
+                            const horarioDia = horariosPorDia[dia];
+                            return !horarioDia || !horarioDia.horaInicio || !horarioDia.horaFin;
+                        }) && /*#__PURE__*/ _jsxDEV("div", {
+                            className: "bg-amber-900/20 border border-amber-600 rounded-lg p-3",
+                            children: /*#__PURE__*/ _jsxDEV("p", {
+                                className: "text-amber-400 text-sm",
+                                children: "⚠️ Por favor configura las horas de inicio y fin para todos los días seleccionados."
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                lineNumber: 646,
+                                columnNumber: 15
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 645,
+                            columnNumber: 13
+                        }, this),
+                        diasSeleccionados.some((dia)=>{
+                            const horarioDia = horariosPorDia[dia];
+                            if (!horarioDia || !horarioDia.horaInicio || !horarioDia.horaFin) return false;
+                            const horaInicio = horarioDia.horaInicio;
+                            const horaFin = horarioDia.horaFin;
+                            // Validar que las horas estén en rangos razonables (6:00 AM - 10:00 PM)
+                            const horaInicioNum = parseInt(horaInicio.split(':')[0]);
+                            const horaFinNum = parseInt(horaFin.split(':')[0]);
+                            return horaInicioNum < 6 || horaInicioNum > 22 || horaFinNum < 6 || horaFinNum > 22;
+                        }) && /*#__PURE__*/ _jsxDEV("div", {
+                            className: "bg-orange-900/20 border border-orange-600 rounded-lg p-3",
+                            children: /*#__PURE__*/ _jsxDEV("p", {
+                                className: "text-orange-400 text-sm",
+                                children: "⚠️ Los horarios deben estar entre las 6:00 AM y las 10:00 PM."
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                lineNumber: 663,
+                                columnNumber: 15
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 662,
+                            columnNumber: 13
+                        }, this),
+                        !formData.sala && /*#__PURE__*/ _jsxDEV("div", {
+                            className: "bg-blue-900/20 border border-blue-600 rounded-lg p-3",
+                            children: /*#__PURE__*/ _jsxDEV("p", {
+                                className: "text-blue-400 text-sm",
+                                children: "ℹ️ Recomendamos seleccionar una sala/consultorio para una mejor organización."
+                            }, void 0, false, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                lineNumber: 671,
+                                columnNumber: 15
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 670,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "flex justify-end space-x-2 pt-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "button",
+                                    variant: "outline",
+                                    onClick: onClose,
+                                    className: "border-dark-color text-dark-secondary hover:bg-dark-hover",
+                                    disabled: loading,
+                                    children: "Cancelar"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 678,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "submit",
+                                    className: "bg-dark-cta hover:bg-blue-700 text-white",
+                                    disabled: loading || !empleadoSeleccionado || !formData.horario || diasSeleccionados.length === 0 || diasSeleccionados.some((dia)=>{
+                                        const horarioDia = horariosPorDia[dia];
+                                        return !horarioDia || !horarioDia.horaInicio || !horarioDia.horaFin || horarioDia.horaInicio >= horarioDia.horaFin;
+                                    }),
+                                    children: [
+                                        loading ? 'Guardando...' : horario ? 'Actualizar' : 'Crear',
+                                        " Horario",
+                                        !horario && diasSeleccionados.length > 1 && ` (${diasSeleccionados.length} días)`
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                                    lineNumber: 687,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                            lineNumber: 677,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+                    lineNumber: 265,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+            lineNumber: 249,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx",
+        lineNumber: 248,
+        columnNumber: 5
+    }, this);
+}
+_s(HorarioModal, "BdKf5Qwpcri7RuZ/ZxUcfU+dNxk=", false, function() {
+    return [
+        useUsuario
+    ];
+});
+_c = HorarioModal;
+var _c;
+$RefreshReg$(_c, "HorarioModal");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/HorarioModal.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIkhvcmFyaW9Nb2RhbC50c3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgdXNlU3RhdGUsIHVzZUVmZmVjdCB9IGZyb20gXCJyZWFjdFwiO1xyXG5pbXBvcnQgeyBCdXR0b24gfSBmcm9tIFwiLi4vdWkvYnV0dG9uXCI7XHJcbmltcG9ydCB7IERpYWxvZywgRGlhbG9nQ29udGVudCwgRGlhbG9nRGVzY3JpcHRpb24sIERpYWxvZ0hlYWRlciwgRGlhbG9nVGl0bGUgfSBmcm9tIFwiLi4vdWkvZGlhbG9nXCI7XHJcbmltcG9ydCB7IElucHV0IH0gZnJvbSBcIi4uL3VpL2lucHV0XCI7XHJcbmltcG9ydCB7IExhYmVsIH0gZnJvbSBcIi4uL3VpL2xhYmVsXCI7XHJcbmltcG9ydCB7IFRleHRhcmVhIH0gZnJvbSBcIi4uL3VpL3RleHRhcmVhXCI7XHJcbmltcG9ydCB7IFNlbGVjdCwgU2VsZWN0Q29udGVudCwgU2VsZWN0SXRlbSwgU2VsZWN0VHJpZ2dlciwgU2VsZWN0VmFsdWUgfSBmcm9tIFwiLi4vdWkvc2VsZWN0XCI7XHJcbmltcG9ydCB7IFN3aXRjaCB9IGZyb20gXCIuLi91aS9zd2l0Y2hcIjtcclxuaW1wb3J0IHsgQmFkZ2UgfSBmcm9tIFwiLi4vdWkvYmFkZ2VcIjtcclxuaW1wb3J0IHsgQ2hlY2tib3ggfSBmcm9tIFwiLi4vdWkvY2hlY2tib3hcIjtcclxuaW1wb3J0IHsgQ2FyZCwgQ2FyZENvbnRlbnQgfSBmcm9tIFwiLi4vdWkvY2FyZFwiO1xyXG5pbXBvcnQgeyBIb3JhcmlvIH0gZnJvbSBcIi4uL2hvb2tzL3VzZUhvcmFyaW9cIjtcclxuaW1wb3J0IHsgdXNlVXN1YXJpbyB9IGZyb20gXCIuLi9ob29rcy91c2VVc3VhcmlvXCI7XHJcbmltcG9ydCB7IFVzZXIsIFNlYXJjaCwgQ2FsZW5kYXIsIENoZWNrQ2lyY2xlIH0gZnJvbSBcImx1Y2lkZS1yZWFjdFwiO1xyXG5cclxuaW50ZXJmYWNlIEhvcmFyaW9Nb2RhbFByb3BzIHtcclxuICBpc09wZW46IGJvb2xlYW47XHJcbiAgb25DbG9zZTogKCkgPT4gdm9pZDtcclxuICBvblN1Ym1pdDogKGRhdGE6IGFueSkgPT4gUHJvbWlzZTx7IHN1Y2Nlc3M6IGJvb2xlYW47IGVycm9yPzogc3RyaW5nIH0+O1xyXG4gIGhvcmFyaW8/OiBIb3JhcmlvIHwgbnVsbDtcclxuICBsb2FkaW5nPzogYm9vbGVhbjtcclxufVxyXG5cclxuZXhwb3J0IGZ1bmN0aW9uIEhvcmFyaW9Nb2RhbCh7IGlzT3Blbiwgb25DbG9zZSwgb25TdWJtaXQsIGhvcmFyaW8sIGxvYWRpbmcgPSBmYWxzZSB9OiBIb3JhcmlvTW9kYWxQcm9wcykge1xyXG4gIGNvbnN0IHsgdXN1YXJpb3MgfSA9IHVzZVVzdWFyaW8oKTtcclxuICBjb25zdCBbYnVzcXVlZGFFbXBsZWFkbywgc2V0QnVzcXVlZGFFbXBsZWFkb10gPSB1c2VTdGF0ZSgnJyk7XHJcbiAgY29uc3QgW2VtcGxlYWRvU2VsZWNjaW9uYWRvLCBzZXRFbXBsZWFkb1NlbGVjY2lvbmFkb10gPSB1c2VTdGF0ZTxhbnk+KG51bGwpO1xyXG4gIGNvbnN0IFttb3N0cmFyTGlzdGFFbXBsZWFkb3MsIHNldE1vc3RyYXJMaXN0YUVtcGxlYWRvc10gPSB1c2VTdGF0ZShmYWxzZSk7XHJcbiAgY29uc3QgW21vc3RyYXJMaXN0YUhvcmFyaW9zLCBzZXRNb3N0cmFyTGlzdGFIb3Jhcmlvc10gPSB1c2VTdGF0ZShmYWxzZSk7XHJcbiAgY29uc3QgW2RpYXNTZWxlY2Npb25hZG9zLCBzZXREaWFzU2VsZWNjaW9uYWRvc10gPSB1c2VTdGF0ZTxzdHJpbmdbXT4oW10pO1xyXG4gIFxyXG4gIC8vIEhvcmFyaW9zIHBvciBkw61hIC0gY2FkYSBkw61hIHB1ZWRlIHRlbmVyIGhvcmFzIGRpZmVyZW50ZXNcclxuICBjb25zdCBbaG9yYXJpb3NQb3JEaWEsIHNldEhvcmFyaW9zUG9yRGlhXSA9IHVzZVN0YXRlPHtcclxuICAgIFtrZXk6IHN0cmluZ106IHtcclxuICAgICAgaG9yYUluaWNpbzogc3RyaW5nO1xyXG4gICAgICBob3JhRmluOiBzdHJpbmc7XHJcbiAgICB9XHJcbiAgfT4oe30pO1xyXG5cclxuICBjb25zdCBbZm9ybURhdGEsIHNldEZvcm1EYXRhXSA9IHVzZVN0YXRlKHtcclxuICAgIGNjOiAnJyxcclxuICAgIG5vbWJyZTogJycsXHJcbiAgICBhcGVsbGlkbzogJycsXHJcbiAgICBob3JhcmlvOiAnJyxcclxuICAgIGRpYTogJycsXHJcbiAgICBob3JhSW5pY2lvOiAnJyxcclxuICAgIGhvcmFGaW46ICcnLFxyXG4gICAgZGlzcG9uaWJsZTogdHJ1ZSxcclxuICAgIHRpcG9TZXJ2aWNpbzogJ2NvbnN1bHRhJyBhcyBjb25zdCxcclxuICAgIHNhbGE6ICcnLFxyXG4gICAgb2JzZXJ2YWNpb25lczogJydcclxuICB9KTtcclxuXHJcbiAgLy8gRmlsdHJhciBlbXBsZWFkb3MgKHNvbG8gYWRtaW5pc3RyYWRvcmVzIHkgYXNpc3RlbnRlcylcclxuICBjb25zdCBlbXBsZWFkb3NEaXNwb25pYmxlcyA9IHVzdWFyaW9zLmZpbHRlcih1c2VyID0+IFxyXG4gICAgKHVzZXIucm9sID09PSAnYWRtaW5pc3RyYWRvcicgfHwgdXNlci5yb2wgPT09ICdhc2lzdGVudGUnKSAmJlxyXG4gICAgKHVzZXIubm9tYnJlLnRvTG93ZXJDYXNlKCkuaW5jbHVkZXMoYnVzcXVlZGFFbXBsZWFkby50b0xvd2VyQ2FzZSgpKSB8fFxyXG4gICAgIHVzZXIuYXBlbGxpZG8udG9Mb3dlckNhc2UoKS5pbmNsdWRlcyhidXNxdWVkYUVtcGxlYWRvLnRvTG93ZXJDYXNlKCkpIHx8XHJcbiAgICAgdXNlci5jZWR1bGE/LmluY2x1ZGVzKGJ1c3F1ZWRhRW1wbGVhZG8pIHx8XHJcbiAgICAgdXNlci5udW1lcm9Eb2N1bWVudG8/LmluY2x1ZGVzKGJ1c3F1ZWRhRW1wbGVhZG8pKVxyXG4gICk7XHJcblxyXG4gIHVzZUVmZmVjdCgoKSA9PiB7XHJcbiAgICBpZiAoaG9yYXJpbykge1xyXG4gICAgICBzZXRGb3JtRGF0YSh7XHJcbiAgICAgICAgY2M6IGhvcmFyaW8uY2MsXHJcbiAgICAgICAgbm9tYnJlOiBob3JhcmlvLm5vbWJyZSxcclxuICAgICAgICBhcGVsbGlkbzogaG9yYXJpby5hcGVsbGlkbyxcclxuICAgICAgICBob3JhcmlvOiBob3JhcmlvLmhvcmFyaW8sXHJcbiAgICAgICAgZGlhOiBob3JhcmlvLmRpYSxcclxuICAgICAgICBob3JhSW5pY2lvOiBob3JhcmlvLmhvcmFJbmljaW8sXHJcbiAgICAgICAgaG9yYUZpbjogaG9yYXJpby5ob3JhRmluLFxyXG4gICAgICAgIGRpc3BvbmlibGU6IGhvcmFyaW8uZGlzcG9uaWJsZSxcclxuICAgICAgICB0aXBvU2VydmljaW86IGhvcmFyaW8udGlwb1NlcnZpY2lvLFxyXG4gICAgICAgIHNhbGE6IGhvcmFyaW8uc2FsYSxcclxuICAgICAgICBvYnNlcnZhY2lvbmVzOiBob3JhcmlvLm9ic2VydmFjaW9uZXNcclxuICAgICAgfSk7XHJcbiAgICAgIHNldERpYXNTZWxlY2Npb25hZG9zKGhvcmFyaW8uZGlhID8gW2hvcmFyaW8uZGlhXSA6IFtdKTtcclxuICAgICAgXHJcbiAgICAgIC8vIEluaWNpYWxpemFyIGhvcmFyaW9zIHBvciBkw61hIHBhcmEgZWRpY2nDs25cclxuICAgICAgaWYgKGhvcmFyaW8uZGlhKSB7XHJcbiAgICAgICAgc2V0SG9yYXJpb3NQb3JEaWEoe1xyXG4gICAgICAgICAgW2hvcmFyaW8uZGlhXToge1xyXG4gICAgICAgICAgICBob3JhSW5pY2lvOiBob3JhcmlvLmhvcmFJbmljaW8sXHJcbiAgICAgICAgICAgIGhvcmFGaW46IGhvcmFyaW8uaG9yYUZpblxyXG4gICAgICAgICAgfVxyXG4gICAgICAgIH0pO1xyXG4gICAgICB9XHJcbiAgICAgIFxyXG4gICAgICAvLyBCdXNjYXIgZWwgZW1wbGVhZG8gY29ycmVzcG9uZGllbnRlXHJcbiAgICAgIGNvbnN0IGVtcGxlYWRvID0gdXN1YXJpb3MuZmluZCh1ID0+IHUuY2VkdWxhID09PSBob3JhcmlvLmNjIHx8IHUubnVtZXJvRG9jdW1lbnRvID09PSBob3JhcmlvLmNjKTtcclxuICAgICAgaWYgKGVtcGxlYWRvKSB7XHJcbiAgICAgICAgc2V0RW1wbGVhZG9TZWxlY2Npb25hZG8oZW1wbGVhZG8pO1xyXG4gICAgICAgIHNldEJ1c3F1ZWRhRW1wbGVhZG8oYCR7ZW1wbGVhZG8ubm9tYnJlfSAke2VtcGxlYWRvLmFwZWxsaWRvfWApO1xyXG4gICAgICB9XHJcbiAgICB9IGVsc2Uge1xyXG4gICAgICBzZXRGb3JtRGF0YSh7XHJcbiAgICAgICAgY2M6ICcnLFxyXG4gICAgICAgIG5vbWJyZTogJycsXHJcbiAgICAgICAgYXBlbGxpZG86ICcnLFxyXG4gICAgICAgIGhvcmFyaW86ICcnLFxyXG4gICAgICAgIGRpYTogJycsXHJcbiAgICAgICAgaG9yYUluaWNpbzogJycsXHJcbiAgICAgICAgaG9yYUZpbjogJycsXHJcbiAgICAgICAgZGlzcG9uaWJsZTogdHJ1ZSxcclxuICAgICAgICB0aXBvU2VydmljaW86ICdjb25zdWx0YScsXHJcbiAgICAgICAgc2FsYTogJycsXHJcbiAgICAgICAgb2JzZXJ2YWNpb25lczogJydcclxuICAgICAgfSk7XHJcbiAgICAgIHNldERpYXNTZWxlY2Npb25hZG9zKFtdKTtcclxuICAgICAgc2V0SG9yYXJpb3NQb3JEaWEoe30pO1xyXG4gICAgICBzZXRFbXBsZWFkb1NlbGVjY2lvbmFkbyhudWxsKTtcclxuICAgICAgc2V0QnVzcXVlZGFFbXBsZWFkbygnJyk7XHJcbiAgICB9XHJcbiAgICBzZXRNb3N0cmFyTGlzdGFFbXBsZWFkb3MoZmFsc2UpO1xyXG4gIH0sIFtob3JhcmlvLCBpc09wZW4sIHVzdWFyaW9zXSk7XHJcblxyXG4gIGNvbnN0IGhhbmRsZVN1Ym1pdCA9IGFzeW5jIChlOiBSZWFjdC5Gb3JtRXZlbnQpID0+IHtcclxuICAgIGUucHJldmVudERlZmF1bHQoKTtcclxuICAgIFxyXG4gICAgLy8gU2kgZXN0YW1vcyBlZGl0YW5kbyB1biBob3JhcmlvIGV4aXN0ZW50ZVxyXG4gICAgaWYgKGhvcmFyaW8pIHtcclxuICAgICAgY29uc3QgcmVzdWx0YWRvID0gYXdhaXQgb25TdWJtaXQoe1xyXG4gICAgICAgIC4uLmZvcm1EYXRhLFxyXG4gICAgICAgIGRpYTogZGlhc1NlbGVjY2lvbmFkb3NbMF0gfHwgZm9ybURhdGEuZGlhLFxyXG4gICAgICAgIGhvcmFJbmljaW86IGhvcmFyaW9zUG9yRGlhW2RpYXNTZWxlY2Npb25hZG9zWzBdXT8uaG9yYUluaWNpbyB8fCBmb3JtRGF0YS5ob3JhSW5pY2lvLFxyXG4gICAgICAgIGhvcmFGaW46IGhvcmFyaW9zUG9yRGlhW2RpYXNTZWxlY2Npb25hZG9zWzBdXT8uaG9yYUZpbiB8fCBmb3JtRGF0YS5ob3JhRmluXHJcbiAgICAgIH0pO1xyXG4gICAgICBpZiAocmVzdWx0YWRvLnN1Y2Nlc3MpIHtcclxuICAgICAgICBvbkNsb3NlKCk7XHJcbiAgICAgIH1cclxuICAgIH0gZWxzZSB7XHJcbiAgICAgIC8vIFNpIGVzdGFtb3MgY3JlYW5kbyBudWV2b3MgaG9yYXJpb3NcclxuICAgICAgbGV0IHRvZG9zRXhpdG9zb3MgPSB0cnVlO1xyXG4gICAgICBmb3IgKGNvbnN0IGRpYSBvZiBkaWFzU2VsZWNjaW9uYWRvcykge1xyXG4gICAgICAgIGNvbnN0IGhvcmFyaW9EaWEgPSBob3Jhcmlvc1BvckRpYVtkaWFdO1xyXG4gICAgICAgIGlmICghaG9yYXJpb0RpYSB8fCAhaG9yYXJpb0RpYS5ob3JhSW5pY2lvIHx8ICFob3JhcmlvRGlhLmhvcmFGaW4pIHtcclxuICAgICAgICAgIGNvbnRpbnVlOyAvLyBTYWx0YXIgZMOtYXMgc2luIGhvcmFyaW9zIGNvbmZpZ3VyYWRvc1xyXG4gICAgICAgIH1cclxuICAgICAgICBcclxuICAgICAgICBjb25zdCByZXN1bHRhZG8gPSBhd2FpdCBvblN1Ym1pdCh7XHJcbiAgICAgICAgICAuLi5mb3JtRGF0YSxcclxuICAgICAgICAgIGRpYTogZGlhLFxyXG4gICAgICAgICAgaG9yYUluaWNpbzogaG9yYXJpb0RpYS5ob3JhSW5pY2lvLFxyXG4gICAgICAgICAgaG9yYUZpbjogaG9yYXJpb0RpYS5ob3JhRmluXHJcbiAgICAgICAgfSk7XHJcbiAgICAgICAgaWYgKCFyZXN1bHRhZG8uc3VjY2Vzcykge1xyXG4gICAgICAgICAgdG9kb3NFeGl0b3NvcyA9IGZhbHNlO1xyXG4gICAgICAgICAgYnJlYWs7XHJcbiAgICAgICAgfVxyXG4gICAgICB9XHJcbiAgICAgIGlmICh0b2Rvc0V4aXRvc29zKSB7XHJcbiAgICAgICAgb25DbG9zZSgpO1xyXG4gICAgICB9XHJcbiAgICB9XHJcbiAgfTtcclxuXHJcbiAgY29uc3QgaGFuZGxlQ2hhbmdlID0gKGZpZWxkOiBzdHJpbmcsIHZhbHVlOiBhbnkpID0+IHtcclxuICAgIHNldEZvcm1EYXRhKHByZXYgPT4gKHsgLi4ucHJldiwgW2ZpZWxkXTogdmFsdWUgfSkpO1xyXG4gIH07XHJcblxyXG4gIGNvbnN0IHNlbGVjY2lvbmFyRW1wbGVhZG8gPSAoZW1wbGVhZG86IGFueSkgPT4ge1xyXG4gICAgc2V0RW1wbGVhZG9TZWxlY2Npb25hZG8oZW1wbGVhZG8pO1xyXG4gICAgc2V0QnVzcXVlZGFFbXBsZWFkbyhgJHtlbXBsZWFkby5ub21icmV9ICR7ZW1wbGVhZG8uYXBlbGxpZG99YCk7XHJcbiAgICBzZXRNb3N0cmFyTGlzdGFFbXBsZWFkb3MoZmFsc2UpO1xyXG4gICAgXHJcbiAgICAvLyBBdXRvLWNvbXBsZXRhciBkYXRvcyBkZWwgZW1wbGVhZG9cclxuICAgIHNldEZvcm1EYXRhKHByZXYgPT4gKHtcclxuICAgICAgLi4ucHJldixcclxuICAgICAgY2M6IGVtcGxlYWRvLmNlZHVsYSB8fCBlbXBsZWFkby5udW1lcm9Eb2N1bWVudG8gfHwgJycsXHJcbiAgICAgIG5vbWJyZTogZW1wbGVhZG8ubm9tYnJlLFxyXG4gICAgICBhcGVsbGlkbzogZW1wbGVhZG8uYXBlbGxpZG9cclxuICAgIH0pKTtcclxuICB9O1xyXG5cclxuICBjb25zdCB0b2dnbGVEaWEgPSAoZGlhOiBzdHJpbmcpID0+IHtcclxuICAgIHNldERpYXNTZWxlY2Npb25hZG9zKHByZXYgPT4ge1xyXG4gICAgICBpZiAocHJldi5pbmNsdWRlcyhkaWEpKSB7XHJcbiAgICAgICAgLy8gUmVtb3ZlciBkw61hIHkgc3VzIGhvcmFyaW9zXHJcbiAgICAgICAgY29uc3QgbnVldm9zRGlhcyA9IHByZXYuZmlsdGVyKGQgPT4gZCAhPT0gZGlhKTtcclxuICAgICAgICBjb25zdCBudWV2b3NIb3JhcmlvcyA9IHsgLi4uaG9yYXJpb3NQb3JEaWEgfTtcclxuICAgICAgICBkZWxldGUgbnVldm9zSG9yYXJpb3NbZGlhXTtcclxuICAgICAgICBzZXRIb3Jhcmlvc1BvckRpYShudWV2b3NIb3Jhcmlvcyk7XHJcbiAgICAgICAgcmV0dXJuIG51ZXZvc0RpYXM7XHJcbiAgICAgIH0gZWxzZSB7XHJcbiAgICAgICAgLy8gQWdyZWdhciBkw61hIGNvbiBob3JhcmlvcyBwb3IgZGVmZWN0b1xyXG4gICAgICAgIGNvbnN0IG51ZXZvc0RpYXMgPSBbLi4ucHJldiwgZGlhXTtcclxuICAgICAgICBzZXRIb3Jhcmlvc1BvckRpYShwcmV2SG9yYXJpb3MgPT4gKHtcclxuICAgICAgICAgIC4uLnByZXZIb3JhcmlvcyxcclxuICAgICAgICAgIFtkaWFdOiB7XHJcbiAgICAgICAgICAgIGhvcmFJbmljaW86ICcwODowMCcsXHJcbiAgICAgICAgICAgIGhvcmFGaW46ICcxNzowMCdcclxuICAgICAgICAgIH1cclxuICAgICAgICB9KSk7XHJcbiAgICAgICAgcmV0dXJuIG51ZXZvc0RpYXM7XHJcbiAgICAgIH1cclxuICAgIH0pO1xyXG4gIH07XHJcblxyXG4gIGNvbnN0IGFjdHVhbGl6YXJIb3JhcmlvRGlhID0gKGRpYTogc3RyaW5nLCBjYW1wbzogJ2hvcmFJbmljaW8nIHwgJ2hvcmFGaW4nLCB2YWxvcjogc3RyaW5nKSA9PiB7XHJcbiAgICBzZXRIb3Jhcmlvc1BvckRpYShwcmV2ID0+ICh7XHJcbiAgICAgIC4uLnByZXYsXHJcbiAgICAgIFtkaWFdOiB7XHJcbiAgICAgICAgLi4ucHJldltkaWFdLFxyXG4gICAgICAgIFtjYW1wb106IHZhbG9yXHJcbiAgICAgIH1cclxuICAgIH0pKTtcclxuICB9O1xyXG5cclxuICBjb25zdCBkaWFzU2VtYW5hID0gW1xyXG4gICAgJ0x1bmVzJywgJ01hcnRlcycsICdNacOpcmNvbGVzJywgJ0p1ZXZlcycsICdWaWVybmVzJywgJ1PDoWJhZG8nLCAnRG9taW5nbydcclxuICBdO1xyXG5cclxuICBjb25zdCBzYWxhcyA9IFtcclxuICAgICdDb25zdWx0b3JpbyAxJyxcclxuICAgICdDb25zdWx0b3JpbyAyJyxcclxuICAgICdDb25zdWx0b3JpbyAzJyxcclxuICAgICdRdWlyw7NmYW5vIEEnLFxyXG4gICAgJ1F1aXLDs2Zhbm8gQicsXHJcbiAgICAnVXJnZW5jaWFzJyxcclxuICAgICdTYWxhIGRlIFByb2NlZGltaWVudG9zJ1xyXG4gIF07XHJcblxyXG4gIGNvbnN0IGhvcmFyaW9zRGlzcG9uaWJsZXMgPSBbXHJcbiAgICAnTHVuZXMgYSBWaWVybmVzIDg6MDAgQU0gLSA1OjAwIFBNJyxcclxuICAgICdMdW5lcyBhIFZpZXJuZXMgNzowMCBBTSAtIDM6MDAgUE0nLFxyXG4gICAgJ0x1bmVzIGEgVmllcm5lcyA5OjAwIEFNIC0gNjowMCBQTScsXHJcbiAgICAnTHVuZXMgYSBWaWVybmVzIDg6MDAgQU0gLSAxMjowMCBQTScsXHJcbiAgICAnTHVuZXMgYSBWaWVybmVzIDI6MDAgUE0gLSA4OjAwIFBNJyxcclxuICAgICdMdW5lcyBhIFPDoWJhZG8gODowMCBBTSAtIDU6MDAgUE0nLFxyXG4gICAgJ0x1bmVzIGEgU8OhYmFkbyA5OjAwIEFNIC0gNjowMCBQTScsXHJcbiAgICAnVHVybm8gTWHDsWFuYTogNjowMCBBTSAtIDI6MDAgUE0nLFxyXG4gICAgJ1R1cm5vIFRhcmRlOiAyOjAwIFBNIC0gMTA6MDAgUE0nLFxyXG4gICAgJ1R1cm5vIE5vY2hlOiAxMDowMCBQTSAtIDY6MDAgQU0nLFxyXG4gICAgJ0hvcmFyaW8gZGUgQ29uc3VsdGEgR2VuZXJhbCcsXHJcbiAgICAnSG9yYXJpbyBkZSBDaXJ1Z8OtYScsXHJcbiAgICAnSG9yYXJpbyBkZSBVcmdlbmNpYXMgMjQvNycsXHJcbiAgICAnSG9yYXJpbyBkZSBEb21pY2lsaW8nLFxyXG4gICAgJ0hvcmFyaW8gRXNwZWNpYWxpc3RhJyxcclxuICAgICdIb3JhcmlvIGRlIEd1YXJkaWEnXHJcbiAgXTtcclxuXHJcbiAgY29uc3QgaG9yYXJpb3NGaWx0cmFkb3MgPSBob3Jhcmlvc0Rpc3BvbmlibGVzLmZpbHRlcihob3JhcmlvID0+XHJcbiAgICBob3JhcmlvLnRvTG93ZXJDYXNlKCkuaW5jbHVkZXMoZm9ybURhdGEuaG9yYXJpby50b0xvd2VyQ2FzZSgpKVxyXG4gICk7XHJcblxyXG4gIHJldHVybiAoXHJcbiAgICA8RGlhbG9nIG9wZW49e2lzT3Blbn0gb25PcGVuQ2hhbmdlPXtvbkNsb3NlfT5cclxuICAgICAgPERpYWxvZ0NvbnRlbnRcclxuICAgICAgICBjbGFzc05hbWU9XCJiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3IgbWF4LXctMnhsXCJcclxuICAgICAgICBvbkNsaWNrPXsoKSA9PiB7XHJcbiAgICAgICAgICBzZXRNb3N0cmFyTGlzdGFFbXBsZWFkb3MoZmFsc2UpO1xyXG4gICAgICAgICAgc2V0TW9zdHJhckxpc3RhSG9yYXJpb3MoZmFsc2UpO1xyXG4gICAgICAgIH19XHJcbiAgICAgID5cclxuICAgICAgICA8RGlhbG9nSGVhZGVyPlxyXG4gICAgICAgICAgPERpYWxvZ1RpdGxlIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5XCI+XHJcbiAgICAgICAgICAgIHtob3JhcmlvID8gJ0VkaXRhciBIb3JhcmlvIGRlIFBlcnNvbmFsJyA6ICdOdWV2byBIb3JhcmlvIGRlIFBlcnNvbmFsJ31cclxuICAgICAgICAgIDwvRGlhbG9nVGl0bGU+XHJcbiAgICAgICAgICA8RGlhbG9nRGVzY3JpcHRpb24gY2xhc3NOYW1lPVwidGV4dC1zbSB0ZXh0LWRhcmstc2Vjb25kYXJ5XCI+XHJcbiAgICAgICAgICAgIHtob3JhcmlvID8gJ01vZGlmaWNhIGxvcyBkZXRhbGxlcyBkZWwgaG9yYXJpbyBzZWxlY2Npb25hZG8nIDogJ0NvbXBsZXRhIGxhIGluZm9ybWFjacOzbiBwYXJhIGNyZWFyIHVuIG51ZXZvIGhvcmFyaW8gZGUgcGVyc29uYWwnfVxyXG4gICAgICAgICAgPC9EaWFsb2dEZXNjcmlwdGlvbj5cclxuICAgICAgICA8L0RpYWxvZ0hlYWRlcj5cclxuXHJcbiAgICAgICAgPGZvcm0gb25TdWJtaXQ9e2hhbmRsZVN1Ym1pdH0gY2xhc3NOYW1lPVwic3BhY2UteS02XCI+XHJcbiAgICAgICAgICB7LyogU2VsZWN0b3IgZGUgRW1wbGVhZG8gKi99XHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktNFwiPlxyXG4gICAgICAgICAgICA8aDMgY2xhc3NOYW1lPVwidGV4dC1sZyBmb250LXNlbWlib2xkIHRleHQtZGFyay1wcmltYXJ5IGJvcmRlci1iIGJvcmRlci1kYXJrLWNvbG9yIHBiLTJcIj5cclxuICAgICAgICAgICAgICBTZWxlY2Npb25hciBQZXJzb25hbFxyXG4gICAgICAgICAgICA8L2gzPlxyXG4gICAgICAgICAgICBcclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTJcIj5cclxuICAgICAgICAgICAgICA8TGFiZWwgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnlcIj5CdXNjYXIgRW1wbGVhZG8gKjwvTGFiZWw+XHJcbiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJyZWxhdGl2ZVwiPlxyXG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJyZWxhdGl2ZVwiPlxyXG4gICAgICAgICAgICAgICAgICA8U2VhcmNoIGNsYXNzTmFtZT1cInctNCBoLTQgYWJzb2x1dGUgbGVmdC0zIHRvcC0xLzIgdHJhbnNmb3JtIC10cmFuc2xhdGUteS0xLzIgdGV4dC1kYXJrLXNlY29uZGFyeVwiIC8+XHJcbiAgICAgICAgICAgICAgICAgIDxJbnB1dFxyXG4gICAgICAgICAgICAgICAgICAgIHZhbHVlPXtidXNxdWVkYUVtcGxlYWRvfVxyXG4gICAgICAgICAgICAgICAgICAgIG9uQ2hhbmdlPXsoZSkgPT4ge1xyXG4gICAgICAgICAgICAgICAgICAgICAgc2V0QnVzcXVlZGFFbXBsZWFkbyhlLnRhcmdldC52YWx1ZSk7XHJcbiAgICAgICAgICAgICAgICAgICAgICBzZXRNb3N0cmFyTGlzdGFFbXBsZWFkb3ModHJ1ZSk7XHJcbiAgICAgICAgICAgICAgICAgICAgfX1cclxuICAgICAgICAgICAgICAgICAgICBvbkZvY3VzPXsoKSA9PiBzZXRNb3N0cmFyTGlzdGFFbXBsZWFkb3ModHJ1ZSl9XHJcbiAgICAgICAgICAgICAgICAgICAgb25DbGljaz17KGUpID0+IGUuc3RvcFByb3BhZ2F0aW9uKCl9XHJcbiAgICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwicGwtMTAgYmctZGFyay1ob3ZlciBib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstcHJpbWFyeVwiXHJcbiAgICAgICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9XCJCdXNjYXIgcG9yIG5vbWJyZSwgYXBlbGxpZG8gbyBjw6lkdWxhLi4uXCJcclxuICAgICAgICAgICAgICAgICAgLz5cclxuICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgXHJcbiAgICAgICAgICAgICAgICB7bW9zdHJhckxpc3RhRW1wbGVhZG9zICYmIGVtcGxlYWRvc0Rpc3BvbmlibGVzLmxlbmd0aCA+IDAgJiYgKFxyXG4gICAgICAgICAgICAgICAgICA8Q2FyZCBjbGFzc05hbWU9XCJhYnNvbHV0ZSB0b3AtZnVsbCBsZWZ0LTAgcmlnaHQtMCB6LTUwIG10LTEgYmctZGFyay1jYXJkIGJvcmRlci1kYXJrLWNvbG9yIG1heC1oLTMyIG92ZXJmbG93LXktYXV0b1wiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxDYXJkQ29udGVudCBjbGFzc05hbWU9XCJwLTBcIiBvbkNsaWNrPXsoZSkgPT4gZS5zdG9wUHJvcGFnYXRpb24oKX0+XHJcbiAgICAgICAgICAgICAgICAgICAgICB7ZW1wbGVhZG9zRGlzcG9uaWJsZXMuc2xpY2UoMCwgMykubWFwKChlbXBsZWFkbykgPT4gKFxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8YnV0dG9uXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAga2V5PXtlbXBsZWFkby5pZH1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICB0eXBlPVwiYnV0dG9uXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICBvbkNsaWNrPXsoZSkgPT4ge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgZS5zdG9wUHJvcGFnYXRpb24oKTtcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNlbGVjY2lvbmFyRW1wbGVhZG8oZW1wbGVhZG8pO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIH19XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwidy1mdWxsIHAtMiB0ZXh0LWxlZnQgaG92ZXI6YmctZGFyay1ob3ZlciB0cmFuc2l0aW9uLWNvbG9ycyBib3JkZXItYiBib3JkZXItZGFyay1jb2xvciBsYXN0OmJvcmRlci1iLTBcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ3LTYgaC02IGJnLWdyYWRpZW50LXRvLWJyIGZyb20tYmx1ZS01MDAgdG8tYmx1ZS02MDAgcm91bmRlZC1mdWxsIGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIHRleHQtd2hpdGUgdGV4dC14cyBmb250LXNlbWlib2xkXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHtlbXBsZWFkby5ub21icmUuY2hhckF0KDApLnRvVXBwZXJDYXNlKCl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleC0xIG1pbi13LTBcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmb250LW1lZGl1bSB0ZXh0LWRhcmstcHJpbWFyeSB0ZXh0LXNtIHRydW5jYXRlXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAge2VtcGxlYWRvLm5vbWJyZX0ge2VtcGxlYWRvLmFwZWxsaWRvfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ0ZXh0LXhzIHRleHQtZGFyay1zZWNvbmRhcnkgdHJ1bmNhdGVcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB7ZW1wbGVhZG8uY2VkdWxhIHx8IGVtcGxlYWRvLm51bWVyb0RvY3VtZW50b31cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9idXR0b24+XHJcbiAgICAgICAgICAgICAgICAgICAgICApKX1cclxuICAgICAgICAgICAgICAgICAgICAgIHtlbXBsZWFkb3NEaXNwb25pYmxlcy5sZW5ndGggPiAzICYmIChcclxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJwLTIgdGV4dC1jZW50ZXIgdGV4dC14cyB0ZXh0LWRhcmstc2Vjb25kYXJ5IGJvcmRlci10IGJvcmRlci1kYXJrLWNvbG9yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAge2VtcGxlYWRvc0Rpc3BvbmlibGVzLmxlbmd0aCAtIDN9IG3DoXMgcmVzdWx0YWRvcy4uLlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICl9XHJcbiAgICAgICAgICAgICAgICAgICAgPC9DYXJkQ29udGVudD5cclxuICAgICAgICAgICAgICAgICAgPC9DYXJkPlxyXG4gICAgICAgICAgICAgICAgKX1cclxuICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgICB7ZW1wbGVhZG9TZWxlY2Npb25hZG8gJiYgKFxyXG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiYmctZGFyay1ob3ZlciBib3JkZXIgYm9yZGVyLWRhcmstY29sb3Igcm91bmRlZC1sZyBwLTRcIj5cclxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTMgbWItM1wiPlxyXG4gICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInctMTAgaC0xMCBiZy1ncmFkaWVudC10by1iciBmcm9tLWdyZWVuLTUwMCB0by1ncmVlbi02MDAgcm91bmRlZC1mdWxsIGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIHRleHQtd2hpdGUgZm9udC1zZW1pYm9sZFwiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxDaGVja0NpcmNsZSBjbGFzc05hbWU9XCJ3LTUgaC01XCIgLz5cclxuICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgIDxkaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgPGg0IGNsYXNzTmFtZT1cImZvbnQtc2VtaWJvbGQgdGV4dC1kYXJrLXByaW1hcnlcIj5FbXBsZWFkbyBTZWxlY2Npb25hZG88L2g0PlxyXG4gICAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXNlY29uZGFyeVwiPkxvcyBkYXRvcyBzZSBoYW4gY29tcGxldGFkbyBhdXRvbcOhdGljYW1lbnRlPC9wPlxyXG4gICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgXHJcbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImdyaWQgZ3JpZC1jb2xzLTMgZ2FwLTRcIj5cclxuICAgICAgICAgICAgICAgICAgPGRpdj5cclxuICAgICAgICAgICAgICAgICAgICA8TGFiZWwgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXNlY29uZGFyeSB0ZXh0LXhzXCI+Q8OpZHVsYTwvTGFiZWw+XHJcbiAgICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZm9udC1tZWRpdW1cIj57ZW1wbGVhZG9TZWxlY2Npb25hZG8uY2VkdWxhIHx8IGVtcGxlYWRvU2VsZWNjaW9uYWRvLm51bWVyb0RvY3VtZW50b308L3A+XHJcbiAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDxMYWJlbCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstc2Vjb25kYXJ5IHRleHQteHNcIj5Ob21icmU8L0xhYmVsPlxyXG4gICAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtZGFyay1wcmltYXJ5IGZvbnQtbWVkaXVtXCI+e2VtcGxlYWRvU2VsZWNjaW9uYWRvLm5vbWJyZX08L3A+XHJcbiAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDxMYWJlbCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstc2Vjb25kYXJ5IHRleHQteHNcIj5BcGVsbGlkbzwvTGFiZWw+XHJcbiAgICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZm9udC1tZWRpdW1cIj57ZW1wbGVhZG9TZWxlY2Npb25hZG8uYXBlbGxpZG99PC9wPlxyXG4gICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICApfVxyXG5cclxuICAgICAgICAgICAgey8qIENhbXBvcyBvY3VsdG9zIHBlcm8gbmVjZXNhcmlvcyBwYXJhIGVsIGZvcm11bGFyaW8gKi99XHJcbiAgICAgICAgICAgIDxpbnB1dCB0eXBlPVwiaGlkZGVuXCIgdmFsdWU9e2Zvcm1EYXRhLmNjfSAvPlxyXG4gICAgICAgICAgICA8aW5wdXQgdHlwZT1cImhpZGRlblwiIHZhbHVlPXtmb3JtRGF0YS5ub21icmV9IC8+XHJcbiAgICAgICAgICAgIDxpbnB1dCB0eXBlPVwiaGlkZGVuXCIgdmFsdWU9e2Zvcm1EYXRhLmFwZWxsaWRvfSAvPlxyXG5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTJcIj5cclxuICAgICAgICAgICAgICA8TGFiZWwgaHRtbEZvcj1cImhvcmFyaW9cIiBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeVwiPkRlc2NyaXBjacOzbiBkZWwgSG9yYXJpbyAqPC9MYWJlbD5cclxuICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInJlbGF0aXZlXCI+XHJcbiAgICAgICAgICAgICAgICA8SW5wdXRcclxuICAgICAgICAgICAgICAgICAgaWQ9XCJob3JhcmlvXCJcclxuICAgICAgICAgICAgICAgICAgdmFsdWU9e2Zvcm1EYXRhLmhvcmFyaW99XHJcbiAgICAgICAgICAgICAgICAgIG9uQ2hhbmdlPXsoZSkgPT4ge1xyXG4gICAgICAgICAgICAgICAgICAgIGhhbmRsZUNoYW5nZSgnaG9yYXJpbycsIGUudGFyZ2V0LnZhbHVlKTtcclxuICAgICAgICAgICAgICAgICAgICBzZXRNb3N0cmFyTGlzdGFIb3Jhcmlvcyh0cnVlKTtcclxuICAgICAgICAgICAgICAgICAgfX1cclxuICAgICAgICAgICAgICAgICAgb25Gb2N1cz17KCkgPT4gc2V0TW9zdHJhckxpc3RhSG9yYXJpb3ModHJ1ZSl9XHJcbiAgICAgICAgICAgICAgICAgIG9uQ2xpY2s9eyhlKSA9PiBlLnN0b3BQcm9wYWdhdGlvbigpfVxyXG4gICAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJiZy1kYXJrLWhvdmVyIGJvcmRlci1kYXJrLWNvbG9yIHRleHQtZGFyay1wcmltYXJ5XCJcclxuICAgICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9XCJFajogTHVuZXMgYSBWaWVybmVzIDg6MDAgQU0gLSA1OjAwIFBNXCJcclxuICAgICAgICAgICAgICAgICAgcmVxdWlyZWRcclxuICAgICAgICAgICAgICAgIC8+XHJcblxyXG4gICAgICAgICAgICAgICAge21vc3RyYXJMaXN0YUhvcmFyaW9zICYmIGhvcmFyaW9zRmlsdHJhZG9zLmxlbmd0aCA+IDAgJiYgKFxyXG4gICAgICAgICAgICAgICAgICA8Q2FyZCBjbGFzc05hbWU9XCJhYnNvbHV0ZSB0b3AtZnVsbCBsZWZ0LTAgcmlnaHQtMCB6LTUwIG10LTEgYmctZGFyay1jYXJkIGJvcmRlci1kYXJrLWNvbG9yIG1heC1oLTQwIG92ZXJmbG93LXktYXV0b1wiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxDYXJkQ29udGVudCBjbGFzc05hbWU9XCJwLTBcIiBvbkNsaWNrPXsoZSkgPT4gZS5zdG9wUHJvcGFnYXRpb24oKX0+XHJcbiAgICAgICAgICAgICAgICAgICAgICB7aG9yYXJpb3NGaWx0cmFkb3Muc2xpY2UoMCwgNSkubWFwKChob3JhcmlvLCBpbmRleCkgPT4gKFxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8YnV0dG9uXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAga2V5PXtpbmRleH1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICB0eXBlPVwiYnV0dG9uXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICBvbkNsaWNrPXsoZSkgPT4ge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgZS5zdG9wUHJvcGFnYXRpb24oKTtcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIGhhbmRsZUNoYW5nZSgnaG9yYXJpbycsIGhvcmFyaW8pO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgc2V0TW9zdHJhckxpc3RhSG9yYXJpb3MoZmFsc2UpO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIH19XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwidy1mdWxsIHAtMiB0ZXh0LWxlZnQgaG92ZXI6YmctZGFyay1ob3ZlciB0cmFuc2l0aW9uLWNvbG9ycyBib3JkZXItYiBib3JkZXItZGFyay1jb2xvciBsYXN0OmJvcmRlci1iLTBcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ3LTUgaC01IGJnLWdyYWRpZW50LXRvLWJyIGZyb20tYmx1ZS01MDAgdG8tYmx1ZS02MDAgcm91bmRlZC1mdWxsIGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIHRleHQtd2hpdGUgdGV4dC14cyBmb250LXNlbWlib2xkXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxDaGVja0NpcmNsZSBjbGFzc05hbWU9XCJ3LTMgaC0zXCIgLz5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgdGV4dC1zbVwiPntob3JhcmlvfTwvc3Bhbj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9idXR0b24+XHJcbiAgICAgICAgICAgICAgICAgICAgICApKX1cclxuICAgICAgICAgICAgICAgICAgICAgIHtob3Jhcmlvc0ZpbHRyYWRvcy5sZW5ndGggPiA1ICYmIChcclxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJwLTIgdGV4dC1jZW50ZXIgdGV4dC14cyB0ZXh0LWRhcmstc2Vjb25kYXJ5IGJvcmRlci10IGJvcmRlci1kYXJrLWNvbG9yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAge2hvcmFyaW9zRmlsdHJhZG9zLmxlbmd0aCAtIDV9IG3DoXMgb3BjaW9uZXMuLi5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICApfVxyXG4gICAgICAgICAgICAgICAgICAgIDwvQ2FyZENvbnRlbnQ+XHJcbiAgICAgICAgICAgICAgICAgIDwvQ2FyZD5cclxuICAgICAgICAgICAgICAgICl9XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgey8qIERldGFsbGVzIGRlbCBIb3JhcmlvICovfVxyXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTRcIj5cclxuICAgICAgICAgICAgPGgzIGNsYXNzTmFtZT1cInRleHQtbGcgZm9udC1zZW1pYm9sZCB0ZXh0LWRhcmstcHJpbWFyeSBib3JkZXItYiBib3JkZXItZGFyay1jb2xvciBwYi0yXCI+XHJcbiAgICAgICAgICAgICAgRGV0YWxsZXMgZGVsIEhvcmFyaW9cclxuICAgICAgICAgICAgPC9oMz5cclxuICAgICAgICAgICAgXHJcbiAgICAgICAgICAgIHsvKiBTZWxlY3RvciBWaXN1YWwgZGUgRMOtYXMgZGUgbGEgU2VtYW5hICovfVxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktM1wiPlxyXG4gICAgICAgICAgICAgIDxMYWJlbCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSBmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgICAgPENhbGVuZGFyIGNsYXNzTmFtZT1cInctNCBoLTRcIiAvPlxyXG4gICAgICAgICAgICAgICAgRMOtYXMgZGUgbGEgU2VtYW5hICpcclxuICAgICAgICAgICAgICA8L0xhYmVsPlxyXG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZ3JpZCBncmlkLWNvbHMtNyBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgICAge2RpYXNTZW1hbmEubWFwKChkaWEpID0+IHtcclxuICAgICAgICAgICAgICAgICAgY29uc3QgaXNTZWxlY3RlZCA9IGRpYXNTZWxlY2Npb25hZG9zLmluY2x1ZGVzKGRpYSk7XHJcbiAgICAgICAgICAgICAgICAgIGNvbnN0IGlzRWRpdE1vZGUgPSAhIWhvcmFyaW87IC8vIFNpIGVzdGFtb3MgZWRpdGFuZG8sIHNvbG8gcGVybWl0aXIgdW4gZMOtYVxyXG4gICAgICAgICAgICAgICAgICBcclxuICAgICAgICAgICAgICAgICAgcmV0dXJuIChcclxuICAgICAgICAgICAgICAgICAgICA8YnV0dG9uXHJcbiAgICAgICAgICAgICAgICAgICAgICBrZXk9e2RpYX1cclxuICAgICAgICAgICAgICAgICAgICAgIHR5cGU9XCJidXR0b25cIlxyXG4gICAgICAgICAgICAgICAgICAgICAgb25DbGljaz17KCkgPT4ge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICBpZiAoaXNFZGl0TW9kZSkge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIC8vIEVuIG1vZG8gZWRpY2nDs24sIHNvbG8gdW4gZMOtYSBzZWxlY2Npb25hZG9cclxuICAgICAgICAgICAgICAgICAgICAgICAgICBzZXREaWFzU2VsZWNjaW9uYWRvcyhbZGlhXSk7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIH0gZWxzZSB7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgLy8gRW4gbW9kbyBjcmVhY2nDs24sIG3Dumx0aXBsZXMgZMOtYXNcclxuICAgICAgICAgICAgICAgICAgICAgICAgICB0b2dnbGVEaWEoZGlhKTtcclxuICAgICAgICAgICAgICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICAgICAgICAgICAgfX1cclxuICAgICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT17YFxyXG4gICAgICAgICAgICAgICAgICAgICAgICBwLTMgcm91bmRlZC1sZyB0ZXh0LXNtIGZvbnQtbWVkaXVtIHRyYW5zaXRpb24tYWxsIGR1cmF0aW9uLTIwMCBib3JkZXJcclxuICAgICAgICAgICAgICAgICAgICAgICAgJHtpc1NlbGVjdGVkIFxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgID8gJ2JnLWJsdWUtNjAwIHRleHQtd2hpdGUgYm9yZGVyLWJsdWUtNTAwIHNoYWRvdy1sZyBzaGFkb3ctYmx1ZS02MDAvMjUnIFxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIDogJ2JnLWRhcmstaG92ZXIgdGV4dC1kYXJrLXNlY29uZGFyeSBib3JkZXItZGFyay1jb2xvciBob3ZlcjpiZy1kYXJrLXRhYmxlLWhvdmVyIGhvdmVyOmJvcmRlci1ibHVlLTQwMCBob3Zlcjp0ZXh0LWJsdWUtNDAwJ1xyXG4gICAgICAgICAgICAgICAgICAgICAgICB9XHJcbiAgICAgICAgICAgICAgICAgICAgICBgfVxyXG4gICAgICAgICAgICAgICAgICAgID5cclxuICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidGV4dC1jZW50ZXJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ0ZXh0LXhzIG9wYWNpdHktNzUgbWItMVwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIHtkaWEuc2xpY2UoMCwgMykudG9VcHBlckNhc2UoKX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAge2RpYS5zbGljZSgwLCAxKX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICA8L2J1dHRvbj5cclxuICAgICAgICAgICAgICAgICAgKTtcclxuICAgICAgICAgICAgICAgIH0pfVxyXG4gICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgIFxyXG4gICAgICAgICAgICAgIHtkaWFzU2VsZWNjaW9uYWRvcy5sZW5ndGggPiAwICYmIChcclxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBmbGV4LXdyYXAgZ2FwLTIgbXQtM1wiPlxyXG4gICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJ0ZXh0LXNtIHRleHQtZGFyay1zZWNvbmRhcnlcIj5Ew61hcyBzZWxlY2Npb25hZG9zOjwvc3Bhbj5cclxuICAgICAgICAgICAgICAgICAge2RpYXNTZWxlY2Npb25hZG9zLm1hcCgoZGlhKSA9PiAoXHJcbiAgICAgICAgICAgICAgICAgICAgPEJhZGdlIGtleT17ZGlhfSBjbGFzc05hbWU9XCJiZy1ibHVlLTkwMC8yMCB0ZXh0LWJsdWUtNDAwIGJvcmRlci0wXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICB7ZGlhfVxyXG4gICAgICAgICAgICAgICAgICAgIDwvQmFkZ2U+XHJcbiAgICAgICAgICAgICAgICAgICkpfVxyXG4gICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgKX1cclxuICAgICAgICAgICAgICBcclxuICAgICAgICAgICAgICB7IWhvcmFyaW8gJiYgZGlhc1NlbGVjY2lvbmFkb3MubGVuZ3RoID4gMSAmJiAoXHJcbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImJnLWJsdWUtOTAwLzIwIGJvcmRlciBib3JkZXItYmx1ZS02MDAgcm91bmRlZC1sZyBwLTNcIj5cclxuICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1ibHVlLTQwMCB0ZXh0LXNtXCI+XHJcbiAgICAgICAgICAgICAgICAgICAg4oS577iPIFNlIGNyZWFyw6EgdW4gaG9yYXJpbyBzZXBhcmFkbyBwYXJhIGNhZGEgZMOtYSBjb24gbGFzIGhvcmFzIGVzcGVjw61maWNhcyBjb25maWd1cmFkYXMuXHJcbiAgICAgICAgICAgICAgICAgIDwvcD5cclxuICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICl9XHJcbiAgICAgICAgICAgICAgXHJcbiAgICAgICAgICAgICAgeyFob3JhcmlvICYmIGRpYXNTZWxlY2Npb25hZG9zLmxlbmd0aCA9PT0gMSAmJiAoXHJcbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImJnLWVtZXJhbGQtOTAwLzIwIGJvcmRlciBib3JkZXItZW1lcmFsZC02MDAgcm91bmRlZC1sZyBwLTNcIj5cclxuICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1lbWVyYWxkLTQwMCB0ZXh0LXNtXCI+XHJcbiAgICAgICAgICAgICAgICAgICAg4pyTIENvbmZpZ3VyYSBsYXMgaG9yYXMgZGUgaW5pY2lvIHkgZmluIHBhcmEge2RpYXNTZWxlY2Npb25hZG9zWzBdfS5cclxuICAgICAgICAgICAgICAgICAgPC9wPlxyXG4gICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgKX1cclxuICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgIFxyXG4gICAgICAgICAgICB7LyogQ29uZmlndXJhY2nDs24gZGUgaG9yYXJpb3MgcG9yIGTDrWEgKi99XHJcbiAgICAgICAgICAgIHtkaWFzU2VsZWNjaW9uYWRvcy5sZW5ndGggPiAwICYmIChcclxuICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktNFwiPlxyXG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMiBtYi0zXCI+XHJcbiAgICAgICAgICAgICAgICAgIDxDbG9jayBjbGFzc05hbWU9XCJ3LTQgaC00IHRleHQtYmx1ZS00MDBcIiAvPlxyXG4gICAgICAgICAgICAgICAgICA8TGFiZWwgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZm9udC1zZW1pYm9sZFwiPkNvbmZpZ3VyYXIgSG9yYXJpb3MgcG9yIETDrWE8L0xhYmVsPlxyXG4gICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICBcclxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BhY2UteS0zIG1heC1oLTY0IG92ZXJmbG93LXktYXV0byBwci0yXCI+XHJcbiAgICAgICAgICAgICAgICAgIHtkaWFzU2VsZWNjaW9uYWRvcy5tYXAoKGRpYSkgPT4ge1xyXG4gICAgICAgICAgICAgICAgICAgIGNvbnN0IGhvcmFyaW9EaWEgPSBob3Jhcmlvc1BvckRpYVtkaWFdIHx8IHsgaG9yYUluaWNpbzogJycsIGhvcmFGaW46ICcnIH07XHJcbiAgICAgICAgICAgICAgICAgICAgY29uc3QgZXNJbnZhbGlkbyA9IGhvcmFyaW9EaWEuaG9yYUluaWNpbyAmJiBob3JhcmlvRGlhLmhvcmFGaW4gJiYgaG9yYXJpb0RpYS5ob3JhSW5pY2lvID49IGhvcmFyaW9EaWEuaG9yYUZpbjtcclxuICAgICAgICAgICAgICAgICAgICBcclxuICAgICAgICAgICAgICAgICAgICByZXR1cm4gKFxyXG4gICAgICAgICAgICAgICAgICAgICAgPGRpdiBrZXk9e2RpYX0gY2xhc3NOYW1lPVwiYmctZGFyay1ob3ZlciBib3JkZXIgYm9yZGVyLWRhcmstY29sb3Igcm91bmRlZC1sZyBwLTRcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWJldHdlZW4gbWItM1wiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIDxCYWRnZSBjbGFzc05hbWU9XCJiZy1ibHVlLTkwMC8yMCB0ZXh0LWJsdWUtNDAwIGJvcmRlci0wXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICB7ZGlhfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIDwvQmFkZ2U+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAge2VzSW52YWxpZG8gJiYgKFxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwidGV4dC14cyB0ZXh0LXJlZC00MDBcIj5Ib3JhIGludsOhbGlkYTwvc3Bhbj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICApfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgXHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZ3JpZCBncmlkLWNvbHMtMiBnYXAtM1wiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BhY2UteS0yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8TGFiZWwgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXNlY29uZGFyeSB0ZXh0LXhzXCI+SG9yYSBJbmljaW88L0xhYmVsPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPElucHV0XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHR5cGU9XCJ0aW1lXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdmFsdWU9e2hvcmFyaW9EaWEuaG9yYUluaWNpb31cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb25DaGFuZ2U9eyhlKSA9PiBhY3R1YWxpemFySG9yYXJpb0RpYShkaWEsICdob3JhSW5pY2lvJywgZS50YXJnZXQudmFsdWUpfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9e2BiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXByaW1hcnkgJHtlc0ludmFsaWRvID8gJ2JvcmRlci1yZWQtNTAwJyA6ICcnfWB9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJlcXVpcmVkXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIFxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BhY2UteS0yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8TGFiZWwgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXNlY29uZGFyeSB0ZXh0LXhzXCI+SG9yYSBGaW48L0xhYmVsPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPElucHV0XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHR5cGU9XCJ0aW1lXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdmFsdWU9e2hvcmFyaW9EaWEuaG9yYUZpbn1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb25DaGFuZ2U9eyhlKSA9PiBhY3R1YWxpemFySG9yYXJpb0RpYShkaWEsICdob3JhRmluJywgZS50YXJnZXQudmFsdWUpfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9e2BiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXByaW1hcnkgJHtlc0ludmFsaWRvID8gJ2JvcmRlci1yZWQtNTAwJyA6ICcnfWB9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJlcXVpcmVkXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICk7XHJcbiAgICAgICAgICAgICAgICAgIH0pfVxyXG4gICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICl9XHJcblxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImdyaWQgZ3JpZC1jb2xzLTEgbWQ6Z3JpZC1jb2xzLTIgZ2FwLTRcIj5cclxuICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktMlwiPlxyXG4gICAgICAgICAgICAgICAgPExhYmVsIGh0bWxGb3I9XCJ0aXBvU2VydmljaW9cIiBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeVwiPlRpcG8gZGUgU2VydmljaW88L0xhYmVsPlxyXG4gICAgICAgICAgICAgICAgPFNlbGVjdCB2YWx1ZT17Zm9ybURhdGEudGlwb1NlcnZpY2lvfSBvblZhbHVlQ2hhbmdlPXsodmFsdWUpID0+IGhhbmRsZUNoYW5nZSgndGlwb1NlcnZpY2lvJywgdmFsdWUpfT5cclxuICAgICAgICAgICAgICAgICAgPFNlbGVjdFRyaWdnZXIgY2xhc3NOYW1lPVwiYmctZGFyay1ob3ZlciBib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstcHJpbWFyeVwiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxTZWxlY3RWYWx1ZSAvPlxyXG4gICAgICAgICAgICAgICAgICA8L1NlbGVjdFRyaWdnZXI+XHJcbiAgICAgICAgICAgICAgICAgIDxTZWxlY3RDb250ZW50IGNsYXNzTmFtZT1cImJnLWRhcmstY2FyZCBib3JkZXItZGFyay1jb2xvclwiPlxyXG4gICAgICAgICAgICAgICAgICAgIDxTZWxlY3RJdGVtIHZhbHVlPVwicGVsdXF1ZXJpYV9jYW5pbmFcIj5QZWx1cXVlcsOtYSBDYW5pbmE8L1NlbGVjdEl0ZW0+XHJcbiAgICAgICAgICAgICAgICAgICAgPFNlbGVjdEl0ZW0gdmFsdWU9XCJlc3RlcmlsaXphY2lvblwiPkVzdGVyaWxpemFjacOzbjwvU2VsZWN0SXRlbT5cclxuICAgICAgICAgICAgICAgICAgICA8U2VsZWN0SXRlbSB2YWx1ZT1cInZhY3VuYWNpb25cIj5WYWN1bmFjacOzbjwvU2VsZWN0SXRlbT5cclxuICAgICAgICAgICAgICAgICAgICA8U2VsZWN0SXRlbSB2YWx1ZT1cImJhbm9fbWFzY290YXNcIj5CYcOxbyBkZSBNYXNjb3RhczwvU2VsZWN0SXRlbT5cclxuICAgICAgICAgICAgICAgICAgPC9TZWxlY3RDb250ZW50PlxyXG4gICAgICAgICAgICAgICAgPC9TZWxlY3Q+XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BhY2UteS0yXCI+XHJcbiAgICAgICAgICAgICAgICA8TGFiZWwgaHRtbEZvcj1cInNhbGFcIiBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeVwiPlNhbGEvQ29uc3VsdG9yaW88L0xhYmVsPlxyXG4gICAgICAgICAgICAgICAgPFNlbGVjdCB2YWx1ZT17Zm9ybURhdGEuc2FsYX0gb25WYWx1ZUNoYW5nZT17KHZhbHVlKSA9PiBoYW5kbGVDaGFuZ2UoJ3NhbGEnLCB2YWx1ZSl9PlxyXG4gICAgICAgICAgICAgICAgICA8U2VsZWN0VHJpZ2dlciBjbGFzc05hbWU9XCJiZy1kYXJrLWhvdmVyIGJvcmRlci1kYXJrLWNvbG9yIHRleHQtZGFyay1wcmltYXJ5XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgPFNlbGVjdFZhbHVlIHBsYWNlaG9sZGVyPVwiU2VsZWNjaW9uYXIgc2FsYVwiIC8+XHJcbiAgICAgICAgICAgICAgICAgIDwvU2VsZWN0VHJpZ2dlcj5cclxuICAgICAgICAgICAgICAgICAgPFNlbGVjdENvbnRlbnQgY2xhc3NOYW1lPVwiYmctZGFyay1jYXJkIGJvcmRlci1kYXJrLWNvbG9yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAge3NhbGFzLm1hcChzYWxhID0+IChcclxuICAgICAgICAgICAgICAgICAgICAgIDxTZWxlY3RJdGVtIGtleT17c2FsYX0gdmFsdWU9e3NhbGF9PntzYWxhfTwvU2VsZWN0SXRlbT5cclxuICAgICAgICAgICAgICAgICAgICApKX1cclxuICAgICAgICAgICAgICAgICAgPC9TZWxlY3RDb250ZW50PlxyXG4gICAgICAgICAgICAgICAgPC9TZWxlY3Q+XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BhY2UteS0yXCI+XHJcbiAgICAgICAgICAgICAgICA8TGFiZWwgaHRtbEZvcj1cImRpc3BvbmlibGVcIiBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeVwiPkRpc3BvbmliaWxpZGFkPC9MYWJlbD5cclxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgc3BhY2UteC0yXCI+XHJcbiAgICAgICAgICAgICAgICAgIDxTd2l0Y2hcclxuICAgICAgICAgICAgICAgICAgICBpZD1cImRpc3BvbmlibGVcIlxyXG4gICAgICAgICAgICAgICAgICAgIGNoZWNrZWQ9e2Zvcm1EYXRhLmRpc3BvbmlibGV9XHJcbiAgICAgICAgICAgICAgICAgICAgb25DaGVja2VkQ2hhbmdlPXsoY2hlY2tlZCkgPT4gaGFuZGxlQ2hhbmdlKCdkaXNwb25pYmxlJywgY2hlY2tlZCl9XHJcbiAgICAgICAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cInRleHQtZGFyay1zZWNvbmRhcnlcIj5cclxuICAgICAgICAgICAgICAgICAgICB7Zm9ybURhdGEuZGlzcG9uaWJsZSA/ICdEaXNwb25pYmxlJyA6ICdObyBkaXNwb25pYmxlJ31cclxuICAgICAgICAgICAgICAgICAgPC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTJcIj5cclxuICAgICAgICAgICAgPExhYmVsIGh0bWxGb3I9XCJvYnNlcnZhY2lvbmVzXCIgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnlcIj5PYnNlcnZhY2lvbmVzPC9MYWJlbD5cclxuICAgICAgICAgICAgPFRleHRhcmVhXHJcbiAgICAgICAgICAgICAgaWQ9XCJvYnNlcnZhY2lvbmVzXCJcclxuICAgICAgICAgICAgICB2YWx1ZT17Zm9ybURhdGEub2JzZXJ2YWNpb25lc31cclxuICAgICAgICAgICAgICBvbkNoYW5nZT17KGUpID0+IGhhbmRsZUNoYW5nZSgnb2JzZXJ2YWNpb25lcycsIGUudGFyZ2V0LnZhbHVlKX1cclxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJiZy1kYXJrLWhvdmVyIGJvcmRlci1kYXJrLWNvbG9yIHRleHQtZGFyay1wcmltYXJ5XCJcclxuICAgICAgICAgICAgICBwbGFjZWhvbGRlcj1cIk5vdGFzIGVzcGVjaWFsZXMgc29icmUgZWwgaG9yYXJpby4uLlwiXHJcbiAgICAgICAgICAgICAgcm93cz17M31cclxuICAgICAgICAgICAgLz5cclxuICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgIHsvKiBWYWxpZGFjacOzbiBkZSBob3JhcmlvcyAqL31cclxuICAgICAgICAgIHshZW1wbGVhZG9TZWxlY2Npb25hZG8gJiYgKFxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImJnLXJlZC05MDAvMjAgYm9yZGVyIGJvcmRlci1yZWQtNjAwIHJvdW5kZWQtbGcgcC0zXCI+XHJcbiAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1yZWQtNDAwIHRleHQtc21cIj5cclxuICAgICAgICAgICAgICAgIOKaoO+4jyBEZWJlcyBzZWxlY2Npb25hciB1biBlbXBsZWFkbyBwYXJhIGNvbnRpbnVhci5cclxuICAgICAgICAgICAgICA8L3A+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgKX1cclxuXHJcbiAgICAgICAgICB7IWZvcm1EYXRhLmhvcmFyaW8udHJpbSgpICYmIChcclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJiZy1yZWQtOTAwLzIwIGJvcmRlciBib3JkZXItcmVkLTYwMCByb3VuZGVkLWxnIHAtM1wiPlxyXG4gICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtcmVkLTQwMCB0ZXh0LXNtXCI+XHJcbiAgICAgICAgICAgICAgICDimqDvuI8gTGEgZGVzY3JpcGNpw7NuIGRlbCBob3JhcmlvIGVzIG9ibGlnYXRvcmlhLlxyXG4gICAgICAgICAgICAgIDwvcD5cclxuICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICApfVxyXG5cclxuICAgICAgICAgIHtkaWFzU2VsZWNjaW9uYWRvcy5sZW5ndGggPT09IDAgJiYgKFxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImJnLXJlZC05MDAvMjAgYm9yZGVyIGJvcmRlci1yZWQtNjAwIHJvdW5kZWQtbGcgcC0zXCI+XHJcbiAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1yZWQtNDAwIHRleHQtc21cIj5cclxuICAgICAgICAgICAgICAgIOKaoO+4jyBEZWJlcyBzZWxlY2Npb25hciBhbCBtZW5vcyB1biBkw61hIGRlIGxhIHNlbWFuYS5cclxuICAgICAgICAgICAgICA8L3A+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgKX1cclxuXHJcbiAgICAgICAgICB7ZGlhc1NlbGVjY2lvbmFkb3Muc29tZShkaWEgPT4ge1xyXG4gICAgICAgICAgICBjb25zdCBob3JhcmlvRGlhID0gaG9yYXJpb3NQb3JEaWFbZGlhXTtcclxuICAgICAgICAgICAgcmV0dXJuIGhvcmFyaW9EaWEgJiYgaG9yYXJpb0RpYS5ob3JhSW5pY2lvID49IGhvcmFyaW9EaWEuaG9yYUZpbjtcclxuICAgICAgICAgIH0pICYmIChcclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJiZy1yZWQtOTAwLzIwIGJvcmRlciBib3JkZXItcmVkLTYwMCByb3VuZGVkLWxnIHAtM1wiPlxyXG4gICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtcmVkLTQwMCB0ZXh0LXNtXCI+XHJcbiAgICAgICAgICAgICAgICDimqDvuI8gQWxndW5vcyBkw61hcyB0aWVuZW4gaG9yYXJpb3MgaW52w6FsaWRvcy4gTGEgaG9yYSBkZSBpbmljaW8gZGViZSBzZXIgYW50ZXJpb3IgYSBsYSBob3JhIGRlIGZpbi5cclxuICAgICAgICAgICAgICA8L3A+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgKX1cclxuXHJcbiAgICAgICAgICB7ZGlhc1NlbGVjY2lvbmFkb3Muc29tZShkaWEgPT4ge1xyXG4gICAgICAgICAgICBjb25zdCBob3JhcmlvRGlhID0gaG9yYXJpb3NQb3JEaWFbZGlhXTtcclxuICAgICAgICAgICAgcmV0dXJuICFob3JhcmlvRGlhIHx8ICFob3JhcmlvRGlhLmhvcmFJbmljaW8gfHwgIWhvcmFyaW9EaWEuaG9yYUZpbjtcclxuICAgICAgICAgIH0pICYmIChcclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJiZy1hbWJlci05MDAvMjAgYm9yZGVyIGJvcmRlci1hbWJlci02MDAgcm91bmRlZC1sZyBwLTNcIj5cclxuICAgICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LWFtYmVyLTQwMCB0ZXh0LXNtXCI+XHJcbiAgICAgICAgICAgICAgICDimqDvuI8gUG9yIGZhdm9yIGNvbmZpZ3VyYSBsYXMgaG9yYXMgZGUgaW5pY2lvIHkgZmluIHBhcmEgdG9kb3MgbG9zIGTDrWFzIHNlbGVjY2lvbmFkb3MuXHJcbiAgICAgICAgICAgICAgPC9wPlxyXG4gICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICl9XHJcblxyXG4gICAgICAgICAge2RpYXNTZWxlY2Npb25hZG9zLnNvbWUoZGlhID0+IHtcclxuICAgICAgICAgICAgY29uc3QgaG9yYXJpb0RpYSA9IGhvcmFyaW9zUG9yRGlhW2RpYV07XHJcbiAgICAgICAgICAgIGlmICghaG9yYXJpb0RpYSB8fCAhaG9yYXJpb0RpYS5ob3JhSW5pY2lvIHx8ICFob3JhcmlvRGlhLmhvcmFGaW4pIHJldHVybiBmYWxzZTtcclxuICAgICAgICAgICAgY29uc3QgaG9yYUluaWNpbyA9IGhvcmFyaW9EaWEuaG9yYUluaWNpbztcclxuICAgICAgICAgICAgY29uc3QgaG9yYUZpbiA9IGhvcmFyaW9EaWEuaG9yYUZpbjtcclxuICAgICAgICAgICAgLy8gVmFsaWRhciBxdWUgbGFzIGhvcmFzIGVzdMOpbiBlbiByYW5nb3MgcmF6b25hYmxlcyAoNjowMCBBTSAtIDEwOjAwIFBNKVxyXG4gICAgICAgICAgICBjb25zdCBob3JhSW5pY2lvTnVtID0gcGFyc2VJbnQoaG9yYUluaWNpby5zcGxpdCgnOicpWzBdKTtcclxuICAgICAgICAgICAgY29uc3QgaG9yYUZpbk51bSA9IHBhcnNlSW50KGhvcmFGaW4uc3BsaXQoJzonKVswXSk7XHJcbiAgICAgICAgICAgIHJldHVybiBob3JhSW5pY2lvTnVtIDwgNiB8fCBob3JhSW5pY2lvTnVtID4gMjIgfHwgaG9yYUZpbk51bSA8IDYgfHwgaG9yYUZpbk51bSA+IDIyO1xyXG4gICAgICAgICAgfSkgJiYgKFxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImJnLW9yYW5nZS05MDAvMjAgYm9yZGVyIGJvcmRlci1vcmFuZ2UtNjAwIHJvdW5kZWQtbGcgcC0zXCI+XHJcbiAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1vcmFuZ2UtNDAwIHRleHQtc21cIj5cclxuICAgICAgICAgICAgICAgIOKaoO+4jyBMb3MgaG9yYXJpb3MgZGViZW4gZXN0YXIgZW50cmUgbGFzIDY6MDAgQU0geSBsYXMgMTA6MDAgUE0uXHJcbiAgICAgICAgICAgICAgPC9wPlxyXG4gICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICl9XHJcblxyXG4gICAgICAgICAgeyFmb3JtRGF0YS5zYWxhICYmIChcclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJiZy1ibHVlLTkwMC8yMCBib3JkZXIgYm9yZGVyLWJsdWUtNjAwIHJvdW5kZWQtbGcgcC0zXCI+XHJcbiAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1ibHVlLTQwMCB0ZXh0LXNtXCI+XHJcbiAgICAgICAgICAgICAgICDihLnvuI8gUmVjb21lbmRhbW9zIHNlbGVjY2lvbmFyIHVuYSBzYWxhL2NvbnN1bHRvcmlvIHBhcmEgdW5hIG1lam9yIG9yZ2FuaXphY2nDs24uXHJcbiAgICAgICAgICAgICAgPC9wPlxyXG4gICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICl9XHJcblxyXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGp1c3RpZnktZW5kIHNwYWNlLXgtMiBwdC00XCI+XHJcbiAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICB0eXBlPVwiYnV0dG9uXCJcclxuICAgICAgICAgICAgICB2YXJpYW50PVwib3V0bGluZVwiXHJcbiAgICAgICAgICAgICAgb25DbGljaz17b25DbG9zZX1cclxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstc2Vjb25kYXJ5IGhvdmVyOmJnLWRhcmstaG92ZXJcIlxyXG4gICAgICAgICAgICAgIGRpc2FibGVkPXtsb2FkaW5nfVxyXG4gICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgQ2FuY2VsYXJcclxuICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICB0eXBlPVwic3VibWl0XCJcclxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJiZy1kYXJrLWN0YSBob3ZlcjpiZy1ibHVlLTcwMCB0ZXh0LXdoaXRlXCJcclxuICAgICAgICAgICAgICBkaXNhYmxlZD17XHJcbiAgICAgICAgICAgICAgICBsb2FkaW5nIHx8IFxyXG4gICAgICAgICAgICAgICAgIWVtcGxlYWRvU2VsZWNjaW9uYWRvIHx8IFxyXG4gICAgICAgICAgICAgICAgIWZvcm1EYXRhLmhvcmFyaW8gfHwgXHJcbiAgICAgICAgICAgICAgICBkaWFzU2VsZWNjaW9uYWRvcy5sZW5ndGggPT09IDAgfHxcclxuICAgICAgICAgICAgICAgIGRpYXNTZWxlY2Npb25hZG9zLnNvbWUoZGlhID0+IHtcclxuICAgICAgICAgICAgICAgICAgY29uc3QgaG9yYXJpb0RpYSA9IGhvcmFyaW9zUG9yRGlhW2RpYV07XHJcbiAgICAgICAgICAgICAgICAgIHJldHVybiAhaG9yYXJpb0RpYSB8fCAhaG9yYXJpb0RpYS5ob3JhSW5pY2lvIHx8ICFob3JhcmlvRGlhLmhvcmFGaW4gfHwgaG9yYXJpb0RpYS5ob3JhSW5pY2lvID49IGhvcmFyaW9EaWEuaG9yYUZpbjtcclxuICAgICAgICAgICAgICAgIH0pXHJcbiAgICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAge2xvYWRpbmcgPyAnR3VhcmRhbmRvLi4uJyA6IChob3JhcmlvID8gJ0FjdHVhbGl6YXInIDogJ0NyZWFyJyl9IEhvcmFyaW9cclxuICAgICAgICAgICAgICB7IWhvcmFyaW8gJiYgZGlhc1NlbGVjY2lvbmFkb3MubGVuZ3RoID4gMSAmJiBgICgke2RpYXNTZWxlY2Npb25hZG9zLmxlbmd0aH0gZMOtYXMpYH1cclxuICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICA8L2Zvcm0+XHJcbiAgICAgIDwvRGlhbG9nQ29udGVudD5cclxuICAgIDwvRGlhbG9nPlxyXG4gICk7XHJcbn1cclxuIl0sIm5hbWVzIjpbInVzZVN0YXRlIiwidXNlRWZmZWN0IiwiQnV0dG9uIiwiRGlhbG9nIiwiRGlhbG9nQ29udGVudCIsIkRpYWxvZ0Rlc2NyaXB0aW9uIiwiRGlhbG9nSGVhZGVyIiwiRGlhbG9nVGl0bGUiLCJJbnB1dCIsIkxhYmVsIiwiVGV4dGFyZWEiLCJTZWxlY3QiLCJTZWxlY3RDb250ZW50IiwiU2VsZWN0SXRlbSIsIlNlbGVjdFRyaWdnZXIiLCJTZWxlY3RWYWx1ZSIsIlN3aXRjaCIsIkJhZGdlIiwiQ2FyZCIsIkNhcmRDb250ZW50IiwidXNlVXN1YXJpbyIsIlNlYXJjaCIsIkNhbGVuZGFyIiwiQ2hlY2tDaXJjbGUiLCJIb3JhcmlvTW9kYWwiLCJpc09wZW4iLCJvbkNsb3NlIiwib25TdWJtaXQiLCJob3JhcmlvIiwibG9hZGluZyIsInVzdWFyaW9zIiwiYnVzcXVlZGFFbXBsZWFkbyIsInNldEJ1c3F1ZWRhRW1wbGVhZG8iLCJlbXBsZWFkb1NlbGVjY2lvbmFkbyIsInNldEVtcGxlYWRvU2VsZWNjaW9uYWRvIiwibW9zdHJhckxpc3RhRW1wbGVhZG9zIiwic2V0TW9zdHJhckxpc3RhRW1wbGVhZG9zIiwibW9zdHJhckxpc3RhSG9yYXJpb3MiLCJzZXRNb3N0cmFyTGlzdGFIb3JhcmlvcyIsImRpYXNTZWxlY2Npb25hZG9zIiwic2V0RGlhc1NlbGVjY2lvbmFkb3MiLCJob3Jhcmlvc1BvckRpYSIsInNldEhvcmFyaW9zUG9yRGlhIiwiZm9ybURhdGEiLCJzZXRGb3JtRGF0YSIsImNjIiwibm9tYnJlIiwiYXBlbGxpZG8iLCJkaWEiLCJob3JhSW5pY2lvIiwiaG9yYUZpbiIsImRpc3BvbmlibGUiLCJ0aXBvU2VydmljaW8iLCJzYWxhIiwib2JzZXJ2YWNpb25lcyIsImVtcGxlYWRvc0Rpc3BvbmlibGVzIiwiZmlsdGVyIiwidXNlciIsInJvbCIsInRvTG93ZXJDYXNlIiwiaW5jbHVkZXMiLCJjZWR1bGEiLCJudW1lcm9Eb2N1bWVudG8iLCJlbXBsZWFkbyIsImZpbmQiLCJ1IiwiaGFuZGxlU3VibWl0IiwiZSIsInByZXZlbnREZWZhdWx0IiwicmVzdWx0YWRvIiwic3VjY2VzcyIsInRvZG9zRXhpdG9zb3MiLCJob3JhcmlvRGlhIiwiaGFuZGxlQ2hhbmdlIiwiZmllbGQiLCJ2YWx1ZSIsInByZXYiLCJzZWxlY2Npb25hckVtcGxlYWRvIiwidG9nZ2xlRGlhIiwibnVldm9zRGlhcyIsImQiLCJudWV2b3NIb3JhcmlvcyIsInByZXZIb3JhcmlvcyIsImFjdHVhbGl6YXJIb3JhcmlvRGlhIiwiY2FtcG8iLCJ2YWxvciIsImRpYXNTZW1hbmEiLCJzYWxhcyIsImhvcmFyaW9zRGlzcG9uaWJsZXMiLCJob3Jhcmlvc0ZpbHRyYWRvcyIsIm9wZW4iLCJvbk9wZW5DaGFuZ2UiLCJjbGFzc05hbWUiLCJvbkNsaWNrIiwiZm9ybSIsImRpdiIsImgzIiwib25DaGFuZ2UiLCJ0YXJnZXQiLCJvbkZvY3VzIiwic3RvcFByb3BhZ2F0aW9uIiwicGxhY2Vob2xkZXIiLCJsZW5ndGgiLCJzbGljZSIsIm1hcCIsImJ1dHRvbiIsInR5cGUiLCJjaGFyQXQiLCJ0b1VwcGVyQ2FzZSIsImlkIiwiaDQiLCJwIiwiaW5wdXQiLCJodG1sRm9yIiwicmVxdWlyZWQiLCJpbmRleCIsInNwYW4iLCJpc1NlbGVjdGVkIiwiaXNFZGl0TW9kZSIsIkNsb2NrIiwiZXNJbnZhbGlkbyIsIm9uVmFsdWVDaGFuZ2UiLCJjaGVja2VkIiwib25DaGVja2VkQ2hhbmdlIiwicm93cyIsInRyaW0iLCJzb21lIiwiaG9yYUluaWNpb051bSIsInBhcnNlSW50Iiwic3BsaXQiLCJob3JhRmluTnVtIiwidmFyaWFudCIsImRpc2FibGVkIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFBQSxTQUFTQSxRQUFRLEVBQUVDLFNBQVMsUUFBUSxRQUFRO0FBQzVDLFNBQVNDLE1BQU0sUUFBUSxlQUFlO0FBQ3RDLFNBQVNDLE1BQU0sRUFBRUMsYUFBYSxFQUFFQyxpQkFBaUIsRUFBRUMsWUFBWSxFQUFFQyxXQUFXLFFBQVEsZUFBZTtBQUNuRyxTQUFTQyxLQUFLLFFBQVEsY0FB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

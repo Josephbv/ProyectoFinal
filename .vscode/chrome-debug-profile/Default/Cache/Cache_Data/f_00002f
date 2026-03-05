@@ -1,0 +1,1392 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/pages/NuevaVentaPage.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"]; const useEffect = __vite__cjsImport3_react["useEffect"];
+import { Button } from "/src/components/ui/button.tsx?t=1772223881528";
+import { Input } from "/src/components/ui/input.tsx";
+import { Label } from "/src/components/ui/label.tsx?t=1772223881635";
+import { Textarea } from "/src/components/ui/textarea.tsx";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "/src/components/ui/select.tsx?t=1772223881681";
+import { Badge } from "/src/components/ui/badge.tsx?t=1772223881371";
+import { toast } from "/node_modules/.vite/deps/sonner.js?v=04e61ac6";
+import { User, Stethoscope, Package, Calculator, X, ChevronLeft, Search, Heart } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+import { useVentas } from "/src/components/hooks/useVentas.tsx";
+import { useClientes } from "/src/components/hooks/useClientes.tsx";
+import { useUsuario } from "/src/components/hooks/useUsuario.tsx?t=1772224243374";
+import { Separator } from "/src/components/ui/separator.tsx?t=1772223881689";
+const serviciosDisponibles = [
+    {
+        nombre: 'Consulta General',
+        precio: 45000
+    },
+    {
+        nombre: 'Vacunación',
+        precio: 35000
+    },
+    {
+        nombre: 'Desparasitación',
+        precio: 25000
+    },
+    {
+        nombre: 'Limpieza Dental',
+        precio: 80000
+    },
+    {
+        nombre: 'Cirugía Menor',
+        precio: 150000
+    },
+    {
+        nombre: 'Control de Peso',
+        precio: 30000
+    },
+    {
+        nombre: 'Peluquería Canina',
+        precio: 40000
+    },
+    {
+        nombre: 'Ecografía',
+        precio: 60000
+    },
+    {
+        nombre: 'Radiografía',
+        precio: 55000
+    },
+    {
+        nombre: 'Análisis de Sangre',
+        precio: 35000
+    },
+    {
+        nombre: 'Castración',
+        precio: 120000
+    }
+];
+const productosDisponibles = [
+    {
+        nombre: 'Vacuna Antirrábica',
+        precio: 35000
+    },
+    {
+        nombre: 'Vacuna Múltiple',
+        precio: 55000
+    },
+    {
+        nombre: 'Desparasitante',
+        precio: 18000
+    },
+    {
+        nombre: 'Antibiótico',
+        precio: 45000
+    },
+    {
+        nombre: 'Analgésico',
+        precio: 25000
+    },
+    {
+        nombre: 'Vitaminas',
+        precio: 35000
+    },
+    {
+        nombre: 'Collar Antipulgas',
+        precio: 28000
+    }
+];
+export function NuevaVentaPage({ onBack, onSuccess }) {
+    _s();
+    const { crearVenta, loading: loadingVentas } = useVentas();
+    const { clientes } = useClientes();
+    const { usuarios } = useUsuario();
+    const [busquedaCedula, setBusquedaCedula] = useState("");
+    const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+    const [mascotasCliente, setMascotasCliente] = useState([]);
+    const [clientesEncontrados, setClientesEncontrados] = useState([]);
+    const [mostrarResultados, setMostrarResultados] = useState(false);
+    const [formData, setFormData] = useState({
+        fecha: new Date().toISOString().split('T')[0],
+        hora: new Date().toTimeString().slice(0, 5),
+        cliente: '',
+        mascota: '',
+        veterinario: '',
+        servicios: [],
+        productos: [],
+        subtotal: 0,
+        descuento: 0,
+        impuestos: 0,
+        total: 0,
+        estado: 'completada',
+        observaciones: ''
+    });
+    const doctores = usuarios.filter((u)=>u.rol === 'administrador' || u.rol === 'veterinario');
+    useEffect(()=>{
+        const serviciosTotal = formData.servicios.reduce((sum, s)=>sum + s.precio * s.cantidad, 0);
+        const productosTotal = formData.productos.reduce((sum, p)=>sum + p.precio * p.cantidad, 0);
+        const subtotal = serviciosTotal + productosTotal;
+        const total = subtotal; // No taxes, no discounts
+        setFormData((prev)=>({
+                ...prev,
+                subtotal,
+                impuestos: 0,
+                total
+            }));
+    }, [
+        formData.servicios,
+        formData.productos
+    ]);
+    const handleBusquedaChange = (valor)=>{
+        setBusquedaCedula(valor);
+        if (valor.trim().length > 0) {
+            const matches = clientes.filter((c)=>c.numeroDocumento.toLowerCase().startsWith(valor.toLowerCase()) || c.nombre.toLowerCase().includes(valor.toLowerCase()) || c.apellido.toLowerCase().includes(valor.toLowerCase()));
+            setClientesEncontrados(matches);
+            setMostrarResultados(true);
+            // Si hay un match exacto por cédula, seleccionarlo automáticamente
+            const matchExacto = clientes.find((c)=>c.numeroDocumento === valor);
+            if (matchExacto) {
+                seleccionarCliente(matchExacto);
+                setMostrarResultados(false);
+            }
+        } else {
+            setClientesEncontrados([]);
+            setMostrarResultados(false);
+        }
+    };
+    const seleccionarCliente = (cliente)=>{
+        setClienteSeleccionado(cliente);
+        setMascotasCliente(cliente.mascotas || []);
+        setFormData((prev)=>({
+                ...prev,
+                cliente: `${cliente.nombre} ${cliente.apellido}`,
+                mascota: cliente.mascotas?.length > 0 ? cliente.mascotas[0].nombre : ''
+            }));
+        setBusquedaCedula(cliente.numeroDocumento);
+        setMostrarResultados(false);
+        toast.success("Cliente seleccionado");
+    };
+    const addServicio = (servicioNombre)=>{
+        const servicio = serviciosDisponibles.find((s)=>s.nombre === servicioNombre);
+        if (servicio && !formData.servicios.find((s)=>s.nombre === servicio.nombre)) {
+            setFormData((prev)=>({
+                    ...prev,
+                    servicios: [
+                        ...prev.servicios,
+                        {
+                            ...servicio,
+                            cantidad: 1
+                        }
+                    ]
+                }));
+        }
+    };
+    const removeServicio = (nombre)=>{
+        setFormData((prev)=>({
+                ...prev,
+                servicios: prev.servicios.filter((s)=>s.nombre !== nombre)
+            }));
+    };
+    const addProducto = (productoNombre)=>{
+        const producto = productosDisponibles.find((p)=>p.nombre === productoNombre);
+        if (producto && !formData.productos.find((p)=>p.nombre === producto.nombre)) {
+            setFormData((prev)=>({
+                    ...prev,
+                    productos: [
+                        ...prev.productos,
+                        {
+                            ...producto,
+                            cantidad: 1
+                        }
+                    ]
+                }));
+        }
+    };
+    const removeProducto = (nombre)=>{
+        setFormData((prev)=>({
+                ...prev,
+                productos: prev.productos.filter((p)=>p.nombre !== nombre)
+            }));
+    };
+    const updateQuantity = (type, nombre, delta)=>{
+        setFormData((prev)=>({
+                ...prev,
+                [type]: prev[type].map((item)=>item.nombre === nombre ? {
+                        ...item,
+                        cantidad: Math.max(1, item.cantidad + delta)
+                    } : item)
+            }));
+    };
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        if (!formData.cliente) {
+            toast.error("Debe seleccionar un cliente");
+            return;
+        }
+        if (formData.servicios.length === 0 && formData.productos.length === 0) {
+            toast.error("Debe agregar al menos un servicio o producto");
+            return;
+        }
+        const result = await crearVenta({
+            id_cliente: clienteSeleccionado?.id_cliente || clienteSeleccionado?.id,
+            fecha: formData.fecha,
+            hora: formData.hora,
+            cliente: formData.cliente,
+            mascota: formData.mascota,
+            servicios: [
+                ...formData.servicios.map((s)=>({
+                        nombre: s.nombre,
+                        precio: s.precio,
+                        cantidad: s.cantidad
+                    })),
+                ...formData.productos.map((p)=>({
+                        nombre: p.nombre,
+                        precio: p.precio,
+                        cantidad: p.cantidad
+                    }))
+            ],
+            subtotal: formData.subtotal,
+            descuento: formData.descuento,
+            impuestos: formData.impuestos,
+            total: formData.total,
+            estado: formData.estado === 'completada' ? 'completada' : 'pendiente',
+            veterinario: formData.veterinario,
+            vendedor: formData.veterinario || 'Sistema',
+            observaciones: formData.observaciones
+        });
+        if (result.success) {
+            toast.success("Venta registrada exitosamente");
+            onSuccess();
+        } else {
+            toast.error(result.error || "Error al registrar venta");
+        }
+    };
+    return /*#__PURE__*/ _jsxDEV("div", {
+        className: "flex flex-col h-full bg-dark-bg overflow-auto",
+        children: [
+            /*#__PURE__*/ _jsxDEV("header", {
+                className: "bg-dark-card/50 backdrop-blur-sm border-b border-dark-color/50 px-5 py-3 sticky top-0 z-10",
+                children: /*#__PURE__*/ _jsxDEV("div", {
+                    className: "flex items-center justify-between max-w-7xl mx-auto",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "flex items-center gap-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    variant: "ghost",
+                                    size: "icon",
+                                    onClick: onBack,
+                                    className: "text-dark-secondary hover:text-dark-primary",
+                                    children: /*#__PURE__*/ _jsxDEV(ChevronLeft, {
+                                        className: "w-6 h-6"
+                                    }, void 0, false, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                        lineNumber: 213,
+                                        columnNumber: 29
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                    lineNumber: 212,
+                                    columnNumber: 25
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("h1", {
+                                            className: "text-2xl font-semibold text-dark-primary",
+                                            children: "Nueva Venta"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                            lineNumber: 216,
+                                            columnNumber: 29
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("p", {
+                                            className: "text-sm text-dark-secondary",
+                                            children: "Registro manual de transacciones"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                            lineNumber: 217,
+                                            columnNumber: 29
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                    lineNumber: 215,
+                                    columnNumber: 25
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                            lineNumber: 211,
+                            columnNumber: 21
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "flex items-center gap-3",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    variant: "outline",
+                                    onClick: onBack,
+                                    className: "border-dark-color text-dark-secondary hover:bg-dark-hover",
+                                    children: "Cancelar"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                    lineNumber: 221,
+                                    columnNumber: 25
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    onClick: handleSubmit,
+                                    disabled: loadingVentas,
+                                    className: "bg-dark-cta text-white hover:bg-blue-600 px-8",
+                                    children: loadingVentas ? "Guardando..." : "Finalizar Venta"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                    lineNumber: 224,
+                                    columnNumber: 25
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                            lineNumber: 220,
+                            columnNumber: 21
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                    lineNumber: 210,
+                    columnNumber: 17
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                lineNumber: 209,
+                columnNumber: 13
+            }, this),
+            /*#__PURE__*/ _jsxDEV("main", {
+                className: "flex-1 overflow-auto p-4 bg-dark-bg",
+                children: /*#__PURE__*/ _jsxDEV("div", {
+                    className: "max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "lg:col-span-4 space-y-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "bg-dark-hover/10 rounded-xl border border-dark-color border-opacity-30 p-4 sticky top-4 z-30",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "flex items-center gap-3 text-dark-primary border-b border-dark-color border-opacity-20 pb-4 mb-4",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Search, {
+                                                    className: "w-5 h-5 text-blue-400"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 237,
+                                                    columnNumber: 33
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("h2", {
+                                                    className: "text-lg font-semibold",
+                                                    children: "Identificación del Cliente"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 238,
+                                                    columnNumber: 33
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                            lineNumber: 236,
+                                            columnNumber: 29
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "space-y-5",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "space-y-2 relative",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                                            className: "text-xs text-dark-secondary font-bold uppercase tracking-tight ml-1",
+                                                            children: "Buscar por Cédula / Nombre"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 243,
+                                                            columnNumber: 37
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "relative",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Input, {
+                                                                    value: busquedaCedula,
+                                                                    onChange: (e)=>handleBusquedaChange(e.target.value),
+                                                                    placeholder: "Ingrese documento o nombre...",
+                                                                    className: "bg-dark-card border-dark-color text-dark-primary h-10 px-4 rounded-lg focus:ring-2 focus:ring-blue-500/20",
+                                                                    onBlur: ()=>setTimeout(()=>setMostrarResultados(false), 200),
+                                                                    onFocus: ()=>busquedaCedula && setMostrarResultados(true)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 245,
+                                                                    columnNumber: 41
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Search, {
+                                                                    className: "absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary opacity-50"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 253,
+                                                                    columnNumber: 41
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 244,
+                                                            columnNumber: 37
+                                                        }, this),
+                                                        mostrarResultados && clientesEncontrados.length > 0 && /*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "absolute z-[100] w-full mt-2 bg-dark-card border border-dark-color rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200",
+                                                            children: clientesEncontrados.map((cliente)=>/*#__PURE__*/ _jsxDEV("button", {
+                                                                    className: "w-full text-left p-3 hover:bg-blue-500/10 border-b border-dark-color/30 last:border-0 transition-colors group",
+                                                                    onMouseDown: (e)=>{
+                                                                        e.preventDefault();
+                                                                        seleccionarCliente(cliente);
+                                                                    },
+                                                                    children: [
+                                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                                            className: "text-dark-primary font-bold group-hover:text-blue-400 transition-colors",
+                                                                            children: [
+                                                                                cliente.nombre,
+                                                                                " ",
+                                                                                cliente.apellido
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 267,
+                                                                            columnNumber: 53
+                                                                        }, this),
+                                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                                            className: "text-[10px] text-dark-secondary uppercase tracking-wider",
+                                                                            children: [
+                                                                                "CC: ",
+                                                                                cliente.numeroDocumento
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 268,
+                                                                            columnNumber: 53
+                                                                        }, this)
+                                                                    ]
+                                                                }, cliente.id_cliente, true, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 259,
+                                                                    columnNumber: 49
+                                                                }, this))
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 257,
+                                                            columnNumber: 41
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 242,
+                                                    columnNumber: 33
+                                                }, this),
+                                                clienteSeleccionado && /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "p-3 bg-blue-500/5 rounded-xl border border-blue-500/20 animate-in slide-in-from-left-2 duration-300",
+                                                    children: /*#__PURE__*/ _jsxDEV("div", {
+                                                        className: "flex items-center gap-3",
+                                                        children: [
+                                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                                className: "w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center",
+                                                                children: /*#__PURE__*/ _jsxDEV(User, {
+                                                                    className: "w-5 h-5 text-blue-400"
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 279,
+                                                                    columnNumber: 49
+                                                                }, this)
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                lineNumber: 278,
+                                                                columnNumber: 45
+                                                            }, this),
+                                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                                children: [
+                                                                    /*#__PURE__*/ _jsxDEV("p", {
+                                                                        className: "text-sm text-dark-primary font-bold",
+                                                                        children: [
+                                                                            clienteSeleccionado.nombre,
+                                                                            " ",
+                                                                            clienteSeleccionado.apellido
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                        lineNumber: 282,
+                                                                        columnNumber: 49
+                                                                    }, this),
+                                                                    /*#__PURE__*/ _jsxDEV("p", {
+                                                                        className: "text-[10px] text-dark-secondary",
+                                                                        children: [
+                                                                            clienteSeleccionado.correo,
+                                                                            " | ",
+                                                                            clienteSeleccionado.telefono
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                        lineNumber: 283,
+                                                                        columnNumber: 49
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                lineNumber: 281,
+                                                                columnNumber: 45
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                        lineNumber: 277,
+                                                        columnNumber: 41
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 276,
+                                                    columnNumber: 37
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                            lineNumber: 241,
+                                            columnNumber: 29
+                                        }, this),
+                                        clienteSeleccionado && /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "pt-4 mt-4 border-t border-dark-color border-opacity-20 space-y-4 animate-in fade-in duration-500",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "space-y-2",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                                            className: "text-[10px] text-dark-secondary uppercase font-bold ml-1",
+                                                            children: "Paciente"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 293,
+                                                            columnNumber: 41
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(Select, {
+                                                            value: formData.mascota,
+                                                            onValueChange: (val)=>setFormData((prev)=>({
+                                                                        ...prev,
+                                                                        mascota: val
+                                                                    })),
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(SelectTrigger, {
+                                                                    className: "bg-dark-card border-dark-color text-dark-primary h-10 rounded-lg",
+                                                                    children: /*#__PURE__*/ _jsxDEV(SelectValue, {
+                                                                        placeholder: "Seleccione mascota"
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                        lineNumber: 299,
+                                                                        columnNumber: 49
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 298,
+                                                                    columnNumber: 45
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(SelectContent, {
+                                                                    className: "bg-dark-card border-dark-color",
+                                                                    children: mascotasCliente.map((m)=>/*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                                            value: m.nombre,
+                                                                            children: /*#__PURE__*/ _jsxDEV("div", {
+                                                                                className: "flex items-center gap-2",
+                                                                                children: [
+                                                                                    /*#__PURE__*/ _jsxDEV(Heart, {
+                                                                                        className: "w-3.5 h-3.5 text-pink-400"
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                                        lineNumber: 305,
+                                                                                        columnNumber: 61
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ _jsxDEV("span", {
+                                                                                        className: "text-xs",
+                                                                                        children: [
+                                                                                            m.nombre,
+                                                                                            " ",
+                                                                                            /*#__PURE__*/ _jsxDEV("span", {
+                                                                                                className: "text-[10px] opacity-60",
+                                                                                                children: [
+                                                                                                    "(",
+                                                                                                    m.raza,
+                                                                                                    ")"
+                                                                                                ]
+                                                                                            }, void 0, true, {
+                                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                                                lineNumber: 306,
+                                                                                                columnNumber: 98
+                                                                                            }, this)
+                                                                                        ]
+                                                                                    }, void 0, true, {
+                                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                                        lineNumber: 306,
+                                                                                        columnNumber: 61
+                                                                                    }, this)
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                                lineNumber: 304,
+                                                                                columnNumber: 57
+                                                                            }, this)
+                                                                        }, m.id_mascota || m.id, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 303,
+                                                                            columnNumber: 53
+                                                                        }, this))
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 301,
+                                                                    columnNumber: 45
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 294,
+                                                            columnNumber: 41
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 292,
+                                                    columnNumber: 37
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "space-y-2",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(Label, {
+                                                            className: "text-[10px] text-dark-secondary uppercase font-bold ml-1",
+                                                            children: "Atendido por"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 315,
+                                                            columnNumber: 41
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(Select, {
+                                                            value: formData.veterinario,
+                                                            onValueChange: (val)=>setFormData((prev)=>({
+                                                                        ...prev,
+                                                                        veterinario: val
+                                                                    })),
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(SelectTrigger, {
+                                                                    className: "bg-dark-card border-dark-color text-dark-primary h-10 rounded-lg",
+                                                                    children: /*#__PURE__*/ _jsxDEV(SelectValue, {
+                                                                        placeholder: "Seleccione responsable..."
+                                                                    }, void 0, false, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                        lineNumber: 321,
+                                                                        columnNumber: 49
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 320,
+                                                                    columnNumber: 45
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(SelectContent, {
+                                                                    className: "bg-dark-card border-dark-color",
+                                                                    children: doctores.map((d)=>/*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                                            value: `Dr. ${d.nombre} ${d.apellido}`,
+                                                                            children: /*#__PURE__*/ _jsxDEV("span", {
+                                                                                className: "text-xs",
+                                                                                children: [
+                                                                                    "Dr. ",
+                                                                                    d.nombre,
+                                                                                    " ",
+                                                                                    d.apellido
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                                lineNumber: 326,
+                                                                                columnNumber: 57
+                                                                            }, this)
+                                                                        }, d.id, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 325,
+                                                                            columnNumber: 53
+                                                                        }, this))
+                                                                }, void 0, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 323,
+                                                                    columnNumber: 45
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 316,
+                                                            columnNumber: 41
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 314,
+                                                    columnNumber: 37
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                            lineNumber: 291,
+                                            columnNumber: 33
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                    lineNumber: 235,
+                                    columnNumber: 25
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "lg:col-span-5 space-y-4",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("section", {
+                                            className: "bg-dark-hover/10 rounded-xl border border-dark-color border-opacity-20 p-4 space-y-4",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "flex items-center gap-3 text-dark-primary border-b border-dark-color border-opacity-10 pb-4",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(Stethoscope, {
+                                                            className: "w-5 h-5 text-blue-400"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 339,
+                                                            columnNumber: 37
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("h2", {
+                                                            className: "text-lg font-semibold",
+                                                            children: "Servicios"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 340,
+                                                            columnNumber: 37
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 338,
+                                                    columnNumber: 33
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(Select, {
+                                                    onValueChange: addServicio,
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(SelectTrigger, {
+                                                            className: "bg-dark-card border-dark-color text-dark-primary h-10",
+                                                            children: /*#__PURE__*/ _jsxDEV(SelectValue, {
+                                                                placeholder: "Agregar servicio..."
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                lineNumber: 344,
+                                                                columnNumber: 41
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 343,
+                                                            columnNumber: 37
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(SelectContent, {
+                                                            className: "bg-dark-card border-dark-color",
+                                                            children: serviciosDisponibles.map((s)=>/*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                                    value: s.nombre,
+                                                                    children: /*#__PURE__*/ _jsxDEV("div", {
+                                                                        className: "flex justify-between items-center w-full min-w-[200px] text-xs",
+                                                                        children: [
+                                                                            /*#__PURE__*/ _jsxDEV("span", {
+                                                                                children: s.nombre
+                                                                            }, void 0, false, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                                lineNumber: 350,
+                                                                                columnNumber: 53
+                                                                            }, this),
+                                                                            /*#__PURE__*/ _jsxDEV("b", {
+                                                                                className: "text-blue-400 ml-4",
+                                                                                children: [
+                                                                                    "$",
+                                                                                    s.precio.toLocaleString()
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                                lineNumber: 351,
+                                                                                columnNumber: 53
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                        lineNumber: 349,
+                                                                        columnNumber: 49
+                                                                    }, this)
+                                                                }, s.nombre, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 348,
+                                                                    columnNumber: 45
+                                                                }, this))
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 346,
+                                                            columnNumber: 37
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 342,
+                                                    columnNumber: 33
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "space-y-2",
+                                                    children: formData.servicios.map((s)=>/*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center justify-between p-3 bg-dark-card/40 rounded-lg border border-dark-color/50 text-xs animate-in zoom-in-95",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    className: "flex-1",
+                                                                    children: [
+                                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                                            className: "text-dark-primary font-bold",
+                                                                            children: s.nombre
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 362,
+                                                                            columnNumber: 49
+                                                                        }, this),
+                                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                                            className: "text-[10px] text-dark-secondary italic",
+                                                                            children: [
+                                                                                "$",
+                                                                                s.precio.toLocaleString()
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 363,
+                                                                            columnNumber: 49
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 361,
+                                                                    columnNumber: 45
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    className: "flex items-center gap-2",
+                                                                    children: [
+                                                                        /*#__PURE__*/ _jsxDEV(Button, {
+                                                                            size: "icon",
+                                                                            variant: "ghost",
+                                                                            onClick: ()=>updateQuantity('servicios', s.nombre, -1),
+                                                                            className: "w-7 h-7 bg-dark-hover border border-dark-color",
+                                                                            children: "-"
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 366,
+                                                                            columnNumber: 49
+                                                                        }, this),
+                                                                        /*#__PURE__*/ _jsxDEV("span", {
+                                                                            className: "w-6 text-center font-bold",
+                                                                            children: s.cantidad
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 367,
+                                                                            columnNumber: 49
+                                                                        }, this),
+                                                                        /*#__PURE__*/ _jsxDEV(Button, {
+                                                                            size: "icon",
+                                                                            variant: "ghost",
+                                                                            onClick: ()=>updateQuantity('servicios', s.nombre, 1),
+                                                                            className: "w-7 h-7 bg-dark-hover border border-dark-color",
+                                                                            children: "+"
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 368,
+                                                                            columnNumber: 49
+                                                                        }, this),
+                                                                        /*#__PURE__*/ _jsxDEV(Button, {
+                                                                            size: "icon",
+                                                                            variant: "ghost",
+                                                                            onClick: ()=>removeServicio(s.nombre),
+                                                                            className: "w-7 h-7 text-red-400 hover:bg-red-500/10 ml-1",
+                                                                            children: /*#__PURE__*/ _jsxDEV(X, {
+                                                                                className: "w-4 h-4"
+                                                                            }, void 0, false, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                                lineNumber: 369,
+                                                                                columnNumber: 184
+                                                                            }, this)
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 369,
+                                                                            columnNumber: 49
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 365,
+                                                                    columnNumber: 45
+                                                                }, this)
+                                                            ]
+                                                        }, s.nombre, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 360,
+                                                            columnNumber: 41
+                                                        }, this))
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 358,
+                                                    columnNumber: 33
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                            lineNumber: 337,
+                                            columnNumber: 29
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("section", {
+                                            className: "bg-dark-hover/10 rounded-xl border border-dark-color border-opacity-20 p-4 space-y-4",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "flex items-center gap-3 text-dark-primary border-b border-dark-color border-opacity-10 pb-4",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(Package, {
+                                                            className: "w-5 h-5 text-purple-400"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 378,
+                                                            columnNumber: 37
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("h2", {
+                                                            className: "text-lg font-semibold",
+                                                            children: "Productos"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 379,
+                                                            columnNumber: 37
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 377,
+                                                    columnNumber: 33
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV(Select, {
+                                                    onValueChange: addProducto,
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV(SelectTrigger, {
+                                                            className: "bg-dark-card border-dark-color text-dark-primary h-10",
+                                                            children: /*#__PURE__*/ _jsxDEV(SelectValue, {
+                                                                placeholder: "Agregar producto..."
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                lineNumber: 383,
+                                                                columnNumber: 41
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 382,
+                                                            columnNumber: 37
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV(SelectContent, {
+                                                            className: "bg-dark-card border-dark-color",
+                                                            children: productosDisponibles.map((p)=>/*#__PURE__*/ _jsxDEV(SelectItem, {
+                                                                    value: p.nombre,
+                                                                    children: /*#__PURE__*/ _jsxDEV("div", {
+                                                                        className: "flex justify-between items-center w-full min-w-[200px] text-xs",
+                                                                        children: [
+                                                                            /*#__PURE__*/ _jsxDEV("span", {
+                                                                                children: p.nombre
+                                                                            }, void 0, false, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                                lineNumber: 389,
+                                                                                columnNumber: 53
+                                                                            }, this),
+                                                                            /*#__PURE__*/ _jsxDEV("b", {
+                                                                                className: "text-purple-400 ml-4",
+                                                                                children: [
+                                                                                    "$",
+                                                                                    p.precio.toLocaleString()
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                                lineNumber: 390,
+                                                                                columnNumber: 53
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                        lineNumber: 388,
+                                                                        columnNumber: 49
+                                                                    }, this)
+                                                                }, p.nombre, false, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 387,
+                                                                    columnNumber: 45
+                                                                }, this))
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 385,
+                                                            columnNumber: 37
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 381,
+                                                    columnNumber: 33
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    className: "space-y-2",
+                                                    children: formData.productos.map((p)=>/*#__PURE__*/ _jsxDEV("div", {
+                                                            className: "flex items-center justify-between p-3 bg-dark-card/40 rounded-lg border border-dark-color/50 text-xs animate-in zoom-in-95",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    className: "flex-1",
+                                                                    children: [
+                                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                                            className: "text-dark-primary font-bold",
+                                                                            children: p.nombre
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 401,
+                                                                            columnNumber: 49
+                                                                        }, this),
+                                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                                            className: "text-[10px] text-dark-secondary italic",
+                                                                            children: [
+                                                                                "$",
+                                                                                p.precio.toLocaleString()
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 402,
+                                                                            columnNumber: 49
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 400,
+                                                                    columnNumber: 45
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                                    className: "flex items-center gap-2",
+                                                                    children: [
+                                                                        /*#__PURE__*/ _jsxDEV(Button, {
+                                                                            size: "icon",
+                                                                            variant: "ghost",
+                                                                            onClick: ()=>updateQuantity('productos', p.nombre, -1),
+                                                                            className: "w-7 h-7 bg-dark-hover border border-dark-color",
+                                                                            children: "-"
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 405,
+                                                                            columnNumber: 49
+                                                                        }, this),
+                                                                        /*#__PURE__*/ _jsxDEV("span", {
+                                                                            className: "w-6 text-center font-bold",
+                                                                            children: p.cantidad
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 406,
+                                                                            columnNumber: 49
+                                                                        }, this),
+                                                                        /*#__PURE__*/ _jsxDEV(Button, {
+                                                                            size: "icon",
+                                                                            variant: "ghost",
+                                                                            onClick: ()=>updateQuantity('productos', p.nombre, 1),
+                                                                            className: "w-7 h-7 bg-dark-hover border border-dark-color",
+                                                                            children: "+"
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 407,
+                                                                            columnNumber: 49
+                                                                        }, this),
+                                                                        /*#__PURE__*/ _jsxDEV(Button, {
+                                                                            size: "icon",
+                                                                            variant: "ghost",
+                                                                            onClick: ()=>removeProducto(p.nombre),
+                                                                            className: "w-7 h-7 text-red-400 hover:bg-red-500/10 ml-1",
+                                                                            children: /*#__PURE__*/ _jsxDEV(X, {
+                                                                                className: "w-4 h-4"
+                                                                            }, void 0, false, {
+                                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                                lineNumber: 408,
+                                                                                columnNumber: 184
+                                                                            }, this)
+                                                                        }, void 0, false, {
+                                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                            lineNumber: 408,
+                                                                            columnNumber: 49
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                    lineNumber: 404,
+                                                                    columnNumber: 45
+                                                                }, this)
+                                                            ]
+                                                        }, p.nombre, true, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                            lineNumber: 399,
+                                                            columnNumber: 41
+                                                        }, this))
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                    lineNumber: 397,
+                                                    columnNumber: 33
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                            lineNumber: 376,
+                                            columnNumber: 29
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                    lineNumber: 336,
+                                    columnNumber: 25
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                            lineNumber: 234,
+                            columnNumber: 21
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "lg:col-span-3",
+                            children: /*#__PURE__*/ _jsxDEV("section", {
+                                className: "bg-dark-hover/20 rounded-xl border border-blue-500/20 p-6 space-y-6 sticky top-4 shadow-xl shadow-black/20",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV("div", {
+                                        className: "flex items-center gap-3 text-dark-primary border-b border-dark-color border-opacity-10 pb-4",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV(Calculator, {
+                                                className: "w-5 h-5 text-blue-400"
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                lineNumber: 421,
+                                                columnNumber: 33
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("h2", {
+                                                className: "text-lg font-semibold uppercase tracking-tight",
+                                                children: "Resumen"
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                lineNumber: 422,
+                                                columnNumber: 33
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                        lineNumber: 420,
+                                        columnNumber: 29
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("div", {
+                                        className: "space-y-4",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                className: "flex justify-between text-dark-secondary text-sm",
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV("span", {
+                                                        children: "Subtotal:"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                        lineNumber: 427,
+                                                        columnNumber: 37
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV("span", {
+                                                        className: "text-dark-primary font-bold",
+                                                        children: [
+                                                            "$",
+                                                            formData.subtotal.toLocaleString()
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                        lineNumber: 428,
+                                                        columnNumber: 37
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                lineNumber: 426,
+                                                columnNumber: 33
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV(Separator, {
+                                                className: "bg-dark-color border-opacity-20"
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                lineNumber: 431,
+                                                columnNumber: 33
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                className: "space-y-1",
+                                                children: [
+                                                    /*#__PURE__*/ _jsxDEV("span", {
+                                                        className: "text-[10px] text-dark-secondary uppercase font-bold tracking-widest",
+                                                        children: "Total a Pagar"
+                                                    }, void 0, false, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                        lineNumber: 434,
+                                                        columnNumber: 37
+                                                    }, this),
+                                                    /*#__PURE__*/ _jsxDEV("div", {
+                                                        className: "flex justify-between items-baseline",
+                                                        children: [
+                                                            /*#__PURE__*/ _jsxDEV("span", {
+                                                                className: "text-emerald-400 font-bold text-3xl tracking-tighter",
+                                                                children: [
+                                                                    "$",
+                                                                    formData.total.toLocaleString()
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                lineNumber: 436,
+                                                                columnNumber: 41
+                                                            }, this),
+                                                            /*#__PURE__*/ _jsxDEV(Badge, {
+                                                                className: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+                                                                children: "COP"
+                                                            }, void 0, false, {
+                                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                                lineNumber: 437,
+                                                                columnNumber: 41
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                        lineNumber: 435,
+                                                        columnNumber: 37
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                lineNumber: 433,
+                                                columnNumber: 33
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                        lineNumber: 425,
+                                        columnNumber: 29
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("div", {
+                                        className: "space-y-2",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV(Label, {
+                                                className: "text-[10px] text-dark-secondary uppercase font-bold ml-1",
+                                                children: "Observaciones"
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                lineNumber: 443,
+                                                columnNumber: 33
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV(Textarea, {
+                                                value: formData.observaciones,
+                                                onChange: (e)=>setFormData((prev)=>({
+                                                            ...prev,
+                                                            observaciones: e.target.value
+                                                        })),
+                                                placeholder: "Notas de la transacción...",
+                                                className: "bg-dark-card border-dark-color text-dark-primary min-h-[80px] text-xs resize-none p-3"
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                lineNumber: 444,
+                                                columnNumber: 33
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                        lineNumber: 442,
+                                        columnNumber: 29
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("div", {
+                                        className: "pt-2",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV(Button, {
+                                                onClick: handleSubmit,
+                                                disabled: loadingVentas,
+                                                className: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 text-md shadow-lg shadow-blue-500/20 active:scale-95 transition-all",
+                                                children: loadingVentas ? "Procesando..." : "Finalizar Cobro"
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                lineNumber: 453,
+                                                columnNumber: 33
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("p", {
+                                                className: "text-[9px] text-dark-secondary text-center mt-3 opacity-50",
+                                                children: "Al finalizar se registrará la transacción en el historial contable."
+                                            }, void 0, false, {
+                                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                                lineNumber: 456,
+                                                columnNumber: 33
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                        lineNumber: 452,
+                                        columnNumber: 29
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                                lineNumber: 419,
+                                columnNumber: 25
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                            lineNumber: 418,
+                            columnNumber: 21
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                    lineNumber: 232,
+                    columnNumber: 17
+                }, this)
+            }, void 0, false, {
+                fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+                lineNumber: 231,
+                columnNumber: 13
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx",
+        lineNumber: 208,
+        columnNumber: 9
+    }, this);
+}
+_s(NuevaVentaPage, "BLIslHjyPK8a8N1TxwNAKp+kekk=", false, function() {
+    return [
+        useVentas,
+        useClientes,
+        useUsuario
+    ];
+});
+_c = NuevaVentaPage;
+var _c;
+$RefreshReg$(_c, "NuevaVentaPage");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/pages/NuevaVentaPage.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIk51ZXZhVmVudGFQYWdlLnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyB1c2VTdGF0ZSwgdXNlRWZmZWN0LCB1c2VDYWxsYmFjayB9IGZyb20gXCJyZWFjdFwiO1xyXG5pbXBvcnQgeyBCdXR0b24gfSBmcm9tIFwiLi4vdWkvYnV0dG9uXCI7XHJcbmltcG9ydCB7IElucHV0IH0gZnJvbSBcIi4uL3VpL2lucHV0XCI7XHJcbmltcG9ydCB7IExhYmVsIH0gZnJvbSBcIi4uL3VpL2xhYmVsXCI7XHJcbmltcG9ydCB7IFRleHRhcmVhIH0gZnJvbSBcIi4uL3VpL3RleHRhcmVhXCI7XHJcbmltcG9ydCB7IFNlbGVjdCwgU2VsZWN0Q29udGVudCwgU2VsZWN0SXRlbSwgU2VsZWN0VHJpZ2dlciwgU2VsZWN0VmFsdWUgfSBmcm9tIFwiLi4vdWkvc2VsZWN0XCI7XHJcbmltcG9ydCB7IEJhZGdlIH0gZnJvbSBcIi4uL3VpL2JhZGdlXCI7XHJcbmltcG9ydCB7IHRvYXN0IH0gZnJvbSBcInNvbm5lclwiO1xyXG5pbXBvcnQgeyBTaG9wcGluZ0NhcnQsIENhbGVuZGFyLCBVc2VyLCBEb2xsYXJTaWduLCBTdGV0aG9zY29wZSwgUGFja2FnZSwgQ2FsY3VsYXRvciwgQ2hlY2tDaXJjbGUyLCBYLCBQbHVzLCBDaGV2cm9uTGVmdCwgU2VhcmNoLCBIZWFydCB9IGZyb20gJ2x1Y2lkZS1yZWFjdCc7XHJcbmltcG9ydCB7IHVzZVZlbnRhcyB9IGZyb20gXCIuLi9ob29rcy91c2VWZW50YXNcIjtcclxuaW1wb3J0IHsgdXNlQ2xpZW50ZXMsIENsaWVudGUsIE1hc2NvdGEgfSBmcm9tIFwiLi4vaG9va3MvdXNlQ2xpZW50ZXNcIjtcclxuaW1wb3J0IHsgdXNlVXN1YXJpbywgVXN1YXJpbyB9IGZyb20gXCIuLi9ob29rcy91c2VVc3VhcmlvXCI7XHJcbmltcG9ydCB7IFNlcGFyYXRvciB9IGZyb20gXCIuLi91aS9zZXBhcmF0b3JcIjtcclxuXHJcbmludGVyZmFjZSBOdWV2YVZlbnRhUGFnZVByb3BzIHtcclxuICAgIG9uQmFjazogKCkgPT4gdm9pZDtcclxuICAgIG9uU3VjY2VzczogKCkgPT4gdm9pZDtcclxufVxyXG5cclxuY29uc3Qgc2VydmljaW9zRGlzcG9uaWJsZXMgPSBbXHJcbiAgICB7IG5vbWJyZTogJ0NvbnN1bHRhIEdlbmVyYWwnLCBwcmVjaW86IDQ1MDAwIH0sXHJcbiAgICB7IG5vbWJyZTogJ1ZhY3VuYWNpw7NuJywgcHJlY2lvOiAzNTAwMCB9LFxyXG4gICAgeyBub21icmU6ICdEZXNwYXJhc2l0YWNpw7NuJywgcHJlY2lvOiAyNTAwMCB9LFxyXG4gICAgeyBub21icmU6ICdMaW1waWV6YSBEZW50YWwnLCBwcmVjaW86IDgwMDAwIH0sXHJcbiAgICB7IG5vbWJyZTogJ0NpcnVnw61hIE1lbm9yJywgcHJlY2lvOiAxNTAwMDAgfSxcclxuICAgIHsgbm9tYnJlOiAnQ29udHJvbCBkZSBQZXNvJywgcHJlY2lvOiAzMDAwMCB9LFxyXG4gICAgeyBub21icmU6ICdQZWx1cXVlcsOtYSBDYW5pbmEnLCBwcmVjaW86IDQwMDAwIH0sXHJcbiAgICB7IG5vbWJyZTogJ0Vjb2dyYWbDrWEnLCBwcmVjaW86IDYwMDAwIH0sXHJcbiAgICB7IG5vbWJyZTogJ1JhZGlvZ3JhZsOtYScsIHByZWNpbzogNTUwMDAgfSxcclxuICAgIHsgbm9tYnJlOiAnQW7DoWxpc2lzIGRlIFNhbmdyZScsIHByZWNpbzogMzUwMDAgfSxcclxuICAgIHsgbm9tYnJlOiAnQ2FzdHJhY2nDs24nLCBwcmVjaW86IDEyMDAwMCB9XHJcbl07XHJcblxyXG5jb25zdCBwcm9kdWN0b3NEaXNwb25pYmxlcyA9IFtcclxuICAgIHsgbm9tYnJlOiAnVmFjdW5hIEFudGlycsOhYmljYScsIHByZWNpbzogMzUwMDAgfSxcclxuICAgIHsgbm9tYnJlOiAnVmFjdW5hIE3Dumx0aXBsZScsIHByZWNpbzogNTUwMDAgfSxcclxuICAgIHsgbm9tYnJlOiAnRGVzcGFyYXNpdGFudGUnLCBwcmVjaW86IDE4MDAwIH0sXHJcbiAgICB7IG5vbWJyZTogJ0FudGliacOzdGljbycsIHByZWNpbzogNDUwMDAgfSxcclxuICAgIHsgbm9tYnJlOiAnQW5hbGfDqXNpY28nLCBwcmVjaW86IDI1MDAwIH0sXHJcbiAgICB7IG5vbWJyZTogJ1ZpdGFtaW5hcycsIHByZWNpbzogMzUwMDAgfSxcclxuICAgIHsgbm9tYnJlOiAnQ29sbGFyIEFudGlwdWxnYXMnLCBwcmVjaW86IDI4MDAwIH1cclxuXTtcclxuXHJcbmV4cG9ydCBmdW5jdGlvbiBOdWV2YVZlbnRhUGFnZSh7IG9uQmFjaywgb25TdWNjZXNzIH06IE51ZXZhVmVudGFQYWdlUHJvcHMpIHtcclxuICAgIGNvbnN0IHsgY3JlYXJWZW50YSwgbG9hZGluZzogbG9hZGluZ1ZlbnRhcyB9ID0gdXNlVmVudGFzKCk7XHJcbiAgICBjb25zdCB7IGNsaWVudGVzIH0gPSB1c2VDbGllbnRlcygpO1xyXG4gICAgY29uc3QgeyB1c3VhcmlvcyB9ID0gdXNlVXN1YXJpbygpO1xyXG5cclxuICAgIGNvbnN0IFtidXNxdWVkYUNlZHVsYSwgc2V0QnVzcXVlZGFDZWR1bGFdID0gdXNlU3RhdGUoXCJcIik7XHJcbiAgICBjb25zdCBbY2xpZW50ZVNlbGVjY2lvbmFkbywgc2V0Q2xpZW50ZVNlbGVjY2lvbmFkb10gPSB1c2VTdGF0ZTxDbGllbnRlIHwgbnVsbD4obnVsbCk7XHJcbiAgICBjb25zdCBbbWFzY290YXNDbGllbnRlLCBzZXRNYXNjb3Rhc0NsaWVudGVdID0gdXNlU3RhdGU8TWFzY290YVtdPihbXSk7XHJcbiAgICBjb25zdCBbY2xpZW50ZXNFbmNvbnRyYWRvcywgc2V0Q2xpZW50ZXNFbmNvbnRyYWRvc10gPSB1c2VTdGF0ZTxDbGllbnRlW10+KFtdKTtcclxuICAgIGNvbnN0IFttb3N0cmFyUmVzdWx0YWRvcywgc2V0TW9zdHJhclJlc3VsdGFkb3NdID0gdXNlU3RhdGUoZmFsc2UpO1xyXG5cclxuICAgIGNvbnN0IFtmb3JtRGF0YSwgc2V0Rm9ybURhdGFdID0gdXNlU3RhdGUoe1xyXG4gICAgICAgIGZlY2hhOiBuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCkuc3BsaXQoJ1QnKVswXSxcclxuICAgICAgICBob3JhOiBuZXcgRGF0ZSgpLnRvVGltZVN0cmluZygpLnNsaWNlKDAsIDUpLFxyXG4gICAgICAgIGNsaWVudGU6ICcnLFxyXG4gICAgICAgIG1hc2NvdGE6ICcnLFxyXG4gICAgICAgIHZldGVyaW5hcmlvOiAnJyxcclxuICAgICAgICBzZXJ2aWNpb3M6IFtdIGFzIHsgbm9tYnJlOiBzdHJpbmc7IHByZWNpbzogbnVtYmVyOyBjYW50aWRhZDogbnVtYmVyIH1bXSxcclxuICAgICAgICBwcm9kdWN0b3M6IFtdIGFzIHsgbm9tYnJlOiBzdHJpbmc7IHByZWNpbzogbnVtYmVyOyBjYW50aWRhZDogbnVtYmVyIH1bXSxcclxuICAgICAgICBzdWJ0b3RhbDogMCxcclxuICAgICAgICBkZXNjdWVudG86IDAsXHJcbiAgICAgICAgaW1wdWVzdG9zOiAwLFxyXG4gICAgICAgIHRvdGFsOiAwLFxyXG4gICAgICAgIGVzdGFkbzogJ2NvbXBsZXRhZGEnIGFzICdjb21wbGV0YWRhJyB8ICdwZW5kaWVudGUnLFxyXG4gICAgICAgIG9ic2VydmFjaW9uZXM6ICcnXHJcbiAgICB9KTtcclxuXHJcbiAgICBjb25zdCBkb2N0b3JlcyA9IHVzdWFyaW9zLmZpbHRlcih1ID0+IHUucm9sID09PSAnYWRtaW5pc3RyYWRvcicgfHwgdS5yb2wgPT09ICd2ZXRlcmluYXJpbycpO1xyXG5cclxuICAgIHVzZUVmZmVjdCgoKSA9PiB7XHJcbiAgICAgICAgY29uc3Qgc2VydmljaW9zVG90YWwgPSBmb3JtRGF0YS5zZXJ2aWNpb3MucmVkdWNlKChzdW0sIHMpID0+IHN1bSArIChzLnByZWNpbyAqIHMuY2FudGlkYWQpLCAwKTtcclxuICAgICAgICBjb25zdCBwcm9kdWN0b3NUb3RhbCA9IGZvcm1EYXRhLnByb2R1Y3Rvcy5yZWR1Y2UoKHN1bSwgcCkgPT4gc3VtICsgKHAucHJlY2lvICogcC5jYW50aWRhZCksIDApO1xyXG4gICAgICAgIGNvbnN0IHN1YnRvdGFsID0gc2VydmljaW9zVG90YWwgKyBwcm9kdWN0b3NUb3RhbDtcclxuICAgICAgICBjb25zdCB0b3RhbCA9IHN1YnRvdGFsOyAvLyBObyB0YXhlcywgbm8gZGlzY291bnRzXHJcblxyXG4gICAgICAgIHNldEZvcm1EYXRhKHByZXYgPT4gKHtcclxuICAgICAgICAgICAgLi4ucHJldixcclxuICAgICAgICAgICAgc3VidG90YWwsXHJcbiAgICAgICAgICAgIGltcHVlc3RvczogMCxcclxuICAgICAgICAgICAgdG90YWxcclxuICAgICAgICB9KSk7XHJcbiAgICB9LCBbZm9ybURhdGEuc2VydmljaW9zLCBmb3JtRGF0YS5wcm9kdWN0b3NdKTtcclxuXHJcbiAgICBjb25zdCBoYW5kbGVCdXNxdWVkYUNoYW5nZSA9ICh2YWxvcjogc3RyaW5nKSA9PiB7XHJcbiAgICAgICAgc2V0QnVzcXVlZGFDZWR1bGEodmFsb3IpO1xyXG4gICAgICAgIGlmICh2YWxvci50cmltKCkubGVuZ3RoID4gMCkge1xyXG4gICAgICAgICAgICBjb25zdCBtYXRjaGVzID0gY2xpZW50ZXMuZmlsdGVyKGMgPT5cclxuICAgICAgICAgICAgICAgIGMubnVtZXJvRG9jdW1lbnRvLnRvTG93ZXJDYXNlKCkuc3RhcnRzV2l0aCh2YWxvci50b0xvd2VyQ2FzZSgpKSB8fFxyXG4gICAgICAgICAgICAgICAgYy5ub21icmUudG9Mb3dlckNhc2UoKS5pbmNsdWRlcyh2YWxvci50b0xvd2VyQ2FzZSgpKSB8fFxyXG4gICAgICAgICAgICAgICAgYy5hcGVsbGlkby50b0xvd2VyQ2FzZSgpLmluY2x1ZGVzKHZhbG9yLnRvTG93ZXJDYXNlKCkpXHJcbiAgICAgICAgICAgICk7XHJcbiAgICAgICAgICAgIHNldENsaWVudGVzRW5jb250cmFkb3MobWF0Y2hlcyk7XHJcbiAgICAgICAgICAgIHNldE1vc3RyYXJSZXN1bHRhZG9zKHRydWUpO1xyXG5cclxuICAgICAgICAgICAgLy8gU2kgaGF5IHVuIG1hdGNoIGV4YWN0byBwb3IgY8OpZHVsYSwgc2VsZWNjaW9uYXJsbyBhdXRvbcOhdGljYW1lbnRlXHJcbiAgICAgICAgICAgIGNvbnN0IG1hdGNoRXhhY3RvID0gY2xpZW50ZXMuZmluZChjID0+IGMubnVtZXJvRG9jdW1lbnRvID09PSB2YWxvcik7XHJcbiAgICAgICAgICAgIGlmIChtYXRjaEV4YWN0bykge1xyXG4gICAgICAgICAgICAgICAgc2VsZWNjaW9uYXJDbGllbnRlKG1hdGNoRXhhY3RvKTtcclxuICAgICAgICAgICAgICAgIHNldE1vc3RyYXJSZXN1bHRhZG9zKGZhbHNlKTtcclxuICAgICAgICAgICAgfVxyXG4gICAgICAgIH0gZWxzZSB7XHJcbiAgICAgICAgICAgIHNldENsaWVudGVzRW5jb250cmFkb3MoW10pO1xyXG4gICAgICAgICAgICBzZXRNb3N0cmFyUmVzdWx0YWRvcyhmYWxzZSk7XHJcbiAgICAgICAgfVxyXG4gICAgfTtcclxuXHJcbiAgICBjb25zdCBzZWxlY2Npb25hckNsaWVudGUgPSAoY2xpZW50ZTogQ2xpZW50ZSkgPT4ge1xyXG4gICAgICAgIHNldENsaWVudGVTZWxlY2Npb25hZG8oY2xpZW50ZSk7XHJcbiAgICAgICAgc2V0TWFzY290YXNDbGllbnRlKGNsaWVudGUubWFzY290YXMgfHwgW10pO1xyXG4gICAgICAgIHNldEZvcm1EYXRhKHByZXYgPT4gKHtcclxuICAgICAgICAgICAgLi4ucHJldixcclxuICAgICAgICAgICAgY2xpZW50ZTogYCR7Y2xpZW50ZS5ub21icmV9ICR7Y2xpZW50ZS5hcGVsbGlkb31gLFxyXG4gICAgICAgICAgICBtYXNjb3RhOiBjbGllbnRlLm1hc2NvdGFzPy5sZW5ndGggPiAwID8gY2xpZW50ZS5tYXNjb3Rhc1swXS5ub21icmUgOiAnJ1xyXG4gICAgICAgIH0pKTtcclxuICAgICAgICBzZXRCdXNxdWVkYUNlZHVsYShjbGllbnRlLm51bWVyb0RvY3VtZW50byk7XHJcbiAgICAgICAgc2V0TW9zdHJhclJlc3VsdGFkb3MoZmFsc2UpO1xyXG4gICAgICAgIHRvYXN0LnN1Y2Nlc3MoXCJDbGllbnRlIHNlbGVjY2lvbmFkb1wiKTtcclxuICAgIH07XHJcblxyXG4gICAgY29uc3QgYWRkU2VydmljaW8gPSAoc2VydmljaW9Ob21icmU6IHN0cmluZykgPT4ge1xyXG4gICAgICAgIGNvbnN0IHNlcnZpY2lvID0gc2VydmljaW9zRGlzcG9uaWJsZXMuZmluZChzID0+IHMubm9tYnJlID09PSBzZXJ2aWNpb05vbWJyZSk7XHJcbiAgICAgICAgaWYgKHNlcnZpY2lvICYmICFmb3JtRGF0YS5zZXJ2aWNpb3MuZmluZChzID0+IHMubm9tYnJlID09PSBzZXJ2aWNpby5ub21icmUpKSB7XHJcbiAgICAgICAgICAgIHNldEZvcm1EYXRhKHByZXYgPT4gKHtcclxuICAgICAgICAgICAgICAgIC4uLnByZXYsXHJcbiAgICAgICAgICAgICAgICBzZXJ2aWNpb3M6IFsuLi5wcmV2LnNlcnZpY2lvcywgeyAuLi5zZXJ2aWNpbywgY2FudGlkYWQ6IDEgfV1cclxuICAgICAgICAgICAgfSkpO1xyXG4gICAgICAgIH1cclxuICAgIH07XHJcblxyXG4gICAgY29uc3QgcmVtb3ZlU2VydmljaW8gPSAobm9tYnJlOiBzdHJpbmcpID0+IHtcclxuICAgICAgICBzZXRGb3JtRGF0YShwcmV2ID0+ICh7XHJcbiAgICAgICAgICAgIC4uLnByZXYsXHJcbiAgICAgICAgICAgIHNlcnZpY2lvczogcHJldi5zZXJ2aWNpb3MuZmlsdGVyKHMgPT4gcy5ub21icmUgIT09IG5vbWJyZSlcclxuICAgICAgICB9KSk7XHJcbiAgICB9O1xyXG5cclxuICAgIGNvbnN0IGFkZFByb2R1Y3RvID0gKHByb2R1Y3RvTm9tYnJlOiBzdHJpbmcpID0+IHtcclxuICAgICAgICBjb25zdCBwcm9kdWN0byA9IHByb2R1Y3Rvc0Rpc3BvbmlibGVzLmZpbmQocCA9PiBwLm5vbWJyZSA9PT0gcHJvZHVjdG9Ob21icmUpO1xyXG4gICAgICAgIGlmIChwcm9kdWN0byAmJiAhZm9ybURhdGEucHJvZHVjdG9zLmZpbmQocCA9PiBwLm5vbWJyZSA9PT0gcHJvZHVjdG8ubm9tYnJlKSkge1xyXG4gICAgICAgICAgICBzZXRGb3JtRGF0YShwcmV2ID0+ICh7XHJcbiAgICAgICAgICAgICAgICAuLi5wcmV2LFxyXG4gICAgICAgICAgICAgICAgcHJvZHVjdG9zOiBbLi4ucHJldi5wcm9kdWN0b3MsIHsgLi4ucHJvZHVjdG8sIGNhbnRpZGFkOiAxIH1dXHJcbiAgICAgICAgICAgIH0pKTtcclxuICAgICAgICB9XHJcbiAgICB9O1xyXG5cclxuICAgIGNvbnN0IHJlbW92ZVByb2R1Y3RvID0gKG5vbWJyZTogc3RyaW5nKSA9PiB7XHJcbiAgICAgICAgc2V0Rm9ybURhdGEocHJldiA9PiAoe1xyXG4gICAgICAgICAgICAuLi5wcmV2LFxyXG4gICAgICAgICAgICBwcm9kdWN0b3M6IHByZXYucHJvZHVjdG9zLmZpbHRlcihwID0+IHAubm9tYnJlICE9PSBub21icmUpXHJcbiAgICAgICAgfSkpO1xyXG4gICAgfTtcclxuXHJcbiAgICBjb25zdCB1cGRhdGVRdWFudGl0eSA9ICh0eXBlOiAnc2VydmljaW9zJyB8ICdwcm9kdWN0b3MnLCBub21icmU6IHN0cmluZywgZGVsdGE6IG51bWJlcikgPT4ge1xyXG4gICAgICAgIHNldEZvcm1EYXRhKHByZXYgPT4gKHtcclxuICAgICAgICAgICAgLi4ucHJldixcclxuICAgICAgICAgICAgW3R5cGVdOiBwcmV2W3R5cGVdLm1hcChpdGVtID0+XHJcbiAgICAgICAgICAgICAgICBpdGVtLm5vbWJyZSA9PT0gbm9tYnJlID8geyAuLi5pdGVtLCBjYW50aWRhZDogTWF0aC5tYXgoMSwgaXRlbS5jYW50aWRhZCArIGRlbHRhKSB9IDogaXRlbVxyXG4gICAgICAgICAgICApXHJcbiAgICAgICAgfSkpO1xyXG4gICAgfTtcclxuXHJcbiAgICBjb25zdCBoYW5kbGVTdWJtaXQgPSBhc3luYyAoZTogUmVhY3QuRm9ybUV2ZW50KSA9PiB7XHJcbiAgICAgICAgZS5wcmV2ZW50RGVmYXVsdCgpO1xyXG5cclxuICAgICAgICBpZiAoIWZvcm1EYXRhLmNsaWVudGUpIHtcclxuICAgICAgICAgICAgdG9hc3QuZXJyb3IoXCJEZWJlIHNlbGVjY2lvbmFyIHVuIGNsaWVudGVcIik7XHJcbiAgICAgICAgICAgIHJldHVybjtcclxuICAgICAgICB9XHJcblxyXG4gICAgICAgIGlmIChmb3JtRGF0YS5zZXJ2aWNpb3MubGVuZ3RoID09PSAwICYmIGZvcm1EYXRhLnByb2R1Y3Rvcy5sZW5ndGggPT09IDApIHtcclxuICAgICAgICAgICAgdG9hc3QuZXJyb3IoXCJEZWJlIGFncmVnYXIgYWwgbWVub3MgdW4gc2VydmljaW8gbyBwcm9kdWN0b1wiKTtcclxuICAgICAgICAgICAgcmV0dXJuO1xyXG4gICAgICAgIH1cclxuXHJcbiAgICAgICAgY29uc3QgcmVzdWx0ID0gYXdhaXQgY3JlYXJWZW50YSh7XHJcbiAgICAgICAgICAgIGlkX2NsaWVudGU6IGNsaWVudGVTZWxlY2Npb25hZG8/LmlkX2NsaWVudGUgfHwgKGNsaWVudGVTZWxlY2Npb25hZG8gYXMgYW55KT8uaWQsXHJcbiAgICAgICAgICAgIGZlY2hhOiBmb3JtRGF0YS5mZWNoYSxcclxuICAgICAgICAgICAgaG9yYTogZm9ybURhdGEuaG9yYSxcclxuICAgICAgICAgICAgY2xpZW50ZTogZm9ybURhdGEuY2xpZW50ZSwgLy8gY29uc2VydmFkbyBwYXJhIGNvbXBhdGliaWxpZGFkIHNpIGFsZ8O6biBsb2cgbG8gbGVlXHJcbiAgICAgICAgICAgIG1hc2NvdGE6IGZvcm1EYXRhLm1hc2NvdGEsXHJcbiAgICAgICAgICAgIHNlcnZpY2lvczogW1xyXG4gICAgICAgICAgICAgICAgLi4uZm9ybURhdGEuc2VydmljaW9zLm1hcChzID0+ICh7IG5vbWJyZTogcy5ub21icmUsIHByZWNpbzogcy5wcmVjaW8sIGNhbnRpZGFkOiBzLmNhbnRpZGFkIH0pKSxcclxuICAgICAgICAgICAgICAgIC4uLmZvcm1EYXRhLnByb2R1Y3Rvcy5tYXAocCA9PiAoeyBub21icmU6IHAubm9tYnJlLCBwcmVjaW86IHAucHJlY2lvLCBjYW50aWRhZDogcC5jYW50aWRhZCB9KSlcclxuICAgICAgICAgICAgXSxcclxuICAgICAgICAgICAgc3VidG90YWw6IGZvcm1EYXRhLnN1YnRvdGFsLFxyXG4gICAgICAgICAgICBkZXNjdWVudG86IGZvcm1EYXRhLmRlc2N1ZW50byxcclxuICAgICAgICAgICAgaW1wdWVzdG9zOiBmb3JtRGF0YS5pbXB1ZXN0b3MsXHJcbiAgICAgICAgICAgIHRvdGFsOiBmb3JtRGF0YS50b3RhbCxcclxuICAgICAgICAgICAgZXN0YWRvOiBmb3JtRGF0YS5lc3RhZG8gPT09ICdjb21wbGV0YWRhJyA/ICdjb21wbGV0YWRhJyA6ICdwZW5kaWVudGUnLFxyXG4gICAgICAgICAgICB2ZXRlcmluYXJpbzogZm9ybURhdGEudmV0ZXJpbmFyaW8sXHJcbiAgICAgICAgICAgIHZlbmRlZG9yOiBmb3JtRGF0YS52ZXRlcmluYXJpbyB8fCAnU2lzdGVtYScsXHJcbiAgICAgICAgICAgIG9ic2VydmFjaW9uZXM6IGZvcm1EYXRhLm9ic2VydmFjaW9uZXNcclxuICAgICAgICB9KTtcclxuXHJcbiAgICAgICAgaWYgKHJlc3VsdC5zdWNjZXNzKSB7XHJcbiAgICAgICAgICAgIHRvYXN0LnN1Y2Nlc3MoXCJWZW50YSByZWdpc3RyYWRhIGV4aXRvc2FtZW50ZVwiKTtcclxuICAgICAgICAgICAgb25TdWNjZXNzKCk7XHJcbiAgICAgICAgfSBlbHNlIHtcclxuICAgICAgICAgICAgdG9hc3QuZXJyb3IocmVzdWx0LmVycm9yIHx8IFwiRXJyb3IgYWwgcmVnaXN0cmFyIHZlbnRhXCIpO1xyXG4gICAgICAgIH1cclxuICAgIH07XHJcblxyXG4gICAgcmV0dXJuIChcclxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggZmxleC1jb2wgaC1mdWxsIGJnLWRhcmstYmcgb3ZlcmZsb3ctYXV0b1wiPlxyXG4gICAgICAgICAgICA8aGVhZGVyIGNsYXNzTmFtZT1cImJnLWRhcmstY2FyZC81MCBiYWNrZHJvcC1ibHVyLXNtIGJvcmRlci1iIGJvcmRlci1kYXJrLWNvbG9yLzUwIHB4LTUgcHktMyBzdGlja3kgdG9wLTAgei0xMFwiPlxyXG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWJldHdlZW4gbWF4LXctN3hsIG14LWF1dG9cIj5cclxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxCdXR0b24gdmFyaWFudD1cImdob3N0XCIgc2l6ZT1cImljb25cIiBvbkNsaWNrPXtvbkJhY2t9IGNsYXNzTmFtZT1cInRleHQtZGFyay1zZWNvbmRhcnkgaG92ZXI6dGV4dC1kYXJrLXByaW1hcnlcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxDaGV2cm9uTGVmdCBjbGFzc05hbWU9XCJ3LTYgaC02XCIgLz5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8aDEgY2xhc3NOYW1lPVwidGV4dC0yeGwgZm9udC1zZW1pYm9sZCB0ZXh0LWRhcmstcHJpbWFyeVwiPk51ZXZhIFZlbnRhPC9oMT5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXNlY29uZGFyeVwiPlJlZ2lzdHJvIG1hbnVhbCBkZSB0cmFuc2FjY2lvbmVzPC9wPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0zXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxCdXR0b24gdmFyaWFudD1cIm91dGxpbmVcIiBvbkNsaWNrPXtvbkJhY2t9IGNsYXNzTmFtZT1cImJvcmRlci1kYXJrLWNvbG9yIHRleHQtZGFyay1zZWNvbmRhcnkgaG92ZXI6YmctZGFyay1ob3ZlclwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgQ2FuY2VsYXJcclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxCdXR0b24gb25DbGljaz17aGFuZGxlU3VibWl0fSBkaXNhYmxlZD17bG9hZGluZ1ZlbnRhc30gY2xhc3NOYW1lPVwiYmctZGFyay1jdGEgdGV4dC13aGl0ZSBob3ZlcjpiZy1ibHVlLTYwMCBweC04XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICB7bG9hZGluZ1ZlbnRhcyA/IFwiR3VhcmRhbmRvLi4uXCIgOiBcIkZpbmFsaXphciBWZW50YVwifVxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8L0J1dHRvbj5cclxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICA8L2hlYWRlcj5cclxuXHJcbiAgICAgICAgICAgIDxtYWluIGNsYXNzTmFtZT1cImZsZXgtMSBvdmVyZmxvdy1hdXRvIHAtNCBiZy1kYXJrLWJnXCI+XHJcbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cIm1heC13LTd4bCBteC1hdXRvIGdyaWQgZ3JpZC1jb2xzLTEgbGc6Z3JpZC1jb2xzLTEyIGdhcC00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgey8qIExlZnQgQ29sdW1uOiBDbGllbnQgYW5kIFBldCBJbmZvcm1hdGlvbiAqL31cclxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImxnOmNvbC1zcGFuLTQgc3BhY2UteS00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiYmctZGFyay1ob3Zlci8xMCByb3VuZGVkLXhsIGJvcmRlciBib3JkZXItZGFyay1jb2xvciBib3JkZXItb3BhY2l0eS0zMCBwLTQgc3RpY2t5IHRvcC00IHotMzBcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTMgdGV4dC1kYXJrLXByaW1hcnkgYm9yZGVyLWIgYm9yZGVyLWRhcmstY29sb3IgYm9yZGVyLW9wYWNpdHktMjAgcGItNCBtYi00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFNlYXJjaCBjbGFzc05hbWU9XCJ3LTUgaC01IHRleHQtYmx1ZS00MDBcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxoMiBjbGFzc05hbWU9XCJ0ZXh0LWxnIGZvbnQtc2VtaWJvbGRcIj5JZGVudGlmaWNhY2nDs24gZGVsIENsaWVudGU8L2gyPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTVcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktMiByZWxhdGl2ZVwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8TGFiZWwgY2xhc3NOYW1lPVwidGV4dC14cyB0ZXh0LWRhcmstc2Vjb25kYXJ5IGZvbnQtYm9sZCB1cHBlcmNhc2UgdHJhY2tpbmctdGlnaHQgbWwtMVwiPkJ1c2NhciBwb3IgQ8OpZHVsYSAvIE5vbWJyZTwvTGFiZWw+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwicmVsYXRpdmVcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxJbnB1dFxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZhbHVlPXtidXNxdWVkYUNlZHVsYX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvbkNoYW5nZT17KGUpID0+IGhhbmRsZUJ1c3F1ZWRhQ2hhbmdlKGUudGFyZ2V0LnZhbHVlKX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwbGFjZWhvbGRlcj1cIkluZ3Jlc2UgZG9jdW1lbnRvIG8gbm9tYnJlLi4uXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXByaW1hcnkgaC0xMCBweC00IHJvdW5kZWQtbGcgZm9jdXM6cmluZy0yIGZvY3VzOnJpbmctYmx1ZS01MDAvMjBcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG9uQmx1cj17KCkgPT4gc2V0VGltZW91dCgoKSA9PiBzZXRNb3N0cmFyUmVzdWx0YWRvcyhmYWxzZSksIDIwMCl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb25Gb2N1cz17KCkgPT4gYnVzcXVlZGFDZWR1bGEgJiYgc2V0TW9zdHJhclJlc3VsdGFkb3ModHJ1ZSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFNlYXJjaCBjbGFzc05hbWU9XCJhYnNvbHV0ZSByaWdodC0zIHRvcC0xLzIgLXRyYW5zbGF0ZS15LTEvMiB3LTQgaC00IHRleHQtZGFyay1zZWNvbmRhcnkgb3BhY2l0eS01MFwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAge21vc3RyYXJSZXN1bHRhZG9zICYmIGNsaWVudGVzRW5jb250cmFkb3MubGVuZ3RoID4gMCAmJiAoXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImFic29sdXRlIHotWzEwMF0gdy1mdWxsIG10LTIgYmctZGFyay1jYXJkIGJvcmRlciBib3JkZXItZGFyay1jb2xvciByb3VuZGVkLXhsIHNoYWRvdy0yeGwgb3ZlcmZsb3ctaGlkZGVuIGFuaW1hdGUtaW4gZmFkZS1pbiB6b29tLWluLTk1IGR1cmF0aW9uLTIwMFwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHtjbGllbnRlc0VuY29udHJhZG9zLm1hcChjbGllbnRlID0+IChcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGJ1dHRvblxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAga2V5PXtjbGllbnRlLmlkX2NsaWVudGV9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJ3LWZ1bGwgdGV4dC1sZWZ0IHAtMyBob3ZlcjpiZy1ibHVlLTUwMC8xMCBib3JkZXItYiBib3JkZXItZGFyay1jb2xvci8zMCBsYXN0OmJvcmRlci0wIHRyYW5zaXRpb24tY29sb3JzIGdyb3VwXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG9uTW91c2VEb3duPXsoZSkgPT4ge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGUucHJldmVudERlZmF1bHQoKTtcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzZWxlY2Npb25hckNsaWVudGUoY2xpZW50ZSk7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9fVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSBmb250LWJvbGQgZ3JvdXAtaG92ZXI6dGV4dC1ibHVlLTQwMCB0cmFuc2l0aW9uLWNvbG9yc1wiPntjbGllbnRlLm5vbWJyZX0ge2NsaWVudGUuYXBlbGxpZG99PC9wPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1bMTBweF0gdGV4dC1kYXJrLXNlY29uZGFyeSB1cHBlcmNhc2UgdHJhY2tpbmctd2lkZXJcIj5DQzoge2NsaWVudGUubnVtZXJvRG9jdW1lbnRvfTwvcD5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9idXR0b24+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAge2NsaWVudGVTZWxlY2Npb25hZG8gJiYgKFxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInAtMyBiZy1ibHVlLTUwMC81IHJvdW5kZWQteGwgYm9yZGVyIGJvcmRlci1ibHVlLTUwMC8yMCBhbmltYXRlLWluIHNsaWRlLWluLWZyb20tbGVmdC0yIGR1cmF0aW9uLTMwMFwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtM1wiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidy0xMCBoLTEwIHJvdW5kZWQtZnVsbCBiZy1ibHVlLTUwMC8xMCBmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlclwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8VXNlciBjbGFzc05hbWU9XCJ3LTUgaC01IHRleHQtYmx1ZS00MDBcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1kYXJrLXByaW1hcnkgZm9udC1ib2xkXCI+e2NsaWVudGVTZWxlY2Npb25hZG8ubm9tYnJlfSB7Y2xpZW50ZVNlbGVjY2lvbmFkby5hcGVsbGlkb308L3A+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtWzEwcHhdIHRleHQtZGFyay1zZWNvbmRhcnlcIj57Y2xpZW50ZVNlbGVjY2lvbmFkby5jb3JyZW99IHwge2NsaWVudGVTZWxlY2Npb25hZG8udGVsZWZvbm99PC9wPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICB7Y2xpZW50ZVNlbGVjY2lvbmFkbyAmJiAoXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJwdC00IG10LTQgYm9yZGVyLXQgYm9yZGVyLWRhcmstY29sb3IgYm9yZGVyLW9wYWNpdHktMjAgc3BhY2UteS00IGFuaW1hdGUtaW4gZmFkZS1pbiBkdXJhdGlvbi01MDBcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxMYWJlbCBjbGFzc05hbWU9XCJ0ZXh0LVsxMHB4XSB0ZXh0LWRhcmstc2Vjb25kYXJ5IHVwcGVyY2FzZSBmb250LWJvbGQgbWwtMVwiPlBhY2llbnRlPC9MYWJlbD5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxTZWxlY3RcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB2YWx1ZT17Zm9ybURhdGEubWFzY290YX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvblZhbHVlQ2hhbmdlPXsodmFsOiBzdHJpbmcpID0+IHNldEZvcm1EYXRhKHByZXYgPT4gKHsgLi4ucHJldiwgbWFzY290YTogdmFsIH0pKX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgID5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8U2VsZWN0VHJpZ2dlciBjbGFzc05hbWU9XCJiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXByaW1hcnkgaC0xMCByb3VuZGVkLWxnXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxTZWxlY3RWYWx1ZSBwbGFjZWhvbGRlcj1cIlNlbGVjY2lvbmUgbWFzY290YVwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9TZWxlY3RUcmlnZ2VyPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxTZWxlY3RDb250ZW50IGNsYXNzTmFtZT1cImJnLWRhcmstY2FyZCBib3JkZXItZGFyay1jb2xvclwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB7bWFzY290YXNDbGllbnRlLm1hcChtID0+IChcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxTZWxlY3RJdGVtIGtleT17bS5pZF9tYXNjb3RhIHx8IChtIGFzIGFueSkuaWR9IHZhbHVlPXttLm5vbWJyZX0+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8SGVhcnQgY2xhc3NOYW1lPVwidy0zLjUgaC0zLjUgdGV4dC1waW5rLTQwMFwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cInRleHQteHNcIj57bS5ub21icmV9IDxzcGFuIGNsYXNzTmFtZT1cInRleHQtWzEwcHhdIG9wYWNpdHktNjBcIj4oe20ucmF6YX0pPC9zcGFuPjwvc3Bhbj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvU2VsZWN0SXRlbT5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9TZWxlY3RDb250ZW50PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9TZWxlY3Q+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxMYWJlbCBjbGFzc05hbWU9XCJ0ZXh0LVsxMHB4XSB0ZXh0LWRhcmstc2Vjb25kYXJ5IHVwcGVyY2FzZSBmb250LWJvbGQgbWwtMVwiPkF0ZW5kaWRvIHBvcjwvTGFiZWw+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8U2VsZWN0XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdmFsdWU9e2Zvcm1EYXRhLnZldGVyaW5hcmlvfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG9uVmFsdWVDaGFuZ2U9eyh2YWw6IHN0cmluZykgPT4gc2V0Rm9ybURhdGEocHJldiA9PiAoeyAuLi5wcmV2LCB2ZXRlcmluYXJpbzogdmFsIH0pKX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgID5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8U2VsZWN0VHJpZ2dlciBjbGFzc05hbWU9XCJiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXByaW1hcnkgaC0xMCByb3VuZGVkLWxnXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxTZWxlY3RWYWx1ZSBwbGFjZWhvbGRlcj1cIlNlbGVjY2lvbmUgcmVzcG9uc2FibGUuLi5cIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvU2VsZWN0VHJpZ2dlcj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8U2VsZWN0Q29udGVudCBjbGFzc05hbWU9XCJiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAge2RvY3RvcmVzLm1hcChkID0+IChcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxTZWxlY3RJdGVtIGtleT17ZC5pZH0gdmFsdWU9e2BEci4gJHtkLm5vbWJyZX0gJHtkLmFwZWxsaWRvfWB9PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cInRleHQteHNcIj5Eci4ge2Qubm9tYnJlfSB7ZC5hcGVsbGlkb308L3NwYW4+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L1NlbGVjdEl0ZW0+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICkpfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvU2VsZWN0Q29udGVudD5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvU2VsZWN0PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJsZzpjb2wtc3Bhbi01IHNwYWNlLXktNFwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPHNlY3Rpb24gY2xhc3NOYW1lPVwiYmctZGFyay1ob3Zlci8xMCByb3VuZGVkLXhsIGJvcmRlciBib3JkZXItZGFyay1jb2xvciBib3JkZXItb3BhY2l0eS0yMCBwLTQgc3BhY2UteS00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMyB0ZXh0LWRhcmstcHJpbWFyeSBib3JkZXItYiBib3JkZXItZGFyay1jb2xvciBib3JkZXItb3BhY2l0eS0xMCBwYi00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxTdGV0aG9zY29wZSBjbGFzc05hbWU9XCJ3LTUgaC01IHRleHQtYmx1ZS00MDBcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8aDIgY2xhc3NOYW1lPVwidGV4dC1sZyBmb250LXNlbWlib2xkXCI+U2VydmljaW9zPC9oMj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8U2VsZWN0IG9uVmFsdWVDaGFuZ2U9e2FkZFNlcnZpY2lvfT5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFNlbGVjdFRyaWdnZXIgY2xhc3NOYW1lPVwiYmctZGFyay1jYXJkIGJvcmRlci1kYXJrLWNvbG9yIHRleHQtZGFyay1wcmltYXJ5IGgtMTBcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxTZWxlY3RWYWx1ZSBwbGFjZWhvbGRlcj1cIkFncmVnYXIgc2VydmljaW8uLi5cIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L1NlbGVjdFRyaWdnZXI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxTZWxlY3RDb250ZW50IGNsYXNzTmFtZT1cImJnLWRhcmstY2FyZCBib3JkZXItZGFyay1jb2xvclwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAge3NlcnZpY2lvc0Rpc3BvbmlibGVzLm1hcChzID0+IChcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8U2VsZWN0SXRlbSBrZXk9e3Mubm9tYnJlfSB2YWx1ZT17cy5ub21icmV9PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXgganVzdGlmeS1iZXR3ZWVuIGl0ZW1zLWNlbnRlciB3LWZ1bGwgbWluLXctWzIwMHB4XSB0ZXh0LXhzXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8c3Bhbj57cy5ub21icmV9PC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGIgY2xhc3NOYW1lPVwidGV4dC1ibHVlLTQwMCBtbC00XCI+JHtzLnByZWNpby50b0xvY2FsZVN0cmluZygpfTwvYj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9TZWxlY3RJdGVtPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvU2VsZWN0Q29udGVudD5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L1NlbGVjdD5cclxuXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAge2Zvcm1EYXRhLnNlcnZpY2lvcy5tYXAocyA9PiAoXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGtleT17cy5ub21icmV9IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktYmV0d2VlbiBwLTMgYmctZGFyay1jYXJkLzQwIHJvdW5kZWQtbGcgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yLzUwIHRleHQteHMgYW5pbWF0ZS1pbiB6b29tLWluLTk1XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4LTFcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZm9udC1ib2xkXCI+e3Mubm9tYnJlfTwvcD5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1bMTBweF0gdGV4dC1kYXJrLXNlY29uZGFyeSBpdGFsaWNcIj4ke3MucHJlY2lvLnRvTG9jYWxlU3RyaW5nKCl9PC9wPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPEJ1dHRvbiBzaXplPVwiaWNvblwiIHZhcmlhbnQ9XCJnaG9zdFwiIG9uQ2xpY2s9eygpID0+IHVwZGF0ZVF1YW50aXR5KCdzZXJ2aWNpb3MnLCBzLm5vbWJyZSwgLTEpfSBjbGFzc05hbWU9XCJ3LTcgaC03IGJnLWRhcmstaG92ZXIgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yXCI+LTwvQnV0dG9uPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJ3LTYgdGV4dC1jZW50ZXIgZm9udC1ib2xkXCI+e3MuY2FudGlkYWR9PC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8QnV0dG9uIHNpemU9XCJpY29uXCIgdmFyaWFudD1cImdob3N0XCIgb25DbGljaz17KCkgPT4gdXBkYXRlUXVhbnRpdHkoJ3NlcnZpY2lvcycsIHMubm9tYnJlLCAxKX0gY2xhc3NOYW1lPVwidy03IGgtNyBiZy1kYXJrLWhvdmVyIGJvcmRlciBib3JkZXItZGFyay1jb2xvclwiPis8L0J1dHRvbj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPEJ1dHRvbiBzaXplPVwiaWNvblwiIHZhcmlhbnQ9XCJnaG9zdFwiIG9uQ2xpY2s9eygpID0+IHJlbW92ZVNlcnZpY2lvKHMubm9tYnJlKX0gY2xhc3NOYW1lPVwidy03IGgtNyB0ZXh0LXJlZC00MDAgaG92ZXI6YmctcmVkLTUwMC8xMCBtbC0xXCI+PFggY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+PC9CdXR0b24+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L3NlY3Rpb24+XHJcblxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPHNlY3Rpb24gY2xhc3NOYW1lPVwiYmctZGFyay1ob3Zlci8xMCByb3VuZGVkLXhsIGJvcmRlciBib3JkZXItZGFyay1jb2xvciBib3JkZXItb3BhY2l0eS0yMCBwLTQgc3BhY2UteS00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMyB0ZXh0LWRhcmstcHJpbWFyeSBib3JkZXItYiBib3JkZXItZGFyay1jb2xvciBib3JkZXItb3BhY2l0eS0xMCBwYi00XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxQYWNrYWdlIGNsYXNzTmFtZT1cInctNSBoLTUgdGV4dC1wdXJwbGUtNDAwXCIgLz5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGgyIGNsYXNzTmFtZT1cInRleHQtbGcgZm9udC1zZW1pYm9sZFwiPlByb2R1Y3RvczwvaDI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFNlbGVjdCBvblZhbHVlQ2hhbmdlPXthZGRQcm9kdWN0b30+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxTZWxlY3RUcmlnZ2VyIGNsYXNzTmFtZT1cImJnLWRhcmstY2FyZCBib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstcHJpbWFyeSBoLTEwXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8U2VsZWN0VmFsdWUgcGxhY2Vob2xkZXI9XCJBZ3JlZ2FyIHByb2R1Y3RvLi4uXCIgLz5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9TZWxlY3RUcmlnZ2VyPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8U2VsZWN0Q29udGVudCBjbGFzc05hbWU9XCJiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHtwcm9kdWN0b3NEaXNwb25pYmxlcy5tYXAocCA9PiAoXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFNlbGVjdEl0ZW0ga2V5PXtwLm5vbWJyZX0gdmFsdWU9e3Aubm9tYnJlfT5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGp1c3RpZnktYmV0d2VlbiBpdGVtcy1jZW50ZXIgdy1mdWxsIG1pbi13LVsyMDBweF0gdGV4dC14c1wiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4+e3Aubm9tYnJlfTwvc3Bhbj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxiIGNsYXNzTmFtZT1cInRleHQtcHVycGxlLTQwMCBtbC00XCI+JHtwLnByZWNpby50b0xvY2FsZVN0cmluZygpfTwvYj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9TZWxlY3RJdGVtPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvU2VsZWN0Q29udGVudD5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L1NlbGVjdD5cclxuXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAge2Zvcm1EYXRhLnByb2R1Y3Rvcy5tYXAocCA9PiAoXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGtleT17cC5ub21icmV9IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktYmV0d2VlbiBwLTMgYmctZGFyay1jYXJkLzQwIHJvdW5kZWQtbGcgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yLzUwIHRleHQteHMgYW5pbWF0ZS1pbiB6b29tLWluLTk1XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4LTFcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZm9udC1ib2xkXCI+e3Aubm9tYnJlfTwvcD5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1bMTBweF0gdGV4dC1kYXJrLXNlY29uZGFyeSBpdGFsaWNcIj4ke3AucHJlY2lvLnRvTG9jYWxlU3RyaW5nKCl9PC9wPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPEJ1dHRvbiBzaXplPVwiaWNvblwiIHZhcmlhbnQ9XCJnaG9zdFwiIG9uQ2xpY2s9eygpID0+IHVwZGF0ZVF1YW50aXR5KCdwcm9kdWN0b3MnLCBwLm5vbWJyZSwgLTEpfSBjbGFzc05hbWU9XCJ3LTcgaC03IGJnLWRhcmstaG92ZXIgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yXCI+LTwvQnV0dG9uPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJ3LTYgdGV4dC1jZW50ZXIgZm9udC1ib2xkXCI+e3AuY2FudGlkYWR9PC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8QnV0dG9uIHNpemU9XCJpY29uXCIgdmFyaWFudD1cImdob3N0XCIgb25DbGljaz17KCkgPT4gdXBkYXRlUXVhbnRpdHkoJ3Byb2R1Y3RvcycsIHAubm9tYnJlLCAxKX0gY2xhc3NOYW1lPVwidy03IGgtNyBiZy1kYXJrLWhvdmVyIGJvcmRlciBib3JkZXItZGFyay1jb2xvclwiPis8L0J1dHRvbj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPEJ1dHRvbiBzaXplPVwiaWNvblwiIHZhcmlhbnQ9XCJnaG9zdFwiIG9uQ2xpY2s9eygpID0+IHJlbW92ZVByb2R1Y3RvKHAubm9tYnJlKX0gY2xhc3NOYW1lPVwidy03IGgtNyB0ZXh0LXJlZC00MDAgaG92ZXI6YmctcmVkLTUwMC8xMCBtbC0xXCI+PFggY2xhc3NOYW1lPVwidy00IGgtNFwiIC8+PC9CdXR0b24+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKSl9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L3NlY3Rpb24+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgICAgICAgICB7LyogUmlnaHQgQ29sdW1uOiBPcmRlciBTdW1tYXJ5ICovfVxyXG4gICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwibGc6Y29sLXNwYW4tM1wiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICA8c2VjdGlvbiBjbGFzc05hbWU9XCJiZy1kYXJrLWhvdmVyLzIwIHJvdW5kZWQteGwgYm9yZGVyIGJvcmRlci1ibHVlLTUwMC8yMCBwLTYgc3BhY2UteS02IHN0aWNreSB0b3AtNCBzaGFkb3cteGwgc2hhZG93LWJsYWNrLzIwXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0zIHRleHQtZGFyay1wcmltYXJ5IGJvcmRlci1iIGJvcmRlci1kYXJrLWNvbG9yIGJvcmRlci1vcGFjaXR5LTEwIHBiLTRcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8Q2FsY3VsYXRvciBjbGFzc05hbWU9XCJ3LTUgaC01IHRleHQtYmx1ZS00MDBcIiAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxoMiBjbGFzc05hbWU9XCJ0ZXh0LWxnIGZvbnQtc2VtaWJvbGQgdXBwZXJjYXNlIHRyYWNraW5nLXRpZ2h0XCI+UmVzdW1lbjwvaDI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktNFwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBqdXN0aWZ5LWJldHdlZW4gdGV4dC1kYXJrLXNlY29uZGFyeSB0ZXh0LXNtXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxzcGFuPlN1YnRvdGFsOjwvc3Bhbj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZm9udC1ib2xkXCI+JHtmb3JtRGF0YS5zdWJ0b3RhbC50b0xvY2FsZVN0cmluZygpfTwvc3Bhbj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFNlcGFyYXRvciBjbGFzc05hbWU9XCJiZy1kYXJrLWNvbG9yIGJvcmRlci1vcGFjaXR5LTIwXCIgLz5cclxuXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGFjZS15LTFcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwidGV4dC1bMTBweF0gdGV4dC1kYXJrLXNlY29uZGFyeSB1cHBlcmNhc2UgZm9udC1ib2xkIHRyYWNraW5nLXdpZGVzdFwiPlRvdGFsIGEgUGFnYXI8L3NwYW4+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBqdXN0aWZ5LWJldHdlZW4gaXRlbXMtYmFzZWxpbmVcIj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cInRleHQtZW1lcmFsZC00MDAgZm9udC1ib2xkIHRleHQtM3hsIHRyYWNraW5nLXRpZ2h0ZXJcIj4ke2Zvcm1EYXRhLnRvdGFsLnRvTG9jYWxlU3RyaW5nKCl9PC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPEJhZGdlIGNsYXNzTmFtZT1cImJnLWVtZXJhbGQtNTAwLzEwIHRleHQtZW1lcmFsZC00MDAgYm9yZGVyLWVtZXJhbGQtNTAwLzIwXCI+Q09QPC9CYWRnZT5cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktMlwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxMYWJlbCBjbGFzc05hbWU9XCJ0ZXh0LVsxMHB4XSB0ZXh0LWRhcmstc2Vjb25kYXJ5IHVwcGVyY2FzZSBmb250LWJvbGQgbWwtMVwiPk9ic2VydmFjaW9uZXM8L0xhYmVsPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxUZXh0YXJlYVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB2YWx1ZT17Zm9ybURhdGEub2JzZXJ2YWNpb25lc31cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb25DaGFuZ2U9eyhlKSA9PiBzZXRGb3JtRGF0YShwcmV2ID0+ICh7IC4uLnByZXYsIG9ic2VydmFjaW9uZXM6IGUudGFyZ2V0LnZhbHVlIH0pKX1cclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9XCJOb3RhcyBkZSBsYSB0cmFuc2FjY2nDs24uLi5cIlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXByaW1hcnkgbWluLWgtWzgwcHhdIHRleHQteHMgcmVzaXplLW5vbmUgcC0zXCJcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJwdC0yXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPEJ1dHRvbiBvbkNsaWNrPXtoYW5kbGVTdWJtaXR9IGRpc2FibGVkPXtsb2FkaW5nVmVudGFzfSBjbGFzc05hbWU9XCJ3LWZ1bGwgYmctYmx1ZS02MDAgaG92ZXI6YmctYmx1ZS03MDAgdGV4dC13aGl0ZSBmb250LWJvbGQgaC0xMiB0ZXh0LW1kIHNoYWRvdy1sZyBzaGFkb3ctYmx1ZS01MDAvMjAgYWN0aXZlOnNjYWxlLTk1IHRyYW5zaXRpb24tYWxsXCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHtsb2FkaW5nVmVudGFzID8gXCJQcm9jZXNhbmRvLi4uXCIgOiBcIkZpbmFsaXphciBDb2Jyb1wifVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvQnV0dG9uPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtWzlweF0gdGV4dC1kYXJrLXNlY29uZGFyeSB0ZXh0LWNlbnRlciBtdC0zIG9wYWNpdHktNTBcIj5BbCBmaW5hbGl6YXIgc2UgcmVnaXN0cmFyw6EgbGEgdHJhbnNhY2Npw7NuIGVuIGVsIGhpc3RvcmlhbCBjb250YWJsZS48L3A+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgICAgICAgICAgPC9zZWN0aW9uPlxyXG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgIDwvbWFpbj5cclxuICAgICAgICA8L2Rpdj5cclxuICAgICk7XHJcbn1cclxuIl0sIm5hbWVzIjpbInVzZVN0YXRlIiwidXNlRWZmZWN0IiwiQnV0dG9uIiwiSW5wdXQiLCJMYWJlbCIsIlRleHRhcmVhIiwiU2VsZWN0IiwiU2VsZWN0Q29udGVudCIsIlNlbGVjdEl0ZW0iLCJTZWxlY3RUcmlnZ2VyIiwiU2VsZWN0VmFsdWUiLCJCYWRnZSIsInRvYXN0IiwiVXNlciIsIlN0ZXRob3Njb3BlIiwiUGFja2FnZSIsIkNhbGN1bGF0b3IiLCJYIiwiQ2hldnJvbkxlZnQiLCJTZWFyY2giLCJIZWFydCIsInVzZVZlbnRhcyIsInVzZUNsaWVudGVzIiwidXNlVXN1YXJpbyIsIlNlcGFyYXRvciIsInNlcnZpY2lvc0Rpc3BvbmlibGVzIiwibm9tYnJlIiwicHJlY2lvIiwicHJvZHVjdG9zRGlzcG9uaWJsZXMiLCJOdWV2YVZlbnRhUGFnZSIsIm9uQmFjayIsIm9uU3VjY2VzcyIsImNyZWFyVmVudGEiLCJsb2FkaW5nIiwibG9hZGluZ1ZlbnRhcyIsImNsaWVudGVzIiwidXN1YXJpb3MiLCJidXNxdWVkYUNlZHVsYSIsInNldEJ1c3F1ZWRhQ2VkdWxhIiwiY2xpZW50ZVNlbGVjY2lvbmFkbyIsInNldENsaWVudGVTZWxlY2Npb25hZG8iLCJtYXNjb3Rhc0NsaWVudGUiLCJzZXRNYXNjb3Rhc0NsaWVudGUiLCJjbGllbnRlc0VuY29udHJhZG9zIiwic2V0Q2xpZW50ZXNFbmNvbnRyYWRvcyIsIm1vc3RyYXJSZXN1bHRhZG9zIiwic2V0TW9zdHJhclJlc3VsdGFkb3MiLCJmb3JtRGF0YSIsInNldEZvcm1EYXRhIiwiZmVjaGEiLCJEYXRlIiwidG9JU09TdHJpbmciLCJzcGxpdCIsImhvcmEiLCJ0b1RpbWVTdHJpbmciLCJzbGljZSIsImNsaWVudGUiLCJtYXNjb3RhIiwidmV0ZXJpbmFyaW8iLCJzZXJ2aWNpb3MiLCJwcm9kdWN0b3MiLCJzdWJ0b3RhbCIsImRlc2N1ZW50byIsImltcHVlc3RvcyIsInRvdGFsIiwiZXN0YWRvIiwib2JzZXJ2YWNpb25lcyIsImRvY3RvcmVzIiwiZmlsdGVyIiwidSIsInJvbCIsInNlcnZpY2lvc1RvdGFsIiwicmVkdWNlIiwic3VtIiwicyIsImNhbnRpZGFkIiwicHJvZHVjdG9zVG90YWwiLCJwIiwicHJldiIsImhhbmRsZUJ1c3F1ZWRhQ2hhbmdlIiwidmFsb3IiLCJ0cmltIiwibGVuZ3RoIiwibWF0Y2hlcyIsImMiLCJudW1lcm9Eb2N1bWVudG8iLCJ0b0xvd2VyQ2FzZSIsInN0YXJ0c1dpdGgiLCJpbmNsdWRlcyIsImFwZWxsaWRvIiwibWF0Y2hFeGFjdG8iLCJmaW5kIiwic2VsZWNjaW9uYXJDbGllbnRlIiwibWFzY290YXMiLCJzdWNjZXNzIiwiYWRkU2VydmljaW8iLCJzZXJ2aWNpb05vbWJyZSIsInNlcnZpY2lvIiwicmVtb3ZlU2VydmljaW8iLCJhZGRQcm9kdWN0byIsInByb2R1Y3RvTm9tYnJlIiwicHJvZHVjdG8iLCJyZW1vdmVQcm9kdWN0byIsInVwZGF0ZVF1YW50aXR5IiwidHlwZSIsImRlbHRhIiwibWFwIiwiaXRlbSIsIk1hdGgiLCJtYXgiLCJoYW5kbGVTdWJtaXQiLCJlIiwicHJldmVudERlZmF1bHQiLCJlcnJvciIsInJlc3VsdCIsImlkX2NsaWVudGUiLCJpZCIsInZlbmRlZG9yIiwiZGl2IiwiY2xhc3NOYW1lIiwiaGVhZGVyIiwidmFyaWFudCIsInNpemUiLCJvbkNsaWNrIiwiaDEiLCJkaXNhYmxlZCIsIm1haW4iLCJoMiIsInZhbHVlIiwib25DaGFuZ2UiLCJ0YXJnZXQiLCJwbGFjZWhvbGRlciIsIm9uQmx1ciIsInNldFRpbWVvdXQiLCJvbkZvY3VzIiwiYnV0dG9uIiwib25Nb3VzZURvd24iLCJjb3JyZW8iLCJ0ZWxlZm9ubyIsIm9uVmFsdWVDaGFuZ2UiLCJ2YWwiLCJtIiwic3BhbiIsInJhemEiLCJpZF9tYXNjb3RhIiwiZCIsInNlY3Rpb24iLCJiIiwidG9Mb2NhbGVTdHJpbmciXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUFBLFNBQVNBLFFBQVEsRUFBRUMsU0FBUyxRQUFxQixRQUFRO0FBQ3pELFNBQVNDLE1BQU0sUUFBUSxlQUFlO0FBQ3RDLFNBQVNDLEtBQUssUUFBUSxjQUFjO0FBQ3BDLFNBQVNDLEtBQUssUUFBUSxjQUFjO0FBQ3BDLFNBQVNDLFFBQVEsUUFBUSxpQkFBaUI7QUFDMUMsU0FBU0MsTUFBTSxFQUFFQyxhQUFhLEVBQUVDLFVBQVUsRUFBRUMsYUFBYSxFQUFFQyxXQUFXLFFBQVEsZUFBZTtBQUM3RixTQUFTQyxLQUFLLFFBQVEsY0FBYztBQUNwQyxTQUFTQyxLQUFLLFFBQVEsU0FBUztBQUMvQixTQUFpQ0MsSUFBSSxFQUFjQyxXQUFXLEVBQUVDLE9BQU8sRUFBRUMsVUFBVSxFQUFnQkMsQ0FBQyxFQUFRQyxXQUFXLEVBQUVDLE1BQU0sRUFBRUMsS0FBSyxRQUFRLGVBQWU7QUFDN0osU0FBU0MsU0FBUyxRQUFRLHFCQUFxQjtBQUMvQyxTQUFTQyxXQUFXLFFBQTBCLHVCQUF1QjtBQUNyRSxTQUFTQyxVQUFVLFFBQWlCLHNCQUFzQjtBQUMxRCxTQUFTQyxTQUFTLFFBQVEsa0JBQWtCO0FBTzVDLE1BQU1DLHVCQUF1QjtJQUN6QjtRQUFFQyxRQUFRO1FBQW9CQyxRQUFRO0lBQU07SUFDNUM7UUFBRUQsUUFBUTtRQUFjQyxRQUFRO0lBQU07SUFDdEM7UUFBRUQsUUFBUTtRQUFtQkMsUUFBUTtJQUFNO0lBQzNDO1FBQUVELFFBQVE7UUFBbUJDLFFBQVE7SUFBTTtJQUMzQztRQUFFRCxRQUFRO1FBQWlCQyxRQUFRO0lBQU87SUFDMUM7UUFBRUQsUUFBUTtRQUFtQkMsUUFBUTtJQUFNO0lBQzNDO1FBQUVELFFBQVE7UUFBcUJDLFFB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

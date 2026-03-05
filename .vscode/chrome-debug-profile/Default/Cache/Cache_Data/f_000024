@@ -1,0 +1,435 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/modals/ConsultaMedicaModal.tsx");import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+
+let prevRefreshReg;
+let prevRefreshSig;
+
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react-swc can't detect preamble. Something is wrong."
+    );
+  }
+
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+
+import __vite__cjsImport2_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=04e61ac6"; const _jsxDEV = __vite__cjsImport2_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=04e61ac6"; const useState = __vite__cjsImport3_react["useState"]; const useEffect = __vite__cjsImport3_react["useEffect"];
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "/src/components/ui/dialog.tsx?t=1772223881594";
+import { Button } from "/src/components/ui/button.tsx?t=1772223881528";
+import { Label } from "/src/components/ui/label.tsx?t=1772223881635";
+import { Textarea } from "/src/components/ui/textarea.tsx";
+import { Stethoscope, FileText, PillBottle, Heart, User } from "/node_modules/.vite/deps/lucide-react.js?v=04e61ac6";
+export function ConsultaMedicaModal({ isOpen, onClose, onSubmit, loading, entradaInfo }) {
+    _s();
+    const [formData, setFormData] = useState({
+        motivoConsulta: '',
+        diagnostico: '',
+        tratamiento: ''
+    });
+    const [errors, setErrors] = useState({});
+    useEffect(()=>{
+        if (isOpen) {
+            setFormData({
+                motivoConsulta: '',
+                diagnostico: '',
+                tratamiento: ''
+            });
+            setErrors({});
+        }
+    }, [
+        isOpen
+    ]);
+    const validateForm = ()=>{
+        const newErrors = {};
+        if (!formData.motivoConsulta.trim()) newErrors.motivoConsulta = 'El motivo de consulta es requerido';
+        if (!formData.diagnostico.trim()) newErrors.diagnostico = 'El diagnóstico es requerido';
+        if (!formData.tratamiento.trim()) newErrors.tratamiento = 'El tratamiento es requerido';
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        if (!validateForm()) return;
+        const result = await onSubmit(formData);
+        if (result.success) {
+            onClose();
+        }
+    };
+    const handleChange = (field, value)=>{
+        setFormData((prev)=>({
+                ...prev,
+                [field]: value
+            }));
+        if (errors[field]) {
+            setErrors((prev)=>({
+                    ...prev,
+                    [field]: ''
+                }));
+        }
+    };
+    return /*#__PURE__*/ _jsxDEV(Dialog, {
+        open: isOpen,
+        onOpenChange: onClose,
+        children: /*#__PURE__*/ _jsxDEV(DialogContent, {
+            className: "max-w-3xl max-h-[90vh] overflow-y-auto bg-dark-card border-dark-color",
+            children: [
+                /*#__PURE__*/ _jsxDEV(DialogHeader, {
+                    children: [
+                        /*#__PURE__*/ _jsxDEV(DialogTitle, {
+                            className: "text-xl font-semibold text-dark-primary flex items-center gap-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Stethoscope, {
+                                    className: "w-5 h-5 text-blue-400"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 73,
+                                    columnNumber: 13
+                                }, this),
+                                "Nueva Consulta Médica"
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                            lineNumber: 72,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogDescription, {
+                            className: "text-dark-secondary",
+                            children: "Registra el motivo, diagnóstico y tratamiento de la consulta médica"
+                        }, void 0, false, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                            lineNumber: 76,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                    lineNumber: 71,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV("form", {
+                    onSubmit: handleSubmit,
+                    className: "space-y-6",
+                    children: [
+                        entradaInfo && /*#__PURE__*/ _jsxDEV("div", {
+                            className: "bg-dark-hover border border-dark-color rounded-lg p-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("h4", {
+                                    className: "text-sm font-semibold text-dark-primary mb-3",
+                                    children: "Información del Paciente"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 85,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    className: "grid grid-cols-2 gap-4",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "flex items-center gap-2",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(Heart, {
+                                                    className: "w-4 h-4 text-pink-400"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                                    lineNumber: 88,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                            className: "text-xs text-dark-secondary",
+                                                            children: "Mascota"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                                            lineNumber: 90,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                            className: "text-sm font-medium text-dark-primary",
+                                                            children: entradaInfo.nombreMascota
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                                            lineNumber: 91,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                                    lineNumber: 89,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                            lineNumber: 87,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            className: "flex items-center gap-2",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV(User, {
+                                                    className: "w-4 h-4 text-blue-400"
+                                                }, void 0, false, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                                    lineNumber: 95,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                            className: "text-xs text-dark-secondary",
+                                                            children: "Propietario"
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                                            lineNumber: 97,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ _jsxDEV("p", {
+                                                            className: "text-sm font-medium text-dark-primary",
+                                                            children: entradaInfo.nombreCliente
+                                                        }, void 0, false, {
+                                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                                            lineNumber: 98,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                                    lineNumber: 96,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                            lineNumber: 94,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 86,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                            lineNumber: 84,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Label, {
+                                    htmlFor: "motivoConsulta",
+                                    className: "text-dark-primary flex items-center gap-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(FileText, {
+                                            className: "w-4 h-4"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                            lineNumber: 108,
+                                            columnNumber: 15
+                                        }, this),
+                                        "Motivo de Consulta *"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 107,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(Textarea, {
+                                    id: "motivoConsulta",
+                                    value: formData.motivoConsulta,
+                                    onChange: (e)=>handleChange('motivoConsulta', e.target.value),
+                                    className: "bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta min-h-[100px]",
+                                    placeholder: "Describe el motivo de la consulta médica..."
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 111,
+                                    columnNumber: 13
+                                }, this),
+                                errors.motivoConsulta && /*#__PURE__*/ _jsxDEV("p", {
+                                    className: "text-red-400 text-sm",
+                                    children: errors.motivoConsulta
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 118,
+                                    columnNumber: 39
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                            lineNumber: 106,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Label, {
+                                    htmlFor: "diagnostico",
+                                    className: "text-dark-primary flex items-center gap-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(Stethoscope, {
+                                            className: "w-4 h-4"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                            lineNumber: 124,
+                                            columnNumber: 15
+                                        }, this),
+                                        "Diagnóstico *"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 123,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(Textarea, {
+                                    id: "diagnostico",
+                                    value: formData.diagnostico,
+                                    onChange: (e)=>handleChange('diagnostico', e.target.value),
+                                    className: "bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta min-h-[120px]",
+                                    placeholder: "Escribe el diagnóstico médico completo..."
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 127,
+                                    columnNumber: 13
+                                }, this),
+                                errors.diagnostico && /*#__PURE__*/ _jsxDEV("p", {
+                                    className: "text-red-400 text-sm",
+                                    children: errors.diagnostico
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 134,
+                                    columnNumber: 36
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                            lineNumber: 122,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            className: "space-y-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Label, {
+                                    htmlFor: "tratamiento",
+                                    className: "text-dark-primary flex items-center gap-2",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV(PillBottle, {
+                                            className: "w-4 h-4"
+                                        }, void 0, false, {
+                                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                            lineNumber: 140,
+                                            columnNumber: 15
+                                        }, this),
+                                        "Tratamiento *"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 139,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(Textarea, {
+                                    id: "tratamiento",
+                                    value: formData.tratamiento,
+                                    onChange: (e)=>handleChange('tratamiento', e.target.value),
+                                    className: "bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta min-h-[120px]",
+                                    placeholder: "Detalla el tratamiento prescrito (medicamentos, terapias, recomendaciones)..."
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 143,
+                                    columnNumber: 13
+                                }, this),
+                                errors.tratamiento && /*#__PURE__*/ _jsxDEV("p", {
+                                    className: "text-red-400 text-sm",
+                                    children: errors.tratamiento
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 150,
+                                    columnNumber: 36
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                            lineNumber: 138,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV(DialogFooter, {
+                            className: "gap-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "button",
+                                    onClick: onClose,
+                                    variant: "outline",
+                                    className: "dark-button-secondary",
+                                    disabled: loading,
+                                    children: "Cancelar"
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 154,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV(Button, {
+                                    type: "submit",
+                                    className: "dark-button-primary",
+                                    disabled: loading,
+                                    children: loading ? 'Guardando...' : 'Guardar Consulta'
+                                }, void 0, false, {
+                                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                                    lineNumber: 163,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                            lineNumber: 153,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+                    lineNumber: 81,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+            lineNumber: 70,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx",
+        lineNumber: 69,
+        columnNumber: 5
+    }, this);
+}
+_s(ConsultaMedicaModal, "91UahQmBj1vtYK8r8RgMINE0mSQ=");
+_c = ConsultaMedicaModal;
+var _c;
+$RefreshReg$(_c, "ConsultaMedicaModal");
+
+
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+
+
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/equipo/Desktop/AI8Digital (Community) (2)/AI8Digital (Community) (6)/src/components/modals/ConsultaMedicaModal.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIkNvbnN1bHRhTWVkaWNhTW9kYWwudHN4Il0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IHVzZVN0YXRlLCB1c2VFZmZlY3QgfSBmcm9tICdyZWFjdCc7XHJcbmltcG9ydCB7IERpYWxvZywgRGlhbG9nQ29udGVudCwgRGlhbG9nRGVzY3JpcHRpb24sIERpYWxvZ0Zvb3RlciwgRGlhbG9nSGVhZGVyLCBEaWFsb2dUaXRsZSB9IGZyb20gJy4uL3VpL2RpYWxvZyc7XHJcbmltcG9ydCB7IEJ1dHRvbiB9IGZyb20gJy4uL3VpL2J1dHRvbic7XHJcbmltcG9ydCB7IExhYmVsIH0gZnJvbSAnLi4vdWkvbGFiZWwnO1xyXG5pbXBvcnQgeyBUZXh0YXJlYSB9IGZyb20gJy4uL3VpL3RleHRhcmVhJztcclxuaW1wb3J0IHsgU3RldGhvc2NvcGUsIEZpbGVUZXh0LCBQaWxsQm90dGxlLCBIZWFydCwgVXNlciB9IGZyb20gJ2x1Y2lkZS1yZWFjdCc7XHJcblxyXG5pbnRlcmZhY2UgQ29uc3VsdGFNZWRpY2FNb2RhbFByb3BzIHtcclxuICBpc09wZW46IGJvb2xlYW47XHJcbiAgb25DbG9zZTogKCkgPT4gdm9pZDtcclxuICBvblN1Ym1pdDogKGRhdGE6IHsgbW90aXZvQ29uc3VsdGE6IHN0cmluZzsgZGlhZ25vc3RpY286IHN0cmluZzsgdHJhdGFtaWVudG86IHN0cmluZyB9KSA9PiBQcm9taXNlPGFueT47XHJcbiAgbG9hZGluZz86IGJvb2xlYW47XHJcbiAgZW50cmFkYUluZm8/OiB7XHJcbiAgICBub21icmVNYXNjb3RhOiBzdHJpbmc7XHJcbiAgICBub21icmVDbGllbnRlOiBzdHJpbmc7XHJcbiAgfSB8IG51bGw7XHJcbn1cclxuXHJcbmV4cG9ydCBmdW5jdGlvbiBDb25zdWx0YU1lZGljYU1vZGFsKHsgaXNPcGVuLCBvbkNsb3NlLCBvblN1Ym1pdCwgbG9hZGluZywgZW50cmFkYUluZm8gfTogQ29uc3VsdGFNZWRpY2FNb2RhbFByb3BzKSB7XHJcbiAgY29uc3QgW2Zvcm1EYXRhLCBzZXRGb3JtRGF0YV0gPSB1c2VTdGF0ZSh7XHJcbiAgICBtb3Rpdm9Db25zdWx0YTogJycsXHJcbiAgICBkaWFnbm9zdGljbzogJycsXHJcbiAgICB0cmF0YW1pZW50bzogJydcclxuICB9KTtcclxuXHJcbiAgY29uc3QgW2Vycm9ycywgc2V0RXJyb3JzXSA9IHVzZVN0YXRlPFJlY29yZDxzdHJpbmcsIHN0cmluZz4+KHt9KTtcclxuXHJcbiAgdXNlRWZmZWN0KCgpID0+IHtcclxuICAgIGlmIChpc09wZW4pIHtcclxuICAgICAgc2V0Rm9ybURhdGEoe1xyXG4gICAgICAgIG1vdGl2b0NvbnN1bHRhOiAnJyxcclxuICAgICAgICBkaWFnbm9zdGljbzogJycsXHJcbiAgICAgICAgdHJhdGFtaWVudG86ICcnXHJcbiAgICAgIH0pO1xyXG4gICAgICBzZXRFcnJvcnMoe30pO1xyXG4gICAgfVxyXG4gIH0sIFtpc09wZW5dKTtcclxuXHJcbiAgY29uc3QgdmFsaWRhdGVGb3JtID0gKCkgPT4ge1xyXG4gICAgY29uc3QgbmV3RXJyb3JzOiBSZWNvcmQ8c3RyaW5nLCBzdHJpbmc+ID0ge307XHJcblxyXG4gICAgaWYgKCFmb3JtRGF0YS5tb3Rpdm9Db25zdWx0YS50cmltKCkpIG5ld0Vycm9ycy5tb3Rpdm9Db25zdWx0YSA9ICdFbCBtb3Rpdm8gZGUgY29uc3VsdGEgZXMgcmVxdWVyaWRvJztcclxuICAgIGlmICghZm9ybURhdGEuZGlhZ25vc3RpY28udHJpbSgpKSBuZXdFcnJvcnMuZGlhZ25vc3RpY28gPSAnRWwgZGlhZ27Ds3N0aWNvIGVzIHJlcXVlcmlkbyc7XHJcbiAgICBpZiAoIWZvcm1EYXRhLnRyYXRhbWllbnRvLnRyaW0oKSkgbmV3RXJyb3JzLnRyYXRhbWllbnRvID0gJ0VsIHRyYXRhbWllbnRvIGVzIHJlcXVlcmlkbyc7XHJcblxyXG4gICAgc2V0RXJyb3JzKG5ld0Vycm9ycyk7XHJcbiAgICByZXR1cm4gT2JqZWN0LmtleXMobmV3RXJyb3JzKS5sZW5ndGggPT09IDA7XHJcbiAgfTtcclxuXHJcbiAgY29uc3QgaGFuZGxlU3VibWl0ID0gYXN5bmMgKGU6IFJlYWN0LkZvcm1FdmVudCkgPT4ge1xyXG4gICAgZS5wcmV2ZW50RGVmYXVsdCgpO1xyXG4gICAgXHJcbiAgICBpZiAoIXZhbGlkYXRlRm9ybSgpKSByZXR1cm47XHJcblxyXG4gICAgY29uc3QgcmVzdWx0ID0gYXdhaXQgb25TdWJtaXQoZm9ybURhdGEpO1xyXG4gICAgaWYgKHJlc3VsdC5zdWNjZXNzKSB7XHJcbiAgICAgIG9uQ2xvc2UoKTtcclxuICAgIH1cclxuICB9O1xyXG5cclxuICBjb25zdCBoYW5kbGVDaGFuZ2UgPSAoZmllbGQ6IHN0cmluZywgdmFsdWU6IHN0cmluZykgPT4ge1xyXG4gICAgc2V0Rm9ybURhdGEocHJldiA9PiAoeyAuLi5wcmV2LCBbZmllbGRdOiB2YWx1ZSB9KSk7XHJcbiAgICBpZiAoZXJyb3JzW2ZpZWxkXSkge1xyXG4gICAgICBzZXRFcnJvcnMocHJldiA9PiAoeyAuLi5wcmV2LCBbZmllbGRdOiAnJyB9KSk7XHJcbiAgICB9XHJcbiAgfTtcclxuXHJcbiAgcmV0dXJuIChcclxuICAgIDxEaWFsb2cgb3Blbj17aXNPcGVufSBvbk9wZW5DaGFuZ2U9e29uQ2xvc2V9PlxyXG4gICAgICA8RGlhbG9nQ29udGVudCBjbGFzc05hbWU9XCJtYXgtdy0zeGwgbWF4LWgtWzkwdmhdIG92ZXJmbG93LXktYXV0byBiZy1kYXJrLWNhcmQgYm9yZGVyLWRhcmstY29sb3JcIj5cclxuICAgICAgICA8RGlhbG9nSGVhZGVyPlxyXG4gICAgICAgICAgPERpYWxvZ1RpdGxlIGNsYXNzTmFtZT1cInRleHQteGwgZm9udC1zZW1pYm9sZCB0ZXh0LWRhcmstcHJpbWFyeSBmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICA8U3RldGhvc2NvcGUgY2xhc3NOYW1lPVwidy01IGgtNSB0ZXh0LWJsdWUtNDAwXCIgLz5cclxuICAgICAgICAgICAgTnVldmEgQ29uc3VsdGEgTcOpZGljYVxyXG4gICAgICAgICAgPC9EaWFsb2dUaXRsZT5cclxuICAgICAgICAgIDxEaWFsb2dEZXNjcmlwdGlvbiBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstc2Vjb25kYXJ5XCI+XHJcbiAgICAgICAgICAgIFJlZ2lzdHJhIGVsIG1vdGl2bywgZGlhZ27Ds3N0aWNvIHkgdHJhdGFtaWVudG8gZGUgbGEgY29uc3VsdGEgbcOpZGljYVxyXG4gICAgICAgICAgPC9EaWFsb2dEZXNjcmlwdGlvbj5cclxuICAgICAgICA8L0RpYWxvZ0hlYWRlcj5cclxuXHJcbiAgICAgICAgPGZvcm0gb25TdWJtaXQ9e2hhbmRsZVN1Ym1pdH0gY2xhc3NOYW1lPVwic3BhY2UteS02XCI+XHJcbiAgICAgICAgICB7LyogSW5mb3JtYWNpw7NuIGRlIGxhIEVudHJhZGEgKi99XHJcbiAgICAgICAgICB7ZW50cmFkYUluZm8gJiYgKFxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImJnLWRhcmstaG92ZXIgYm9yZGVyIGJvcmRlci1kYXJrLWNvbG9yIHJvdW5kZWQtbGcgcC00XCI+XHJcbiAgICAgICAgICAgICAgPGg0IGNsYXNzTmFtZT1cInRleHQtc20gZm9udC1zZW1pYm9sZCB0ZXh0LWRhcmstcHJpbWFyeSBtYi0zXCI+SW5mb3JtYWNpw7NuIGRlbCBQYWNpZW50ZTwvaDQ+XHJcbiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJncmlkIGdyaWQtY29scy0yIGdhcC00XCI+XHJcbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0yXCI+XHJcbiAgICAgICAgICAgICAgICAgIDxIZWFydCBjbGFzc05hbWU9XCJ3LTQgaC00IHRleHQtcGluay00MDBcIiAvPlxyXG4gICAgICAgICAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQteHMgdGV4dC1kYXJrLXNlY29uZGFyeVwiPk1hc2NvdGE8L3A+XHJcbiAgICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1zbSBmb250LW1lZGl1bSB0ZXh0LWRhcmstcHJpbWFyeVwiPntlbnRyYWRhSW5mby5ub21icmVNYXNjb3RhfTwvcD5cclxuICAgICAgICAgICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj5cclxuICAgICAgICAgICAgICAgICAgPFVzZXIgY2xhc3NOYW1lPVwidy00IGgtNCB0ZXh0LWJsdWUtNDAwXCIgLz5cclxuICAgICAgICAgICAgICAgICAgPGRpdj5cclxuICAgICAgICAgICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LXhzIHRleHQtZGFyay1zZWNvbmRhcnlcIj5Qcm9waWV0YXJpbzwvcD5cclxuICAgICAgICAgICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LXNtIGZvbnQtbWVkaXVtIHRleHQtZGFyay1wcmltYXJ5XCI+e2VudHJhZGFJbmZvLm5vbWJyZUNsaWVudGV9PC9wPlxyXG4gICAgICAgICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICAgICl9XHJcblxyXG4gICAgICAgICAgey8qIE1vdGl2byBkZSBDb25zdWx0YSAqL31cclxuICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BhY2UteS0yXCI+XHJcbiAgICAgICAgICAgIDxMYWJlbCBodG1sRm9yPVwibW90aXZvQ29uc3VsdGFcIiBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSBmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgIDxGaWxlVGV4dCBjbGFzc05hbWU9XCJ3LTQgaC00XCIgLz5cclxuICAgICAgICAgICAgICBNb3Rpdm8gZGUgQ29uc3VsdGEgKlxyXG4gICAgICAgICAgICA8L0xhYmVsPlxyXG4gICAgICAgICAgICA8VGV4dGFyZWFcclxuICAgICAgICAgICAgICBpZD1cIm1vdGl2b0NvbnN1bHRhXCJcclxuICAgICAgICAgICAgICB2YWx1ZT17Zm9ybURhdGEubW90aXZvQ29uc3VsdGF9XHJcbiAgICAgICAgICAgICAgb25DaGFuZ2U9eyhlKSA9PiBoYW5kbGVDaGFuZ2UoJ21vdGl2b0NvbnN1bHRhJywgZS50YXJnZXQudmFsdWUpfVxyXG4gICAgICAgICAgICAgIGNsYXNzTmFtZT1cImJnLWRhcmstaG92ZXIgYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXByaW1hcnkgZm9jdXM6Ym9yZGVyLWRhcmstY3RhIG1pbi1oLVsxMDBweF1cIlxyXG4gICAgICAgICAgICAgIHBsYWNlaG9sZGVyPVwiRGVzY3JpYmUgZWwgbW90aXZvIGRlIGxhIGNvbnN1bHRhIG3DqWRpY2EuLi5cIlxyXG4gICAgICAgICAgICAvPlxyXG4gICAgICAgICAgICB7ZXJyb3JzLm1vdGl2b0NvbnN1bHRhICYmIDxwIGNsYXNzTmFtZT1cInRleHQtcmVkLTQwMCB0ZXh0LXNtXCI+e2Vycm9ycy5tb3Rpdm9Db25zdWx0YX08L3A+fVxyXG4gICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgey8qIERpYWduw7NzdGljbyAqL31cclxuICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BhY2UteS0yXCI+XHJcbiAgICAgICAgICAgIDxMYWJlbCBodG1sRm9yPVwiZGlhZ25vc3RpY29cIiBjbGFzc05hbWU9XCJ0ZXh0LWRhcmstcHJpbWFyeSBmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxyXG4gICAgICAgICAgICAgIDxTdGV0aG9zY29wZSBjbGFzc05hbWU9XCJ3LTQgaC00XCIgLz5cclxuICAgICAgICAgICAgICBEaWFnbsOzc3RpY28gKlxyXG4gICAgICAgICAgICA8L0xhYmVsPlxyXG4gICAgICAgICAgICA8VGV4dGFyZWFcclxuICAgICAgICAgICAgICBpZD1cImRpYWdub3N0aWNvXCJcclxuICAgICAgICAgICAgICB2YWx1ZT17Zm9ybURhdGEuZGlhZ25vc3RpY299XHJcbiAgICAgICAgICAgICAgb25DaGFuZ2U9eyhlKSA9PiBoYW5kbGVDaGFuZ2UoJ2RpYWdub3N0aWNvJywgZS50YXJnZXQudmFsdWUpfVxyXG4gICAgICAgICAgICAgIGNsYXNzTmFtZT1cImJnLWRhcmstaG92ZXIgYm9yZGVyLWRhcmstY29sb3IgdGV4dC1kYXJrLXByaW1hcnkgZm9jdXM6Ym9yZGVyLWRhcmstY3RhIG1pbi1oLVsxMjBweF1cIlxyXG4gICAgICAgICAgICAgIHBsYWNlaG9sZGVyPVwiRXNjcmliZSBlbCBkaWFnbsOzc3RpY28gbcOpZGljbyBjb21wbGV0by4uLlwiXHJcbiAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgIHtlcnJvcnMuZGlhZ25vc3RpY28gJiYgPHAgY2xhc3NOYW1lPVwidGV4dC1yZWQtNDAwIHRleHQtc21cIj57ZXJyb3JzLmRpYWdub3N0aWNvfTwvcD59XHJcbiAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICB7LyogVHJhdGFtaWVudG8gKi99XHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktMlwiPlxyXG4gICAgICAgICAgICA8TGFiZWwgaHRtbEZvcj1cInRyYXRhbWllbnRvXCIgY2xhc3NOYW1lPVwidGV4dC1kYXJrLXByaW1hcnkgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTJcIj5cclxuICAgICAgICAgICAgICA8UGlsbEJvdHRsZSBjbGFzc05hbWU9XCJ3LTQgaC00XCIgLz5cclxuICAgICAgICAgICAgICBUcmF0YW1pZW50byAqXHJcbiAgICAgICAgICAgIDwvTGFiZWw+XHJcbiAgICAgICAgICAgIDxUZXh0YXJlYVxyXG4gICAgICAgICAgICAgIGlkPVwidHJhdGFtaWVudG9cIlxyXG4gICAgICAgICAgICAgIHZhbHVlPXtmb3JtRGF0YS50cmF0YW1pZW50b31cclxuICAgICAgICAgICAgICBvbkNoYW5nZT17KGUpID0+IGhhbmRsZUNoYW5nZSgndHJhdGFtaWVudG8nLCBlLnRhcmdldC52YWx1ZSl9XHJcbiAgICAgICAgICAgICAgY2xhc3NOYW1lPVwiYmctZGFyay1ob3ZlciBib3JkZXItZGFyay1jb2xvciB0ZXh0LWRhcmstcHJpbWFyeSBmb2N1czpib3JkZXItZGFyay1jdGEgbWluLWgtWzEyMHB4XVwiXHJcbiAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9XCJEZXRhbGxhIGVsIHRyYXRhbWllbnRvIHByZXNjcml0byAobWVkaWNhbWVudG9zLCB0ZXJhcGlhcywgcmVjb21lbmRhY2lvbmVzKS4uLlwiXHJcbiAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgIHtlcnJvcnMudHJhdGFtaWVudG8gJiYgPHAgY2xhc3NOYW1lPVwidGV4dC1yZWQtNDAwIHRleHQtc21cIj57ZXJyb3JzLnRyYXRhbWllbnRvfTwvcD59XHJcbiAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICA8RGlhbG9nRm9vdGVyIGNsYXNzTmFtZT1cImdhcC0yXCI+XHJcbiAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICB0eXBlPVwiYnV0dG9uXCJcclxuICAgICAgICAgICAgICBvbkNsaWNrPXtvbkNsb3NlfVxyXG4gICAgICAgICAgICAgIHZhcmlhbnQ9XCJvdXRsaW5lXCJcclxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJkYXJrLWJ1dHRvbi1zZWNvbmRhcnlcIlxyXG4gICAgICAgICAgICAgIGRpc2FibGVkPXtsb2FkaW5nfVxyXG4gICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgQ2FuY2VsYXJcclxuICAgICAgICAgICAgPC9CdXR0b24+XHJcbiAgICAgICAgICAgIDxCdXR0b25cclxuICAgICAgICAgICAgICB0eXBlPVwic3VibWl0XCJcclxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJkYXJrLWJ1dHRvbi1wcmltYXJ5XCJcclxuICAgICAgICAgICAgICBkaXNhYmxlZD17bG9hZGluZ31cclxuICAgICAgICAgICAgPlxyXG4gICAgICAgICAgICAgIHtsb2FkaW5nID8gJ0d1YXJkYW5kby4uLicgOiAnR3VhcmRhciBDb25zdWx0YSd9XHJcbiAgICAgICAgICAgIDwvQnV0dG9uPlxyXG4gICAgICAgICAgPC9EaWFsb2dGb290ZXI+XHJcbiAgICAgICAgPC9mb3JtPlxyXG4gICAgICA8L0RpYWxvZ0NvbnRlbnQ+XHJcbiAgICA8L0RpYWxvZz5cclxuICApO1xyXG59XHJcbiJdLCJuYW1lcyI6WyJ1c2VTdGF0ZSIsInVzZUVmZmVjdCIsIkRpYWxvZyIsIkRpYWxvZ0NvbnRlbnQiLCJEaWFsb2dEZXNjcmlwdGlvbiIsIkRpYWxvZ0Zvb3RlciIsIkRpYWxvZ0hlYWRlciIsIkRpYWxvZ1RpdGxlIiwiQnV0dG9uIiwiTGFiZWwiLCJUZXh0YXJlYSIsIlN0ZXRob3Njb3BlIiwiRmlsZVRleHQiLCJQaWxsQm90dGxlIiwiSGVhcnQiLCJVc2VyIiwiQ29uc3VsdGFNZWRpY2FNb2RhbCIsImlzT3BlbiIsIm9uQ2xvc2UiLCJvblN1Ym1pdCIsImxvYWRpbmciLCJlbnRyYWRhSW5mbyIsImZvcm1EYXRhIiwic2V0Rm9ybURhdGEiLCJtb3Rpdm9Db25zdWx0YSIsImRpYWdub3N0aWNvIiwidHJhdGFtaWVudG8iLCJlcnJvcnMiLCJzZXRFcnJvcnMiLCJ2YWxpZGF0ZUZvcm0iLCJuZXdFcnJvcnMiLCJ0cmltIiwiT2JqZWN0Iiwia2V5cyIsImxlbmd0aCIsImhhbmRsZVN1Ym1pdCIsImUiLCJwcmV2ZW50RGVmYXVsdCIsInJlc3VsdCIsInN1Y2Nlc3MiLCJoYW5kbGVDaGFuZ2UiLCJmaWVsZCIsInZhbHVlIiwicHJldiIsIm9wZW4iLCJvbk9wZW5DaGFuZ2UiLCJjbGFzc05hbWUiLCJmb3JtIiwiZGl2IiwiaDQiLCJwIiwibm9tYnJlTWFzY290YSIsIm5vbWJyZUNsaWVudGUiLCJodG1sRm9yIiwiaWQiLCJvbkNoYW5nZSIsInRhcmdldCIsInBsYWNlaG9sZGVyIiwidHlwZSIsIm9uQ2xpY2siLCJ2YXJp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
