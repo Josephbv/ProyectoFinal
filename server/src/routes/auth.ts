@@ -158,9 +158,10 @@ router.post('/login', async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Correo y contraseña son obligatorios' });
         }
 
+        const emailLower = correo.trim().toLowerCase();
         const usuario = await prisma.usuario.findFirst({
-            where: { correo },
-            include: { rol: true } // Incluimos el rol para el frontend
+            where: { correo: emailLower },
+            include: { rol: true }
         });
 
         if (!usuario) {
@@ -271,8 +272,9 @@ router.delete('/users/:id', async (req: Request, res: Response) => {
 
 router.post('/request-reset', async (req: Request, res: Response) => {
     const { email } = req.body;
+    const emailLower = email?.trim().toLowerCase();
     try {
-        const usuario = await prisma.usuario.findUnique({ where: { correo: email } });
+        const usuario = await prisma.usuario.findUnique({ where: { correo: emailLower } });
         if (!usuario) {
             return res.status(404).json({ error: 'No existe un usuario con este correo.' });
         }
@@ -295,8 +297,9 @@ router.post('/request-reset', async (req: Request, res: Response) => {
 
 router.post('/reset-password', async (req: Request, res: Response) => {
     const { email, token, newPassword } = req.body;
+    const emailLower = email?.trim().toLowerCase();
     try {
-        const usuario = await prisma.usuario.findUnique({ where: { correo: email } });
+        const usuario = await prisma.usuario.findUnique({ where: { correo: emailLower } });
         if (!usuario || usuario.token_recuperacion !== token) {
             return res.status(400).json({ error: 'Código inválido o correo incorrecto' });
         }

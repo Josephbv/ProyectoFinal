@@ -3,14 +3,18 @@ import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog";
 import { toast } from "sonner";
-import { Users, Plus, Search, Mail, Phone, Eye, Edit, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, FileText } from "lucide-react";
+import { Users, Plus, Search, Mail, Phone, Eye, Edit, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, FileText, Dog } from "lucide-react";
 import { ClienteModal } from "../modals/ClienteModal";
+import { MascotaModal } from "../modals/MascotaModal";
 import { useClientes, Cliente } from "../hooks/useClientes";
+import { useMascotas } from "../hooks/useMascotas";
 
 export function ClientesPage() {
   const { clientes, loading, crearCliente, actualizarCliente, eliminarCliente } = useClientes();
+  const { crearMascota } = useMascotas();
   const [busqueda, setBusqueda] = useState("");
   const [clienteModal, setClienteModal] = useState({ isOpen: false, cliente: null as Cliente | null, readOnly: false });
+  const [petModal, setPetModal] = useState({ isOpen: false, initialClientId: 0 });
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, cliente: null as Cliente | null });
 
   // Estados para paginación
@@ -284,6 +288,18 @@ export function ClientesPage() {
         cliente={clienteModal.cliente}
         loading={loading}
         readOnly={clienteModal.readOnly}
+      />
+
+      <MascotaModal
+        isOpen={petModal.isOpen}
+        onClose={() => setPetModal({ isOpen: false, initialClientId: 0 })}
+        initialClientId={petModal.initialClientId}
+        onSubmit={async (data) => {
+          const res = await crearMascota(data);
+          if (res.success) toast.success("Mascota registrada exitosamente");
+          return res;
+        }}
+        loading={loading}
       />
 
       <AlertDialog open={deleteDialog.isOpen} onOpenChange={() => setDeleteDialog({ isOpen: false, cliente: null })}>

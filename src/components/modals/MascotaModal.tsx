@@ -15,9 +15,10 @@ interface MascotaModalProps {
   mascota?: Mascota | null;
   loading?: boolean;
   readOnly?: boolean;
+  initialClientId?: number;
 }
 
-export function MascotaModal({ isOpen, onClose, onSubmit, mascota, loading, readOnly = false }: MascotaModalProps) {
+export function MascotaModal({ isOpen, onClose, onSubmit, mascota, loading, readOnly = false, initialClientId }: MascotaModalProps) {
   const { clientes } = useClientes();
   const [formData, setFormData] = useState<Partial<Mascota>>({
     nombre: '',
@@ -74,7 +75,7 @@ export function MascotaModal({ isOpen, onClose, onSubmit, mascota, loading, read
         nombre: '',
         especie: '',
         raza: '',
-        id_cliente: 0,
+        id_cliente: initialClientId || 0,
         edad: null,
         fecha_nacimiento: '',
         peso: null,
@@ -84,11 +85,16 @@ export function MascotaModal({ isOpen, onClose, onSubmit, mascota, loading, read
         observaciones: '',
         foto: ''
       });
-      setSearchTerm('');
+      if (initialClientId) {
+        const c = clientes.find(cl => cl.id_cliente === initialClientId);
+        if (c) setSearchTerm(c.nombre);
+      } else {
+        setSearchTerm('');
+      }
     }
     setTieneVacunas(!!(mascota?.vacunas && mascota.vacunas.length > 0) || !!mascota?.fecha_ultima_vacuna);
     setErrors({});
-  }, [mascota, isOpen, clientes]);
+  }, [mascota, isOpen, clientes, initialClientId]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -100,11 +106,34 @@ export function MascotaModal({ isOpen, onClose, onSubmit, mascota, loading, read
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, addNew: boolean = false) => {
     e.preventDefault();
     if (!validateForm()) return;
     const result = await onSubmit(formData);
-    if (result.success) onClose();
+    if (result.success) {
+      if (addNew) {
+        // Limpiar campos de mascota pero mantener el cliente
+        setFormData(prev => ({
+          nombre: '',
+          especie: '',
+          raza: '',
+          id_cliente: prev.id_cliente,
+          id_mascota: undefined, // Asegurar que sea una creación si era una edición
+          edad: null,
+          fecha_nacimiento: '',
+          peso: null,
+          vacunas: '',
+          fecha_ultima_vacuna: '',
+          fecha_desparasitacion: '',
+          observaciones: '',
+          foto: ''
+        }));
+        setErrors({});
+        // Opcional: mostrar un mini-toast interno o feedback
+      } else {
+        onClose();
+      }
+    }
   };
 
   const handleChange = (field: keyof Mascota, value: any) => {
@@ -350,24 +379,37 @@ export function MascotaModal({ isOpen, onClose, onSubmit, mascota, loading, read
             />
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="border-dark-color text-dark-secondary hover:bg-dark-hover"
-            >
-              Cerrar
-            </Button>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2">
             {!readOnly && (
               <Button
-                type="submit"
+                type="button"
+                variant="outline"
+                onClick={(e) => handleSubmit(e, true)}
                 disabled={loading}
-                className="bg-dark-cta text-white hover:bg-blue-600 px-8"
+                className="border-indigo-500 text-indigo-400 hover:bg-indigo-500/10"
               >
-                {loading ? 'Guardando...' : mascota ? 'Actualizar' : 'Registrar Mascota'}
+                {loading ? 'Guardando...' : mascota ? 'Actualizar y Otro' : 'Registrar y Otro'}
               </Button>
             )}
+            <div className="flex gap-2 ml-auto">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="border-dark-color text-dark-secondary hover:bg-dark-hover"
+              >
+                Cerrar
+              </Button>
+              {!readOnly && (
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-dark-cta text-white hover:bg-blue-600 px-8"
+                >
+                  {loading ? 'Guardando...' : mascota ? 'Actualizar' : 'Registrar Mascota'}
+                </Button>
+              )}
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>

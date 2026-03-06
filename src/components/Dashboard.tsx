@@ -372,8 +372,8 @@ export function Dashboard({ onLogout }: DashboardProps) {
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-dark-card"></div>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-dark-primary truncate" title={user?.nombre_completo || user?.nombre_usuario || 'Usuario'}>
-                      {user?.nombre_completo || user?.nombre_usuario || 'Usuario'}
+                    <p className="text-sm font-semibold text-dark-primary truncate" title={user?.nombre_usuario || user?.nombre_completo || 'Usuario'}>
+                      {user?.nombre_usuario || user?.nombre_completo || 'Usuario'}
                     </p>
                     <p className="text-xs text-dark-secondary truncate text-blue-400 font-medium">
                       {user?.rol || 'Sin Rol'}

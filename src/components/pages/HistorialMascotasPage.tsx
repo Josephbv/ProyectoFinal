@@ -368,20 +368,73 @@ export function HistorialMascotasPage() {
           {/* Sidebar Metadata */}
           <aside className="w-96 bg-[#0f1113] border-r border-dark-color flex flex-col shrink-0">
             <div className="p-8 space-y-8">
-              {/* Card Mascota */}
-              <div className="bg-dark-card border border-dark-color rounded-[2rem] p-8 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-pink-500/10 transition-colors" />
-                <div className="relative z-10 flex flex-col items-center text-center">
-                  <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-2xl mb-5 transform -rotate-3 group-hover:rotate-0 transition-transform">
-                    <Heart className="w-10 h-10 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-black text-dark-primary tracking-tight mb-1">{entrada.mascota?.nombre || (entrada as any).nombreMascota || 'Mascota'}</h3>
-                  <p className="text-xs font-black text-pink-400 tracking-[0.2em] mb-4">Paciente veterinario</p>
+              {/* Card Mascota & Propietario */}
+              <div className="space-y-4">
+                {/* Paciente Section */}
+                <div className="bg-dark-card border border-dark-color rounded-[2rem] p-8 shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-pink-500/10 transition-colors" />
+                  <div className="relative z-10 flex flex-col items-center text-center">
+                    <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-2xl mb-5 transform -rotate-3 group-hover:rotate-0 transition-transform">
+                      <Heart className="w-10 h-10 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-black text-dark-primary tracking-tight mb-1">{entrada.mascota?.nombre || (entrada as any).nombreMascota || 'Mascota'}</h3>
+                    <p className="text-xs font-black text-pink-400 tracking-[0.2em] mb-6">Paciente veterinario</p>
 
-                  <div className="w-full pt-4 border-t border-dark-color space-y-3">
-                    <div className="flex justify-between items-center text-[10px] font-black tracking-widest">
-                      <span className="text-dark-secondary">Propietario</span>
-                      <span className="text-dark-primary">{(entrada as any).mascota?.cliente?.nombre || (entrada as any).nombreCliente || 'N/A'}</span>
+                    <div className="w-full grid grid-cols-2 gap-3 pt-6 border-t border-dark-color">
+                      <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col">
+                        <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Edad</p>
+                        <p className="text-xs font-black text-emerald-400">{entrada.mascota?.edad || 'N/A'} años</p>
+                      </div>
+                      <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col">
+                        <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Peso</p>
+                        <p className="text-xs font-black text-blue-400">{entrada.mascota?.peso || 'N/A'} kg</p>
+                      </div>
+                      <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col">
+                        <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Nacimiento</p>
+                        <p className="text-[10px] font-black text-purple-400">
+                          {entrada.mascota?.fecha_nacimiento ? new Date(entrada.mascota.fecha_nacimiento).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }) : 'N/A'}
+                        </p>
+                      </div>
+                      <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col">
+                        <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Vacunas</p>
+                        <p className={`text-[10px] font-black ${entrada.mascota?.vacunas ? 'text-green-400' : 'text-orange-400 opacity-80'}`}>
+                          {entrada.mascota?.vacunas ? 'Al día' : 'Pendiente'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Propietario Section */}
+                <div className="bg-dark-card border border-dark-color rounded-[2rem] p-8 shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500/5 rounded-full -ml-16 -mt-16 blur-3xl group-hover:bg-blue-500/10 transition-colors" />
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
+                        <User className="w-6 h-6 text-blue-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-black text-blue-400 tracking-widest leading-none mb-1.5 opacity-80">Propietario</p>
+                        <h4 className="text-sm font-black text-dark-primary truncate leading-tight tracking-tight">
+                          {entrada.mascota?.cliente?.nombre || (entrada as any).nombreCliente || 'No seleccionado'}
+                        </h4>
+                        <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60">ID: {entrada.mascota?.cliente?.cedula || 'N/A'}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 pt-4 border-t border-dark-color">
+                      <div className="flex items-center gap-3 text-xs text-dark-secondary/80 font-bold">
+                        <div className="w-8 h-8 rounded-xl bg-dark-bg/50 flex items-center justify-center border border-dark-color/50">
+                          <Users className="w-4 h-4 text-dark-secondary" />
+                        </div>
+                        <span className="truncate">{entrada.mascota?.cliente?.telefono || 'Sin Teléfono'}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-dark-secondary/80 font-bold">
+                        <div className="w-8 h-8 rounded-xl bg-dark-bg/50 flex items-center justify-center border border-dark-color/50">
+                          <Search className="w-4 h-4 text-dark-secondary" />
+                        </div>
+                        <span className="truncate">{entrada.mascota?.cliente?.direccion || 'Sin Dirección'}</span>
+                      </div>
                     </div>
                   </div>
                 </div>

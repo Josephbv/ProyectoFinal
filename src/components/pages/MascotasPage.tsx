@@ -21,8 +21,18 @@ export function MascotasPage() {
 
   const mascotasConId = mascotas.map((m, index) => ({ ...m, displayId: index + 1 }));
 
-  const mascotasFiltradas = mascotasConId.filter(mascota => {
-    return mascota.displayId.toString().includes(busqueda);
+  const mascotasFiltradas = mascotas.filter(mascota => {
+    const searchLow = busqueda.toLowerCase().trim();
+    if (!searchLow) return true;
+
+    const clienteNombre = getClienteNombre(mascota.id_cliente).toLowerCase();
+    return (
+      (mascota.nombre || '').toLowerCase().includes(searchLow) ||
+      clienteNombre.includes(searchLow) ||
+      (mascota.especie || '').toLowerCase().includes(searchLow) ||
+      (mascota.raza || '').toLowerCase().includes(searchLow) ||
+      mascota.id_mascota.toString().includes(searchLow)
+    );
   });
 
   // Cálculos de paginación
@@ -96,7 +106,7 @@ export function MascotasPage() {
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
               <input
                 type="text"
-                placeholder="Buscar por ID..."
+                placeholder="Buscar por mascota, dueño o especie..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
@@ -121,7 +131,7 @@ export function MascotasPage() {
             <Table>
               <TableHeader>
                 <TableRow className="border-dark-color hover:bg-dark-hover">
-                  <TableHead className="text-dark-primary font-semibold w-16">
+                  <TableHead className="text-dark-primary font-semibold w-16 text-center">
                     ID
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold min-w-[200px]">
@@ -131,10 +141,7 @@ export function MascotasPage() {
                     </div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold min-w-[150px]">
-                    Especie
-                  </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[150px]">
-                    Raza
+                    Especie / Raza
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold min-w-[200px]">
                     <div className="flex items-center gap-2">
@@ -149,81 +156,81 @@ export function MascotasPage() {
               </TableHeader>
 
               <TableBody>
-                {mascotasPaginadas.map((mascota) => (
-                  <TableRow key={mascota.id_mascota} className="border-dark-color hover:bg-dark-table-hover transition-colors">
-                    <TableCell className="text-dark-secondary font-medium">
-                      {(mascota as any).displayId}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-dark-hover rounded-full flex items-center justify-center shadow-lg border border-dark-color">
-                          {getEspecieIcon(mascota.especie || '')}
+                {mascotasPaginadas.length > 0 ? (
+                  mascotasPaginadas.map((mascota) => (
+                    <TableRow key={mascota.id_mascota} className="border-dark-color hover:bg-dark-table-hover transition-colors">
+                      <TableCell className="text-dark-secondary font-medium text-center">
+                        <span className="opacity-50">#{mascota.id_mascota}</span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-dark-hover rounded-full flex items-center justify-center shadow-lg border border-dark-color">
+                            {getEspecieIcon(mascota.especie || '')}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-dark-primary">{mascota.nombre}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="font-semibold text-dark-primary">{mascota.nombre}</div>
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-dark-primary">{mascota.especie || 'N/A'}</span>
+                          <span className="text-[10px] text-dark-secondary italic">{mascota.raza || 'Sin raza'}</span>
                         </div>
-                      </div>
-                    </TableCell>
+                      </TableCell>
 
-                    <TableCell>
-                      <div className="text-sm font-medium text-dark-primary">
-                        {mascota.especie || 'N/A'}
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="text-sm text-dark-primary">
-                        {mascota.raza || 'N/A'}
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="space-y-1">
+                      <TableCell>
                         <div className="flex items-center gap-2">
-                          <User className="w-3 h-3 text-dark-secondary" />
-                          <span className="text-sm text-dark-primary font-medium hover:text-indigo-400 cursor-pointer">
+                          <span className="text-sm text-dark-primary font-medium">
                             {getClienteNombre(mascota.id_cliente)}
                           </span>
                         </div>
-                      </div>
-                    </TableCell>
+                      </TableCell>
 
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-1.5">
-                        <Button
-                          onClick={() => abrirMascotaModal(mascota, true)}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
-                          disabled={loading}
-                          title="Ver detalle"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={() => abrirMascotaModal(mascota)}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
-                          disabled={loading}
-                          title="Editar mascota"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={() => setDeleteDialog({ isOpen: true, mascota })}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                          disabled={loading}
-                          title="Eliminar"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      <TableCell>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <Button
+                            onClick={() => abrirMascotaModal(mascota, true)}
+                            variant="outline"
+                            size="sm"
+                            className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
+                            disabled={loading}
+                            title="Ver detalle"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            onClick={() => abrirMascotaModal(mascota)}
+                            variant="outline"
+                            size="sm"
+                            className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
+                            disabled={loading}
+                            title="Editar mascota"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            onClick={() => setDeleteDialog({ isOpen: true, mascota })}
+                            variant="outline"
+                            size="sm"
+                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
+                            disabled={loading}
+                            title="Eliminar"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-48 text-center text-dark-secondary italic">
+                      No se encontraron mascotas registradas
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
@@ -235,7 +242,7 @@ export function MascotasPage() {
 
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-dark-secondary">Página {currentPage} de {totalPages}</span>
+                <span className="text-dark-secondary">Página {currentPage} de {totalPages || 1}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Button onClick={() => goToPage(1)} disabled={currentPage === 1 || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>

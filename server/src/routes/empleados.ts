@@ -202,11 +202,24 @@ router.delete('/:id', async (req: Request, res: Response) => {
                 where: { id_empleado }
             });
 
-            // 4. Borrar usuarios vinculados
+            // 4. Borrar usuarios vinculados (PROTECCIÓN PARA ADMINS)
             if (emp.usuarios && emp.usuarios.length > 0) {
-                await tx.usuario.deleteMany({
-                    where: { id_empleado }
-                });
+                for (const u of emp.usuarios) {
+                    // Si el usuario es Administrador (rol 7 o por nombre), no lo borramos, solo desvinculamos
+                    const userFull = await tx.usuario.findUnique({
+                        where: { id_usuario: u.id_usuario },
+                        include: { rol: true }
+                    });
+
+                    if (userFull?.rol?.nombre_rol === 'Administrador') {
+                        await tx.usuario.update({
+                            where: { id_usuario: u.id_usuario },
+                            data: { id_empleado: null }
+                        });
+                    } else {
+                        await tx.usuario.delete({ where: { id_usuario: u.id_usuario } });
+                    }
+                }
             }
 
             // 5. Finalmente borrar el empleado
