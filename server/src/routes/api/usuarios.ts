@@ -39,7 +39,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
     try {
         const {
-            nombre_usuario, contrasena, correo, cedula,
+            nombre_usuario, contrasena, correo, cedula, tipo_documento,
             id_rol, nombre_rol, nombre_completo, grupo_usuario,
             permisos_especificos, pregunta_seguridad,
             respuesta_seguridad, estado, activo
@@ -72,22 +72,89 @@ router.post('/', async (req: Request, res: Response) => {
             rolIdToUse = rolDb.id_rol;
         }
 
+        const hashedPassword = await bcrypt.hash(contrasena, 10);
+        let clienteIdToLink = null;
+        let empleadoIdToLink = null;
+
+        const roleLower = (nombre_rol || '').toLowerCase();
+        const telefono = req.body.telefono || '';
+        const direccion = req.body.direccion || '';
+        const tipoDocumento = req.body.tipo_documento || 'CC';
+
+        // 1. Lógica para CLIENTES
+        if (roleLower.includes('cliente')) {
+            const clienteExistente = await prisma.cliente.findFirst({
+                where: { OR: [{ correo }, { cedula: cedula || '---' }] }
+            });
+
+            if (clienteExistente) {
+                clienteIdToLink = clienteExistente.id_cliente;
+            } else {
+                const nuevoCliente = await prisma.cliente.create({
+                    data: {
+                        nombre: nombre_completo || nombre_usuario,
+                        correo: correo,
+                        cedula: cedula,
+                        telefono: telefono,
+                        direccion: direccion,
+                        tipo_documento: tipoDocumento
+                    }
+                });
+                clienteIdToLink = nuevoCliente.id_cliente;
+            }
+        }
+        // 2. Lógica para EMPLEADOS (Staff - Incluye Veterinario)
+        else {
+            const empleadoExistente = await prisma.empleado.findFirst({
+                where: { OR: [{ correo }, { cedula: cedula || '---' }] }
+            });
+
+            if (empleadoExistente) {
+                empleadoIdToLink = empleadoExistente.id_empleado;
+                // Sincronizar cargo si es Veterinario
+                if (roleLower.includes('veterinario')) {
+                    await prisma.empleado.update({
+                        where: { id_empleado: empleadoIdToLink },
+                        data: { cargo: 'Veterinario' }
+                    });
+                }
+            } else {
+                const nuevoEmpleado = await prisma.empleado.create({
+                    data: {
+                        nombre: nombre_completo || nombre_usuario,
+                        correo: correo,
+                        cedula: cedula,
+                        telefono: telefono,
+                        direccion: direccion,
+                        tipo_documento: tipoDocumento,
+                        cargo: roleLower.includes('veterinario') ? 'Veterinario' : (nombre_rol || 'Empleado')
+                    }
+                });
+                empleadoIdToLink = nuevoEmpleado.id_empleado;
+            }
+        }
+
         const newUser = await prisma.usuario.create({
             data: {
                 nombre_usuario,
-                contrasena: contrasena, // For production: require a bcrypt hash here. We will assume plaintext or UI hashing for now to match other routes
+                contrasena: hashedPassword,
                 correo,
                 cedula,
                 id_rol: rolIdToUse as number,
+                id_cliente: clienteIdToLink,
+                id_empleado: empleadoIdToLink,
                 nombre_completo,
                 grupo_usuario,
                 permisos_especificos,
                 pregunta_seguridad,
                 respuesta_seguridad,
+                tipo_documento: tipo_documento || tipoDocumento,
                 estado: estado || 'activo',
                 activo: activo ?? true
             }
         });
+
+
 
         res.status(201).json(newUser);
     } catch (error) {
@@ -100,12 +167,20 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
     try {
         const id_usuario = parseInt(req.params.id as string);
+        const currentUsuario = await prisma.usuario.findUnique({
+            where: { id_usuario },
+            include: { rol: true }
+        });
+
+        if (!currentUsuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+
         const {
-            nombre_usuario, contrasena, correo, cedula,
-            id_rol, nombre_rol, nombre_completo, grupo_usuario,
+            nombre_usuario, contrasena, correo, cedula, tipo_documento,
+            nombre_rol, nombre_completo, grupo_usuario,
             permisos_especificos, pregunta_seguridad,
             respuesta_seguridad, estado, activo
         } = req.body;
+
 
         const updateData: any = {
             nombre_usuario,
@@ -117,24 +192,106 @@ router.put('/:id', async (req: Request, res: Response) => {
             pregunta_seguridad,
             respuesta_seguridad,
             estado,
-            activo
+            activo,
+            tipo_documento
         };
 
         if (contrasena) {
-            // Basic replacement. Production implies hashing here as well.
-            updateData.contrasena = contrasena;
+            updateData.contrasena = await bcrypt.hash(contrasena, 10);
         }
 
+        let finalRolId = currentUsuario.id_rol;
+        let finalRolName = currentUsuario.rol?.nombre_rol || '';
+
         if (nombre_rol) {
-            let rolDb = await prisma.roles.findFirst({
-                where: { nombre_rol: nombre_rol }
-            });
-            if (!rolDb) {
-                rolDb = await prisma.roles.create({ data: { nombre_rol: nombre_rol } });
+            let rolDb = await prisma.roles.findFirst({ where: { nombre_rol } });
+            if (!rolDb) rolDb = await prisma.roles.create({ data: { nombre_rol } });
+            finalRolId = rolDb.id_rol;
+            finalRolName = rolDb.nombre_rol;
+            updateData.id_rol = finalRolId;
+        }
+
+        // Sincronizar perfiles en el PUT
+        const roleLower = (finalRolName || '').toLowerCase();
+        const telefono = req.body.telefono || '';
+        const direccion = req.body.direccion || '';
+        const tipoDocumento = req.body.tipo_documento || 'CC';
+
+        if (roleLower.includes('cliente')) {
+            let clienteId = currentUsuario.id_cliente;
+            if (!clienteId) {
+                const existing = await prisma.cliente.findFirst({
+                    where: { OR: [{ correo: correo || '---' }, { cedula: cedula || '---' }] }
+                });
+                if (existing) clienteId = existing.id_cliente;
+                else {
+                    const nuevo = await prisma.cliente.create({
+                        data: {
+                            nombre: nombre_completo || nombre_usuario,
+                            correo,
+                            cedula,
+                            telefono,
+                            direccion,
+                            tipo_documento: tipoDocumento
+                        }
+                    });
+                    clienteId = nuevo.id_cliente;
+                }
+                updateData.id_cliente = clienteId;
+                updateData.id_empleado = null; // Quitar de empleados si ahora es cliente
+            } else {
+                // Actualizar cliente existente
+                await prisma.cliente.update({
+                    where: { id_cliente: clienteId },
+                    data: {
+                        nombre: nombre_completo || nombre_usuario,
+                        correo,
+                        cedula,
+                        telefono: telefono || undefined,
+                        direccion: direccion || undefined
+                    }
+                });
             }
-            updateData.id_rol = rolDb.id_rol;
-        } else if (id_rol) {
-            updateData.id_rol = parseInt(id_rol.toString());
+        } else {
+            // Es staff/empleado
+            let empleadoId = currentUsuario.id_empleado;
+            const cargoFinal = roleLower.includes('veterinario') ? 'Veterinario' : (finalRolName || 'Empleado');
+
+            if (!empleadoId) {
+                const existing = await prisma.empleado.findFirst({
+                    where: { OR: [{ correo: correo || '---' }, { cedula: cedula || '---' }] }
+                });
+                if (existing) empleadoId = existing.id_empleado;
+                else {
+                    const nuevo = await prisma.empleado.create({
+                        data: {
+                            nombre: nombre_completo || nombre_usuario,
+                            correo,
+                            cedula,
+                            telefono,
+                            direccion,
+                            tipo_documento: tipoDocumento,
+                            cargo: cargoFinal
+                        }
+                    });
+                    empleadoId = nuevo.id_empleado;
+                }
+                updateData.id_empleado = empleadoId;
+                updateData.id_cliente = null; // Quitar de clientes si ahora es empleado
+            } else {
+                // Actualizar empleado existente
+                await prisma.empleado.update({
+                    where: { id_empleado: empleadoId },
+                    data: {
+                        nombre: nombre_completo || nombre_usuario,
+                        correo,
+                        cedula,
+                        telefono: telefono || undefined,
+                        direccion: direccion || undefined,
+                        cargo: cargoFinal
+                    }
+                });
+            }
         }
 
         const updated = await prisma.usuario.update({
@@ -143,6 +300,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         });
 
         res.json(updated);
+
     } catch (error) {
         console.error('[USUARIOS] PUT ERROR:', error);
         res.status(500).json({ error: 'Error al actualizar el usuario' });

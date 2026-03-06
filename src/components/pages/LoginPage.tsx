@@ -4,7 +4,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { toast } from "sonner";
-import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, CreditCard, ChevronRight, ArrowLeft, Shield } from "lucide-react";
 import { PawIcon } from "../PawIcon";
 import { useEmailAuth } from "../hooks/useEmailAuth";
 
@@ -29,13 +29,15 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     password: "",
     confirmPassword: "",
     nombre: "",
-    apellido: "",
     tipoDocumento: "CC",
     numeroDocumento: "",
     telefono: "",
+    direccion: "",
     token: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -49,260 +51,343 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitted(true);
     if (!formData.email || !formData.password) {
-      toast.error("Por favor completa todos los campos");
+      toast.error("Error", { description: "Complete todos los campos." });
       return;
     }
     const result = await login(formData.email, formData.password);
-    if (!result.success) toast.error(result.error || "Error al iniciar sesión");
+    if (!result.success) toast.error("Error", { description: result.error || "Credenciales incorrectas." });
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.email || !formData.password || !formData.nombre || !formData.apellido) {
-      toast.error("Por favor completa los campos obligatorios");
+    setIsSubmitted(true);
+
+    const requiredFields = ['email', 'password', 'nombre', 'telefono', 'numeroDocumento', 'direccion'];
+    const missingFields = requiredFields.filter(f => !formData[f as keyof typeof formData]);
+
+    if (missingFields.length > 0) {
+      toast.error("Error", { description: "Complete los campos obligatorios." });
       return;
     }
+
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Las contraseñas no coinciden");
+      toast.error("Error", { description: "Las contraseñas no coinciden." });
       return;
     }
+
     const result = await register({
       email: formData.email,
       password: formData.password,
       nombre: formData.nombre,
-      apellido: formData.apellido,
       tipoDocumento: formData.tipoDocumento,
-      numeroDocumento: formData.numeroDocumento,
-      telefono: formData.telefono
+      cedula: formData.numeroDocumento,
+      telefono: formData.telefono,
+      direccion: formData.direccion
     });
+
     if (result.success) {
-      toast.success("Cuenta creada exitosamente");
+      toast.success("¡Bienvenido!", { description: "Registro completado con éxito." });
     } else {
-      toast.error(result.error || "Error al registrar");
+      toast.error("Error", { description: result.error || "No se pudo realizar el registro." });
     }
   };
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email) {
-      toast.error("Por favor ingresa tu correo");
+      toast.error("Error", { description: "Ingrese su correo electrónico." });
       return;
     }
     const result = await requestPasswordReset(formData.email);
     if (result.success) {
-      toast.success(`${result.message}. CÓDIGO: ${result.token}`, { duration: 10000 });
+      toast.success("Enviado", { description: "Revisa tu correo para obtener el código de seguridad." });
       setAuthMode('reset-password');
     } else {
-      toast.error(result.error || "Error al solicitar reseteo");
+      toast.error("Error", { description: result.error || "Cuenta no encontrada." });
     }
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.token || !formData.password) {
-      toast.error("Completa todos los campos");
+      toast.error("Error", { description: "Datos incompletos." });
       return;
     }
     const result = await resetPassword(formData.email, formData.token, formData.password);
     if (result.success) {
-      toast.success("Contraseña actualizada. Ya puedes iniciar sesión.");
+      toast.success("Listo", { description: "Contraseña actualizada." });
       setAuthMode('login');
     } else {
-      toast.error(result.error || "Código inválido");
+      toast.error("Error", { description: result.error || "Código inválido." });
     }
   };
 
-  const getTitle = () => {
-    switch (authMode) {
-      case 'login': return 'Bienvenido a KaiVet';
-      case 'register': return 'Únete a KaiVet';
-      case 'forgot-password': return 'Recuperar Acceso';
-      case 'reset-password': return 'Nueva Contraseña';
-    }
-  };
+  // Common black text class with dark mode override to ensure it stays black
+  const blackText = "text-black dark:text-black !text-black font-semibold";
+  const titleText = "text-black dark:text-black !text-black font-black";
 
   return (
-    <div className="min-h-screen bg-dark-bg flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500 rounded-full blur-[100px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500 rounded-full blur-[100px]"></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800 flex items-center justify-center p-4 md:p-8 font-sans">
+      <div className={`w-full transition-all duration-500 ease-in-out transform ${authMode === 'register' ? 'max-w-2xl' : 'max-w-md'} relative z-10`}>
 
-      <Card className="w-full max-w-md bg-dark-card border-dark-color shadow-2xl relative z-10 transition-all duration-500">
-        <CardHeader className="space-y-2 text-center">
-          <div className="flex justify-center mb-6">
-            <div className="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg transform hover:scale-110 transition-transform duration-300">
-              <PawIcon className="w-12 h-12 text-white" />
-            </div>
+        {/* Branding */}
+        <div className="flex flex-col items-center mb-6 space-y-3">
+          <div className="p-3 bg-white rounded-2xl shadow-lg ring-4 ring-blue-400/30">
+            <PawIcon className="w-8 h-8 text-blue-600" />
           </div>
-          <CardTitle className="text-3xl font-extrabold text-white tracking-tight">
-            {getTitle()}
-          </CardTitle>
-          <CardDescription className="text-dark-secondary text-lg">
-            {authMode === 'login' && 'Accede a tu plataforma profesional'}
-            {authMode === 'register' && 'Empieza a gestionar tu veterinaria hoy'}
-            {authMode === 'forgot-password' && 'Te enviaremos un código de seguridad'}
-            {authMode === 'reset-password' && 'Ingresa el código que recibiste'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <form
-            onSubmit={(e) => {
-              if (authMode === 'login') handleLogin(e);
-              else if (authMode === 'register') handleRegister(e);
-              else if (authMode === 'forgot-password') handleRequestReset(e);
-              else handleResetPassword(e);
-            }}
-            className="space-y-4"
-          >
-            {authMode === 'register' && (
-              <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                <div className="space-y-2">
-                  <Label className="text-white">Nombre</Label>
-                  <Input
-                    className="bg-dark-hover border-dark-color text-white focus:border-blue-500 transition-colors"
-                    placeholder="Juan"
-                    required
+          <h1 className="text-white text-2xl font-bold tracking-tight uppercase drop-shadow-md">Kaivet Manager</h1>
+        </div>
+
+        <Card className="bg-white dark:bg-white border-none shadow-2xl rounded-3xl overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+          <CardHeader className="pt-10 pb-6 px-8 text-center bg-white border-b border-slate-100">
+            <CardTitle className={`text-3xl tracking-tight mb-2 ${titleText}`} style={{ color: '#000000' }}>
+              {authMode === 'login' && '¡Hola de nuevo!'}
+              {authMode === 'register' && 'Crear Cuenta'}
+              {authMode === 'forgot-password' && 'Recuperar Clave'}
+              {authMode === 'reset-password' && 'Nueva Contraseña'}
+            </CardTitle>
+            <CardDescription className={`${blackText} opacity-80`} style={{ color: '#000000' }}>
+              {authMode === 'login' && 'Ingresa tus datos para entrar al sistema.'}
+              {authMode === 'register' && 'Regístrate para gestionar tu veterinaria.'}
+              {authMode === 'forgot-password' && 'Te ayudaremos a recuperar tu acceso.'}
+              {authMode === 'reset-password' && 'Define tus nuevas credenciales.'}
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="px-8 py-10 bg-white">
+            <form
+              onSubmit={(e) => {
+                if (authMode === 'login') handleLogin(e);
+                else if (authMode === 'register') handleRegister(e);
+                else if (authMode === 'forgot-password') handleRequestReset(e);
+                else handleResetPassword(e);
+              }}
+              className="space-y-6"
+            >
+              {authMode === 'register' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormInput
+                    label="Nombre Completo"
+                    icon={<User className="w-4 h-4" />}
+                    placeholder="Ej. Mauricio Rossi"
                     value={formData.nombre}
-                    onChange={e => handleInputChange('nombre', e.target.value)}
+                    onChange={(v) => handleInputChange('nombre', v)}
+                    error={isSubmitted && !formData.nombre}
+                  />
+                  <FormInput
+                    label="Teléfono"
+                    icon={<Phone className="w-4 h-4" />}
+                    placeholder="300 000 0000"
+                    value={formData.telefono}
+                    onChange={(v) => handleInputChange('telefono', v)}
+                    error={isSubmitted && !formData.telefono}
+                  />
+                  <div className="space-y-2">
+                    <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 uppercase tracking-wide ${blackText}`} style={{ color: '#000000' }}>
+                      <CreditCard className="w-4 h-4 text-blue-600" />
+                      Identificación <span className="text-red-600">*</span>
+                    </Label>
+                    <div className="flex gap-2">
+                      <select
+                        className="bg-slate-50 border border-slate-200 !text-black rounded-xl px-2 text-xs focus:ring-2 focus:ring-blue-500/50 outline-none transition-all h-12"
+                        value={formData.tipoDocumento}
+                        onChange={(e) => handleInputChange('tipoDocumento', e.target.value)}
+                        style={{ color: '#000000' }}
+                      >
+                        <option value="CC" className="text-black">CC</option>
+                        <option value="CE" className="text-black">CE</option>
+                        <option value="NIT" className="text-black">NIT</option>
+                      </select>
+                      <Input
+                        className="bg-slate-50 border-slate-200 !text-black placeholder:text-slate-500 rounded-xl h-12 focus:ring-2 focus:ring-blue-500/50"
+                        placeholder="Número"
+                        value={formData.numeroDocumento}
+                        onChange={e => handleInputChange('numeroDocumento', e.target.value)}
+                        style={{ color: '#000000' }}
+                      />
+                    </div>
+                    {isSubmitted && !formData.numeroDocumento && <p className="text-[10px] text-red-600 font-bold italic ml-2">Este campo es obligatorio</p>}
+                  </div>
+                  <FormInput
+                    label="Dirección"
+                    icon={<MapPin className="w-4 h-4" />}
+                    placeholder="Calle 10 # 20"
+                    value={formData.direccion}
+                    onChange={(v) => handleInputChange('direccion', v)}
+                    error={isSubmitted && !formData.direccion}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-white">Apellido</Label>
-                  <Input
-                    className="bg-dark-hover border-dark-color text-white focus:border-blue-500 transition-colors"
-                    placeholder="Pérez"
-                    required
-                    value={formData.apellido}
-                    onChange={e => handleInputChange('apellido', e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
+              )}
 
-            <div className="space-y-2">
-              <Label className="text-white">Correo Electrónico</Label>
-              <Input
+              <FormInput
+                label="Correo Electrónico"
+                icon={<Mail className="w-4 h-4" />}
                 type="email"
-                className="bg-dark-hover border-dark-color text-white focus:border-blue-500 transition-colors"
-                placeholder="doctor@kaivet.com"
-                required
-                disabled={authMode === 'reset-password'}
+                placeholder="ejemplo@correo.com"
                 value={formData.email}
-                onChange={e => handleInputChange('email', e.target.value)}
+                onChange={(v) => handleInputChange('email', v)}
+                disabled={authMode === 'reset-password'}
+                error={isSubmitted && !formData.email}
               />
-            </div>
 
-            {authMode === 'reset-password' && (
-              <div className="space-y-2 animate-in fade-in slide-in-from-top-4 duration-300">
-                <Label className="text-white">Código de Seguridad</Label>
-                <Input
-                  className="bg-dark-hover border-dark-color text-white focus:border-blue-500 transition-colors text-center text-2xl tracking-[0.5em] font-mono"
+              {authMode === 'reset-password' && (
+                <FormInput
+                  label="Código"
+                  icon={<Shield className="w-4 h-4" />}
                   placeholder="000000"
                   maxLength={6}
-                  required
                   value={formData.token}
-                  onChange={e => handleInputChange('token', e.target.value)}
+                  onChange={(v) => handleInputChange('token', v)}
+                  className="text-center font-mono text-xl tracking-widest"
                 />
-              </div>
-            )}
+              )}
 
-            {(authMode === 'login' || authMode === 'register' || authMode === 'reset-password') && (
-              <div className="space-y-2">
-                <Label className="text-white">{authMode === 'reset-password' ? 'Nueva Contraseña' : 'Contraseña'}</Label>
-                <div className="relative group">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    className="bg-dark-hover border-dark-color text-white focus:border-blue-500 transition-colors pr-10"
-                    placeholder="••••••••"
-                    required
-                    value={formData.password}
-                    onChange={e => handleInputChange('password', e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-secondary hover:text-white transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+              {(authMode === 'login' || authMode === 'register' || authMode === 'reset-password') && (
+                <div className={`grid grid-cols-1 ${authMode === 'register' ? 'md:grid-cols-2 gap-6' : ''}`}>
+                  <div className="space-y-2 text-black">
+                    <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 uppercase tracking-wide ${blackText}`} style={{ color: '#000000' }}>
+                      <Lock className="w-4 h-4 text-blue-600" />
+                      Contraseña <span className="text-red-600">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        className="bg-slate-50 border-slate-200 !text-black placeholder:text-slate-500 rounded-xl pr-12 h-12 focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm"
+                        placeholder="••••••••"
+                        value={formData.password}
+                        onChange={e => handleInputChange('password', e.target.value)}
+                        style={{ color: '#000000' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                    {isSubmitted && !formData.password && <p className="text-[10px] text-red-600 font-bold italic ml-2">Este campo es obligatorio</p>}
+
+                    {authMode === 'login' && (
+                      <div className="flex justify-end pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setAuthMode('forgot-password')}
+                          className={`text-xs hover:underline transition-colors !text-black dark:text-black font-bold`}
+                          style={{ color: '#000000' }}
+                        >
+                          ¿Olvidaste tu contraseña?
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {authMode === 'register' && (
+                    <FormInput
+                      label="Confirmar Clave"
+                      icon={<Lock className="w-4 h-4" />}
+                      type="password"
+                      placeholder="••••••••"
+                      value={formData.confirmPassword}
+                      onChange={(v) => handleInputChange('confirmPassword', v)}
+                      error={isSubmitted && !formData.confirmPassword}
+                    />
+                  )}
                 </div>
-              </div>
-            )}
+              )}
 
-            {authMode === 'register' && (
-              <div className="space-y-2 animate-in fade-in slide-in-from-top-4 duration-300">
-                <Label className="text-white">Confirmar Contraseña</Label>
-                <Input
-                  type="password"
-                  className="bg-dark-hover border-dark-color text-white focus:border-blue-500 transition-colors"
-                  placeholder="••••••••"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={e => handleInputChange('confirmPassword', e.target.value)}
-                />
-              </div>
-            )}
+              <Button
+                type="submit"
+                className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-2xl shadow-lg shadow-blue-200 active:scale-[0.98] transition-all"
+              >
+                {loading ? (
+                  <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    {authMode === 'login' ? 'Iniciar Sesión' : authMode === 'register' ? 'Registrarse ahora' : 'Continuar'}
+                    <ChevronRight size={20} />
+                  </span>
+                )}
+              </Button>
 
-            {authMode === 'login' && (
-              <div className="flex justify-end">
+              {(authMode === 'forgot-password' || authMode === 'reset-password') && (
                 <button
                   type="button"
-                  onClick={() => setAuthMode('forgot-password')}
-                  className="text-xs text-blue-400 hover:underline"
+                  className={`w-full text-sm flex items-center justify-center gap-2 mt-2 transition-opacity hover:opacity-70 !text-black dark:text-black font-bold`}
+                  style={{ color: '#000000' }}
+                  onClick={() => {
+                    setAuthMode('login');
+                    setIsSubmitted(false);
+                  }}
                 >
-                  ¿Olvidaste tu contraseña?
+                  <ArrowLeft size={16} className="text-black" />
+                  Volver al inicio
                 </button>
-              </div>
-            )}
-
-            <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg hover:shadow-blue-500/20 transition-all" disabled={loading}>
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  Procesando...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  {authMode === 'login' && <LogIn size={20} />}
-                  {authMode === 'register' && <UserPlus size={20} />}
-                  {authMode === 'login' ? 'Entrar' : authMode === 'register' ? 'Unirse' : 'Enviar'}
-                </span>
               )}
-            </Button>
+            </form>
 
-            {(authMode === 'forgot-password' || authMode === 'reset-password') && (
-              <Button
-                variant="ghost"
-                type="button"
-                className="w-full text-dark-secondary hover:text-white"
-                onClick={() => setAuthMode('login')}
+            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+              <button
+                onClick={() => {
+                  setAuthMode(authMode === 'login' ? 'register' : 'login');
+                  setIsSubmitted(false);
+                  setShowPassword(false);
+                }}
+                className={`text-sm transition-all !text-black dark:text-black`}
+                style={{ color: '#000000' }}
               >
-                Volver al inicio
-              </Button>
-            )}
-          </form>
+                {authMode === 'login' ? (
+                  <>¿Eres nuevo? <span className="font-extrabold underline underline-offset-4 !text-black" style={{ color: '#000000' }}>Regístrate aquí</span></>
+                ) : (
+                  <>¿Ya tienes cuenta? <span className="font-extrabold underline underline-offset-4 !text-black" style={{ color: '#000000' }}>Inicia sesión</span></>
+                )}
+              </button>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-dark-color"></span>
+              <div className="mt-8 flex items-center justify-center gap-2">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span className={`text-[10px] uppercase tracking-widest !text-black dark:text-black font-bold opacity-40`} style={{ color: '#000000' }}>Protocolo Seguro</span>
+              </div>
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-dark-card px-2 text-dark-secondary">Sistema Seguro v1.0</span>
-            </div>
-          </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
 
-          <div className="text-center">
-            <button
-              onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
-              className="text-blue-400 hover:text-blue-300 text-sm font-semibold transition-colors"
-            >
-              {authMode === 'login' ? '¿Aún no tienes cuenta? Regístrate gratis' : '¿Ya eres usuario? Inicia sesión'}
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+interface FormInputProps {
+  label: string;
+  icon: React.ReactNode;
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  type?: string;
+  className?: string;
+  disabled?: boolean;
+  error?: boolean;
+  maxLength?: number;
+}
+
+function FormInput({ label, icon, value, onChange, placeholder, type = "text", className = "", disabled, error, maxLength }: FormInputProps) {
+  return (
+    <div className={`space-y-2 ${className}`}>
+      <Label className={`text-xs font-bold flex items-center gap-2 mb-1.5 ml-1 uppercase tracking-wide text-black dark:text-black !text-black`} style={{ color: '#000000' }}>
+        <span className="text-blue-600">{icon}</span>
+        {label} <span className="text-red-600">*</span>
+      </Label>
+      <Input
+        type={type}
+        className={`bg-slate-50 border border-slate-200 !text-black placeholder:text-slate-500 rounded-xl h-12 focus:ring-2 focus:ring-blue-500/50 transition-all ${error ? 'border-red-600 ring-1 ring-red-600/20' : ''}`}
+        placeholder={placeholder}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        disabled={disabled}
+        maxLength={maxLength}
+        style={{ color: '#000000' }}
+      />
+      {error && <p className="text-[10px] text-red-600 font-bold italic ml-2 mt-1">Este campo es obligatorio</p>}
     </div>
   );
 }

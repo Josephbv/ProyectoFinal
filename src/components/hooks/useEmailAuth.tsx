@@ -11,6 +11,7 @@ interface User {
   grupo_usuario?: string;
   permisos_especificos?: string;
   estado?: string;
+  modulos?: string[];
 }
 
 interface AuthState {
@@ -20,6 +21,27 @@ interface AuthState {
 }
 
 const API_URL = '/api/auth';
+const ROLES_URL = '/api/roles';
+
+// All modules available in the sidebar
+const ALL_MODULES = [
+  'Dashboard', 'Ventas', 'Clientes', 'Agendamiento',
+  'Mascotas', 'Historial Mascotas', 'Horario', 'Servicios',
+  'Empleados', 'Roles', 'Usuarios'
+];
+
+// Fetch modules for a given role name from the backend
+async function fetchModulosForRol(rolName: string): Promise<string[]> {
+  try {
+    if (!rolName) return [];
+    const esAdmin = rolName.toLowerCase().includes('admin');
+    if (esAdmin) return ALL_MODULES;
+    const data = await apiFetch(`${ROLES_URL}/by-name/${encodeURIComponent(rolName)}`);
+    return data.modulos || [];
+  } catch {
+    return [];
+  }
+}
 
 export function useEmailAuth() {
   const [authState, setAuthState] = useState<AuthState>(() => {
@@ -47,10 +69,13 @@ export function useEmailAuth() {
       const payload = {
         correo: userData.email,
         contrasena: userData.password,
-        nombre_usuario: `${userData.nombre || ''} ${userData.apellido || ''}`.trim(),
-        nombre_rol: userData.nombre_rol || 'cliente'
+        nombre_usuario: userData.nombre?.trim(),
+        nombre_rol: userData.nombre_rol || 'cliente',
+        telefono: userData.telefono,
+        direccion: userData.direccion,
+        cedula: userData.cedula,
+        tipoDocumento: userData.tipoDocumento
       };
-
 
       const data = await apiFetch(`${API_URL}/register`, {
         method: 'POST',
@@ -58,9 +83,14 @@ export function useEmailAuth() {
         body: JSON.stringify(payload),
       });
 
-      localStorage.setItem('kaivet_auth_data', JSON.stringify(data));
+      // Fetch modules for the role
+      const rolName = data.usuario?.rol || payload.nombre_rol || 'cliente';
+      const modulos = await fetchModulosForRol(rolName);
+      const usuarioConModulos = { ...data.usuario, modulos };
+
+      localStorage.setItem('kaivet_auth_data', JSON.stringify({ ...data, usuario: usuarioConModulos }));
       setAuthState({
-        user: data.usuario,
+        user: usuarioConModulos,
         token: data.token,
         isAuthenticated: true,
       });
@@ -82,9 +112,14 @@ export function useEmailAuth() {
         body: JSON.stringify({ correo: email, contrasena: password }),
       });
 
-      localStorage.setItem('kaivet_auth_data', JSON.stringify(data));
+      // Fetch modules for the role
+      const rolName = data.usuario?.rol || '';
+      const modulos = await fetchModulosForRol(rolName);
+      const usuarioConModulos = { ...data.usuario, modulos };
+
+      localStorage.setItem('kaivet_auth_data', JSON.stringify({ ...data, usuario: usuarioConModulos }));
       setAuthState({
-        user: data.usuario,
+        user: usuarioConModulos,
         token: data.token,
         isAuthenticated: true,
       });

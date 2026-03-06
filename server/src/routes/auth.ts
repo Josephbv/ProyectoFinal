@@ -18,13 +18,24 @@ router.post('/register', async (req: Request, res: Response) => {
         const cedula = req.body.cedula;
         const id_cliente = req.body.id_cliente;
         const id_empleado = req.body.id_empleado;
+        const telefono = req.body.telefono;
+        const direccion = req.body.direccion;
 
         if (!correo || !contrasena || !nombre_usuario) {
             return res.status(400).json({ error: 'Correo, contraseña y nombre_usuario son obligatorios' });
         }
 
-        const existe = await prisma.usuario.findFirst({ where: { correo } });
-        if (existe) return res.status(400).json({ error: 'El correo ya está registrado' });
+        const existeCorreo = await prisma.usuario.findFirst({ where: { correo } });
+        if (existeCorreo) return res.status(400).json({ error: 'El correo ya se encuentra registrado. Intenta con otro o inicia sesión.' });
+
+        if (cedula) {
+            const existeCedula = await prisma.usuario.findFirst({ where: { cedula } });
+            const existeClienteCedula = await prisma.cliente.findFirst({ where: { cedula } });
+            if (existeCedula || existeClienteCedula) {
+                return res.status(400).json({ error: 'El número de documento (Cédula) ya está registrado en el sistema.' });
+            }
+        }
+
 
         let rolDb = await prisma.roles.findFirst({
             where: { nombre_rol: { contains: nombre_rol } }
@@ -32,6 +43,56 @@ router.post('/register', async (req: Request, res: Response) => {
 
         if (!rolDb) {
             rolDb = await prisma.roles.create({ data: { nombre_rol: nombre_rol, activo: true } });
+        }
+
+        let clienteIdToLink = id_cliente ? parseInt(id_cliente) : null;
+        let empleadoIdToLink = id_empleado ? parseInt(id_empleado) : null;
+
+
+        // Si es un registro de cliente, creamos el perfil de cliente automáticamente
+        if (nombre_rol.toLowerCase().includes('cliente') && !clienteIdToLink) {
+            const clienteExistente = await prisma.cliente.findFirst({
+                where: { OR: [{ correo }, { cedula: cedula || '---' }] }
+            });
+
+            if (clienteExistente) {
+                clienteIdToLink = clienteExistente.id_cliente;
+            } else {
+                const nuevoCliente = await prisma.cliente.create({
+                    data: {
+                        nombre: nombre_usuario,
+                        correo: correo,
+                        cedula: cedula,
+                        telefono: telefono,
+                        direccion: direccion,
+                        tipo_documento: req.body.tipoDocumento || 'CC'
+                    }
+                });
+                clienteIdToLink = nuevoCliente.id_cliente;
+            }
+        }
+        // Si no es cliente, asumimos que es un rol de staff/empleado
+        else if (!clienteIdToLink && !empleadoIdToLink) {
+            const empleadoExistente = await prisma.empleado.findFirst({
+                where: { OR: [{ correo }, { cedula: cedula || '---' }] }
+            });
+
+            if (empleadoExistente) {
+                empleadoIdToLink = empleadoExistente.id_empleado;
+            } else {
+                const nuevoEmpleado = await prisma.empleado.create({
+                    data: {
+                        nombre: nombre_usuario,
+                        correo: correo,
+                        cedula: cedula,
+                        telefono: telefono,
+                        direccion: direccion,
+                        tipo_documento: req.body.tipoDocumento || 'CC',
+                        cargo: nombre_rol
+                    }
+                });
+                empleadoIdToLink = nuevoEmpleado.id_empleado;
+            }
         }
 
 
@@ -44,13 +105,23 @@ router.post('/register', async (req: Request, res: Response) => {
                 nombre_usuario,
                 id_rol: rolDb.id_rol,
                 cedula,
-                id_cliente: id_cliente ? parseInt(id_cliente) : null,
-                id_empleado: id_empleado ? parseInt(id_empleado) : null,
-                activo: true
+                id_cliente: clienteIdToLink,
+                id_empleado: empleadoIdToLink,
+                activo: true,
+                estado: 'activo'
             },
         });
 
-        const token = jwt.sign({ id: usuario.id_usuario, email: usuario.correo }, SECRET, { expiresIn: '24h' });
+        // Intentar enviar email de bienvenida
+        try {
+            console.log(`[AUTH] Enviando email de bienvenida a: ${correo}`);
+            await sendWelcomeEmail(correo, nombre_usuario);
+        } catch (mailError) {
+            console.error('[AUTH] ERROR AL ENVIAR EMAIL DE BIENVENIDA:', mailError);
+            // No bloqueamos el flujo si el email falla
+        }
+
+        const token = jwt.sign({ id: usuario.id_usuario, email: usuario.correo, rol: rolDb.nombre_rol }, SECRET, { expiresIn: '24h' });
         res.status(201).json({
             token,
             usuario: {
@@ -58,6 +129,7 @@ router.post('/register', async (req: Request, res: Response) => {
                 correo: usuario.correo,
                 nombre_usuario: usuario.nombre_usuario,
                 id_rol: usuario.id_rol,
+                rol: rolDb.nombre_rol,
                 cedula: usuario.cedula,
                 id_cliente: usuario.id_cliente,
                 id_empleado: usuario.id_empleado,
@@ -67,11 +139,15 @@ router.post('/register', async (req: Request, res: Response) => {
                 estado: usuario.estado
             }
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('[AUTH] ERROR EN REGISTRO:', error);
-        res.status(500).json({ error: 'Error interno del servidor al registrar.' });
+        res.status(500).json({
+            error: 'Error interno del servidor al registrar.'
+        });
     }
 });
+
+
 
 // POST /api/auth/login - Iniciar sesión
 router.post('/login', async (req: Request, res: Response) => {

@@ -4,7 +4,9 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useRoles } from '../hooks/useRoles';
-import { User, Shield, Key, FileText, Lock, Users, Activity } from 'lucide-react';
+import { User, Lock, Users, Eye } from 'lucide-react';
+
+
 
 interface UsuarioModalProps {
     isOpen: boolean;
@@ -21,7 +23,9 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
         nombre_completo: '',
         nombre_usuario: '',
         correo: '',
+        tipo_documento: 'CC',
         cedula: '',
+
         contrasena: '',
         pregunta_seguridad: '',
         respuesta_seguridad: '',
@@ -32,6 +36,8 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isSubmitted, setIsSubmitted] = useState(false);
+
 
     useEffect(() => {
         if (usuario) {
@@ -39,7 +45,9 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                 nombre_completo: usuario.nombre_completo || '',
                 nombre_usuario: usuario.nombre_usuario || '',
                 correo: usuario.correo || '',
+                tipo_documento: usuario.tipo_documento || 'CC',
                 cedula: usuario.cedula || '',
+
                 contrasena: '', // Do not populate password on edit
                 pregunta_seguridad: usuario.pregunta_seguridad || '',
                 respuesta_seguridad: usuario.respuesta_seguridad || '',
@@ -53,7 +61,9 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                 nombre_completo: '',
                 nombre_usuario: '',
                 correo: '',
+                tipo_documento: 'CC',
                 cedula: '',
+
                 contrasena: '',
                 pregunta_seguridad: '',
                 respuesta_seguridad: '',
@@ -64,7 +74,9 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
             });
         }
         setErrors({});
+        setIsSubmitted(false);
     }, [usuario, isOpen, roles]);
+
 
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
@@ -81,7 +93,9 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSubmitted(true);
         if (!validateForm()) return;
+
 
         const data = {
             ...formData,
@@ -132,7 +146,7 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                         </h3>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs">Username (Nombre de Usuario) *</Label>
+                                <Label className="text-dark-secondary text-xs">Username (Nombre de Usuario) <span className="text-red-500">*</span></Label>
                                 <Input
                                     value={formData.nombre_usuario}
                                     onChange={(e) => handleChange('nombre_usuario', e.target.value)}
@@ -140,7 +154,10 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                     placeholder="ej: admin.sistema"
                                     readOnly={readOnly}
                                 />
+                                {isSubmitted && !formData.nombre_usuario.trim() && <p className="text-[10px] text-red-400 italic mt-0.5">Este campo es obligatorio</p>}
                                 {errors.nombre_usuario && <p className="text-red-400 text-xs">{errors.nombre_usuario}</p>}
+
+
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-dark-secondary text-xs">Nombre Completo</Label>
@@ -164,7 +181,7 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs">Rol Base *</Label>
+                                <Label className="text-dark-secondary text-xs">Rol Base <span className="text-red-500">*</span></Label>
                                 <select
                                     value={formData.nombre_rol}
                                     onChange={(e) => handleChange('nombre_rol', e.target.value)}
@@ -173,12 +190,41 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                 >
                                     <option value="Administrador" className="bg-dark-card text-white">Administrador</option>
                                     <option value="Cliente" className="bg-dark-card text-white">Cliente</option>
-                                    <option value="Recepcionista" className="bg-dark-card text-white">Recepcionista</option>
+                                    <option value="Veterinario" className="bg-dark-card text-white">Veterinario</option>
                                 </select>
+                                {isSubmitted && !formData.nombre_rol && <p className="text-[10px] text-red-400 italic mt-0.5">Este campo es obligatorio</p>}
                                 {errors.nombre_rol && <p className="text-red-400 text-xs">{errors.nombre_rol}</p>}
+
+
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-dark-secondary text-xs">Tipo de Documento</Label>
+                                <select
+                                    value={formData.tipo_documento}
+                                    onChange={(e) => handleChange('tipo_documento', e.target.value)}
+                                    disabled={readOnly}
+                                    className="w-full h-10 px-3 py-2 bg-dark-hover border border-dark-color rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none cursor-pointer"
+                                >
+                                    <option value="CC">Cédula de Ciudadanía</option>
+                                    <option value="CE">Cédula de Extranjería</option>
+                                    <option value="TI">Tarjeta de Identidad</option>
+                                    <option value="NIT">NIT</option>
+                                    <option value="Pasaporte">Pasaporte</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-dark-secondary text-xs">Número de Documento (Cédula)</Label>
+                                <Input
+                                    value={formData.cedula}
+                                    onChange={(e) => handleChange('cedula', e.target.value)}
+                                    className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
+                                    placeholder="1001780XXX"
+                                    readOnly={readOnly}
+                                />
                             </div>
                         </div>
                     </div>
+
 
                     {/* Seguridad */}
                     <div className="space-y-4">
@@ -188,7 +234,7 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                         </h3>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs">Contraseña {usuario && '(Dejar en blanco para no cambiar)'} *</Label>
+                                <Label className="text-dark-secondary text-xs">Contraseña {usuario && '(Dejar en blanco para no cambiar)'} <span className="text-red-500">*</span></Label>
                                 <Input
                                     type="password"
                                     value={formData.contrasena}
@@ -197,143 +243,17 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                     placeholder="••••••••"
                                     readOnly={readOnly}
                                 />
+                                {isSubmitted && !usuario && !formData.contrasena.trim() && <p className="text-[10px] text-red-400 italic mt-0.5">Este campo es obligatorio</p>}
                                 {errors.contrasena && <p className="text-red-400 text-xs">{errors.contrasena}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs">Documento de Identidad (Cédula)</Label>
-                                <Input
-                                    value={formData.cedula}
-                                    onChange={(e) => handleChange('cedula', e.target.value)}
-                                    className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
-                                    placeholder="Identificación / Cédula"
-                                    readOnly={readOnly}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs flex items-center gap-2"><Key className="w-3 h-3" /> Pregunta de Seguridad</Label>
-                                <Input
-                                    value={formData.pregunta_seguridad}
-                                    onChange={(e) => handleChange('pregunta_seguridad', e.target.value)}
-                                    className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
-                                    placeholder="Ej. Nombre de mi primera mascota"
-                                    readOnly={readOnly}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs">Respuesta de Seguridad</Label>
-                                <Input
-                                    type="password"
-                                    value={formData.respuesta_seguridad}
-                                    onChange={(e) => handleChange('respuesta_seguridad', e.target.value)}
-                                    className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
-                                    placeholder="Respuesta"
-                                    readOnly={readOnly}
-                                />
+
+
                             </div>
                         </div>
                     </div>
 
-                    {/* Autorización y Perfiles */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-dark-primary flex items-center gap-2 border-b border-dark-color pb-2">
-                            <Shield className="w-5 h-5 text-amber-400" />
-                            Autorización Avanzada y Perfiles
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs">Grupo de Usuario</Label>
-                                <select
-                                    value={formData.grupo_usuario}
-                                    onChange={(e) => handleChange('grupo_usuario', e.target.value)}
-                                    disabled={readOnly}
-                                    className={`w-full h-10 px-3 py-2 bg-dark-hover border border-dark-color rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none appearance-none`}
-                                >
-                                    <option value="">Seleccione un Grupo...</option>
-                                    <option value="Administracion">Administración</option>
-                                    <option value="Clinica">Cuerpo Clínico</option>
-                                    <option value="Recepcion">Recepción & Ventas</option>
-                                    <option value="Soporte">Soporte Técnico</option>
-                                </select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs">Permisos Específicos Adicionales</Label>
-                                <Input
-                                    value={formData.permisos_especificos}
-                                    onChange={(e) => handleChange('permisos_especificos', e.target.value)}
-                                    className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
-                                    placeholder="Ej: reportes_avanzados, borrar_facturas"
-                                    readOnly={readOnly}
-                                />
-                                <p className="text-[10px] text-dark-secondary italic mt-1">Permisos extra al margen del rol separados por comas.</p>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Auditoría y Estado */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-dark-primary flex items-center gap-2 border-b border-dark-color pb-2">
-                            <Activity className="w-5 h-5 text-purple-400" />
-                            Auditoría y Estado
-                        </h3>
-                        <div className="space-y-2">
-                            <Label className="text-dark-secondary text-xs">Estado de la cuenta</Label>
-                            <div className="flex gap-4">
-                                <label className="flex items-center gap-2 text-dark-primary text-sm cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="estado"
-                                        value="activo"
-                                        checked={formData.estado === 'activo'}
-                                        onChange={() => handleChange('estado', 'activo')}
-                                        disabled={readOnly}
-                                        className="accent-emerald-500"
-                                    />
-                                    <span className={formData.estado === 'activo' ? 'text-emerald-400 font-bold' : ''}>Activo</span>
-                                </label>
-                                <label className="flex items-center gap-2 text-dark-primary text-sm cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="estado"
-                                        value="inactivo"
-                                        checked={formData.estado === 'inactivo'}
-                                        onChange={() => handleChange('estado', 'inactivo')}
-                                        disabled={readOnly}
-                                        className="accent-amber-500"
-                                    />
-                                    <span className={formData.estado === 'inactivo' ? 'text-amber-400 font-bold' : ''}>Inactivo</span>
-                                </label>
-                                <label className="flex items-center gap-2 text-dark-primary text-sm cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="estado"
-                                        value="bloqueado"
-                                        checked={formData.estado === 'bloqueado'}
-                                        onChange={() => handleChange('estado', 'bloqueado')}
-                                        disabled={readOnly}
-                                        className="accent-red-500"
-                                    />
-                                    <span className={formData.estado === 'bloqueado' ? 'text-red-400 font-bold' : ''}>Bloqueado</span>
-                                </label>
-                            </div>
-                        </div>
 
-                        {usuario && (
-                            <div className="pt-4 grid grid-cols-2 gap-4">
-                                <div className="p-3 bg-dark-hover/50 rounded-xl border border-dark-color">
-                                    <p className="text-xs text-dark-secondary">Fecha Creado</p>
-                                    <p className="text-sm font-bold text-dark-primary">
-                                        {usuario.fecha_creacion ? new Date(usuario.fecha_creacion).toLocaleDateString() : 'Desconocida'}
-                                    </p>
-                                </div>
-                                <div className="p-3 bg-dark-hover/50 rounded-xl border border-dark-color">
-                                    <p className="text-xs text-dark-secondary">Última Actualización</p>
-                                    <p className="text-sm font-bold text-dark-primary">
-                                        {usuario.fecha_actualizacion ? new Date(usuario.fecha_actualizacion).toLocaleDateString() : 'N/A'}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+
 
 
                     <DialogFooter className="border-t border-dark-color pt-6 gap-2">

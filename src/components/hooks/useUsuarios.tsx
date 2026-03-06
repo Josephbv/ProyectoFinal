@@ -7,6 +7,7 @@ export interface Usuario {
     contrasena: string;
     correo?: string;
     cedula?: string;
+    tipo_documento?: string;
     activo: boolean;
     estado: string; // "activo", "inactivo", "bloqueado"
     fecha_creacion: string;
@@ -101,10 +102,10 @@ export function useUsuarios() {
         const q = query.toLowerCase().trim();
         if (!q) return usuarios;
         return usuarios.filter(u =>
+            (u.cedula || '').includes(q) ||
             u.nombre_usuario.toLowerCase().includes(q) ||
             (u.correo || '').toLowerCase().includes(q) ||
-            (u.nombre_completo || '').toLowerCase().includes(q) ||
-            (u.cedula || '').includes(q)
+            (u.nombre_completo || '').toLowerCase().includes(q)
         );
     }, [usuarios]);
 

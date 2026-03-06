@@ -104,10 +104,10 @@ export function UsuariosPage() {
                             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
                             <input
                                 type="text"
-                                placeholder="Buscar alias o correo..."
+                                placeholder="Buscar por alias, correo o documento..."
                                 value={busqueda}
                                 onChange={(e) => setBusqueda(e.target.value)}
-                                className="pl-10 pr-4 py-2 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
+                                className="pl-10 pr-4 py-2 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none w-64 md:w-80"
                             />
                         </div>
 
@@ -130,11 +130,13 @@ export function UsuariosPage() {
                             <TableHeader>
                                 <TableRow className="border-dark-color hover:bg-dark-hover">
                                     <TableHead className="text-dark-primary font-semibold w-16 text-center">ID</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[200px]">Username</TableHead>
+                                    <TableHead className="text-dark-primary font-semibold min-w-[200px]">Username / Correo</TableHead>
+                                    <TableHead className="text-dark-primary font-semibold min-w-[120px]">Tipo Doc.</TableHead>
+                                    <TableHead className="text-dark-primary font-semibold min-w-[150px]">Documento</TableHead>
                                     <TableHead className="text-dark-primary font-semibold min-w-[150px]">Rol Base</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[150px]">Grupo</TableHead>
                                     <TableHead className="text-dark-primary font-semibold text-center min-w-[100px]">Estado</TableHead>
                                     <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
+
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -154,17 +156,21 @@ export function UsuariosPage() {
                                                 </div>
                                             </div>
                                         </TableCell>
+                                        <TableCell className="text-dark-primary font-medium">
+                                            <span className="bg-dark-hover border border-dark-color px-2 py-1 rounded text-xs">
+                                                {usuario.tipo_documento || 'CC'}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="text-dark-primary font-mono text-sm">
+                                            {usuario.cedula || '---'}
+                                        </TableCell>
                                         <TableCell>
                                             <span className="flex items-center gap-2 text-sm text-dark-secondary capitalize">
                                                 <Shield className="w-3.5 h-3.5 text-blue-400" />
                                                 {usuario.rol?.nombre_rol || 'Indefinido'}
                                             </span>
                                         </TableCell>
-                                        <TableCell>
-                                            <span className="text-sm text-dark-secondary">
-                                                {usuario.grupo_usuario || 'General'}
-                                            </span>
-                                        </TableCell>
+
                                         <TableCell className="text-center">
                                             {getEstadoBadge(usuario.estado)}
                                         </TableCell>
@@ -179,6 +185,7 @@ export function UsuariosPage() {
                                                 >
                                                     <Eye className="w-3.5 h-3.5" />
                                                 </Button>
+
                                                 <Button
                                                     onClick={() => abrirUsuarioModal(usuario)}
                                                     variant="outline"
@@ -217,7 +224,7 @@ export function UsuariosPage() {
                                 ))}
                                 {usuariosPaginados.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="h-32 text-center text-dark-secondary">
+                                        <TableCell colSpan={8} className="h-32 text-center text-dark-secondary">
                                             <ShieldOff className="w-12 h-12 mx-auto mb-2 opacity-20" />
                                             {busqueda ? 'No se encontraron usuarios.' : 'No hay cuentas de usuario activas.'}
                                         </TableCell>

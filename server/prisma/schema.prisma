@@ -15,7 +15,8 @@ model cliente {
   telefono       String?        @db.VarChar(20)
   correo         String?        @unique @db.VarChar(100)
   direccion      String?        @db.VarChar(255)
-  usuario        usuario?
+  usuarios       usuario[]
+
   agendaciones   agendamiento[]
   mascotas       mascotas[]
   ventas         ventas[]
@@ -78,7 +79,8 @@ model empleado {
   profesion      String?        @db.VarChar(100)
   especialidad   String?        @db.VarChar(100)
   observaciones  String?        @db.Text
-  usuario        usuario?
+  usuarios       usuario[]
+
   agendaciones   agendamiento[]
   horarios       horario[]
 }
@@ -89,6 +91,7 @@ model usuario {
   contrasena           String    @db.VarChar(100)
   correo               String?   @unique @db.VarChar(100)
   cedula               String?   @unique @db.VarChar(20)
+  tipo_documento       String?   @db.VarChar(20)
   
   // Auditing & State
   activo               Boolean?  @default(true)
@@ -109,8 +112,9 @@ model usuario {
 
   id_rol               Int
   rol                  roles     @relation(fields: [id_rol], references: [id_rol])
-  id_cliente           Int?      @unique
-  id_empleado          Int?      @unique
+  id_cliente           Int?
+  id_empleado          Int?
+
   cliente              cliente?  @relation(fields: [id_cliente], references: [id_cliente])
   empleado             empleado? @relation(fields: [id_empleado], references: [id_empleado])
 }

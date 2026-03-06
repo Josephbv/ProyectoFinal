@@ -1,37 +1,35 @@
 require('dotenv').config();
-const { Resend } = require('resend');
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require('nodemailer');
 
 async function testEmails() {
+    console.log('--- INICIANDO PRUEBA DE CORREOS (PLAN B - GMAIL) ---');
+    console.log('Remitente:', process.env.EMAIL_USER);
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+        },
+    });
+
     const email = 'josephballestas10@gmail.com';
-    console.log('--- INICIANDO PRUEBA DE CORREOS KAI VET ---');
-    console.log('Usando API Key:', process.env.RESEND_API_KEY ? 'Cargada correctamente' : 'No encontrada');
 
     try {
-        // Prueba 1: Bienvenida
-        console.log('Enviando correo de bienvenida...');
-        const welcome = await resend.emails.send({
-            from: 'KaiVet Manager <onboarding@resend.dev>',
+        console.log('Enviando correo de prueba...');
+        const info = await transporter.sendMail({
+            from: `"Kaivet Test" <${process.env.EMAIL_USER}>`,
             to: email,
-            subject: 'PRUEBA: ¡Bienvenido a KaiVet Manager! 🐾',
-            html: `<h1 style="color: #6366f1;">¡Hola Joseph!</h1><p>Esta es una prueba de tu nuevo sistema de correos profesionales.</p>`
+            subject: 'PRUEBA PLAN B: ¡Funciona! 🐾',
+            html: `<h1>¡Hola Joseph!</h1><p>Si recibes esto, el Plan B (Gmail) está configurado correctamente y ya puedes enviar correos a cualquier cliente.</p>`
         });
-        console.log('Respuesta bienvenida:', welcome);
 
-        // Prueba 2: Código
-        console.log('\nEnviando código de recuperación...');
-        const code = await resend.emails.send({
-            from: 'Seguridad KaiVet <onboarding@resend.dev>',
-            to: email,
-            subject: 'PRUEBA: Código de seguridad 🔐',
-            html: `<h2>Tu código es: 123456</h2><p>Válido por 10 minutos.</p>`
-        });
-        console.log('Respuesta código:', code);
-
+        console.log('✅ Correo enviado con éxito!');
+        console.log('ID del mensaje:', info.messageId);
         console.log('\n--- PRUEBA FINALIZADA CON ÉXITO ---');
     } catch (err) {
-        console.error('\n❌ ERROR DURANTE LA PRUEBA:', err);
+        console.error('\n❌ ERROR DURANTE LA PRUEBA:', err.message);
+        console.log('\nAYUDA: Asegúrate de usar una "Contraseña de Aplicación" de 16 letras, no tu contraseña normal de Gmail.');
     }
 }
 

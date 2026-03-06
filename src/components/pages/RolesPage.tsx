@@ -173,13 +173,13 @@ export function RolesPage() {
                 <Users className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h4 className="font-semibold text-dark-primary">Asistente</h4>
+                <h4 className="font-semibold text-dark-primary">Veterinario</h4>
                 <p className="text-sm text-dark-secondary">Operaciones diarias</p>
               </div>
             </div>
             <p className="text-sm text-dark-secondary">
-              Rol para personal de apoyo con acceso a operaciones diarias como
-              agendamiento, inventario y asistencia en consultas.
+              Rol para personal médico con acceso a operaciones diarias como
+              agendamiento, historial clínico y asistencia en consultas.
             </p>
           </div>
         </div>

@@ -221,8 +221,7 @@ export function AccesoModal({ isOpen, onClose, onSubmit, acceso, loading }: Acce
                   <SelectContent className="bg-dark-card border-dark-color">
                     <SelectItem value="administrador">Administrador</SelectItem>
                     <SelectItem value="veterinario">Veterinario</SelectItem>
-                    <SelectItem value="asistente">Asistente</SelectItem>
-                    <SelectItem value="recepcionista">Recepcionista</SelectItem>
+                    <SelectItem value="cliente">Cliente</SelectItem>
                     <SelectItem value="usuario">Usuario</SelectItem>
                   </SelectContent>
                 </Select>
@@ -364,8 +363,8 @@ export function AccesoModal({ isOpen, onClose, onSubmit, acceso, loading }: Acce
                     type="button"
                     onClick={() => toggleDiaSemana(dia)}
                     className={`p-2 text-sm rounded-lg border transition-colors ${formData.diasSemana.includes(dia)
-                        ? 'bg-dark-cta text-white border-dark-cta'
-                        : 'bg-dark-hover text-dark-secondary border-dark-color hover:bg-dark-table-hover'
+                      ? 'bg-dark-cta text-white border-dark-cta'
+                      : 'bg-dark-hover text-dark-secondary border-dark-color hover:bg-dark-table-hover'
                       }`}
                   >
                     {dia.slice(0, 3).toUpperCase()}

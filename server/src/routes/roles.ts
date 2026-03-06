@@ -169,4 +169,25 @@ router.delete('/:id', async (req: Request, res: Response) => {
     }
 });
 
+// GET /api/roles/by-name/:roleName - Get modules for a role by name
+router.get('/by-name/:roleName', async (req: Request, res: Response) => {
+    try {
+        const roleName = req.params.roleName?.toLowerCase();
+        const rol = await prisma.roles.findFirst({
+            where: { nombre_rol: { contains: roleName } },
+            include: { roles_permisos: { include: { permiso: true } } }
+        });
+
+        if (!rol) {
+            return res.json({ modulos: [] });
+        }
+
+        const modulos = rol.roles_permisos.map(rp => rp.permiso.descripcion || '').filter(Boolean);
+        res.json({ modulos, nombre_rol: rol.nombre_rol });
+    } catch (error) {
+        console.error('[ROLES] GET by-name ERROR:', error);
+        res.status(500).json({ error: 'Error al obtener módulos del rol' });
+    }
+});
+
 export default router;

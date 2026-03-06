@@ -1,17 +1,34 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
+import 'dotenv/config';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Función para obtener el transportador de forma segura (Lazy initialization)
+const getTransporter = () => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error('[MAIL] ERROR: Credenciales de EMAIL no encontradas en el sistema.');
+    throw new Error('Credenciales de correo no configuradas');
+  }
+
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+};
 
 export const sendWelcomeEmail = async (email: string, nombre: string) => {
-    try {
-        await resend.emails.send({
-            from: 'KaiVet Manager <onboarding@resend.dev>',
-            to: email,
-            subject: '¡Bienvenido a KaiVet Manager! 🐾',
-            html: `
+  try {
+    console.log(`[MAIL] Intentando enviar email de bienvenida a: ${email}`);
+
+    await getTransporter().sendMail({
+      from: `"Kaivet Manager" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: '¡Bienvenido a Kaivet Manager! 🐾',
+      html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #111827; color: white; padding: 40px; border-radius: 12px; border: 1px solid #374151;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #6366f1; margin: 0; font-size: 28px;">KaiVet Manager</h1>
+            <h1 style="color: #6366f1; margin: 0; font-size: 28px;">Kaivet Manager</h1>
             <p style="color: #9ca3af; margin-top: 5px;">Tu plataforma de confianza para el cuidado de mascotas</p>
           </div>
           
@@ -38,24 +55,26 @@ export const sendWelcomeEmail = async (email: string, nombre: string) => {
           
           <p style="color: #6b7280; font-size: 12px; text-align: center;">
             Este es un correo automático, por favor no respondas a este mensaje.<br>
-            KaiVet Manager © 2026 - Control y salud para tus mejores amigos.
+            Kaivet Manager © 2026 - Control y salud para tus mejores amigos.
           </p>
         </div>
       `
-        });
-        console.log(`[RESEND] Correo de bienvenida enviado a: ${email}`);
-    } catch (error) {
-        console.error('[RESEND] Error enviando correo:', error);
-    }
+    });
+    console.log(`[MAIL] Correo de bienvenida enviado exitosamente a: ${email}`);
+  } catch (error: any) {
+    console.error('[MAIL] ERROR CRÍTICO AL ENVIAR BIENVENIDA:', error.message || error);
+  }
 };
 
 export const sendResetCodeEmail = async (email: string, code: string) => {
-    try {
-        await resend.emails.send({
-            from: 'Seguridad KaiVet <onboarding@resend.dev>',
-            to: email,
-            subject: 'Código de recuperación de contraseña 🔐',
-            html: `
+  try {
+    console.log(`[MAIL] Enviando código [${code}] a: ${email}`);
+
+    await getTransporter().sendMail({
+      from: `"Seguridad Kaivet" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Código de recuperación de contraseña 🔐',
+      html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #111827; color: white; padding: 40px; border-radius: 12px; border: 1px solid #374151;">
             <div style="text-align: center; margin-bottom: 30px;">
                 <h1 style="color: #ef4444; margin: 0; font-size: 24px;">Seguridad de Cuenta</h1>
@@ -81,13 +100,13 @@ export const sendResetCodeEmail = async (email: string, code: string) => {
             <hr style="border: 0; border-top: 1px solid #374151; margin: 40px 0;">
             
             <p style="color: #6b7280; font-size: 12px; text-align: center;">
-                KaiVet Manager © 2026 - Seguridad y Privacidad
+                Kaivet Manager © 2026 - Seguridad y Privacidad
             </p>
         </div>
       `
-        });
-        console.log(`[RESEND] Código de recuperación enviado a: ${email}`);
-    } catch (error) {
-        console.error('[RESEND] Error enviando código de recuperación:', error);
-    }
+    });
+    console.log(`[MAIL] Código enviado exitosamente a: ${email}`);
+  } catch (error: any) {
+    console.error('[MAIL] ERROR AL ENVIAR CÓDIGO:', error.message || error);
+  }
 };

@@ -24,7 +24,7 @@ interface RolModalProps {
 const rolesDisponibles = [
   { value: 'Administrador', label: 'Administrador', description: 'Acceso completo al sistema' },
   { value: 'Cliente', label: 'Cliente', description: 'Acceso limitado a información personal' },
-  { value: 'Asistente', label: 'Asistente', description: 'Operaciones diarias y asistencia' }
+  { value: 'Veterinario', label: 'Veterinario', description: 'Operaciones diarias y asistencia médica' }
 ];
 
 const modulosDisponibles = [
@@ -35,7 +35,7 @@ const modulosDisponibles = [
 
 const defaultModulosPorRol: Record<string, string[]> = {
   'Administrador': [...modulosDisponibles],
-  'Asistente': ['Dashboard', 'Ventas', 'Clientes', 'Agendamiento', 'Mascotas', 'Historial Mascotas', 'Horario', 'Servicios'],
+  'Veterinario': ['Dashboard', 'Ventas', 'Clientes', 'Agendamiento', 'Mascotas', 'Historial Mascotas', 'Horario', 'Servicios'],
   'Cliente': ['Dashboard', 'Agendamiento', 'Mascotas', 'Historial Mascotas']
 };
 

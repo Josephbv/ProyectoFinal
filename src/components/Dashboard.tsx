@@ -79,8 +79,21 @@ export function Dashboard({ onLogout }: DashboardProps) {
   // State for passing data to edit pages
   const [horarioAEditar, setHorarioAEditar] = useState<any>(null);
 
-  // Combinar todos los items para búsqueda
-  const allNavItems = [...mainNavItems, ...mascotasItems, ...operationsItems, ...configItems];
+  // Filter nav items by user's allowed modules.
+  // If modulos is empty/undefined, show all (fail-open for safety during development).
+  const filterByModules = (items: typeof mainNavItems) => {
+    const modulos = user?.modulos;
+    if (!modulos || modulos.length === 0) return items;
+    return items.filter(item => modulos.includes(item.label));
+  };
+
+  const visibleMainNav = filterByModules(mainNavItems);
+  const visibleMascotasItems = filterByModules(mascotasItems);
+  const visibleOperationsItems = filterByModules(operationsItems);
+  const visibleConfigItems = filterByModules(configItems);
+
+  // Search: only over visible modules
+  const allNavItems = [...visibleMainNav, ...visibleMascotasItems, ...visibleOperationsItems, ...visibleConfigItems];
 
   // Filtrar items basado en la búsqueda
   const filteredItems = searchQuery
@@ -271,53 +284,59 @@ export function Dashboard({ onLogout }: DashboardProps) {
                 </h3>
               </div>
             )}
-            {mainNavItems.map((item) => renderNavItem(item, activePage === item.label))}
+            {visibleMainNav.map((item) => renderNavItem(item, activePage === item.label))}
           </div>
 
           <Separator className="bg-dark-border/30" />
 
           {/* Mascotas Group */}
-          <div className="space-y-1">
-            {!sidebarCollapsed && (
-              <div className="px-3 mb-3">
-                <h3 className="text-xs font-semibold text-dark-secondary uppercase tracking-wider flex items-center gap-2">
-                  <Heart className="w-3 h-3" />
-                  Mascotas
-                </h3>
-              </div>
-            )}
-            {mascotasItems.map((item) => renderNavItem(item, activePage === item.label))}
-          </div>
+          {visibleMascotasItems.length > 0 && (
+            <div className="space-y-1">
+              {!sidebarCollapsed && (
+                <div className="px-3 mb-3">
+                  <h3 className="text-xs font-semibold text-dark-secondary uppercase tracking-wider flex items-center gap-2">
+                    <Heart className="w-3 h-3" />
+                    Mascotas
+                  </h3>
+                </div>
+              )}
+              {visibleMascotasItems.map((item) => renderNavItem(item, activePage === item.label))}
+            </div>
+          )}
 
-          <Separator className="bg-dark-border/30" />
+          {visibleMascotasItems.length > 0 && <Separator className="bg-dark-border/30" />}
 
           {/* Operations Group */}
-          <div className="space-y-1">
-            {!sidebarCollapsed && (
-              <div className="px-3 mb-3">
-                <h3 className="text-xs font-semibold text-dark-secondary uppercase tracking-wider flex items-center gap-2">
-                  <Settings className="w-3 h-3" />
-                  Operaciones
-                </h3>
-              </div>
-            )}
-            {operationsItems.map((item) => renderNavItem(item, activePage === item.label))}
-          </div>
+          {visibleOperationsItems.length > 0 && (
+            <div className="space-y-1">
+              {!sidebarCollapsed && (
+                <div className="px-3 mb-3">
+                  <h3 className="text-xs font-semibold text-dark-secondary uppercase tracking-wider flex items-center gap-2">
+                    <Settings className="w-3 h-3" />
+                    Operaciones
+                  </h3>
+                </div>
+              )}
+              {visibleOperationsItems.map((item) => renderNavItem(item, activePage === item.label))}
+            </div>
+          )}
 
-          <Separator className="bg-dark-border/30" />
+          {visibleOperationsItems.length > 0 && <Separator className="bg-dark-border/30" />}
 
           {/* Configuration Group */}
-          <div className="space-y-1">
-            {!sidebarCollapsed && (
-              <div className="px-3 mb-3">
-                <h3 className="text-xs font-semibold text-dark-secondary uppercase tracking-wider flex items-center gap-2">
-                  <Command className="w-3 h-3" />
-                  Sistema
-                </h3>
-              </div>
-            )}
-            {configItems.map((item) => renderNavItem(item, activePage === item.label))}
-          </div>
+          {visibleConfigItems.length > 0 && (
+            <div className="space-y-1">
+              {!sidebarCollapsed && (
+                <div className="px-3 mb-3">
+                  <h3 className="text-xs font-semibold text-dark-secondary uppercase tracking-wider flex items-center gap-2">
+                    <Command className="w-3 h-3" />
+                    Sistema
+                  </h3>
+                </div>
+              )}
+              {visibleConfigItems.map((item) => renderNavItem(item, activePage === item.label))}
+            </div>
+          )}
         </nav>
 
         {/* User Profile & Status */}
