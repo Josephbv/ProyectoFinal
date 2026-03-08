@@ -20,14 +20,23 @@ import { ConsultaMedicaModal } from "../modals/ConsultaMedicaModal";
 export function HistorialMascotasPage() {
   const { historiales, loading, cargarHistoriales, crearEntradaHistorial, actualizarEntradaHistorial, eliminarEntradaHistorial } = useHistorialMascotas();
 
+  const toSentenceCase = (str: string = '') => {
+    if (!str) return '';
+    const s = str.trim().toLowerCase();
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  };
+
   const [busqueda, setBusqueda] = useState("");
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, entrada: null as HistorialMascota | null });
 
   // Nuevo flujo de navegación
-  const [pasoActual, setPasoActual] = useState<'cliente' | 'mascota' | 'timeline' | 'formulario' | 'detalles'>('cliente');
+  const [pasoActual, setPasoActual] = useState<'cliente' | 'mascota' | 'timeline' | 'formulario' | 'detalles' | 'reporteCompleto'>('cliente');
   const [clienteSeleccionado, setClienteSeleccionado] = useState<any | null>(null);
   const [mascotaSeleccionada, setMascotaSeleccionada] = useState<any | null>(null);
   const [entradaSeleccionada, setEntradaSeleccionada] = useState<HistorialMascota | null>(null);
+
+  // Paginación para Historial
+  const [paginaActualMascota, setPaginaActualMascota] = useState(1);
 
   // Hooks para el formulario
   const { clientes } = useClientes();
@@ -335,9 +344,9 @@ export function HistorialMascotasPage() {
 
   function renderReporteDetallado(entrada: HistorialMascota) {
     return (
-      <div className="flex flex-col bg-[#0a0b0c] animate-in fade-in duration-500">
+      <div className="flex flex-col bg-[#0a0b0c] animate-in fade-in duration-500 overflow-y-auto min-h-screen">
         {/* Header del Reporte */}
-        <header className="bg-dark-card border-b border-dark-color px-10 py-6 flex justify-between items-center shrink-0 z-20">
+        <header className="bg-dark-card border-b border-dark-color px-10 py-6 flex justify-between items-center shrink-0 z-20 sticky top-0">
           <div className="flex items-center gap-6">
             <Button
               variant="ghost"
@@ -349,162 +358,152 @@ export function HistorialMascotasPage() {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <div className="bg-blue-500 w-2 h-6 rounded-full" />
-                <h2 className="text-2xl font-black text-dark-primary tracking-tighter">Informe clínico veterinario</h2>
+                <h2 className="text-2xl font-black text-dark-primary tracking-tighter">{toSentenceCase('Informe clínico detallado')}</h2>
               </div>
-              <p className="text-[10px] text-dark-secondary font-black  tracking-widest pl-5 opacity-60">Expediente médico #{entrada.id_historial}</p>
+              <p className="text-[10px] text-dark-secondary font-black tracking-widest pl-5 opacity-60">{toSentenceCase(`Expediente médico #${entrada.id_historial}`)}</p>
             </div>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="border-dark-color text-dark-secondary hover:bg-dark-hover gap-2 text-xs font-bold tracking-widest h-11 px-6 rounded-xl">
-              <FileText className="w-4 h-4" /> Imprimir
-            </Button>
-            <Button onClick={cerrarVistaActual} className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-black tracking-widest h-11 px-8 rounded-xl shadow-lg shadow-blue-500/20">
-              Cerrar reporte
+          <div className="flex gap-4">
+            <Button
+              onClick={() => setPasoActual('reporteCompleto')}
+              className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-[11px] font-black tracking-widest h-12 px-8 rounded-2xl shadow-[0_10px_40px_rgba(16,185,129,0.25)] border border-emerald-400/20 transition-all hover:scale-105 active:scale-95 gap-3"
+            >
+              <FileText className="w-4 h-4" />
+              <span>Generar reporte histórico</span>
             </Button>
           </div>
         </header>
 
-        <div className="flex">
-          {/* Sidebar Metadata */}
-          <aside className="w-96 bg-[#0f1113] border-r border-dark-color flex flex-col shrink-0">
-            <div className="p-8 space-y-8">
-              {/* Card Mascota & Propietario */}
-              <div className="space-y-4">
-                {/* Paciente Section */}
-                <div className="bg-dark-card border border-dark-color rounded-[2rem] p-8 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-pink-500/10 transition-colors" />
-                  <div className="relative z-10 flex flex-col items-center text-center">
-                    <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-2xl mb-5 transform -rotate-3 group-hover:rotate-0 transition-transform">
-                      <Heart className="w-10 h-10 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-black text-dark-primary tracking-tight mb-1">{entrada.mascota?.nombre || (entrada as any).nombreMascota || 'Mascota'}</h3>
-                    <p className="text-xs font-black text-pink-400 tracking-[0.2em] mb-6">Paciente veterinario</p>
-
-                    <div className="w-full grid grid-cols-2 gap-3 pt-6 border-t border-dark-color">
-                      <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col">
-                        <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Edad</p>
-                        <p className="text-xs font-black text-emerald-400">{entrada.mascota?.edad || 'N/A'} años</p>
-                      </div>
-                      <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col">
-                        <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Peso</p>
-                        <p className="text-xs font-black text-blue-400">{entrada.mascota?.peso || 'N/A'} kg</p>
-                      </div>
-                      <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col">
-                        <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Nacimiento</p>
-                        <p className="text-[10px] font-black text-purple-400">
-                          {entrada.mascota?.fecha_nacimiento ? new Date(entrada.mascota.fecha_nacimiento).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }) : 'N/A'}
-                        </p>
-                      </div>
-                      <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col">
-                        <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Vacunas</p>
-                        <p className={`text-[10px] font-black ${entrada.mascota?.vacunas ? 'text-green-400' : 'text-orange-400 opacity-80'}`}>
-                          {entrada.mascota?.vacunas ? 'Al día' : 'Pendiente'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+        <div className="p-10 space-y-10">
+          {/* Fila Superior: Paciente, Propietario e Info Cita */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Tarjeta del Paciente */}
+            <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-pink-500/10 transition-colors" />
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-20 h-20 rounded-[1.8rem] bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-2xl mb-4 transform -rotate-3 group-hover:rotate-0 transition-transform">
+                  <Heart className="w-8 h-8 text-white" />
                 </div>
+                <h3 className="text-xl font-black text-dark-primary tracking-tight mb-1">{entrada.mascota?.nombre || (entrada as any).nombreMascota || 'Mascota'}</h3>
+                <p className="text-[10px] font-black text-pink-400 tracking-[0.2em] mb-4">Paciente</p>
 
-                {/* Propietario Section */}
-                <div className="bg-dark-card border border-dark-color rounded-[2rem] p-8 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500/5 rounded-full -ml-16 -mt-16 blur-3xl group-hover:bg-blue-500/10 transition-colors" />
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
-                        <User className="w-6 h-6 text-blue-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-black text-blue-400 tracking-widest leading-none mb-1.5 opacity-80">Propietario</p>
-                        <h4 className="text-sm font-black text-dark-primary truncate leading-tight tracking-tight">
-                          {entrada.mascota?.cliente?.nombre || (entrada as any).nombreCliente || 'No seleccionado'}
-                        </h4>
-                        <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60">ID: {entrada.mascota?.cliente?.cedula || 'N/A'}</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 pt-4 border-t border-dark-color">
-                      <div className="flex items-center gap-3 text-xs text-dark-secondary/80 font-bold">
-                        <div className="w-8 h-8 rounded-xl bg-dark-bg/50 flex items-center justify-center border border-dark-color/50">
-                          <Users className="w-4 h-4 text-dark-secondary" />
-                        </div>
-                        <span className="truncate">{entrada.mascota?.cliente?.telefono || 'Sin Teléfono'}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-dark-secondary/80 font-bold">
-                        <div className="w-8 h-8 rounded-xl bg-dark-bg/50 flex items-center justify-center border border-dark-color/50">
-                          <Search className="w-4 h-4 text-dark-secondary" />
-                        </div>
-                        <span className="truncate">{entrada.mascota?.cliente?.direccion || 'Sin Dirección'}</span>
-                      </div>
-                    </div>
+                <div className="w-full grid grid-cols-2 gap-2 pt-4 border-t border-dark-color">
+                  <div className="bg-dark-bg/50 p-2.5 rounded-2xl border border-dark-color/50 flex flex-col">
+                    <p className="text-[7px] font-black text-dark-secondary tracking-[0.1em] mb-0.5">Edad</p>
+                    <p className="text-[11px] font-black text-emerald-400">{entrada.mascota?.edad || 'N/A'} años</p>
+                  </div>
+                  <div className="bg-dark-bg/50 p-2.5 rounded-2xl border border-dark-color/50 flex flex-col">
+                    <p className="text-[7px] font-black text-dark-secondary tracking-[0.1em] mb-0.5">Peso</p>
+                    <p className="text-[11px] font-black text-blue-400">{entrada.mascota?.peso || 'N/A'} kg</p>
+                  </div>
+                  <div className="bg-dark-bg/50 p-2.5 rounded-2xl border border-dark-color/50 flex flex-col col-span-2">
+                    <p className="text-[7px] font-black text-dark-secondary tracking-[0.1em] mb-0.5 uppercase">Especie / Raza</p>
+                    <p className="text-[10px] font-black text-purple-400 truncate">
+                      {entrada.mascota?.especie || 'N/A'} · {entrada.mascota?.raza || 'N/A'}
+                    </p>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Info Visita */}
-              <div className="space-y-6">
-                <h4 className="text-[10px] font-black text-dark-secondary tracking-[0.3em] pl-2 opacity-50">Detalles de la cita</h4>
-                <div className="space-y-3">
-                  <div className="bg-dark-card/50 p-5 rounded-3xl border border-dark-color flex items-center gap-4">
+            {/* Tarjeta del Propietario */}
+            <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500/5 rounded-full -ml-16 -mt-16 blur-3xl group-hover:bg-blue-500/10 transition-colors" />
+              <div className="relative z-10 flex flex-col">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
+                    <User className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] font-black text-blue-400 tracking-widest leading-none mb-1.5 opacity-80">{toSentenceCase('Propietario')}</p>
+                    <h4 className="text-lg font-black text-dark-primary truncate leading-tight tracking-tight">
+                      {toSentenceCase(entrada.mascota?.cliente?.nombre || (entrada as any).nombreCliente || 'Desconocido')}
+                    </h4>
+                    <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60 uppercase">Cédula: {entrada.mascota?.cliente?.cedula || 'N/A'}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 pt-6 border-t border-dark-color">
+                  <div className="flex items-center gap-3 text-xs text-dark-secondary/80 font-bold">
+                    <div className="w-8 h-8 rounded-xl bg-dark-bg/50 flex items-center justify-center border border-dark-color/50">
+                      <Users className="w-4 h-4 text-dark-secondary" />
+                    </div>
+                    <span className="truncate">{entrada.mascota?.cliente?.telefono || 'No registrado'}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-dark-secondary/80 font-bold">
+                    <div className="w-8 h-8 rounded-xl bg-dark-bg/50 flex items-center justify-center border border-dark-color/50">
+                      <Search className="w-4 h-4 text-dark-secondary" />
+                    </div>
+                    <span className="truncate">{toSentenceCase(entrada.mascota?.cliente?.direccion || 'No registrado')}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tarjeta de Detalles de la Cita */}
+            <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group">
+              <div className="absolute bottom-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mb-16 blur-3xl group-hover:bg-emerald-500/10 transition-colors" />
+              <div className="relative z-10 flex flex-col">
+                <h4 className="text-[10px] font-black text-dark-secondary tracking-[0.3em] pl-2 opacity-50 uppercase mb-4">{toSentenceCase('Información de visita')}</h4>
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center">
                       <Calendar className="w-5 h-5 text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-dark-secondary tracking-widest mb-0.5">Fecha</p>
+                      <p className="text-[10px] font-black text-dark-secondary tracking-widest mb-0.5 uppercase">{toSentenceCase('Fecha')}</p>
                       <p className="text-sm font-black text-dark-primary">{entrada.fecha ? new Date(entrada.fecha.includes('T') ? entrada.fecha.split('T')[0] + 'T12:00:00' : entrada.fecha + 'T12:00:00').toLocaleDateString() : 'Sin fecha'}</p>
                     </div>
                   </div>
-                  <div className="bg-dark-card/50 p-5 rounded-3xl border border-dark-color flex items-center gap-4">
+                  <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-2xl bg-orange-500/10 flex items-center justify-center">
                       <Clock className="w-5 h-5 text-orange-400" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-dark-secondary tracking-widest mb-0.5">Hora</p>
+                      <p className="text-[10px] font-black text-dark-secondary tracking-widest mb-0.5 uppercase">{toSentenceCase('Hora')}</p>
                       <p className="text-sm font-black text-dark-primary">{(entrada as any).hora || '00:00'}</p>
                     </div>
                   </div>
-
-                  <div className="bg-dark-card/50 p-5 rounded-3xl border border-dark-color flex items-center gap-4">
+                  <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
                       <User className="w-5 h-5 text-emerald-400" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-dark-secondary tracking-widest mb-0.5">Veterinario</p>
-                      <p className="text-sm font-black text-dark-primary">{(entrada as any).veterinario || 'Veterinario'}</p>
+                      <p className="text-[10px] font-black text-dark-secondary tracking-widest mb-0.5 uppercase">{toSentenceCase('Veterinario')}</p>
+                      <p className="text-sm font-black text-dark-primary truncate max-w-[150px]">{toSentenceCase((entrada as any).veterinario || 'Veterinario')}</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </aside>
+          </div>
 
-          {/* Main Area */}
-          <main className="flex-1 bg-[#0a0b0c] p-12">
-            <div className="max-w-4xl mx-auto space-y-12">
-
+          {/* Secciones Clínicas: Diagnóstico y Tratamiento */}
+          <div className="grid grid-cols-1 gap-10">
+            <div className="space-y-6">
               <div className="flex items-center gap-4 border-l-4 border-pink-600 pl-8 py-2">
                 <Activity className="w-8 h-8 text-pink-500" />
-                <h3 className="text-2xl font-black text-dark-primary tracking-[0.15em]">Diagnóstico médico y evolución</h3>
+                <h3 className="text-2xl font-black text-dark-primary tracking-[0.15em] uppercase">{toSentenceCase('Diagnóstico y evolución')}</h3>
               </div>
-
-              <div className="bg-dark-card p-12 rounded-[3rem] border border-dark-color shadow-2xl transform transition-all hover:scale-[1.01]">
-                <p className="text-xl text-dark-primary leading-relaxed font-medium whitespace-pre-wrap">
-                  {entrada.diagnostico || 'Sin diagnóstico registrado'}
-                </p>
-              </div>
-
-              {/* Tratamiento Sección */}
-              <div className="flex items-center gap-4 border-l-4 border-emerald-600 pl-8 py-2">
-                <Stethoscope className="w-8 h-8 text-emerald-500" />
-                <h3 className="text-2xl font-black text-dark-primary tracking-[0.15em]">Tratamiento realizado</h3>
-              </div>
-
-              <div className="bg-dark-card p-12 rounded-[3rem] border border-dark-color shadow-2xl transform transition-all hover:scale-[1.01]">
-                <p className="text-xl text-dark-primary leading-relaxed font-medium whitespace-pre-wrap">
-                  {entrada.tratamiento || 'Sin tratamiento registrado'}
+              <div className="bg-dark-card p-12 rounded-[3.5rem] border border-dark-color shadow-2xl transform transition-all hover:scale-[1.005]">
+                <p className="text-xl text-dark-primary leading-relaxed font-medium whitespace-pre-wrap min-h-[100px]">
+                  {toSentenceCase(entrada.diagnostico || 'Sin diagnóstico registrado')}
                 </p>
               </div>
             </div>
-          </main>
+
+            <div className="space-y-6">
+              <div className="flex items-center gap-4 border-l-4 border-emerald-600 pl-8 py-2">
+                <Stethoscope className="w-8 h-8 text-emerald-500" />
+                <h3 className="text-2xl font-black text-dark-primary tracking-[0.15em] uppercase">{toSentenceCase('Tratamiento realizado')}</h3>
+              </div>
+              <div className="bg-dark-card p-12 rounded-[3.5rem] border border-dark-color shadow-2xl transform transition-all hover:scale-[1.005]">
+                <p className="text-xl text-dark-primary leading-relaxed font-medium whitespace-pre-wrap min-h-[100px]">
+                  {toSentenceCase(entrada.tratamiento || 'Sin tratamiento registrado')}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -644,12 +643,6 @@ export function HistorialMascotasPage() {
                       <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Nacimiento</p>
                       <p className="text-xs font-black text-purple-400 break-all">
                         {mascotaSeleccionada?.fecha_nacimiento ? new Date(mascotaSeleccionada.fecha_nacimiento).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }) : 'N/A'}
-                      </p>
-                    </div>
-                    <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
-                      <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Vacunas</p>
-                      <p className={`text-xs font-black break-all ${mascotaSeleccionada?.vacunas ? 'text-green-400' : 'text-orange-400 opacity-80'}`}>
-                        {mascotaSeleccionada?.vacunas ? 'Al día' : 'Pen.'}
                       </p>
                     </div>
                   </div>
@@ -1099,6 +1092,14 @@ export function HistorialMascotasPage() {
       .filter(h => h.id_mascota === mascotaSeleccionada?.id_mascota)
       .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 
+    // Paginación para Historial
+    const elementosPorPaginaMascota = 5;
+
+    const totalPaginas = Math.ceil(historialDeLaMascota.length / elementosPorPaginaMascota);
+    const indiceInicio = (paginaActualMascota - 1) * elementosPorPaginaMascota;
+    const indiceFin = indiceInicio + elementosPorPaginaMascota;
+    const historialesPaginados = historialDeLaMascota.slice(indiceInicio, indiceFin);
+
     return (
       <div className="p-8 space-y-8 animate-in zoom-in-95 duration-500">
         <div className="max-w-5xl mx-auto">
@@ -1133,7 +1134,7 @@ export function HistorialMascotasPage() {
           </header>
 
           <div className="space-y-12 pl-8 border-l border-dark-color relative">
-            {historialDeLaMascota.map((entrada) => (
+            {historialesPaginados.map((entrada) => (
               <div key={entrada.id_historial} className="relative">
                 <div className="absolute -left-[41px] top-4 w-5 h-5 rounded-full bg-[#0a0b0c] border-[4px] border-blue-500 z-10" />
 
@@ -1167,11 +1168,168 @@ export function HistorialMascotasPage() {
                 </div>
               </div>
             ))}
+
+            {/* Paginación */}
+            {historialDeLaMascota.length > 0 && (
+              <div className="flex items-center justify-between pt-4 mt-4 px-4 pb-4">
+                <div className="text-sm text-dark-secondary">
+                  Mostrando {indiceInicio + 1}-{Math.min(indiceFin, historialDeLaMascota.length)} de {historialDeLaMascota.length} entradas
+                </div>
+
+                {totalPaginas > 1 && (
+                  <div className="flex items-center gap-1">
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(1)} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.max(prev - 1, 1))} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(totalPaginas)} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
     );
   };
+
+  const renderReporteCompleto = (idMascota: number) => {
+    const historialesMascota = historiales
+      .filter(h => h.id_mascota === idMascota)
+      .sort((a, b) => {
+        const dateA = new Date(a.fecha + 'T' + ((a as any).hora || '00:00')).getTime();
+        const dateB = new Date(b.fecha + 'T' + ((b as any).hora || '00:00')).getTime();
+        return dateB - dateA; // Newest first
+      });
+
+    const mascota = historialesMascota[0]?.mascota || mascotaSeleccionada;
+
+    return (
+      <div className="flex flex-col bg-white text-slate-900 min-h-screen animate-in fade-in duration-700 overflow-y-auto print:overflow-visible print:bg-white print:block">
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          @media print {
+            aside, header, nav, .print\\:hidden, button, [role="navigation"] { display: none !important; }
+            body, html { background-color: white !important; margin: 0 !important; padding: 0 !important; }
+            #printable-report-area { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; margin: 0 !important; padding: 2cm !important; box-shadow: none !important; display: block !important; }
+            .grid { display: grid !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          }
+        `}} />
+        {/* Cabecera del Reporte (No imprimible) */}
+        <div className="bg-slate-900 px-10 py-6 flex justify-between items-center shrink-0 print:hidden sticky top-0 z-50">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              onClick={() => setPasoActual('detalles')}
+              className="text-white hover:bg-white/10 rounded-full w-10 h-10 p-0"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </Button>
+            <h2 className="text-xl font-black text-white tracking-widest uppercase">Vista Previa del Reporte Completo</h2>
+          </div>
+          <div className="flex gap-4">
+            <Button
+              onClick={() => window.print()}
+              className="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs tracking-widest px-8 h-12 rounded-xl"
+            >
+              <FileText className="w-4 h-4 mr-2" /> Imprimir / Guardar PDF
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setPasoActual('detalles')}
+              className="border-slate-700 text-slate-400 hover:bg-slate-800 font-black text-xs tracking-widest px-8 h-12 rounded-xl"
+            >
+              Cerrar
+            </Button>
+          </div>
+        </div>
+
+        {/* Contenido del Reporte (Formato A4) */}
+        <div className="max-w-[1000px] mx-auto w-full p-16 print:p-0 bg-white print:shadow-none shadow-2xl my-10 print:my-0">
+          {/* Header del Documento */}
+          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-10 mb-10 text-slate-900">
+            <div>
+              <h1 className="text-4xl font-bold tracking-tighter mb-2">{toSentenceCase('Historial Clínico Consolidado')}</h1>
+              <p className="text-sm font-bold text-slate-500 tracking-widest uppercase text-left">Centro Veterinario KaiVet Manager</p>
+            </div>
+            <div className="text-right text-sm">
+              <p className="font-black">Fecha de Generación</p>
+              <p className="font-bold text-slate-500">{new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+            </div>
+          </div>
+
+          {/* Información del Paciente y Dueño */}
+          <div className="grid grid-cols-2 gap-10 mb-12">
+            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200">
+              <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mb-4">Información del Paciente</h3>
+              <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(mascota?.nombre)}</p>
+              <div className="space-y-1 text-sm font-semibold text-slate-600">
+                <p>Especie: <span className="text-slate-900">{toSentenceCase(mascota?.especie)}</span></p>
+                <p>Raza: <span className="text-slate-900">{toSentenceCase(mascota?.raza)}</span></p>
+                <p>Edad: <span className="text-slate-900">{mascota?.edad || 'N/A'} años</span></p>
+                <p>Peso: <span className="text-slate-900">{mascota?.peso || 'N/A'} kg</span></p>
+              </div>
+            </div>
+            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200">
+              <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mb-4">Información del Propietario</h3>
+              <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(mascota?.cliente?.nombre)}</p>
+              <div className="space-y-1 text-sm font-semibold text-slate-600">
+                <p>ID: <span className="text-slate-900">{mascota?.cliente?.cedula || 'N/A'}</span></p>
+                <p>Teléfono: <span className="text-slate-900">{mascota?.cliente?.telefono || 'N/A'}</span></p>
+                <p>Dirección: <span className="text-slate-900 text-left">{toSentenceCase(mascota?.cliente?.direccion)}</span></p>
+              </div>
+            </div>
+          </div>
+
+          {/* Listado de Evoluciones Clínicas */}
+          <div className="space-y-12">
+            <h3 className="text-xl font-bold text-slate-900 tracking-tight border-b-2 border-slate-200 pb-2 uppercase">{toSentenceCase(`Cronología médica (${historialesMascota.length} Entradas)`)}</h3>
+
+            {historialesMascota.map((h, index) => {
+              const vetRaw = (h as any).veterinario || 'Veterinario';
+              const cleanVet = vetRaw.replace(/^(?:(?:dr|dra|doctor|doctora)\.?\s*)+/i, '');
+              const formattedVet = `Dr. ${toSentenceCase(cleanVet)}`;
+
+              return (
+                <div key={h.id_historial} className="relative pl-6 border-l-2 border-slate-200 pb-12 last:pb-0">
+                  <div className="mb-4">
+                    <div className="flex items-center gap-3 text-sm font-bold text-slate-400 tracking-widest uppercase mb-1">
+                      <span>{h.fecha ? new Date(h.fecha.includes('T') ? h.fecha.split('T')[0] + 'T12:00:00' : h.fecha + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A'}</span>
+                      <span className="text-slate-200">|</span>
+                      <span>{(h as any).hora || '00:00'}</span>
+                      <span className="text-slate-200">|</span>
+                      <span className="text-slate-900">{formattedVet}</span>
+                    </div>
+                    <h4 className="text-lg font-bold text-slate-900 tracking-tight">{toSentenceCase('Evolución clínica')}</h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-50 p-6 rounded-2xl">
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase mb-2 text-blue-800">Diagnóstico Y Hallazgos</p>
+                      <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed">
+                        {toSentenceCase(h.diagnostico || 'No registrado')}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase mb-2 text-emerald-800">Tratamiento Y Procedimientos</p>
+                      <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed">
+                        {toSentenceCase(h.tratamiento || 'No registrado')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Footer del Documento */}
+          <div className="mt-20 pt-10 border-t border-slate-200 text-center uppercase">
+            <p className="text-[10px] font-black text-slate-400 tracking-[0.4em]">Fin Del Reporte Médico Oficial - KaiVet Manager</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const renderContenido = () => {
     switch (pasoActual) {
@@ -1185,6 +1343,8 @@ export function HistorialMascotasPage() {
         return renderFormularioHistorial();
       case 'detalles':
         return entradaSeleccionada ? renderReporteDetallado(entradaSeleccionada) : renderSeleccionCliente();
+      case 'reporteCompleto':
+        return entradaSeleccionada ? renderReporteCompleto(entradaSeleccionada.id_mascota) : renderSeleccionCliente();
       default:
         return renderSeleccionCliente();
     }
@@ -1192,7 +1352,7 @@ export function HistorialMascotasPage() {
 
   return (
     <div className="flex flex-col bg-[#0a0b0c]">
-      {!['formulario', 'detalles'].includes(pasoActual) && (
+      {!['formulario', 'detalles', 'reporteCompleto'].includes(pasoActual) && (
         <header className="px-10 py-6 border-b border-dark-color bg-dark-bg shrink-0">
           <div className="flex items-center justify-between">
             <div>

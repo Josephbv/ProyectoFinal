@@ -5,6 +5,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Empleado } from '../hooks/useEmpleados';
 import { User, Briefcase, Mail, Phone, MapPin } from 'lucide-react';
+import { useRoles } from '../hooks/useRoles';
 
 interface EmpleadoModalProps {
     isOpen: boolean;
@@ -23,8 +24,11 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
         cargo: '',
         correo: '',
         telefono: '',
-        direccion: ''
+        direccion: '',
+        experiencia: ''
     });
+
+    const { roles } = useRoles();
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -37,7 +41,8 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                 cargo: empleado.cargo || '',
                 correo: empleado.correo || '',
                 telefono: empleado.telefono || '',
-                direccion: empleado.direccion || ''
+                direccion: empleado.direccion || '',
+                experiencia: (empleado as any).experiencia || ''
             });
         } else {
             setFormData({
@@ -47,7 +52,8 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                 cargo: '',
                 correo: '',
                 telefono: '',
-                direccion: ''
+                direccion: '',
+                experiencia: ''
             });
         }
         setErrors({});
@@ -64,6 +70,7 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
         } else if (!/\S+@\S+\.\S+/.test(formData.correo)) {
             newErrors.correo = 'El email no es válido';
         }
+        if (!formData.cargo.trim()) newErrors.cargo = 'El cargo es obligatorio';
         if (!formData.telefono.trim()) newErrors.telefono = 'El teléfono es obligatorio';
         if (!formData.direccion.trim()) newErrors.direccion = 'La dirección es obligatoria';
 
@@ -195,17 +202,39 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                             {errors.direccion && <p className="text-red-400 text-sm">{errors.direccion}</p>}
                         </div>
 
-                        <div className="space-y-2">
-                            <Label className="text-dark-secondary text-xs flex items-center gap-1">
-                                <Briefcase className="w-3 h-3" /> Cargo
-                            </Label>
-                            <Input
-                                value={formData.cargo}
-                                onChange={(e) => handleChange('cargo', e.target.value)}
-                                className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
-                                placeholder="Ej: Veterinario, Recepcionista"
-                                readOnly={readOnly}
-                            />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-dark-secondary text-xs flex items-center gap-1">
+                                    <Briefcase className="w-3 h-3" /> Cargo *
+                                </Label>
+                                <select
+                                    value={formData.cargo}
+                                    onChange={(e) => handleChange('cargo', e.target.value)}
+                                    disabled={readOnly || Boolean(empleado && (empleado.correo === 'josephballestas10@gmail.com' || empleado.cedula === '1001780874'))}
+                                    className={`w-full h-10 px-3 py-2 bg-dark-hover border ${errors.cargo ? 'border-red-500' : 'border-dark-color'} rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none appearance-none ${!formData.cargo && 'text-dark-secondary/70'} ${empleado && (empleado.correo === 'josephballestas10@gmail.com' || empleado.cedula === '1001780874') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    <option value="" disabled>Seleccionar rol</option>
+                                    {roles.map((rol) => (
+                                        <option key={rol.id} value={rol.nombre} className="text-dark-primary">
+                                            {rol.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.cargo && <p className="text-red-400 text-sm">{errors.cargo}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-dark-secondary text-xs flex items-center gap-1">
+                                    Experiencia Laboral
+                                </Label>
+                                <Input
+                                    value={formData.experiencia}
+                                    onChange={(e) => handleChange('experiencia', e.target.value)}
+                                    className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
+                                    placeholder="Ej: 5 años en clínica de pequeños animales"
+                                    readOnly={readOnly}
+                                />
+                            </div>
                         </div>
                     </div>
 

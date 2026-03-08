@@ -167,9 +167,16 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
     try {
         const id_agendamiento = parseInt(req.params.id as string);
-        await prisma.agendamiento.delete({ where: { id_agendamiento } });
-        res.json({ success: true });
+
+        // Use transaction to delete child records before parent
+        await prisma.$transaction([
+            prisma.agendamiento_servicios.deleteMany({ where: { id_agendamiento } }),
+            prisma.agendamiento.delete({ where: { id_agendamiento } })
+        ]);
+
+        res.json({ success: true, message: 'Cita eliminada correctamente' });
     } catch (error) {
+        console.error('[AGENDAMIENTO] ERROR AL ELIMINAR:', error);
         res.status(500).json({ error: 'Error al eliminar la cita' });
     }
 });

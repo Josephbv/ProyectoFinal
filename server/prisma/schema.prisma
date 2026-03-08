@@ -79,6 +79,7 @@ model empleado {
   profesion      String?        @db.VarChar(100)
   especialidad   String?        @db.VarChar(100)
   observaciones  String?        @db.Text
+  experiencia    String?        @db.Text
   usuarios       usuario[]
 
   agendaciones   agendamiento[]

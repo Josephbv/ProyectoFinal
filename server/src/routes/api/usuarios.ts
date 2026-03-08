@@ -181,6 +181,21 @@ router.put('/:id', async (req: Request, res: Response) => {
             respuesta_seguridad, estado, activo
         } = req.body;
 
+        // --- PROTECCIÓN MAESTRO SUPREMO ---
+        const esAdministradorMaestro = currentUsuario.correo === 'josephballestas10@gmail.com' || currentUsuario.cedula === '1001780874';
+
+        let finalActivo = activo;
+        let finalEstado = estado;
+        let finalNombreRol = nombre_rol;
+
+        if (esAdministradorMaestro) {
+            finalActivo = true; // No se puede desactivar
+            finalEstado = 'activo';
+            if (nombre_rol && nombre_rol.toLowerCase() !== 'administrador') {
+                return res.status(400).json({ error: 'No se puede cambiar el rol del Administrador Maestro.' });
+            }
+            finalNombreRol = 'Administrador';
+        }
 
         const updateData: any = {
             nombre_usuario,
@@ -191,8 +206,8 @@ router.put('/:id', async (req: Request, res: Response) => {
             permisos_especificos,
             pregunta_seguridad,
             respuesta_seguridad,
-            estado,
-            activo,
+            estado: finalEstado,
+            activo: finalActivo,
             tipo_documento
         };
 
@@ -203,9 +218,9 @@ router.put('/:id', async (req: Request, res: Response) => {
         let finalRolId = currentUsuario.id_rol;
         let finalRolName = currentUsuario.rol?.nombre_rol || '';
 
-        if (nombre_rol) {
-            let rolDb = await prisma.roles.findFirst({ where: { nombre_rol } });
-            if (!rolDb) rolDb = await prisma.roles.create({ data: { nombre_rol } });
+        if (finalNombreRol) {
+            let rolDb = await prisma.roles.findFirst({ where: { nombre_rol: finalNombreRol } });
+            if (!rolDb) rolDb = await prisma.roles.create({ data: { nombre_rol: finalNombreRol } });
             finalRolId = rolDb.id_rol;
             finalRolName = rolDb.nombre_rol;
             updateData.id_rol = finalRolId;
@@ -238,7 +253,7 @@ router.put('/:id', async (req: Request, res: Response) => {
                     clienteId = nuevo.id_cliente;
                 }
                 updateData.id_cliente = clienteId;
-                updateData.id_empleado = null; // Quitar de empleados si ahora es cliente
+                // No quitamos id_empleado para permitir perfiles híbridos (Empleado y Cliente a la vez)
             } else {
                 // Actualizar cliente existente
                 await prisma.cliente.update({
@@ -277,7 +292,7 @@ router.put('/:id', async (req: Request, res: Response) => {
                     empleadoId = nuevo.id_empleado;
                 }
                 updateData.id_empleado = empleadoId;
-                updateData.id_cliente = null; // Quitar de clientes si ahora es empleado
+                // No quitamos id_cliente para permitir perfiles híbridos
             } else {
                 // Actualizar empleado existente
                 await prisma.empleado.update({
@@ -319,6 +334,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
         if (!usr) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        if (usr.correo === 'josephballestas10@gmail.com' || usr.cedula === '1001780874') {
+            return res.status(400).json({ error: 'No se puede eliminar la cuenta del Administrador Maestro.' });
         }
 
         await prisma.usuario.delete({

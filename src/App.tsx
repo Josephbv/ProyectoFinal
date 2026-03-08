@@ -14,6 +14,19 @@ export default function App() {
   useEffect(() => {
     const checkSavedSession = () => {
       try {
+        const params = new URLSearchParams(window.location.search);
+        const mode = params.get("mode");
+
+        // Si viene con un enlace de activación o recuperación, forzamos cierre de sesión actual
+        // y lo enviamos directo a la pantalla de Login (donde LoginPage atrapará el resto).
+        if (mode === "activate" || mode === "reset") {
+          localStorage.removeItem("kaivet_auth_data");
+          setIsAuthenticated(false);
+          setShowLanding(false);
+          setIsLoading(false);
+          return;
+        }
+
         const savedAuthData = localStorage.getItem("kaivet_auth_data");
 
         if (savedAuthData) {
@@ -82,7 +95,7 @@ export default function App() {
           </div>
         </div>
 
-        <Toaster position="top-right" theme="dark" richColors />
+        <Toaster position="bottom-right" theme="dark" richColors />
       </div>
     );
   }
@@ -97,7 +110,7 @@ export default function App() {
         <Dashboard onLogout={handleLogout} />
       )}
       <Toaster
-        position="top-right"
+        position="bottom-right"
         theme="dark"
         richColors
         expand={true}

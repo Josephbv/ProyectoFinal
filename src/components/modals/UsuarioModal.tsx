@@ -185,12 +185,15 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                 <select
                                     value={formData.nombre_rol}
                                     onChange={(e) => handleChange('nombre_rol', e.target.value)}
-                                    disabled={readOnly}
-                                    className={`w-full h-10 px-3 py-2 bg-dark-hover border ${errors.nombre_rol ? 'border-red-500' : 'border-dark-color'} rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none cursor-pointer`}
+                                    disabled={readOnly || (usuario && (usuario.correo === 'josephballestas10@gmail.com' || usuario.cedula === '1001780874'))}
+                                    className={`w-full h-10 px-3 py-2 bg-dark-hover border ${errors.nombre_rol ? 'border-red-500' : 'border-dark-color'} rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none cursor-pointer ${usuario && (usuario.correo === 'josephballestas10@gmail.com' || usuario.cedula === '1001780874') ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    <option value="Administrador" className="bg-dark-card text-white">Administrador</option>
-                                    <option value="Cliente" className="bg-dark-card text-white">Cliente</option>
-                                    <option value="Veterinario" className="bg-dark-card text-white">Veterinario</option>
+                                    <option value="" disabled>Seleccionar rol</option>
+                                    {roles.filter(r => r.activo).map((rol) => (
+                                        <option key={rol.id} value={rol.nombre} className="text-dark-primary bg-dark-bg">
+                                            {rol.nombre}
+                                        </option>
+                                    ))}
                                 </select>
                                 {isSubmitted && !formData.nombre_rol && <p className="text-[10px] text-red-400 italic mt-0.5">Este campo es obligatorio</p>}
                                 {errors.nombre_rol && <p className="text-red-400 text-xs">{errors.nombre_rol}</p>}

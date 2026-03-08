@@ -1,109 +1,133 @@
 import nodemailer from 'nodemailer';
 import 'dotenv/config';
 
-// Función para obtener el transportador de forma segura (Lazy initialization)
+// Configuración del transportador de correo (SMTP)
 const getTransporter = () => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.error('[MAIL] ERROR: Credenciales de EMAIL no encontradas en el sistema.');
-    throw new Error('Credenciales de correo no configuradas');
+  const emailUser = process.env.EMAIL_USER;
+  const emailPass = process.env.EMAIL_PASS;
+
+  if (!emailUser || !emailPass) {
+    console.warn('[MAIL] WARNING: EMAIL_USER o EMAIL_PASS no encontrados en .env. El sistema usará el modo simulado.');
+    return null;
   }
 
+  // Configuración para Gmail (u otros servicios SMTP)
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: emailUser,
+      pass: emailPass,
     },
   });
 };
 
-export const sendWelcomeEmail = async (email: string, nombre: string) => {
+const FROM_EMAIL = `"KaiVet Manager" <${process.env.EMAIL_USER}>`;
+
+export const sendWelcomeEmail = async (email: string, nombre: string, tokenActivacion?: string) => {
   try {
     console.log(`[MAIL] Intentando enviar email de bienvenida a: ${email}`);
 
-    await getTransporter().sendMail({
-      from: `"Kaivet Manager" <${process.env.EMAIL_USER}>`,
+    const welcomeHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <style>
+                        body { font-family: 'Inter', -apple-system, sans-serif; background-color: #020617; color: #f8fafc; margin: 0; padding: 0; }
+                        .container { max-width: 600px; margin: 40px auto; padding: 40px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(148, 163, 184, 0.1); border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+                        .logo { text-align: center; margin-bottom: 30px; font-size: 40px; }
+                        h1 { color: #3b82f6; text-align: center; font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+                        p { font-size: 16px; line-height: 1.6; color: #94a3b8; }
+                        .welcome-text { color: #f8fafc; font-size: 20px; font-weight: 600; text-align: center; margin: 30px 0; }
+                        .features { background: rgba(30, 41, 59, 0.5); padding: 25px; border-radius: 16px; margin: 30px 0; border: 1px solid rgba(59, 130, 246, 0.2); }
+                        .feature-item { display: flex; align-items: center; margin-bottom: 12px; color: #e2e8f0; }
+                        .feature-icon { margin-right: 12px; color: #3b82f6; }
+                        .cta-container { text-align: center; margin-top: 40px; }
+                        .cta-button { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 16px 40px; border-radius: 14px; text-decoration: none; font-weight: bold; display: inline-block; transition: all 0.3s; }
+                        .footer { margin-top: 50px; text-align: center; border-top: 1px solid rgba(148, 163, 184, 0.1); padding-top: 30px; color: #64748b; font-size: 12px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="logo">🐾</div>
+                        <h1>KaiVet Manager</h1>
+                        <p style="text-align: center; color: #64748b; margin-top: 0;">Gestión Veterinaria de Nueva Generación</p>
+                        
+                        <div class="welcome-text">¡Hola, ${nombre}! 👋</div>
+                        
+                        <p>Es un gusto darte la bienvenida. Tu cuenta ha sido activada y ya tienes acceso a todas nuestras herramientas profesionales para el cuidado de tus pacientes.</p>
+                        
+                        <div class="features">
+                            <div class="feature-item"><span class="feature-icon">✓</span> Historial clínico digital detallado</div>
+                            <div class="feature-item"><span class="feature-icon">✓</span> Agenda inteligente de citas</div>
+                            <div class="feature-item"><span class="feature-icon">✓</span> Control de ventas y stock</div>
+                            <div class="feature-item"><span class="feature-icon">✓</span> Recordatorios automáticos</div>
+                        </div>
+                        
+                        <div class="cta-container">
+                            ${tokenActivacion
+        ? `<a href="http://localhost:3000/?mode=activate&email=${encodeURIComponent(email)}&token=${tokenActivacion}" class="cta-button">Activar mi cuenta y crear contraseña</a>`
+        : `<a href="http://localhost:3000" class="cta-button">Acceder a mi Portal</a>`}
+                        </div>
+                        
+                        <div class="footer">
+                            <p>Este es un correo automático de bienvenida.<br>
+                            © 2026 KaiVet Manager - Potenciando el cuidado animal.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+
+    const transporter = getTransporter();
+    if (!transporter) {
+      console.log('📧 [MODO SIMULADO] Email de bienvenida para:', nombre, `(${email})`);
+      if (tokenActivacion) console.log(`   -> Activación: http://localhost:3000/?mode=activate&email=${encodeURIComponent(email)}&token=${tokenActivacion}`);
+      return;
+    }
+
+    await transporter.sendMail({
+      from: FROM_EMAIL,
       to: email,
-      subject: '¡Bienvenido a Kaivet Manager! 🐾',
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #111827; color: white; padding: 40px; border-radius: 12px; border: 1px solid #374151;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #6366f1; margin: 0; font-size: 28px;">Kaivet Manager</h1>
-            <p style="color: #9ca3af; margin-top: 5px;">Tu plataforma de confianza para el cuidado de mascotas</p>
-          </div>
-          
-          <h2 style="color: #f3f4f6; margin-bottom: 20px;">¡Hola, ${nombre}! 👋</h2>
-          
-          <p style="color: #d1d5db; line-height: 1.6; font-size: 16px;">
-            Es un gusto darte la bienvenida a nuestra comunidad. Tu cuenta ha sido creada exitosamente y ya puedes acceder a todas nuestras funcionalidades.
-          </p>
-          
-          <div style="background-color: #1f2937; padding: 25px; border-radius: 8px; margin: 30px 0; border: 1px solid #4b5563;">
-            <p style="color: #e5e7eb; margin: 0 0 10px 0; font-weight: bold;">¿Qué puedes hacer ahora?</p>
-            <ul style="color: #9ca3af; padding-left: 20px; line-height: 1.8;">
-              <li>Gestionar el historial de tus mascotas</li>
-              <li>Agendar citas médicas</li>
-              <li>Consultar tus servicios y facturas</li>
-            </ul>
-          </div>
-          
-          <div style="text-align: center; margin-top: 35px;">
-            <a href="http://localhost:3000" style="background-color: #6366f1; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Acceder a mi cuenta</a>
-          </div>
-          
-          <hr style="border: 0; border-top: 1px solid #374151; margin: 40px 0;">
-          
-          <p style="color: #6b7280; font-size: 12px; text-align: center;">
-            Este es un correo automático, por favor no respondas a este mensaje.<br>
-            Kaivet Manager © 2026 - Control y salud para tus mejores amigos.
-          </p>
-        </div>
-      `
+      subject: '¡Bienvenido a KaiVet Manager! 🐾',
+      html: welcomeHtml
     });
     console.log(`[MAIL] Correo de bienvenida enviado exitosamente a: ${email}`);
   } catch (error: any) {
-    console.error('[MAIL] ERROR CRÍTICO AL ENVIAR BIENVENIDA:', error.message || error);
+    console.error('[MAIL] ERROR AL ENVIAR BIENVENIDA:', error.message || error);
   }
 };
 
 export const sendResetCodeEmail = async (email: string, code: string) => {
   try {
-    console.log(`[MAIL] Enviando código [${code}] a: ${email}`);
+    console.log(`[MAIL] Intentando enviar código de recuperación a: ${email}`);
 
-    await getTransporter().sendMail({
-      from: `"Seguridad Kaivet" <${process.env.EMAIL_USER}>`,
+    const transporter = getTransporter();
+    if (!transporter) {
+      console.log('📧 [MODO SIMULADO] Código de recuperación para:', email, `CÓDIGO: ${code}`);
+      return;
+    }
+
+    await transporter.sendMail({
+      from: `"Seguridad KaiVet" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Código de recuperación de contraseña 🔐',
       html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #111827; color: white; padding: 40px; border-radius: 12px; border: 1px solid #374151;">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <h1 style="color: #ef4444; margin: 0; font-size: 24px;">Seguridad de Cuenta</h1>
-            </div>
-            
-            <h2 style="color: #f3f4f6; margin-bottom: 20px;">Recuperación de Contraseña</h2>
-            
-            <p style="color: #d1d5db; line-height: 1.6; font-size: 16px;">
-                Has solicitado restablecer tu contraseña. Utiliza el siguiente código de seguridad para continuar:
-            </p>
-            
-            <div style="text-align: center; margin: 40px 0;">
-                <div style="background-color: #1f2937; padding: 20px; border-radius: 8px; border: 2px dashed #4b5563; display: inline-block;">
-                    <span style="font-family: monospace; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #f3f4f6;">${code}</span>
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #020617; color: white; padding: 40px; border-radius: 20px; border: 1px solid #1e293b;">
+                    <h2 style="color: #3b82f6; text-align: center;">Recuperación de Acceso</h2>
+                    <p style="color: #94a3b8; text-align: center;">Has solicitado restablecer tu contraseña. Utiliza el siguiente código:</p>
+                    
+                    <div style="text-align: center; margin: 40px 0;">
+                        <div style="background-color: #1e293b; padding: 25px; border-radius: 12px; border: 2px dashed #3b82f6; display: inline-block;">
+                            <span style="font-family: monospace; font-size: 36px; font-weight: bold; letter-spacing: 10px; color: #f8fafc;">${code}</span>
+                        </div>
+                    </div>
+                    
+                    <p style="color: #ef4444; font-size: 13px; text-align: center;">
+                        <strong>Importante:</strong> Este código expirará pronto. Si no solicitaste este cambio, por favor ignora este correo.
+                    </p>
                 </div>
-                <p style="color: #9ca3af; font-size: 14px; margin-top: 15px;">Este código expirará en 10 minutos.</p>
-            </div>
-            
-            <p style="color: #ef4444; font-size: 14px; background-color: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 6px;">
-                <strong>Importante:</strong> Si no solicitaste este cambio, ignora este correo y asegúrate de que tu cuenta esté segura.
-            </p>
-            
-            <hr style="border: 0; border-top: 1px solid #374151; margin: 40px 0;">
-            
-            <p style="color: #6b7280; font-size: 12px; text-align: center;">
-                Kaivet Manager © 2026 - Seguridad y Privacidad
-            </p>
-        </div>
-      `
+            `
     });
     console.log(`[MAIL] Código enviado exitosamente a: ${email}`);
   } catch (error: any) {

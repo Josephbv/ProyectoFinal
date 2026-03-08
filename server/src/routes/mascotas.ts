@@ -115,10 +115,17 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
     try {
         const id_mascota = parseInt(req.params.id as string);
-        await prisma.mascotas.delete({ where: { id_mascota } });
+
+        // Usamos una transacción para asegurar que se borre el historial y luego la mascota
+        await prisma.$transaction([
+            prisma.historial_mascotas.deleteMany({ where: { id_mascota } }),
+            prisma.mascotas.delete({ where: { id_mascota } })
+        ]);
+
         res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ error: 'Error al eliminar la mascota' });
+    } catch (error: any) {
+        console.error('[MASCOTAS] ERROR AL ELIMINAR:', error);
+        res.status(500).json({ error: 'Error al eliminar la mascota: ' + error.message });
     }
 });
 

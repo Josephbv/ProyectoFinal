@@ -23,7 +23,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     resetPassword
   } = useEmailAuth();
 
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot-password' | 'reset-password'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot-password' | 'reset-password' | 'activate-account'>('login');
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -44,6 +44,22 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       onLogin(user);
     }
   }, [isAuthenticated, user, onLogin]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode");
+    const emailParam = params.get("email");
+    const tokenParam = params.get("token");
+
+    if (mode === "activate" && emailParam && tokenParam) {
+      setAuthMode("activate-account");
+      setFormData(prev => ({
+        ...prev,
+        email: emailParam,
+        token: tokenParam
+      }));
+    }
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -115,10 +131,20 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       toast.error("Error", { description: "Datos incompletos." });
       return;
     }
+
+    if (authMode === 'activate-account' && formData.password !== formData.confirmPassword) {
+      toast.error("Error", { description: "Las contraseñas no coinciden." });
+      return;
+    }
+
     const result = await resetPassword(formData.email, formData.token, formData.password);
     if (result.success) {
-      toast.success("Listo", { description: "Contraseña actualizada." });
+      toast.success(authMode === 'activate-account' ? "Cuenta activada" : "Listo", { description: authMode === 'activate-account' ? "Ahora puedes iniciar sesión con tu cuenta." : "Contraseña actualizada." });
       setAuthMode('login');
+      // Limpiar URL si venía de activación
+      if (window.location.search) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
     } else {
       toast.error("Error", { description: result.error || "Código inválido." });
     }
@@ -147,12 +173,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               {authMode === 'register' && 'Crear Cuenta'}
               {authMode === 'forgot-password' && 'Recuperar Clave'}
               {authMode === 'reset-password' && 'Nueva Contraseña'}
+              {authMode === 'activate-account' && 'Activar Cuenta'}
             </CardTitle>
             <CardDescription className={`${blackText} opacity-80`} style={{ color: '#000000' }}>
               {authMode === 'login' && 'Ingresa tus datos para entrar al sistema.'}
               {authMode === 'register' && 'Regístrate para gestionar tu veterinaria.'}
               {authMode === 'forgot-password' && 'Te ayudaremos a recuperar tu acceso.'}
               {authMode === 'reset-password' && 'Define tus nuevas credenciales.'}
+              {authMode === 'activate-account' && 'Crea tu nueva contraseña para acceder.'}
             </CardDescription>
           </CardHeader>
 
@@ -228,7 +256,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 placeholder="ejemplo@correo.com"
                 value={formData.email}
                 onChange={(v) => handleInputChange('email', v)}
-                disabled={authMode === 'reset-password'}
+                disabled={authMode === 'reset-password' || authMode === 'activate-account'}
                 error={isSubmitted && !formData.email}
               />
 
@@ -244,8 +272,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 />
               )}
 
-              {(authMode === 'login' || authMode === 'register' || authMode === 'reset-password') && (
-                <div className={`grid grid-cols-1 ${authMode === 'register' ? 'md:grid-cols-2 gap-6' : ''}`}>
+              {(authMode === 'login' || authMode === 'register' || authMode === 'reset-password' || authMode === 'activate-account') && (
+                <div className={`grid grid-cols-1 ${authMode === 'register' || authMode === 'activate-account' ? 'md:grid-cols-2 gap-6' : ''}`}>
                   <div className="space-y-2 text-black">
                     <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 uppercase tracking-wide ${blackText}`} style={{ color: '#000000' }}>
                       <Lock className="w-4 h-4 text-blue-600" />
@@ -284,7 +312,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     )}
                   </div>
 
-                  {authMode === 'register' && (
+                  {(authMode === 'register' || authMode === 'activate-account') && (
                     <FormInput
                       label="Confirmar Clave"
                       icon={<Lock className="w-4 h-4" />}
@@ -306,13 +334,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    {authMode === 'login' ? 'Iniciar Sesión' : authMode === 'register' ? 'Registrarse ahora' : 'Continuar'}
+                    {authMode === 'login' ? 'Iniciar Sesión' : authMode === 'register' ? 'Registrarse ahora' : authMode === 'activate-account' ? 'Activar Cuenta' : 'Continuar'}
                     <ChevronRight size={20} />
                   </span>
                 )}
               </Button>
 
-              {(authMode === 'forgot-password' || authMode === 'reset-password') && (
+              {(authMode === 'forgot-password' || authMode === 'reset-password' || authMode === 'activate-account') && (
                 <button
                   type="button"
                   className={`w-full text-sm flex items-center justify-center gap-2 mt-2 transition-opacity hover:opacity-70 !text-black dark:text-black font-bold`}

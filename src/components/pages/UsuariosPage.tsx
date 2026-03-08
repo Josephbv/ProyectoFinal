@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog";
 import { toast } from "sonner";
-import { Users, Plus, Search, Edit, Shield, ShieldOff, Lock, Unlock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye } from "lucide-react";
+import { Users, Plus, Search, Edit, Shield, ShieldOff, Lock, Unlock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, User, Briefcase } from "lucide-react";
 import { useUsuarios, Usuario } from "../hooks/useUsuarios";
 import { UsuarioModal } from "../modals/UsuarioModal";
 export function UsuariosPage() {
@@ -14,7 +14,7 @@ export function UsuariosPage() {
 
     // Paginación
     const [paginaActual, setPaginaActual] = useState(1);
-    const [elementosPorPagina] = useState(8);
+    const [elementosPorPagina] = useState(5);
 
     const usuariosFiltrados = buscarUsuarios(busqueda);
 
@@ -60,7 +60,7 @@ export function UsuariosPage() {
         });
 
         if (result.success) {
-            toast.success(`Estado cambiado a ${statusDialog.newState}`);
+            toast.success(`Estado cambiado a ${statusDialog.newState} `);
             setStatusDialog({ isOpen: false, usuario: null, newState: '' });
         } else {
             toast.error(result.error || "Error al cambiar de estado");
@@ -147,11 +147,11 @@ export function UsuariosPage() {
                                         </TableCell>
                                         <TableCell className="font-medium text-dark-primary">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow ${usuario.estado === 'bloqueado' ? 'bg-red-900/50' : 'bg-gradient-to-br from-purple-500 to-indigo-600'}`}>
+                                                <div className={`w - 8 h - 8 rounded - full flex items - center justify - center text - white font - bold text - xs shadow ${usuario.estado === 'bloqueado' ? 'bg-red-900/50' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} `}>
                                                     {usuario.nombre_usuario.substring(0, 1).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <div className={`font-semibold ${usuario.estado === 'bloqueado' ? 'text-dark-secondary line-through' : ''}`}>{usuario.nombre_usuario}</div>
+                                                    <div className={`font - semibold ${usuario.estado === 'bloqueado' ? 'text-dark-secondary line-through' : ''} `}>{usuario.nombre_usuario}</div>
                                                     <div className="text-xs text-dark-secondary truncate w-32">{usuario.correo || 'Sin correo'}</div>
                                                 </div>
                                             </div>
@@ -165,10 +165,24 @@ export function UsuariosPage() {
                                             {usuario.cedula || '---'}
                                         </TableCell>
                                         <TableCell>
-                                            <span className="flex items-center gap-2 text-sm text-dark-secondary capitalize">
-                                                <Shield className="w-3.5 h-3.5 text-blue-400" />
-                                                {usuario.rol?.nombre_rol || 'Indefinido'}
-                                            </span>
+                                            <div className="flex flex-col gap-1.5 align-middle justify-center">
+                                                <span className="flex w-fit items-center gap-1.5 text-sm text-dark-secondary capitalize px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-md">
+                                                    <Shield className="w-3.5 h-3.5 text-blue-400" />
+                                                    <span className="text-blue-400 font-medium">{usuario.rol?.nombre_rol || 'Indefinido'}</span>
+                                                </span>
+                                                {usuario.id_cliente && usuario.rol?.nombre_rol?.toLowerCase() !== 'cliente' && (
+                                                    <span className="flex w-fit items-center gap-1.5 text-xs px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-md">
+                                                        <User className="w-3 h-3 text-green-400" />
+                                                        <span className="text-green-400">Cliente (Vinculado)</span>
+                                                    </span>
+                                                )}
+                                                {usuario.id_empleado && usuario.rol?.nombre_rol?.toLowerCase() === 'cliente' && (
+                                                    <span className="flex w-fit items-center gap-1.5 text-xs px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded-md">
+                                                        <Briefcase className="w-3 h-3 text-purple-400" />
+                                                        <span className="text-purple-400">Empleado (Vinculado)</span>
+                                                    </span>
+                                                )}
+                                            </div>
                                         </TableCell>
 
                                         <TableCell className="text-center">
@@ -203,7 +217,8 @@ export function UsuariosPage() {
                                                         variant="outline"
                                                         size="sm"
                                                         className="p-2 h-8 w-8 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                                                        title="Bloquear Acceso"
+                                                        disabled={usuario.correo === 'josephballestas10@gmail.com' || usuario.cedula === '1001780874'}
+                                                        title={usuario.correo === 'josephballestas10@gmail.com' ? 'El Administrador Maestro no puede ser bloqueado' : 'Bloquear Acceso'}
                                                     >
                                                         <Lock className="w-3.5 h-3.5" />
                                                     </Button>
@@ -213,6 +228,7 @@ export function UsuariosPage() {
                                                         variant="outline"
                                                         size="sm"
                                                         className="p-2 h-8 w-8 bg-emerald-500/20 border-emerald-500 text-emerald-400 hover:bg-emerald-500/30"
+                                                        disabled={usuario.correo === 'josephballestas10@gmail.com' || usuario.cedula === '1001780874'}
                                                         title="Desbloquear Acceso"
                                                     >
                                                         <Unlock className="w-3.5 h-3.5" />
@@ -284,7 +300,8 @@ export function UsuariosPage() {
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleCambiarEstado}
-                            className={statusDialog.newState === 'bloqueado' ? "bg-red-600 text-white hover:bg-red-700 font-bold" : "bg-emerald-600 text-white hover:bg-emerald-700 font-bold"}
+                            className="font-bold text-white border-0 transition-opacity hover:opacity-90"
+                            style={{ backgroundColor: statusDialog.newState === 'bloqueado' ? '#dc2626' : '#059669' }}
                             disabled={loading}
                         >
                             Confirmar

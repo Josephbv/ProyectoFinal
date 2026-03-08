@@ -1,0 +1,26 @@
+[
+  {
+    "id": 31,
+    "nombre": "Mishell Roldan Giraldo ",
+    "correo": "roldangiraldomishell@gmail.com",
+    "rol": "Cliente",
+    "id_cliente": 22,
+    "id_empleado": null
+  },
+  {
+    "id": 32,
+    "nombre": "Joseph B",
+    "correo": "josephballestas10@gmail.com",
+    "rol": "Administrador",
+    "id_cliente": null,
+    "id_empleado": 5
+  },
+  {
+    "id": 39,
+    "nombre": "Kai Vet",
+    "correo": "kaivetmanager@gmail.com",
+    "rol": "Cliente",
+    "id_cliente": 29,
+    "id_empleado": null
+  }
+]

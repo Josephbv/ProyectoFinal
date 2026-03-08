@@ -21,18 +21,18 @@ export function MascotasPage() {
 
   const mascotasConId = mascotas.map((m, index) => ({ ...m, displayId: index + 1 }));
 
+  const getClienteNombre = (id_cliente: number) => {
+    const cliente = clientes.find(c => c.id_cliente === id_cliente);
+    return cliente ? cliente.nombre : 'Cliente Desconocido';
+  };
+
   const mascotasFiltradas = mascotas.filter(mascota => {
     const searchLow = busqueda.toLowerCase().trim();
     if (!searchLow) return true;
 
-    const clienteNombre = getClienteNombre(mascota.id_cliente).toLowerCase();
-    return (
-      (mascota.nombre || '').toLowerCase().includes(searchLow) ||
-      clienteNombre.includes(searchLow) ||
-      (mascota.especie || '').toLowerCase().includes(searchLow) ||
-      (mascota.raza || '').toLowerCase().includes(searchLow) ||
-      mascota.id_mascota.toString().includes(searchLow)
-    );
+    const petId = mascota.id_mascota.toString();
+
+    return petId.includes(searchLow);
   });
 
   // Cálculos de paginación
@@ -49,15 +49,13 @@ export function MascotasPage() {
     setCurrentPage(1);
   }, [busqueda]);
 
-  const handleGuardarMascota = async (mascotaData: Partial<Mascota>) => {
+  const handleGuardarMascota = async (mascotaData: Partial<Mascota>, resetAfter: boolean = false) => {
     if (mascotaData.id_mascota) {
       const resultado = await actualizarMascota(mascotaData.id_mascota, mascotaData);
       if (resultado.success) toast.success(`Mascota ${mascotaData.nombre} actualizada`);
-      return resultado;
     } else {
       const resultado = await crearMascota(mascotaData);
       if (resultado.success) toast.success(`Mascota ${mascotaData.nombre} registrada`);
-      return resultado;
     }
   };
 
@@ -88,11 +86,6 @@ export function MascotasPage() {
     return <Dog className="w-5 h-5 text-indigo-400" />;
   };
 
-  const getClienteNombre = (id_cliente: number) => {
-    const cliente = clientes.find(c => c.id_cliente === id_cliente);
-    return cliente ? cliente.nombre : 'Cliente Desconocido';
-  };
-
   return (
     <>
       <header className="bg-dark-bg border-b border-dark-color px-8 py-6">
@@ -106,7 +99,7 @@ export function MascotasPage() {
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
               <input
                 type="text"
-                placeholder="Buscar por mascota, dueño o especie..."
+                placeholder="Buscar por ID de mascota..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
@@ -258,7 +251,7 @@ export function MascotasPage() {
       <MascotaModal
         isOpen={mascotaModal.isOpen}
         onClose={cerrarMascotaModal}
-        onSubmit={handleGuardarMascota}
+        onSubmit={(data, reset) => handleGuardarMascota(data, reset)}
         mascota={mascotaModal.mascota}
         loading={loading}
         readOnly={mascotaModal.readOnly}

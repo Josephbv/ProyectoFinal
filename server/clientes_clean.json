@@ -1,0 +1,20 @@
+[
+  {
+    "id_cliente": 22,
+    "nombre": "Mishell Roldan Giraldo ",
+    "tipo_documento": "CC",
+    "cedula": "1025760687",
+    "telefono": "3233755696",
+    "correo": "roldangiraldomishell@gmail.com",
+    "direccion": "Calle 99 "
+  },
+  {
+    "id_cliente": 29,
+    "nombre": "Kai Vet",
+    "tipo_documento": "Cédula de Ciudadanía",
+    "cedula": "123456789",
+    "telefono": "3234259445",
+    "correo": "kaivetmanager@gmail.com",
+    "direccion": "carrera 58 #66-41"
+  }
+]

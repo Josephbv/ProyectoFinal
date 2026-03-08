@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { toast } from "sonner";
-import { Shield, Plus, Search, Users, Eye, Edit, Trash2, Lock, CheckCircle, XCircle } from "lucide-react";
+import { Shield, Plus, Search, Users, Eye, Edit, Trash2, Lock, CheckCircle, XCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Switch } from "../ui/switch";
 import { RolModal } from "../modals/RolModal";
 import { useRoles, Rol } from "../hooks/useRoles";
@@ -19,6 +19,15 @@ export function RolesPage() {
   const rolesFiltrados = roles.filter(rol =>
     rol.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
+
+  // Paginación
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [elementosPorPagina] = useState(5);
+
+  const totalPaginas = Math.ceil(rolesFiltrados.length / elementosPorPagina);
+  const indiceInicio = (paginaActual - 1) * elementosPorPagina;
+  const indiceFin = indiceInicio + elementosPorPagina;
+  const rolesPaginados = rolesFiltrados.slice(indiceInicio, indiceFin);
 
   const handleCrearRol = async (rolData: any) => {
     const resultado = await crearRol({
@@ -95,7 +104,7 @@ export function RolesPage() {
     const colors = {
       'Administrador': 'bg-red-600',
       'Cliente': 'bg-blue-600',
-      'Asistente': 'bg-green-600'
+      'Veterinario': 'bg-green-600'
     };
     return colors[roleName as keyof typeof colors] || 'bg-gray-600';
   };
@@ -196,7 +205,7 @@ export function RolesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rolesFiltrados.map((rol) => (
+                {rolesPaginados.map((rol) => (
                   <TableRow key={rol.id} className="border-dark-color hover:bg-dark-table-hover">
                     <TableCell className="font-medium text-dark-primary">
                       <div className="flex items-center gap-3">
@@ -243,7 +252,7 @@ export function RolesPage() {
                           size="sm"
                           className="p-2 h-9 w-9 border-dark-color text-yellow-400 hover:bg-yellow-900/20 hover:border-yellow-400"
                           disabled={loading || rol.nombre.toLowerCase() === 'administrador'}
-                          title={rol.nombre.toLowerCase() === 'administrador' ? 'No se puede editar el rol administrador' : 'Editar rol'}
+                          title={rol.nombre.toLowerCase() === 'administrador' ? 'No se puede editar el rol base Administrador' : 'Editar rol'}
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -252,8 +261,8 @@ export function RolesPage() {
                           variant="outline"
                           size="sm"
                           className="p-2 h-9 w-9 border-dark-color text-red-400 hover:bg-red-600/10 hover:border-red-400"
-                          disabled={loading || rol.nombre.toLowerCase() === 'administrador'}
-                          title={rol.nombre.toLowerCase() === 'administrador' ? 'No se puede eliminar el rol administrador' : 'Eliminar rol'}
+                          disabled={loading || ['administrador', 'cliente', 'veterinario'].includes(rol.nombre.toLowerCase())}
+                          title={['administrador', 'cliente', 'veterinario'].includes(rol.nombre.toLowerCase()) ? 'No se puede eliminar los roles base del sistema' : 'Eliminar rol'}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -264,6 +273,24 @@ export function RolesPage() {
               </TableBody>
             </Table>
           </div>
+
+          {/* Paginación */}
+          {rolesFiltrados.length > 0 && (
+            <div className="flex items-center justify-between pt-4 mt-4 border-t border-dark-color px-4 pb-4">
+              <div className="text-sm text-dark-secondary">
+                Mostrando {indiceInicio + 1}-{Math.min(indiceFin, rolesFiltrados.length)} de {rolesFiltrados.length} roles
+              </div>
+
+              {totalPaginas > 1 && (
+                <div className="flex items-center gap-1">
+                  <Button variant="outline" size="sm" onClick={() => setPaginaActual(1)} disabled={paginaActual === 1 || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
+                  <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))} disabled={paginaActual === 1 || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
+                  <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActual === totalPaginas || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
+                  <Button variant="outline" size="sm" onClick={() => setPaginaActual(totalPaginas)} disabled={paginaActual === totalPaginas || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
       </main>
@@ -275,6 +302,7 @@ export function RolesPage() {
         onSubmit={rolModal.rol ? handleActualizarRol : handleCrearRol}
         rol={rolModal.rol}
         loading={loading}
+        roles={roles}
       />
 
       {/* Modal de Ver Detalles */}

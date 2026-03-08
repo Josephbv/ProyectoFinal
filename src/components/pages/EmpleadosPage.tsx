@@ -15,7 +15,7 @@ export function EmpleadosPage() {
 
     // Paginación
     const [paginaActual, setPaginaActual] = useState(1);
-    const [elementosPorPagina] = useState(8);
+    const [elementosPorPagina] = useState(5);
 
     const empleadosFiltrados = buscarEmpleados(busqueda);
 

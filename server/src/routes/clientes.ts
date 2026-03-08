@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../prismaClient';
 import { sendWelcomeEmail } from '../services/mail.service';
+import crypto from 'crypto';
 
 
 const router = Router();
@@ -65,7 +66,8 @@ router.post('/', async (req: Request, res: Response) => {
             include: { mascotas: true },
         });
 
-        // 2. Intentar crear el usuario vinculado (no crítico: si falla, el cliente igual queda creado)
+        // 2. Intentar crear el usuario vinculado
+        let tokenActivacion = '';
         try {
             let rolCliente = await prisma.roles.findFirst({
                 where: { nombre_rol: { contains: 'cliente' } }
@@ -75,18 +77,32 @@ router.post('/', async (req: Request, res: Response) => {
                     data: { nombre_rol: 'cliente', activo: true }
                 });
             }
+
+            tokenActivacion = crypto.randomUUID(); // Generar token único para el correo
+
             const existeUserCedula = cedula ? await prisma.usuario.findUnique({ where: { cedula } }) : null;
             const existeUserCorreo = correo ? await prisma.usuario.findUnique({ where: { correo } }) : null;
+
             if (!existeUserCedula && !existeUserCorreo) {
                 await prisma.usuario.create({
                     data: {
                         nombre_usuario: nombre,
                         correo,
                         cedula,
-                        contrasena: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+                        contrasena: '', // Se establecerá mediante el link
+                        token_recuperacion: tokenActivacion,
                         id_rol: rolCliente.id_rol,
                         id_cliente: nuevoCliente.id_cliente,
                         activo: true
+                    }
+                });
+            } else if (existeUserCorreo) {
+                await prisma.usuario.update({
+                    where: { correo },
+                    data: {
+                        token_recuperacion: tokenActivacion,
+                        id_cliente: nuevoCliente.id_cliente
+                        // Mantenemos su rol anterior (ej: Administrador) no lo degradamos a Cliente.
                     }
                 });
             }
@@ -95,8 +111,8 @@ router.post('/', async (req: Request, res: Response) => {
         }
 
         // 3. Enviar correo de bienvenida al cliente
-        if (correo) {
-            sendWelcomeEmail(correo, nombre).catch(err =>
+        if (correo && tokenActivacion) {
+            sendWelcomeEmail(correo, nombre, tokenActivacion).catch(err =>
                 console.error('[CLIENTES] Error asíncrono enviando bienvenida:', err)
             );
         }
@@ -142,13 +158,13 @@ router.put('/:id', async (req: Request, res: Response) => {
                 correo,
                 direccion
             },
-            include: { mascotas: true, usuario: true },
+            include: { mascotas: true, usuarios: true },
         });
 
         // Opcionalmente actualizar los datos en la tabla usuario si están vinculados
-        if (actualizado.usuario) {
+        if (actualizado.usuarios && actualizado.usuarios.length > 0) {
             await prisma.usuario.update({
-                where: { id_usuario: actualizado.usuario.id_usuario },
+                where: { id_usuario: actualizado.usuarios[0].id_usuario },
                 data: {
                     nombre_usuario: nombre,
                     correo: correo,

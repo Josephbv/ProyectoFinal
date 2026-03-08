@@ -36,7 +36,7 @@ router.post('/', async (req: Request, res: Response) => {
         const {
             nombre, tipo_documento, cedula, correo,
             telefono, direccion, cargo, profesion,
-            especialidad, observaciones
+            especialidad, observaciones, experiencia
         } = req.body;
 
         if (!nombre || !cedula || !correo) {
@@ -92,7 +92,8 @@ router.post('/', async (req: Request, res: Response) => {
                 data: {
                     nombre, tipo_documento, cedula, correo,
                     telefono, direccion, cargo, profesion,
-                    especialidad, observaciones
+                    especialidad, observaciones,
+                    experiencia: experiencia || null
                 }
             });
 
@@ -119,7 +120,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         const {
             nombre, tipo_documento, cedula, correo,
             telefono, direccion, cargo, profesion,
-            especialidad, observaciones
+            especialidad, observaciones, experiencia
         } = req.body;
 
         const actualizado = await prisma.empleado.update({
@@ -127,7 +128,8 @@ router.put('/:id', async (req: Request, res: Response) => {
             data: {
                 nombre, tipo_documento, cedula, correo,
                 telefono, direccion, cargo, profesion,
-                especialidad, observaciones
+                especialidad, observaciones,
+                experiencia: experiencia !== undefined ? (experiencia || null) : undefined
             }
         });
 
