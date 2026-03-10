@@ -11,21 +11,25 @@ const getTransporter = () => {
     return null;
   }
 
-  // Configuración para Gmail usando Puerto 587 (STARTTLS) - Más compatible en nubes
+  // Configuración para Gmail usando Puerto 587 con forzado de IPv4
   return nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
-    secure: false, // false para puerto 587
+    secure: false, // TLS
     auth: {
       user: emailUser,
       pass: emailPass,
     },
     tls: {
-      rejectUnauthorized: false // Ayuda en conexiones desde nubes como Railway
+      rejectUnauthorized: false,
+      minVersion: 'TLSv1.2'
     },
-    connectionTimeout: 20000, // Aumentamos a 20 segundos
-    greetingTimeout: 20000,
-    socketTimeout: 20000
+    family: 4, // FORZAR IPv4 (Crucial para evitar ENETUNREACH/Timeout en Railway)
+    connectionTimeout: 30000,
+    greetingTimeout: 30000,
+    socketTimeout: 30000,
+    logger: true, // Activa logs detallados en Railway
+    debug: true   // Muestra la conversación con el servidor de Gmail
   });
 };
 
