@@ -1,26 +1,42 @@
 import 'dotenv/config';
-// Usamos require y any para saltar los errores de tipos de la librería de Brevo que bloquean el build
-const sib = require('@getbrevo/brevo');
+import https from 'https';
 
 /**
- * Servicio de envío de correo mediante la API de Brevo (Sendinblue).
+ * Función maestra para enviar correos vía la API de Brevo sin usar librerías externas.
+ * Este método es infalible en Railway porque usa el puerto web estándar (443).
  */
-const getBrevoApi = () => {
-  const apiKey = process.env.EMAIL_PASS;
-  if (!apiKey) {
-    console.warn('[MAIL] ERROR: No se encontró la API Key de Brevo.');
-    return null;
-  }
+const callBrevoAPI = (data: any) => {
+  return new Promise((resolve, reject) => {
+    const apiKey = process.env.EMAIL_PASS;
+    if (!apiKey) return reject('No se encontró API Key en EMAIL_PASS');
 
-  try {
-    const apiInstance = new sib.TransactionalEmailsApi();
-    // En la versión actual de @getbrevo/brevo, esto se asocia así:
-    apiInstance.setApiKey(sib.TransactionalEmailsApiApiKeys.apiKey, apiKey);
-    return apiInstance;
-  } catch (error) {
-    console.error('[MAIL] Error al instanciar API de Brevo:', error);
-    return null;
-  }
+    const postData = JSON.stringify(data);
+    const options = {
+      hostname: 'api.brevo.com',
+      port: 443,
+      path: '/v3/smtp/email',
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': apiKey,
+        'content-type': 'application/json',
+        'content-length': postData.length
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', (d) => body += d);
+      res.on('end', () => {
+        if (res.statusCode && res.statusCode < 300) resolve(body);
+        else reject(body);
+      });
+    });
+
+    req.on('error', (e) => reject(e));
+    req.write(postData);
+    req.end();
+  });
 };
 
 const FROM_EMAIL = process.env.EMAIL_USER || "josephballestas10@gmail.com";
@@ -28,62 +44,56 @@ const FROM_NAME = "KaiVet Manager";
 
 export const sendWelcomeEmail = async (email: string, nombre: string, tokenActivacion?: string) => {
   try {
-    console.log(`[MAIL-API] Intentando enviar email de bienvenida a: ${email}`);
-
-    const apiInstance = getBrevoApi();
-    if (!apiInstance) return;
-
-    const sendSmtpEmail = new sib.SendSmtpEmail();
-    sendSmtpEmail.subject = "¡Bienvenido a KaiVet Manager! 🐾";
-    sendSmtpEmail.sender = { name: FROM_NAME, email: FROM_EMAIL };
-    sendSmtpEmail.to = [{ email: email, name: nombre }];
+    console.log(`[MAIL-API] Disparando envío a: ${email}`);
 
     const activationLink = tokenActivacion
       ? `https://proyectofinal-production-2000.up.railway.app/?mode=activate&email=${encodeURIComponent(email)}&token=${tokenActivacion}`
       : `https://proyectofinal-production-2000.up.railway.app`;
 
-    sendSmtpEmail.htmlContent = `
-            <div style="font-family: Arial, sans-serif; background-color: #020617; color: white; padding: 40px; border-radius: 20px;">
-                <h1 style="color: #3b82f6; text-align: center;">¡Bienvenido a KaiVet, ${nombre}! 👋</h1>
-                <p style="font-size: 16px; color: #94a3b8; text-align: center;">Tu cuenta ha sido creada con éxito en nuestra plataforma de gestión veterinaria.</p>
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="${activationLink}" style="background-color: #3b82f6; color: white; padding: 15px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">
-                        ${tokenActivacion ? 'Activar mi cuenta y crear contraseña' : 'Ir al Portal'}
-                    </a>
+    const emailData = {
+      sender: { name: FROM_NAME, email: FROM_EMAIL },
+      to: [{ email: email, name: nombre }],
+      subject: "¡Bienvenido a KaiVet Manager! 🐾",
+      htmlContent: `
+                <div style="font-family: Arial, sans-serif; background-color: #020617; color: white; padding: 40px; border-radius: 20px; text-align: center;">
+                    <h1 style="color: #3b82f6;">¡Bienvenido a KaiVet, ${nombre}! 👋</h1>
+                    <p style="font-size: 16px; color: #94a3b8;">Tu cuenta ha sido creada con éxito. Actívala ahora mismo:</p>
+                    <div style="margin-top: 30px;">
+                        <a href="${activationLink}" style="background-color: #3b82f6; color: white; padding: 15px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">
+                            ${tokenActivacion ? 'Activar mi cuenta' : 'Ir al Portal'}
+                        </a>
+                    </div>
                 </div>
-            </div>
-        `;
+            `
+    };
 
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log(`[MAIL-API] Correo de bienvenida enviado exitosamente a: ${email}`);
-  } catch (error: any) {
-    console.error('[MAIL-API] ERROR AL ENVIAR:', error.response?.body || error.message);
+    await callBrevoAPI(emailData);
+    console.log(`[MAIL-API] ¡ÉXITO! Correo enviado a: ${email}`);
+  } catch (err: any) {
+    console.error('[MAIL-API] ERROR DEFINITIVO:', err);
   }
 };
 
 export const sendResetCodeEmail = async (email: string, code: string) => {
   try {
-    const apiInstance = getBrevoApi();
-    if (!apiInstance) return;
-
-    const sendSmtpEmail = new sib.SendSmtpEmail();
-    sendSmtpEmail.subject = "Código de recuperación de contraseña 🔐";
-    sendSmtpEmail.sender = { name: FROM_NAME, email: FROM_EMAIL };
-    sendSmtpEmail.to = [{ email: email }];
-    sendSmtpEmail.htmlContent = `
-            <div style="font-family: sans-serif; background-color: #020617; color: white; padding: 40px; border-radius: 20px;">
-                <h2 style="color: #3b82f6; text-align: center;">Recuperación de Acceso</h2>
-                <div style="text-align: center; margin: 30px 0;">
-                    <div style="background-color: #1e293b; padding: 20px; border-radius: 10px; border: 2px dashed #3b82f6; display: inline-block;">
-                        <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px;">${code}</span>
+    const emailData = {
+      sender: { name: FROM_NAME, email: FROM_EMAIL },
+      to: [{ email: email }],
+      subject: "Código de recuperación de contraseña 🔐",
+      htmlContent: `
+                <div style="font-family: sans-serif; background-color: #020617; color: white; padding: 40px; border-radius: 20px; text-align: center;">
+                    <h2 style="color: #3b82f6;">Recuperación de Acceso</h2>
+                    <div style="margin: 30px 0;">
+                        <div style="background-color: #1e293b; padding: 20px; border-radius: 10px; border: 2px dashed #3b82f6; display: inline-block;">
+                            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px;">${code}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
-
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log(`[MAIL-API] Código de recuperación enviado a: ${email}`);
-  } catch (error: any) {
-    console.error('[MAIL-API] ERROR AL ENVIAR CÓDIGO:', error.response?.body || error.message);
+            `
+    };
+    await callBrevoAPI(emailData);
+    console.log(`[MAIL-API] Código enviado a: ${email}`);
+  } catch (err: any) {
+    console.error('[MAIL-API] ERROR EN CÓDIGO:', err);
   }
 };
