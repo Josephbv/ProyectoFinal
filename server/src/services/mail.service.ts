@@ -46,9 +46,11 @@ export const sendWelcomeEmail = async (email: string, nombre: string, tokenActiv
   try {
     console.log(`[MAIL-API] Disparando envío a: ${email}`);
 
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
     const activationLink = tokenActivacion
-      ? `https://proyectofinal-production-2000.up.railway.app/?mode=activate&email=${encodeURIComponent(email)}&token=${tokenActivacion}`
-      : `https://proyectofinal-production-2000.up.railway.app`;
+      ? `${frontendUrl}/?mode=activate&email=${encodeURIComponent(email)}&token=${tokenActivacion}`
+      : frontendUrl;
 
     const emailData = {
       sender: { name: FROM_NAME, email: FROM_EMAIL },
