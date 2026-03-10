@@ -27,6 +27,7 @@ const getTransporter = () => {
 
 const FROM_EMAIL = `"KaiVet Manager" <${process.env.EMAIL_USER}>`;
 
+
 export const sendWelcomeEmail = async (email: string, nombre: string, tokenActivacion?: string) => {
   try {
     console.log(`[MAIL] Intentando enviar email de bienvenida a: ${email}`);
