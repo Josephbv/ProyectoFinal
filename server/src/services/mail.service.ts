@@ -20,7 +20,7 @@ const callBrevoAPI = (data: any) => {
         'accept': 'application/json',
         'api-key': apiKey,
         'content-type': 'application/json',
-        'content-length': postData.length
+        'content-length': Buffer.byteLength(postData) // CORRECCIÓN: Medir en bytes, no en caracteres
       }
     };
 
