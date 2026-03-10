@@ -11,25 +11,18 @@ const getTransporter = () => {
     return null;
   }
 
-  // Configuración para Gmail usando Puerto 587 con forzado de IPv4
+  // Configuración para Brevo (Sendinblue) - Altamente compatible con Railway
   const transportConfig: any = {
-    host: 'smtp.gmail.com',
+    host: 'smtp-relay.brevo.com',
     port: 587,
-    secure: false, // TLS
+    secure: false, // STARTTLS
     auth: {
       user: emailUser,
       pass: emailPass,
     },
     tls: {
-      rejectUnauthorized: false,
-      minVersion: 'TLSv1.2'
-    },
-    family: 4, // FORZAR IPv4 (Crucial para evitar ENETUNREACH/Timeout en Railway)
-    connectionTimeout: 30000,
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
-    logger: true, // Activa logs detallados en Railway
-    debug: true   // Muestra la conversación con el servidor de Gmail
+      rejectUnauthorized: false
+    }
   };
 
   return nodemailer.createTransport(transportConfig);
