@@ -11,21 +11,15 @@ const getTransporter = () => {
     return null;
   }
 
-  // Configuración para Brevo (Sendinblue) - Altamente compatible con Railway
-  const transportConfig: any = {
+  // Configuración limpia para Brevo (Sendinblue)
+  return nodemailer.createTransport({
     host: 'smtp-relay.brevo.com',
     port: 587,
-    secure: false, // STARTTLS
     auth: {
       user: emailUser,
       pass: emailPass,
-    },
-    tls: {
-      rejectUnauthorized: false
     }
-  };
-
-  return nodemailer.createTransport(transportConfig);
+  });
 };
 
 const FROM_EMAIL = `"KaiVet Manager" <${process.env.EMAIL_USER}>`;
