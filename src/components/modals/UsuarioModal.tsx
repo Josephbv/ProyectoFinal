@@ -97,11 +97,19 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
         if (!validateForm()) return;
 
 
-        const data = {
+        const isMaestro = usuario?.correo === 'josephballestas10@gmail.com' || usuario?.cedula === '1001780874';
+
+        let data: any = {
             ...formData,
             activo: formData.estado === 'activo' || formData.estado === 'bloqueado' ? true : false,
             estado: formData.estado
         };
+
+        // Si es el Maestro, omitimos nombre_rol para evitar validaciones de cambio de rol en el server
+        if (usuario && isMaestro) {
+            const { nombre_rol, ...rest } = data;
+            data = rest;
+        }
 
         const result = await onSubmit(data);
         if (result.success) {
