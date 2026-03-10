@@ -11,17 +11,21 @@ const getTransporter = () => {
     return null;
   }
 
-  // Configuración para Gmail con forzado de IPv4 y Puerto Seguro 465
+  // Configuración para Gmail usando Puerto 587 (STARTTLS) - Más compatible en nubes
   return nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // true para puerto 465
+    port: 587,
+    secure: false, // false para puerto 587
     auth: {
       user: emailUser,
       pass: emailPass,
     },
-    // Forzamos el uso de IPv4 para evitar el error ENETUNREACH en Railway
-    connectionTimeout: 10000,
+    tls: {
+      rejectUnauthorized: false // Ayuda en conexiones desde nubes como Railway
+    },
+    connectionTimeout: 20000, // Aumentamos a 20 segundos
+    greetingTimeout: 20000,
+    socketTimeout: 20000
   });
 };
 
