@@ -191,6 +191,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         if (esAdministradorMaestro) {
             finalActivo = true; // No se puede desactivar
             finalEstado = 'activo';
+            // Solo lanzamos error si INTENTA cambiar el rol a algo que NO sea Administrador
             if (nombre_rol && nombre_rol.toLowerCase() !== 'administrador') {
                 return res.status(400).json({ error: 'No se puede cambiar el rol del Administrador Maestro.' });
             }
