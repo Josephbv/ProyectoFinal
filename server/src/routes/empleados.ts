@@ -185,6 +185,16 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
         if (!emp) return res.status(404).json({ error: 'Empleado no encontrado' });
 
+        // PROTECCIÓN MAESTRA: No permitir borrar al administrador principal
+        if (emp.cargo?.toLowerCase() === 'administrador') {
+            return res.status(403).json({ error: 'No se puede eliminar al Administrador Principal del sistema.' });
+        }
+
+        const isAdmin = emp.usuarios.some(u => (u as any).rol?.nombre_rol === 'Administrador');
+        if (isAdmin) {
+            return res.status(403).json({ error: 'Este empleado está vinculado a una cuenta de Administrador Maestro y no puede ser eliminado.' });
+        }
+
         await prisma.$transaction(async (tx) => {
             // 1. Borrar servicios asociados a los agendamientos del empleado
             const idsAgendamientos = emp.agendaciones.map(a => a.id_agendamiento);
