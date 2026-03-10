@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../../prismaClient';
-import { sendResetCodeEmail } from '../../services/mail.service';
+import { sendResetCodeEmail, sendWelcomeEmail } from '../../services/mail.service';
 import bcrypt from 'bcryptjs';
 
 
@@ -150,9 +150,20 @@ router.post('/', async (req: Request, res: Response) => {
                 respuesta_seguridad,
                 tipo_documento: tipo_documento || tipoDocumento,
                 estado: estado || 'activo',
-                activo: activo ?? true
+                activo: activo ?? true,
+                // Generamos un token base para el link de activación
+                token_recuperacion: Math.random().toString(36).substring(7)
             }
         });
+
+        // ENVIAR CORREO DE BIENVENIDA AUTOMÁTICO
+        if (correo) {
+            await sendWelcomeEmail(
+                correo,
+                nombre_completo || nombre_usuario,
+                newUser.token_recuperacion || undefined
+            );
+        }
 
 
 

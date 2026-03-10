@@ -66,8 +66,8 @@ export const sendWelcomeEmail = async (email: string, nombre: string, tokenActiv
                         
                         <div class="cta-container">
                             ${tokenActivacion
-        ? `<a href="http://localhost:3000/?mode=activate&email=${encodeURIComponent(email)}&token=${tokenActivacion}" class="cta-button">Activar mi cuenta y crear contraseña</a>`
-        : `<a href="http://localhost:3000" class="cta-button">Acceder a mi Portal</a>`}
+        ? `<a href="https://proyectofinal-production-2000.up.railway.app/?mode=activate&email=${encodeURIComponent(email)}&token=${tokenActivacion}" class="cta-button">Activar mi cuenta y crear contraseña</a>`
+        : `<a href="https://proyectofinal-production-2000.up.railway.app" class="cta-button">Acceder a mi Portal</a>`}
                         </div>
                         
                         <div class="footer">
