@@ -12,7 +12,7 @@ const getTransporter = () => {
   }
 
   // Configuración para Gmail usando Puerto 587 con forzado de IPv4
-  return nodemailer.createTransport({
+  const transportConfig: any = {
     host: 'smtp.gmail.com',
     port: 587,
     secure: false, // TLS
@@ -30,7 +30,9 @@ const getTransporter = () => {
     socketTimeout: 30000,
     logger: true, // Activa logs detallados en Railway
     debug: true   // Muestra la conversación con el servidor de Gmail
-  });
+  };
+
+  return nodemailer.createTransport(transportConfig);
 };
 
 const FROM_EMAIL = `"KaiVet Manager" <${process.env.EMAIL_USER}>`;
