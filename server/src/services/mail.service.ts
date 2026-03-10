@@ -1,20 +1,26 @@
 import 'dotenv/config';
-import * as sib from '@getbrevo/brevo';
+// Usamos require y any para saltar los errores de tipos de la librería de Brevo que bloquean el build
+const sib = require('@getbrevo/brevo');
 
 /**
  * Servicio de envío de correo mediante la API de Brevo (Sendinblue).
- * Usar la API en lugar de SMTP evita los bloqueos de puertos en nubes como Railway.
  */
 const getBrevoApi = () => {
-  const apiKey = process.env.EMAIL_PASS; // Usamos la API Key almacenada en EMAIL_PASS
+  const apiKey = process.env.EMAIL_PASS;
   if (!apiKey) {
-    console.warn('[MAIL] ERROR: No se encontró la API Key de Brevo en la variable EMAIL_PASS.');
+    console.warn('[MAIL] ERROR: No se encontró la API Key de Brevo.');
     return null;
   }
 
-  const apiInstance = new sib.TransactionalEmailsApi();
-  apiInstance.setApiKey(sib.TransactionalEmailsApiApiKeys.apiKey, apiKey);
-  return apiInstance;
+  try {
+    const apiInstance = new sib.TransactionalEmailsApi();
+    // En la versión actual de @getbrevo/brevo, esto se asocia así:
+    apiInstance.setApiKey(sib.TransactionalEmailsApiApiKeys.apiKey, apiKey);
+    return apiInstance;
+  } catch (error) {
+    console.error('[MAIL] Error al instanciar API de Brevo:', error);
+    return null;
+  }
 };
 
 const FROM_EMAIL = process.env.EMAIL_USER || "josephballestas10@gmail.com";
