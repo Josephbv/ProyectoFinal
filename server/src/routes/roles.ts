@@ -212,11 +212,21 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // GET /api/roles/by-name/:roleName
 router.get('/by-name/:roleName', async (req: Request, res: Response) => {
     try {
-        const name = String(req.params.roleName);
-        const rol = await prisma.roles.findFirst({
-            where: { nombre_rol: { contains: name } },
+        const name = String(req.params.roleName).trim().toLowerCase();
+        // Buscar coincidencia exacta (fomentando buena higiene de datos)
+        let rol = await prisma.roles.findFirst({
+            where: { nombre_rol: { equals: name } },
             include: { roles_permisos: { include: { permiso: true } } }
         });
+
+        // Fallback a contains si no hay exacta
+        if (!rol) {
+            rol = await prisma.roles.findFirst({
+                where: { nombre_rol: { contains: name } },
+                include: { roles_permisos: { include: { permiso: true } } }
+            });
+        }
+
         if (!rol) return res.json({ modulos: [] });
         res.json({ modulos: (rol as any).roles_permisos.map((rp: any) => rp.permiso?.descripcion || ''), nombre_rol: rol.nombre_rol });
     } catch (e) {
