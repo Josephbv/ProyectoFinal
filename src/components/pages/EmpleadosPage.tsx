@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog";
 import { toast } from "sonner";
-import { User, Plus, Search, Edit, Trash2, Briefcase, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, Phone, Mail } from "lucide-react";
+import { User, Plus, Search, Edit, Trash2, Briefcase, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, Phone, Mail, Shield } from "lucide-react";
 import { useEmpleados, Empleado } from "../hooks/useEmpleados";
 import { EmpleadoModal } from "../modals/EmpleadoModal";
 
@@ -170,24 +170,35 @@ export function EmpleadosPage() {
                                                 >
                                                     <Eye className="w-4 h-4" />
                                                 </Button>
-                                                <Button
-                                                    onClick={() => abrirEmpleadoModal(empleado)}
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
-                                                    title="Editar empleado"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </Button>
-                                                <Button
-                                                    onClick={() => setDeleteDialog({ isOpen: true, empleado })}
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                                                    title="Eliminar empleado"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </Button>
+
+                                                {/* No permitir editar ni borrar al Administrador Maestro desde la lista general */}
+                                                {empleado.cargo?.toLowerCase() !== 'administrador' ? (
+                                                    <>
+                                                        <Button
+                                                            onClick={() => abrirEmpleadoModal(empleado)}
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
+                                                            title="Editar empleado"
+                                                        >
+                                                            <Edit className="w-4 h-4" />
+                                                        </Button>
+                                                        <Button
+                                                            onClick={() => setDeleteDialog({ isOpen: true, empleado })}
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
+                                                            title="Eliminar empleado"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
+                                                    </>
+                                                ) : (
+                                                    <div className="flex items-center gap-1 px-2 py-1 bg-dark-table-hover rounded border border-dark-color opacity-60">
+                                                        <Shield className="w-3 h-3 text-blue-400" />
+                                                        <span className="text-[10px] font-bold text-dark-secondary uppercase">Protegido</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </TableCell>
                                     </TableRow>

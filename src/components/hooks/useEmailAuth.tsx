@@ -34,8 +34,7 @@ const ALL_MODULES = [
 async function fetchModulosForRol(rolName: string): Promise<string[]> {
   try {
     if (!rolName) return [];
-    const esAdmin = rolName.toLowerCase().includes('admin');
-    if (esAdmin) return ALL_MODULES;
+    // Siempre consultar al backend para tener la lista real del rol
     const data = await apiFetch(`${ROLES_URL}/by-name/${encodeURIComponent(rolName)}`);
     return data.modulos || [];
   } catch {

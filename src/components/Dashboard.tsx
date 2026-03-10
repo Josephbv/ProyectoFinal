@@ -80,10 +80,16 @@ export function Dashboard({ onLogout }: DashboardProps) {
   const [horarioAEditar, setHorarioAEditar] = useState<any>(null);
 
   // Filter nav items by user's allowed modules.
-  // If modulos is empty/undefined, show all (fail-open for safety during development).
+  // Fail-closed: If no modules are specified, only show "Dashboard" (or the first available).
   const filterByModules = (items: typeof mainNavItems) => {
     const modulos = user?.modulos;
-    if (!modulos || modulos.length === 0) return items;
+    // Administrador role always has full access (fallback if modules list is missing)
+    if (user?.rol?.toLowerCase() === 'administrador') return items;
+
+    if (!modulos || modulos.length === 0) {
+      // If no modules list, only show Dashboard as a safety measure
+      return items.filter(item => item.label === "Dashboard");
+    }
     return items.filter(item => modulos.includes(item.label));
   };
 

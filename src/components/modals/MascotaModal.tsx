@@ -183,70 +183,122 @@ export const MascotaModal: React.FC<MascotaModalProps> = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Información Básica */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-dark-primary flex items-center gap-2 uppercase tracking-wider">
-                <ClipboardList className="w-4 h-4 text-blue-400" />
-                Información Básica
+          {/* Sección 1: Datos Principales en 3 Columnas */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Columna 1: Identificación */}
+            <div className="space-y-3">
+              <h3 className="text-[10px] font-black text-dark-secondary uppercase tracking-widest flex items-center gap-2 mb-2">
+                <ClipboardList className="w-3.5 h-3.5 text-blue-400" />
+                Identificación
               </h3>
 
-              <div className="space-y-2">
-                <Label className="text-dark-primary">Nombre *</Label>
+              <div className="space-y-1">
+                <Label className="text-[11px] text-dark-secondary font-bold">Nombre *</Label>
                 <Input
                   value={formData.nombre ?? ''}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('nombre', e.target.value)}
-                  className="bg-dark-hover border-dark-color text-dark-primary h-9"
+                  className="bg-dark-hover border-dark-color text-dark-primary h-8 text-sm"
                   readOnly={readOnly}
                 />
-                {errors.nombre && <p className="text-red-400 text-xs">{errors.nombre}</p>}
+                {errors.nombre && <p className="text-red-400 text-[10px]">{errors.nombre}</p>}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-dark-primary">Especie *</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-[11px] text-dark-secondary font-bold">Especie *</Label>
                   <Input
                     value={formData.especie ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('especie', e.target.value)}
-                    className="bg-dark-hover border-dark-color text-dark-primary h-9"
-                    placeholder="Ej: Perro, Gato"
+                    className="bg-dark-hover border-dark-color text-dark-primary h-8 text-sm"
+                    placeholder="Ej: Perro"
                     readOnly={readOnly}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-dark-primary">Raza</Label>
+                <div className="space-y-1">
+                  <Label className="text-[11px] text-dark-secondary font-bold">Raza</Label>
                   <Input
                     value={formData.raza ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('raza', e.target.value)}
-                    className="bg-dark-hover border-dark-color text-dark-primary h-9"
+                    className="bg-dark-hover border-dark-color text-dark-primary h-8 text-sm"
+                    readOnly={readOnly}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Columna 2: Info Clínica */}
+            <div className="space-y-3">
+              <h3 className="text-[10px] font-black text-dark-secondary uppercase tracking-widest flex items-center gap-2 mb-2">
+                <HeartPulse className="w-3.5 h-3.5 text-red-400" />
+                Info Clínica
+              </h3>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-[11px] text-dark-secondary font-bold">Edad</Label>
+                  <Input
+                    type="number"
+                    value={formData.edad ?? ''}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('edad', e.target.value ? parseInt(e.target.value) : null)}
+                    className="bg-dark-hover border-dark-color text-dark-primary h-8 text-sm"
+                    readOnly={readOnly}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[11px] text-dark-secondary font-bold">Peso (kg)</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={formData.peso ?? ''}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('peso', e.target.value ? parseFloat(e.target.value) : null)}
+                    className="bg-dark-hover border-dark-color text-dark-primary h-8 text-sm"
                     readOnly={readOnly}
                   />
                 </div>
               </div>
 
-              <div className="space-y-2 relative client-search-container">
-                <Label className="text-dark-primary flex items-center gap-1.5">
-                  <User className="w-4 h-4 text-blue-400" /> Dueño / Cliente *
+              <div className="space-y-1">
+                <Label className="text-[11px] text-dark-secondary font-bold flex items-center gap-1.5">
+                  <Calendar className="w-3 h-3 text-pink-400" /> Nacimiento
                 </Label>
+                <Input
+                  type="date"
+                  value={formData.fecha_nacimiento ?? ''}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('fecha_nacimiento', e.target.value)}
+                  className="bg-dark-hover border-dark-color text-dark-primary h-8 text-sm"
+                  readOnly={readOnly}
+                />
+              </div>
+            </div>
+
+            {/* Columna 3: Dueño/Responsable */}
+            <div className="space-y-3">
+              <h3 className="text-[10px] font-black text-dark-secondary uppercase tracking-widest flex items-center gap-2 mb-2">
+                <User className="w-3.5 h-3.5 text-indigo-400" />
+                Responsable
+              </h3>
+
+              <div className="space-y-1 relative client-search-container">
+                <Label className="text-[11px] text-dark-secondary font-bold">Dueño / Cliente *</Label>
                 <div className="relative">
                   <Input
-                    placeholder="Buscar por cédula o nombre..."
+                    placeholder="Buscar cliente..."
                     value={searchTerm}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       setSearchTerm(e.target.value);
                       setShowResults(true);
                     }}
                     onFocus={() => setShowResults(true)}
-                    className="bg-dark-hover border-dark-color text-dark-primary h-9"
+                    className="bg-dark-hover border-dark-color text-dark-primary h-8 text-sm"
                     readOnly={readOnly}
                   />
                   {showResults && searchTerm.length > 0 && !readOnly && (
-                    <div className="absolute z-50 w-full mt-1 bg-dark-card border border-dark-color rounded-md shadow-xl max-h-48 overflow-y-auto">
+                    <div className="absolute z-50 w-full mt-1 bg-dark-card border border-dark-color rounded-md shadow-xl max-h-40 overflow-y-auto">
                       {filteredClientes.length > 0 ? (
                         filteredClientes.map(c => (
                           <div
                             key={c.id_cliente}
-                            className="px-4 py-2 hover:bg-dark-hover cursor-pointer text-sm text-dark-primary border-b border-dark-color last:border-0"
+                            className="px-3 py-1.5 hover:bg-dark-hover cursor-pointer text-xs text-dark-primary border-b border-dark-color last:border-0"
                             onClick={() => {
                               handleChange('id_cliente', c.id_cliente);
                               setSearchTerm(c.nombre);
@@ -254,95 +306,49 @@ export const MascotaModal: React.FC<MascotaModalProps> = ({
                             }}
                           >
                             <div className="font-bold">{c.nombre}</div>
-                            <div className="text-xs text-dark-secondary">Cédula: {c.cedula}</div>
+                            <div className="text-[10px] text-dark-secondary">{c.cedula}</div>
                           </div>
                         ))
                       ) : (
-                        <div className="px-4 py-2 text-sm text-dark-secondary italic">No se encontraron clientes</div>
+                        <div className="px-3 py-2 text-[10px] text-dark-secondary italic text-center">Sin resultados</div>
                       )}
                     </div>
                   )}
                 </div>
-                {errors.id_cliente && <p className="text-red-400 text-xs">{errors.id_cliente}</p>}
+                {errors.id_cliente && <p className="text-red-400 text-[10px]">{errors.id_cliente}</p>}
               </div>
 
               {selectedCliente && (
-                <div className="p-3 bg-dark-hover/30 rounded-lg border border-dark-color/20 animate-in fade-in duration-300">
-                  <div className="flex flex-col gap-1 text-[11px] text-dark-secondary">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-dark-primary min-w-[60px]">Dirección:</span>
-                      <span>{selectedCliente.direccion || 'No registrada'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-dark-primary min-w-[60px]">Teléfono:</span>
-                      <span>{selectedCliente.telefono || 'No registrado'}</span>
-                    </div>
+                <div className="p-2 bg-dark-hover/30 rounded-lg border border-dark-color/20 flex flex-col gap-0.5">
+                  <div className="text-[10px] flex items-center justify-between">
+                    <span className="text-dark-secondary font-medium">Tlf:</span>
+                    <span className="text-dark-primary font-bold">{selectedCliente.telefono || 'N/A'}</span>
+                  </div>
+                  <div className="text-[10px] flex flex-col">
+                    <span className="text-dark-secondary font-medium">Dir:</span>
+                    <span className="text-dark-primary truncate" title={selectedCliente.direccion || undefined}>{selectedCliente.direccion || 'N/A'}</span>
                   </div>
                 </div>
               )}
             </div>
-
-            {/* Información Clínica */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-dark-primary flex items-center gap-2 uppercase tracking-wider">
-                <HeartPulse className="w-4 h-4 text-red-400" />
-                Datos Clínicos
-              </h3>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-dark-primary">Edad (años)</Label>
-                  <Input
-                    type="number"
-                    value={formData.edad ?? ''}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('edad', e.target.value ? parseInt(e.target.value) : null)}
-                    className="bg-dark-hover border-dark-color text-dark-primary h-9"
-                    readOnly={readOnly}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-dark-primary">Peso (kg)</Label>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    value={formData.peso ?? ''}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('peso', e.target.value ? parseFloat(e.target.value) : null)}
-                    className="bg-dark-hover border-dark-color text-dark-primary h-9"
-                    readOnly={readOnly}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-dark-primary italic text-[11px] flex items-center gap-2">
-                  <Calendar className="w-3.5 h-3.5 text-pink-400" /> Fecha de Nacimiento
-                </Label>
-                <Input
-                  type="date"
-                  value={formData.fecha_nacimiento ?? ''}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('fecha_nacimiento', e.target.value)}
-                  className="bg-dark-hover border-dark-color text-dark-primary h-9"
-                  readOnly={readOnly}
-                />
-              </div>
-            </div>
           </div>
 
-          {/* Gestión de Vacunas y Otros - Segunda Fila */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-dark-color/30">
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-dark-primary flex items-center gap-2 uppercase tracking-wider">
-                <Syringe className="w-4 h-4 text-emerald-400" />
-                Gestión de Vacunas
+          {/* Sección 2: Vacunas y Notas en 2 Columnas */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 pt-4 border-t border-dark-color/30">
+            {/* Gestión de Vacunas (Ocupa 3 columnas) */}
+            <div className="md:col-span-3 space-y-3">
+              <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-2 mb-2">
+                <Syringe className="w-3.5 h-3.5" />
+                Esquema de Vacunación
               </h3>
 
-              <div className="space-y-4 p-4 bg-dark-hover/50 rounded-2xl border border-dark-color">
-                {!readOnly && (
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label className="text-dark-primary font-bold uppercase text-[10px] tracking-widest">¿Tiene Vacunas?</Label>
-                      <p className="text-[10px] text-dark-secondary">Activar esquema de vacunación.</p>
-                    </div>
+              <div className="p-3 bg-dark-hover/40 rounded-xl border border-dark-color">
+                <div className="flex items-center justify-between mb-3 px-1">
+                  <div className="flex flex-col">
+                    <Label className="text-[11px] text-dark-primary font-bold">PLAN DE VACUNACIÓN</Label>
+                    <span className="text-[9px] text-dark-secondary">Seguimiento de dosis aplicadas</span>
+                  </div>
+                  {!readOnly && (
                     <Switch
                       checked={tieneVacunas}
                       onCheckedChange={(checked: boolean) => {
@@ -353,85 +359,74 @@ export const MascotaModal: React.FC<MascotaModalProps> = ({
                         }
                       }}
                     />
+                  )}
+                </div>
+
+                {tieneVacunas && !readOnly && (
+                  <div className="flex flex-col sm:flex-row gap-2 bg-dark-card/50 p-2 rounded-lg border border-dark-color/50 animate-in fade-in zoom-in-95 duration-200">
+                    <Input
+                      placeholder="Nombre de vacuna"
+                      value={currentVacuna.nombre}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentVacuna(prev => ({ ...prev, nombre: e.target.value }))}
+                      className="bg-dark-hover border-dark-color text-dark-primary h-8 text-xs flex-1"
+                    />
+                    <Input
+                      type="date"
+                      value={currentVacuna.fecha}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentVacuna(prev => ({ ...prev, fecha: e.target.value }))}
+                      className="bg-dark-hover border-dark-color text-dark-primary h-8 text-xs w-full sm:w-32"
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (currentVacuna.nombre.trim()) {
+                          setListaVacunas(prev => [...prev, currentVacuna]);
+                          setCurrentVacuna({ nombre: '', fecha: new Date().toISOString().split('T')[0] });
+                        }
+                      }}
+                      className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/30 h-8 px-3 text-[10px] font-bold"
+                    >
+                      <Plus className="w-3 h-3 mr-1" /> AGREGAR
+                    </Button>
                   </div>
                 )}
 
-                {tieneVacunas && !readOnly && (
-                  <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <div className="grid grid-cols-1 gap-3 p-3 bg-dark-card border border-dark-color rounded-xl">
-                      <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase font-black text-dark-secondary">Nombre de la Vacuna</Label>
-                        <Input
-                          value={currentVacuna.nombre}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentVacuna(prev => ({ ...prev, nombre: e.target.value }))}
-                          className="bg-dark-hover border-dark-color text-dark-primary h-8 text-xs"
-                          placeholder="Ej: Triple Felina, Rabia..."
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase font-black text-dark-secondary flex items-center gap-1.5">
-                          <Calendar className="w-3 h-3 text-emerald-400/70" /> Fecha Aplicación
-                        </Label>
-                        <Input
-                          type="date"
-                          value={currentVacuna.fecha}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentVacuna(prev => ({ ...prev, fecha: e.target.value }))}
-                          className="bg-dark-hover border-dark-color text-dark-primary h-8 text-xs"
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        onClick={() => {
-                          if (currentVacuna.nombre.trim()) {
-                            setListaVacunas(prev => [...prev, currentVacuna]);
-                            setCurrentVacuna({ nombre: '', fecha: new Date().toISOString().split('T')[0] });
-                          }
-                        }}
-                        className="w-full bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/30 h-8 text-[10px] font-black uppercase flex items-center gap-2"
-                      >
-                        <Plus className="w-3 h-3" /> Agregar
-                      </Button>
-                    </div>
-                  </div>
-                )}
-                {(!tieneVacunas || readOnly) && (
-                  <div className="flex flex-col items-center justify-center py-4 text-center opacity-60">
-                    <Syringe className="w-8 h-8 text-dark-color mb-2" />
-                    <p className="text-[11px] text-dark-secondary italic">
-                      {readOnly ? 'Esquema de vacunación registrado abajo.' : 'Activa el interruptor para agregar vacunas.'}
-                    </p>
+                {!tieneVacunas && (
+                  <div className="h-16 flex items-center justify-center border border-dashed border-dark-color/50 rounded-lg">
+                    <span className="text-[10px] text-dark-secondary italic">Sin vacunas registradas</span>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-dark-primary flex items-center gap-2 uppercase tracking-wider">
-                <ClipboardList className="w-4 h-4 text-purple-400" />
-                Otros Datos
+            {/* Notas y Desparasitación (Ocupa 2 columnas) */}
+            <div className="md:col-span-2 space-y-3">
+              <h3 className="text-[10px] font-black text-purple-400 uppercase tracking-widest flex items-center gap-2 mb-2">
+                <ClipboardList className="w-3.5 h-3.5" />
+                Otros Seguimientos
               </h3>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-dark-primary flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-purple-400" />
-                    Fecha Desparasitación
+
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-[11px] text-dark-secondary font-bold flex items-center gap-1.5">
+                    <ShieldCheck className="w-3 h-3 text-purple-400" /> Desparasitación
                   </Label>
                   <Input
                     type="date"
                     value={formData.fecha_desparasitacion ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('fecha_desparasitacion', e.target.value)}
-                    className="bg-dark-hover border-dark-color text-dark-primary h-9"
+                    className="bg-dark-hover border-dark-color text-dark-primary h-8 text-sm"
                     readOnly={readOnly}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-dark-primary">Observaciones / Alergias</Label>
+                <div className="space-y-1">
+                  <Label className="text-[11px] text-dark-secondary font-bold">Observaciones / Alergias</Label>
                   <textarea
                     value={formData.observaciones ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange('observaciones', e.target.value)}
-                    className="w-full min-h-[90px] p-3 bg-dark-hover border border-dark-color rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none resize-none"
+                    className="w-full min-h-[58px] p-2 bg-dark-hover border border-dark-color rounded-md text-xs text-dark-primary focus:border-dark-cta outline-none resize-none"
                     readOnly={readOnly}
-                    placeholder="Notas importantes sobre el paciente..."
+                    placeholder="Notas importantes..."
                   />
                 </div>
               </div>
