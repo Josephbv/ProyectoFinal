@@ -156,13 +156,13 @@ router.post('/', async (req: Request, res: Response) => {
             }
         });
 
-        // ENVIAR CORREO DE BIENVENIDA AUTOMÁTICO
+        // ENVIAR CORREO DE BIENVENIDA AUTOMÁTICO (No bloqueante para evitar errores de red)
         if (correo) {
-            await sendWelcomeEmail(
+            sendWelcomeEmail(
                 correo,
                 nombre_completo || nombre_usuario,
                 newUser.token_recuperacion || undefined
-            );
+            ).catch(err => console.error('[MAIL-U-ASYNC] Error:', err));
         }
 
 
