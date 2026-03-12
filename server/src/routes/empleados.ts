@@ -111,13 +111,13 @@ router.post('/', async (req: Request, res: Response) => {
             return { empleado: empleadoArr, usuario: usuarioVinculado };
         });
 
-        // ENVIAR CORREO DE BIENVENIDA AUTOMÁTICO
+        // ENVIAR CORREO DE BIENVENIDA AUTOMÁTICO - No bloqueamos la respuesta
         if (nuevoEmpleado.usuario?.token_recuperacion) {
-            await sendWelcomeEmail(
+            sendWelcomeEmail(
                 correo,
                 nombre,
                 nuevoEmpleado.usuario.token_recuperacion
-            );
+            ).catch(err => console.error('[MAIL-W-ASYNC] Error:', err));
         }
 
         res.status(201).json(nuevoEmpleado.empleado);
