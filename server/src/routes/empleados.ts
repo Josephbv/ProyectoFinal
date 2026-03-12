@@ -121,9 +121,9 @@ router.post('/', async (req: Request, res: Response) => {
         }
 
         res.status(201).json(nuevoEmpleado.empleado);
-    } catch (error) {
+    } catch (error: any) {
         console.error('[EMPLEADOS] ERROR:', error);
-        res.status(500).json({ error: 'Error al crear el empleado' });
+        res.status(500).json({ error: error.message || 'Error al crear el empleado' });
     }
 });
 
@@ -203,7 +203,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
         if (emp.correo === 'josephballestas10@gmail.com' || emp.cedula === '1001780874') {
             return res.status(403).json({ error: 'No se puede eliminar al Administrador Principal del sistema.' });
         }
-        // Nota: Ya se verificó arriba si es el maestro. Los demás administradores se pueden gestionar.
 
         await prisma.$transaction(async (tx) => {
             // 1. Borrar servicios asociados a los agendamientos del empleado
@@ -224,21 +223,24 @@ router.delete('/:id', async (req: Request, res: Response) => {
                 where: { id_empleado }
             });
 
-            // 4. Borrar usuarios vinculados (PROTECCIÓN PARA ADMINS)
+            // 4. Gestionar usuarios vinculados
             if (emp.usuarios && emp.usuarios.length > 0) {
                 for (const u of emp.usuarios) {
-                    // Si el usuario es Administrador (rol 7 o por nombre), no lo borramos, solo desvinculamos
                     const userFull = await tx.usuario.findUnique({
                         where: { id_usuario: u.id_usuario },
                         include: { rol: true }
                     });
 
-                    if (userFull?.rol?.nombre_rol === 'Administrador') {
+                    const roleName = (userFull?.rol?.nombre_rol || '').toLowerCase();
+
+                    // Si el usuario es ADMINISTRADOR (cualquier variante), no lo borramos, solo lo desvinculamos
+                    if (roleName.includes('administrador')) {
                         await tx.usuario.update({
                             where: { id_usuario: u.id_usuario },
                             data: { id_empleado: null }
                         });
                     } else {
+                        // Para veterinarios o asistentes, borramos la cuenta de usuario si está vinculada al empleado
                         await tx.usuario.delete({ where: { id_usuario: u.id_usuario } });
                     }
                 }
@@ -251,9 +253,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
         });
 
         res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
         console.error('[EMPLEADOS] DELETE ERROR:', error);
-        res.status(500).json({ error: 'Error al eliminar el empleado' });
+        res.status(500).json({ error: error.message || 'Error al eliminar el empleado' });
     }
 });
 
