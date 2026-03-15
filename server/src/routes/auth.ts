@@ -71,33 +71,9 @@ router.post('/register', async (req: Request, res: Response) => {
                 clienteIdToLink = nuevoCliente.id_cliente;
             }
         }
-        // Si no es cliente, asumimos que es un rol de staff/empleado
-        else if (!clienteIdToLink && !empleadoIdToLink) {
-            const empleadoExistente = await prisma.empleado.findFirst({
-                where: { OR: [{ correo }, { cedula: cedula || '---' }] }
-            });
-
-            if (empleadoExistente) {
-                empleadoIdToLink = empleadoExistente.id_empleado;
-            } else {
-                const nuevoEmpleado = await prisma.empleado.create({
-                    data: {
-                        nombre: nombre_usuario,
-                        correo: correo,
-                        cedula: cedula,
-                        telefono: telefono,
-                        direccion: direccion,
-                        tipo_documento: req.body.tipoDocumento || 'CC',
-                        cargo: nombre_rol
-                    }
-                });
-                empleadoIdToLink = nuevoEmpleado.id_empleado;
-            }
-        }
-
-
         const hashedPassword = await bcrypt.hash(contrasena, 10);
 
+        // 1. Crear el usuario
         const usuario = await prisma.usuario.create({
             data: {
                 correo,
@@ -105,21 +81,74 @@ router.post('/register', async (req: Request, res: Response) => {
                 nombre_usuario,
                 id_rol: rolDb.id_rol,
                 cedula,
-                id_cliente: clienteIdToLink,
-                id_empleado: empleadoIdToLink,
                 activo: true,
                 estado: 'activo'
             },
         });
 
-        // Intentar enviar email de bienvenida
-        try {
-            console.log(`[AUTH] Enviando email de bienvenida a: ${correo}`);
-            await sendWelcomeEmail(correo, nombre_usuario);
-        } catch (mailError) {
-            console.error('[AUTH] ERROR AL ENVIAR EMAIL DE BIENVENIDA:', mailError);
-            // No bloqueamos el flujo si el email falla
+        // 2. Sincronización Automática: Crear ficha de Cliente o Empleado según el Rol
+        const nombreRolLower = rolDb.nombre_rol.toLowerCase();
+
+        if (nombreRolLower === 'cliente') {
+            const clienteExistente = await prisma.cliente.findFirst({
+                where: { OR: [{ correo }, { cedula: cedula || '---' }] }
+            });
+
+            if (!clienteExistente) {
+                const nuevoCliente = await prisma.cliente.create({
+                    data: {
+                        nombre: nombre_usuario,
+                        correo,
+                        cedula,
+                        tipo_documento: req.body.tipoDocumento || 'CC',
+                        telefono: telefono || '00000000',
+                        direccion: direccion || 'Sin dirección'
+                    }
+                });
+                await prisma.usuario.update({
+                    where: { id_usuario: usuario.id_usuario },
+                    data: { id_cliente: nuevoCliente.id_cliente }
+                });
+            } else {
+                await prisma.usuario.update({
+                    where: { id_usuario: usuario.id_usuario },
+                    data: { id_cliente: clienteExistente.id_cliente }
+                });
+            }
+        } else {
+            // Se asume que cualquier otro rol (Administrador, Veterinario, etc.) es un Empleado
+            const empleadoExistente = await prisma.empleado.findFirst({
+                where: { OR: [{ correo }, { cedula: cedula || '---' }] }
+            });
+
+            if (!empleadoExistente) {
+                const nuevoEmpleado = await prisma.empleado.create({
+                    data: {
+                        nombre: nombre_usuario,
+                        correo,
+                        cedula,
+                        tipo_documento: req.body.tipoDocumento || 'CC',
+                        telefono: telefono || '00000000',
+                        direccion: direccion || 'Sin dirección',
+                        cargo: rolDb.nombre_rol
+                    }
+                });
+                await prisma.usuario.update({
+                    where: { id_usuario: usuario.id_usuario },
+                    data: { id_empleado: nuevoEmpleado.id_empleado }
+                });
+            } else {
+                await prisma.usuario.update({
+                    where: { id_usuario: usuario.id_usuario },
+                    data: { id_empleado: empleadoExistente.id_empleado }
+                });
+            }
         }
+
+        // Intentar enviar email de bienvenida
+        sendWelcomeEmail(correo, nombre_usuario).catch(err =>
+            console.error('[AUTH-SYNC] Error al enviar bienvenida:', err)
+        );
 
         const token = jwt.sign({ id: usuario.id_usuario, email: usuario.correo, rol: rolDb.nombre_rol }, SECRET, { expiresIn: '24h' });
         res.status(201).json({
@@ -133,9 +162,6 @@ router.post('/register', async (req: Request, res: Response) => {
                 cedula: usuario.cedula,
                 id_cliente: usuario.id_cliente,
                 id_empleado: usuario.id_empleado,
-                nombre_completo: usuario.nombre_completo,
-                grupo_usuario: usuario.grupo_usuario,
-                permisos_especificos: usuario.permisos_especificos,
                 estado: usuario.estado
             }
         });
@@ -286,7 +312,7 @@ router.post('/request-reset', async (req: Request, res: Response) => {
             data: { token_recuperacion: codigo }
         });
 
-        await sendResetCodeEmail(email, codigo);
+        sendResetCodeEmail(email, codigo).catch(err => console.error('[AUTH-ASYNC] Error al enviar código:', err));
 
         res.json({ success: true, message: 'Código de recuperación enviado' });
     } catch (error) {

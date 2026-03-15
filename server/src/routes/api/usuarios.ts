@@ -383,8 +383,8 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
             data: { token_recuperacion: codigo }
         });
 
-        // Enviar el correo
-        await sendResetCodeEmail(correo, codigo);
+        // Enviar el correo en segundo plano para evitar fallos por mala conexión
+        sendResetCodeEmail(correo, codigo).catch(err => console.error('[AUTH-ASYNC] Error al enviar código:', err));
 
         res.json({ success: true, message: 'Código enviado al correo médico.' });
     } catch (error) {
