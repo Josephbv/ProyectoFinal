@@ -222,7 +222,6 @@ export function ServiciosPage() {
                     <TableCell className="text-dark-primary">
                       <div>
                         <div className="font-semibold">${(servicio.precio || 0).toLocaleString()}</div>
-                        <div className="text-sm text-dark-secondary">Costo: ${(servicio.costo || 0).toLocaleString()}</div>
                       </div>
                     </TableCell>
 
@@ -443,10 +442,6 @@ export function ServiciosPage() {
                   <div>
                     <label className="block text-sm font-medium text-dark-secondary mb-1">Precio</label>
                     <p className="text-dark-primary font-semibold">${verDetallesDialog.servicio.precio?.toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-dark-secondary mb-1">Costo</label>
-                    <p className="text-dark-primary">${verDetallesDialog.servicio.costo?.toLocaleString()}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-dark-secondary mb-1">Estado</label>

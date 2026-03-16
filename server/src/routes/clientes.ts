@@ -67,7 +67,8 @@ router.post('/', async (req: Request, res: Response) => {
         });
 
         // 2. Intentar crear el usuario vinculado
-        let tokenActivacion = '';
+        const tokenActivacion = crypto.randomUUID();
+
         try {
             let rolCliente = await prisma.roles.findFirst({
                 where: { nombre_rol: { contains: 'cliente' } }
@@ -77,8 +78,6 @@ router.post('/', async (req: Request, res: Response) => {
                     data: { nombre_rol: 'cliente', activo: true }
                 });
             }
-
-            tokenActivacion = crypto.randomUUID(); // Generar token único para el correo
 
             const existeUserCedula = cedula ? await prisma.usuario.findUnique({ where: { cedula } }) : null;
             const existeUserCorreo = correo ? await prisma.usuario.findUnique({ where: { correo } }) : null;
@@ -91,7 +90,7 @@ router.post('/', async (req: Request, res: Response) => {
                         cedula,
                         contrasena: '', // Se establecerá mediante el link
                         token_recuperacion: tokenActivacion,
-                        id_rol: rolCliente.id_rol,
+                        id_rol: rolCliente ? rolCliente.id_rol : 4,
                         id_cliente: nuevoCliente.id_cliente,
                         activo: true
                     }
@@ -102,19 +101,17 @@ router.post('/', async (req: Request, res: Response) => {
                     data: {
                         token_recuperacion: tokenActivacion,
                         id_cliente: nuevoCliente.id_cliente
-                        // Mantenemos su rol anterior (ej: Administrador) no lo degradamos a Cliente.
                     }
                 });
             }
-        } catch (usuarioError) {
-            console.warn('[CLIENTES] Usuario vinculado no creado (no crítico):', usuarioError);
-        }
 
-        // 3. Enviar correo de bienvenida al cliente
-        if (correo && tokenActivacion) {
+            // 3. Enviar correo de bienvenida al cliente (solo si se creó/actualizó el usuario con éxito)
             sendWelcomeEmail(correo, nombre, tokenActivacion).catch(err =>
                 console.error('[CLIENTES] Error asíncrono enviando bienvenida:', err)
             );
+
+        } catch (usuarioError) {
+            console.error('[CLIENTES] Error en proceso de usuario/email:', usuarioError);
         }
 
 

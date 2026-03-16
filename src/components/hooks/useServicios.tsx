@@ -113,7 +113,7 @@ export function useServicios() {
     return {
       totalServicios: servicios.length,
       serviciosActivos: servicios.length, // Placeholder logic
-      ingresosPotenciales: servicios.reduce((acc, s) => acc + (s.precio || 0), 0)
+      ingresosPotenciales: servicios.reduce((acc, s) => acc + Number(s.precio || 0), 0)
     };
   }, [servicios]);
 
