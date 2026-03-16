@@ -192,11 +192,24 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
     try {
         const id_rol = parseInt(req.params.id as string);
-        const rol = await prisma.roles.findUnique({ where: { id_rol } });
+        const rol = await prisma.roles.findUnique({
+            where: { id_rol },
+            include: { usuarios: true }
+        });
+
         if (!rol) return res.status(404).json({ error: 'No encontrado' });
 
-        if (['administrador', 'cliente', 'veterinario'].includes(rol.nombre_rol.toLowerCase())) {
-            return res.status(400).json({ error: 'No se puede eliminar un rol base.' });
+        // El Administrador NUNCA se puede eliminar
+        if (rol.nombre_rol.toLowerCase() === 'administrador') {
+            return res.status(400).json({ error: 'No se puede eliminar el rol Administrador del sistema.' });
+        }
+
+        // Para Cliente, Veterinario o cualquier otro rol:
+        // Solo se puede eliminar si NO tiene usuarios asociados
+        if (rol.usuarios && rol.usuarios.length > 0) {
+            return res.status(400).json({
+                error: `No se puede eliminar el rol "${rol.nombre_rol}" porque tiene ${rol.usuarios.length} usuario(s) asociado(s). Cambia sus roles primero.`
+            });
         }
 
         await prisma.roles_permisos.deleteMany({ where: { id_rol } });
