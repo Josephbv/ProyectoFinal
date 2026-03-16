@@ -73,22 +73,27 @@ router.delete('/:id', async (req: Request, res: Response) => {
     try {
         const id_servicio = parseInt(req.params.id as string);
 
-        // Verificar si el servicio está siendo usado en agendamientos
-        const usoAgendamiento = await prisma.agendamiento_servicios.count({
+        // 1. Verificamos si tiene ventas registradas (BLOQUEO TOTAL)
+        const ventasCount = await prisma.venta_servicios.count({
             where: { id_servicio }
         });
 
-        if (usoAgendamiento > 0) {
+        if (ventasCount > 0) {
             return res.status(400).json({
-                error: `No se puede eliminar el servicio porque está asociado a ${usoAgendamiento} agendamiento(s). Inactívalo en su lugar.`
+                error: `No se puede eliminar el servicio porque ya tiene una venta registrada. Inactívalo para que no aparezca más.`
             });
         }
 
-        await prisma.servicios.delete({ where: { id_servicio } });
+        // 2. Si no hay ventas, procedemos a borrar limpiando agendamientos si los hay
+        await prisma.$transaction([
+            prisma.agendamiento_servicios.deleteMany({ where: { id_servicio } }),
+            prisma.servicios.delete({ where: { id_servicio } })
+        ]);
+
         res.status(204).send();
     } catch (error) {
-        console.error('[SERVICIOS] Error delete:', error);
-        res.status(500).json({ error: 'Error al eliminar el servicio' });
+        console.error('[SERVICIOS] Error delete (Conditional):', error);
+        res.status(500).json({ error: 'Error al intentar eliminar el servicio' });
     }
 });
 
