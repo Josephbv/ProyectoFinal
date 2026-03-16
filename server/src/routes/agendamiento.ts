@@ -71,6 +71,44 @@ router.post('/', async (req: Request, res: Response) => {
             return date;
         };
 
+        const empleadoObj = await prisma.empleado.findUnique({ where: { id_empleado: parseInt(id_empleado as string) } });
+        if (!empleadoObj) return res.status(404).json({ error: 'Empleado no encontrado' });
+
+        if (empleadoObj.cedula !== '1001780874' && fecha && hora) {
+            const inputFecha = new Date(fecha);
+            const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            // Validamos que inputFecha sea válida.
+            if (!isNaN(inputFecha.getTime())) {
+                const diaStr = diasSemana[inputFecha.getUTCDay()];
+
+                const horarioObj = await prisma.horario.findFirst({
+                    where: {
+                        id_empleado: parseInt(id_empleado as string),
+                        dia_semana: diaStr,
+                        disponible: true
+                    }
+                });
+
+                if (!horarioObj) {
+                    return res.status(400).json({ error: `El profesional no atiende los días ${diaStr}.` });
+                }
+
+                const inputHora = parseHora(hora);
+                if (inputHora && horarioObj.hora_inicio && horarioObj.hora_fin) {
+                    const minInicio = horarioObj.hora_inicio.getUTCHours() * 60 + horarioObj.hora_inicio.getUTCMinutes();
+                    const minFin = horarioObj.hora_fin.getUTCHours() * 60 + horarioObj.hora_fin.getUTCMinutes();
+                    const minInput = inputHora.getHours() * 60 + inputHora.getMinutes();
+
+                    if (minInput < minInicio || minInput > minFin) {
+                        const formatH = (h: Date) => `${h.getUTCHours().toString().padStart(2, '0')}:${h.getUTCMinutes().toString().padStart(2, '0')}`;
+                        return res.status(400).json({
+                            error: `La hora seleccionada está fuera del horario laboral del profesional (${formatH(horarioObj.hora_inicio)} a ${formatH(horarioObj.hora_fin)}).`
+                        });
+                    }
+                }
+            }
+        }
+
         const nuevaCita = await prisma.agendamiento.create({
             data: {
                 id_cliente: parseInt(id_cliente as string),
@@ -124,6 +162,45 @@ router.put('/:id', async (req: Request, res: Response) => {
         if (id_empleado) updateData.id_empleado = parseInt(id_empleado as string);
         if (fecha) updateData.fecha = new Date(fecha);
         if (hora) updateData.hora = parseHora(hora);
+
+        // Validar si id_empleado es modificado o si ya existe.
+        const targetEmpleadoId = id_empleado ? parseInt(id_empleado as string) : null;
+        if (targetEmpleadoId && (updateData.fecha || updateData.hora)) {
+            const empleadoObj = await prisma.empleado.findUnique({ where: { id_empleado: targetEmpleadoId } });
+            if (empleadoObj && empleadoObj.cedula !== '1001780874') {
+                const targetFecha = updateData.fecha; // Ya es Date
+                if (targetFecha && !isNaN(targetFecha.getTime()) && updateData.hora) {
+                    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                    const diaStr = diasSemana[targetFecha.getUTCDay()];
+
+                    const horarioObj = await prisma.horario.findFirst({
+                        where: {
+                            id_empleado: targetEmpleadoId,
+                            dia_semana: diaStr,
+                            disponible: true
+                        }
+                    });
+
+                    if (!horarioObj) {
+                        return res.status(400).json({ error: `El profesional no atiende los días ${diaStr}.` });
+                    }
+
+                    if (horarioObj.hora_inicio && horarioObj.hora_fin && updateData.hora) {
+                        const minInicio = horarioObj.hora_inicio.getUTCHours() * 60 + horarioObj.hora_inicio.getUTCMinutes();
+                        const minFin = horarioObj.hora_fin.getUTCHours() * 60 + horarioObj.hora_fin.getUTCMinutes();
+                        const inputHoraReal = updateData.hora;
+                        const minInput = inputHoraReal.getHours() * 60 + inputHoraReal.getMinutes();
+
+                        if (minInput < minInicio || minInput > minFin) {
+                            const formatH = (h: Date) => `${h.getUTCHours().toString().padStart(2, '0')}:${h.getUTCMinutes().toString().padStart(2, '0')}`;
+                            return res.status(400).json({
+                                error: `La hora seleccionada está fuera del horario laboral del profesional (${formatH(horarioObj.hora_inicio)} a ${formatH(horarioObj.hora_fin)}).`
+                            });
+                        }
+                    }
+                }
+            }
+        }
 
         // Actualizar agendamiento
         const actualizada = await prisma.agendamiento.update({

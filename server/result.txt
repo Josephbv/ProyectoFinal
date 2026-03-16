@@ -1,0 +1,32 @@
+﻿[
+  {
+    "id": 1,
+    "nom": "Joseph Ballestas",
+    "co": "josephballestas10@gmail.com",
+    "rn": "Administrador"
+  },
+  {
+    "id": 12,
+    "nom": null,
+    "co": "kaivetmanager@gmail.com",
+    "rn": "Cliente"
+  },
+  {
+    "id": 19,
+    "nom": null,
+    "co": "roldangiraldomishell@gmail.com",
+    "rn": "Veterinario"
+  },
+  {
+    "id": 20,
+    "nom": "",
+    "co": "jhoynerfurix05@gmail.com",
+    "rn": "Cliente"
+  },
+  {
+    "id": 22,
+    "nom": null,
+    "co": "ariassanabriab@gmail.com",
+    "rn": "Cliente"
+  }
+]

@@ -55,8 +55,12 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
 
   const empleadosArray = Object.values(empleadosConHorarios);
 
-  // Filtrar empleados
+  // Filtrar empleados: se omiten administradores si el requerimiento es no mostrar a Administrador, 
+  // pero solo filtra la vista. O mejor, si el usuario pide sacarlo, podemos omitir "Administrador".
   const empleadosFiltrados = empleadosArray.filter(empleado => {
+    // Excluir únicamente al Administrador Maestro (usando su cédula o nombre identificador)
+    if (empleado.cc === '1001780874' || empleado.nombre.toLowerCase().includes('joseph ballestas')) return false;
+
     const searchLower = busqueda.toLowerCase();
     const nombreMatch = (empleado.nombre || '').toLowerCase().includes(searchLower);
     const apellidoMatch = (empleado.apellido || '').toLowerCase().includes(searchLower);
@@ -168,6 +172,9 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
                     </div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold">
+                    Rol
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold">
                     Tipo Documento
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold">
@@ -199,9 +206,18 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
                             {empleado.nombre?.charAt(0)?.toUpperCase() || 'P'}
                           </div>
                           <div>
-                            <div className="font-semibold text-dark-primary">{empleado.nombre} {empleado.apellido}</div>
+                            <div className="font-semibold text-dark-primary">{empleado.nombre}</div>
                           </div>
                         </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <Badge className={`${empleado.apellido.toLowerCase() === 'veterinario'
+                          ? 'bg-emerald-900/30 text-emerald-400'
+                          : 'bg-blue-900/30 text-blue-400'
+                          } border-0`}>
+                          {empleado.apellido || 'N/A'}
+                        </Badge>
                       </TableCell>
 
                       <TableCell>

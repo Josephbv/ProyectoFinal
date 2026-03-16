@@ -1,0 +1,198 @@
+{
+  "clientes": [
+    {
+      "id_cliente": 11,
+      "nombre": "Kai Vet",
+      "tipo_documento": "Cédula de Ciudadanía",
+      "cedula": "123456789",
+      "telefono": "3234259446",
+      "correo": "kaivetmanager@gmail.com",
+      "direccion": "carrera 58 #66-41"
+    },
+    {
+      "id_cliente": 14,
+      "nombre": "Jhoyner Viedma ",
+      "tipo_documento": "Cédula de Ciudadanía",
+      "cedula": "1042252627",
+      "telefono": "1234567890",
+      "correo": "jhoynerfurix05@gmail.com",
+      "direccion": "carrera 58 #66-41"
+    },
+    {
+      "id_cliente": 16,
+      "nombre": "Bety Arias Sanabria",
+      "tipo_documento": "Cédula de Ciudadanía",
+      "cedula": "1118124812",
+      "telefono": "3213564009",
+      "correo": "ariassanabriab@gmail.com",
+      "direccion": "Calle 10A #4-16 Barrio Olimpico"
+    }
+  ],
+  "empleados": [
+    {
+      "id_empleado": 1,
+      "tipo_documento": "CC",
+      "cedula": "1001780874",
+      "nombre": "Joseph Ballestas",
+      "correo": "josephballestas10@gmail.com",
+      "telefono": "3234359445",
+      "direccion": "carrera 58 # 66-41",
+      "cargo": "Administrador",
+      "profesion": null,
+      "especialidad": null,
+      "observaciones": null,
+      "experiencia": null
+    },
+    {
+      "id_empleado": 9,
+      "tipo_documento": "Cédula de Ciudadanía",
+      "cedula": "1025760687",
+      "nombre": "Mishell Roldan",
+      "correo": "roldangiraldomishell@gmail.com",
+      "telefono": "3233755696",
+      "direccion": "calle 99",
+      "cargo": "Veterinario",
+      "profesion": null,
+      "especialidad": null,
+      "observaciones": null,
+      "experiencia": null
+    }
+  ],
+  "usuarios": [
+    {
+      "id_usuario": 1,
+      "nombre_usuario": "Joseph Ballestas",
+      "contrasena": "$2b$10$N9coJl1/MN57Sp2.URCDtOT4PiVg8StaHQj0MNCEJm3R8OsJXwyJa",
+      "correo": "josephballestas10@gmail.com",
+      "cedula": "1001780874",
+      "tipo_documento": "CC",
+      "activo": true,
+      "estado": "activo",
+      "fecha_creacion": "2026-03-10T15:49:46.540Z",
+      "fecha_actualizacion": "2026-03-16T11:03:02.959Z",
+      "usuario_creador": null,
+      "nombre_completo": "Joseph Ballestas",
+      "grupo_usuario": "",
+      "permisos_especificos": "",
+      "pregunta_seguridad": "",
+      "respuesta_seguridad": "",
+      "token_recuperacion": null,
+      "id_rol": 2,
+      "id_cliente": null,
+      "id_empleado": 1,
+      "rol": {
+        "id_rol": 2,
+        "nombre_rol": "Administrador",
+        "activo": true
+      }
+    },
+    {
+      "id_usuario": 12,
+      "nombre_usuario": "Kai Vet",
+      "contrasena": "$2b$10$ej5LW26eOXjEwuxajYUNsussQNQfZhecuAIVLNICMFFf8SXOkE5Wu",
+      "correo": "kaivetmanager@gmail.com",
+      "cedula": "123456789",
+      "tipo_documento": null,
+      "activo": true,
+      "estado": "activo",
+      "fecha_creacion": "2026-03-11T04:21:29.930Z",
+      "fecha_actualizacion": "2026-03-12T21:00:38.404Z",
+      "usuario_creador": null,
+      "nombre_completo": null,
+      "grupo_usuario": null,
+      "permisos_especificos": null,
+      "pregunta_seguridad": null,
+      "respuesta_seguridad": null,
+      "token_recuperacion": null,
+      "id_rol": 4,
+      "id_cliente": 11,
+      "id_empleado": null,
+      "rol": {
+        "id_rol": 4,
+        "nombre_rol": "Cliente",
+        "activo": true
+      }
+    },
+    {
+      "id_usuario": 19,
+      "nombre_usuario": "Mishell Roldan",
+      "contrasena": "$2b$10$Dp/UrrZSzTYX3oIt9WYRI.wR4ZQ2wBpAhShTQ9znvA.2FrxWGifEa",
+      "correo": "roldangiraldomishell@gmail.com",
+      "cedula": "1025760687",
+      "tipo_documento": null,
+      "activo": true,
+      "estado": "activo",
+      "fecha_creacion": "2026-03-15T20:39:04.245Z",
+      "fecha_actualizacion": "2026-03-15T20:39:39.769Z",
+      "usuario_creador": null,
+      "nombre_completo": null,
+      "grupo_usuario": null,
+      "permisos_especificos": null,
+      "pregunta_seguridad": null,
+      "respuesta_seguridad": null,
+      "token_recuperacion": null,
+      "id_rol": 3,
+      "id_cliente": null,
+      "id_empleado": 9,
+      "rol": {
+        "id_rol": 3,
+        "nombre_rol": "Veterinario",
+        "activo": true
+      }
+    },
+    {
+      "id_usuario": 20,
+      "nombre_usuario": "Jhoyner Viedma ",
+      "contrasena": "",
+      "correo": "jhoynerfurix05@gmail.com",
+      "cedula": "1042252627",
+      "tipo_documento": "CC",
+      "activo": true,
+      "estado": "activo",
+      "fecha_creacion": "2026-03-16T11:05:27.178Z",
+      "fecha_actualizacion": "2026-03-16T11:15:38.432Z",
+      "usuario_creador": null,
+      "nombre_completo": "",
+      "grupo_usuario": "",
+      "permisos_especificos": "",
+      "pregunta_seguridad": "",
+      "respuesta_seguridad": "",
+      "token_recuperacion": "6aad02f4-843e-4787-8a55-6e63336c158c",
+      "id_rol": 4,
+      "id_cliente": 14,
+      "id_empleado": null,
+      "rol": {
+        "id_rol": 4,
+        "nombre_rol": "Cliente",
+        "activo": true
+      }
+    },
+    {
+      "id_usuario": 22,
+      "nombre_usuario": "Bety Arias Sanabria",
+      "contrasena": "",
+      "correo": "ariassanabriab@gmail.com",
+      "cedula": "1118124812",
+      "tipo_documento": null,
+      "activo": true,
+      "estado": "activo",
+      "fecha_creacion": "2026-03-16T18:00:28.318Z",
+      "fecha_actualizacion": "2026-03-16T18:00:28.318Z",
+      "usuario_creador": null,
+      "nombre_completo": null,
+      "grupo_usuario": null,
+      "permisos_especificos": null,
+      "pregunta_seguridad": null,
+      "respuesta_seguridad": null,
+      "token_recuperacion": "3e13da15-3dba-4f85-8360-9458db8f9498",
+      "id_rol": 4,
+      "id_cliente": 16,
+      "id_empleado": null,
+      "rol": {
+        "id_rol": 4,
+        "nombre_rol": "Cliente",
+        "activo": true
+      }
+    }
+  ]
+}
