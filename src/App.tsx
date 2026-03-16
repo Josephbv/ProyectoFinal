@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showLanding, setShowLanding] = useState(true);
+  const [showLanding, setShowLanding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Verificar si hay una sesión guardada al cargar la app
@@ -59,7 +59,7 @@ export default function App() {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    setShowLanding(true);
+    setShowLanding(false);
 
     // Limpiar datos de autenticación
     localStorage.removeItem("kaivet_auth_data");
@@ -102,9 +102,7 @@ export default function App() {
 
   return (
     <>
-      {showLanding && !isAuthenticated ? (
-        <LandingPage onGetStarted={handleGetStarted} />
-      ) : !isAuthenticated ? (
+      {!isAuthenticated ? (
         <LoginPage onLogin={handleLogin} />
       ) : (
         <Dashboard onLogout={handleLogout} />

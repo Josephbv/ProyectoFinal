@@ -195,7 +195,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
         : '#020617'
     }}>
       {/* Sidebar */}
-      <div className={`${sidebarCollapsed ? 'w-20' : 'w-56'} bg-dark-card border-r border-dark-color flex flex-col transition-all duration-300 relative shadow-2xl`} style={{
+      <div className={`${sidebarCollapsed ? 'w-20' : 'w-56'} bg-dark-card border-r border-dark-color flex flex-col transition-all duration-300 relative shadow-2xl overflow-hidden`} style={{
         boxShadow: theme === 'light'
           ? '0 0 50px rgba(59, 130, 246, 0.1)'
           : '0 0 50px rgba(0, 0, 0, 0.3)'
@@ -279,7 +279,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
         )}
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-6">
+        <nav className="flex-1 p-4 space-y-6 overflow-y-auto overflow-x-hidden">
           {/* Main Navigation */}
           <div className="space-y-1">
             {!sidebarCollapsed && (
@@ -345,133 +345,69 @@ export function Dashboard({ onLogout }: DashboardProps) {
           )}
         </nav>
 
-        {/* User Profile & Status */}
-        <div className={`p-4 border-t border-dark-color ${sidebarCollapsed ? 'px-2' : ''}`}>
-          <div className={`bg-dark-hover/50 backdrop-blur-sm rounded-xl p-3 border border-dark-color ${sidebarCollapsed ? 'px-2' : ''}`}>
-            {sidebarCollapsed ? (
-              // Collapsed view
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center relative">
-                  <User className="w-4 h-4 text-white" />
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border border-dark-card"></div>
-                </div>
-                {onLogout && (
-                  <Button
-                    onClick={onLogout}
-                    variant="ghost"
-                    size="sm"
-                    className="w-8 h-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                    title="Cerrar sesión"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </Button>
-                )}
+        {/* User Profile - Fixed at bottom of sidebar */}
+        <div className={`p-3 border-t border-dark-color shrink-0 ${sidebarCollapsed ? 'px-2' : ''}`}>
+          {sidebarCollapsed ? (
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center relative">
+                <User className="w-4 h-4 text-white" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border border-dark-card"></div>
               </div>
-            ) : (
-              // Expanded view
-              <>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="relative">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-dark-card"></div>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-dark-primary truncate" title={user?.nombre_usuario || user?.nombre_completo || 'Usuario'}>
-                      {user?.nombre_usuario || user?.nombre_completo || 'Usuario'}
-                    </p>
-                    <p className="text-xs text-dark-secondary truncate text-blue-400 font-medium">
-                      {user?.rol || 'Sin Rol'}
-                      <span className="text-dark-secondary font-normal"> • {user?.estado === 'activo' ? 'Activo' : 'Online'}</span>
-                    </p>
-                  </div>
+              {onLogout && (
+                <Button onClick={onLogout} variant="ghost" size="sm"
+                  className="w-8 h-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                  title="Cerrar sesión">
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {/* Name & Role */}
+              <div className="flex items-center gap-2 px-1">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center relative shrink-0">
+                  <User className="w-4 h-4 text-white" />
+                  <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border border-dark-card"></div>
                 </div>
-
-                {/* Quick Stats */}
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  <div className="bg-dark-hover rounded-lg p-2 text-center">
-                    <div className="text-xs font-semibold text-green-400">10</div>
-                    <div className="text-xs text-dark-secondary">Módulos</div>
-                  </div>
-                  <div className="bg-dark-hover rounded-lg p-2 text-center">
-                    <div className="text-xs font-semibold text-blue-400">99.9%</div>
-                    <div className="text-xs text-dark-secondary">Uptime</div>
-                  </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-dark-primary truncate">
+                    {user?.nombre_usuario || user?.nombre_completo || 'Usuario'}
+                  </p>
+                  <p className="text-xs text-blue-400 truncate">{user?.rol || 'Sin Rol'}</p>
                 </div>
+              </div>
 
-                {/* Theme Switcher */}
-                <div className="bg-dark-hover rounded-lg p-2.5 mb-3 border border-dark-color">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {theme === 'dark' ? (
-                        <Moon className="w-4 h-4 text-blue-400" />
-                      ) : (
-                        <Sun className="w-4 h-4 text-amber-400" />
-                      )}
-                      <span className="text-xs font-medium text-dark-primary">
-                        {theme === 'dark' ? 'Modo Oscuro' : 'Modo Claro'}
-                      </span>
-                    </div>
-                    <Switch
-                      checked={theme === 'dark'}
-                      onCheckedChange={toggleTheme}
-                      className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-amber-500"
-                    />
-                  </div>
+              {/* Theme Switcher */}
+              <div className="flex items-center justify-between bg-dark-hover rounded-lg px-2 py-1.5 border border-dark-color">
+                <div className="flex items-center gap-1.5">
+                  {theme === 'dark' ? <Moon className="w-3.5 h-3.5 text-blue-400" /> : <Sun className="w-3.5 h-3.5 text-amber-400" />}
+                  <span className="text-xs text-dark-primary">{theme === 'dark' ? 'Oscuro' : 'Claro'}</span>
                 </div>
+                <Switch
+                  checked={theme === 'dark'}
+                  onCheckedChange={toggleTheme}
+                  className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-amber-500 scale-75"
+                />
+              </div>
 
-                {onLogout && (
-                  <Button
-                    onClick={onLogout}
-                    variant="ghost"
-                    size="sm"
-                    className="w-full text-red-400 hover:text-red-300 hover:bg-red-500/10 justify-start gap-2"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Cerrar Sesión
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
+              {/* Logout */}
+              {onLogout && (
+                <Button onClick={onLogout} variant="ghost" size="sm"
+                  className="w-full text-red-400 hover:text-red-300 hover:bg-red-500/10 justify-start gap-2 h-8 text-xs">
+                  <LogOut className="w-3.5 h-3.5" />
+                  Cerrar Sesión
+                </Button>
+              )}
+            </div>
+          )}
         </div>
+
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden" style={{
         background: theme === 'light' ? 'transparent' : '#020617'
       }}>
-        {/* Top bar */}
-        <div className="h-14 backdrop-blur-sm border-b border-dark-color/50 flex items-center justify-between pl-24 pr-8 transition-colors duration-300 z-10 sticky top-0" style={{
-          backgroundColor: theme === 'light' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(15, 23, 42, 0.3)',
-          borderColor: theme === 'light' ? 'rgba(191, 219, 254, 0.5)' : 'rgba(51, 65, 85, 0.5)'
-        }}>
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-semibold text-dark-primary">{activePage}</h2>
-            <div className="h-4 w-px bg-dark-border"></div>
-            <div className="flex items-center gap-2 text-sm text-dark-secondary">
-              <Home className="w-4 h-4" />
-              <span>/</span>
-              <span className="text-blue-500">{activePage}</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Status indicator */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors duration-300" style={{
-              backgroundColor: theme === 'light' ? 'rgba(219, 234, 254, 0.5)' : 'rgba(30, 41, 59, 0.5)'
-            }}>
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-xs text-dark-secondary">Sistema operativo</span>
-            </div>
-
-            {/* Notifications */}
-            <Button variant="ghost" size="sm" className="w-9 h-9 p-0 text-dark-secondary hover:text-dark-primary">
-              <Bell className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
 
         {/* Page Content */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col bg-dark-bg transition-colors duration-300">

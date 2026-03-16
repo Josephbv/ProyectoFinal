@@ -75,18 +75,6 @@ export function CitasHoy({ onVerCalendario }: CitasHoyProps) {
         )}
       </div>
 
-      <div className="mt-6 pt-4 border-t border-dark-color">
-        <div className="grid grid-cols-2 gap-4 text-center">
-          <div>
-            <div className="text-lg font-bold text-blue-400">{citasHoy.length}</div>
-            <div className="text-xs text-dark-secondary">Citas hoy</div>
-          </div>
-          <div>
-            <div className="text-lg font-bold text-emerald-400">{citas.length}</div>
-            <div className="text-xs text-dark-secondary">Total registradas</div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
