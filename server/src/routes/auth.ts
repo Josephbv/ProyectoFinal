@@ -274,6 +274,99 @@ router.put('/users/:id', async (req: Request, res: Response) => {
             include: { rol: true }
         });
 
+        // --- LÓGICA DE SINCRONIZACIÓN AL EDITAR ROL ---
+        const nuevoRolNombre = actualizada.rol?.nombre_rol?.toLowerCase() || '';
+
+        // Caso A: El usuario pasó a ser CLIENTE
+        if (nuevoRolNombre === 'cliente') {
+            // Si antes era empleado, borramos la ficha de empleado para que no aparezca en ese módulo
+            if (actualizada.id_empleado) {
+                try {
+                    const empId = actualizada.id_empleado;
+                    // Desvinculamos primero el usuario
+                    await prisma.usuario.update({
+                        where: { id_usuario: actualizada.id_usuario },
+                        data: { id_empleado: null }
+                    });
+                    // Intentamos borrar el registro de empleado (si no tiene agendamientos o ventas amarradas)
+                    await prisma.empleado.delete({ where: { id_empleado: empId } });
+                    console.log(`[SYNC] Empleado ${empId} eliminado porque ahora es Cliente.`);
+                } catch (e) {
+                    console.warn('[SYNC] No se pudo borrar el empleado (posiblemente tiene registros asociados), solo se desvinculó.');
+                }
+            }
+
+            // Aseguramos que tenga ficha de cliente
+            const clienteExistente = await prisma.cliente.findFirst({
+                where: { OR: [{ correo: actualizada.correo }, { cedula: actualizada.cedula || '---' }] }
+            });
+
+            if (!clienteExistente) {
+                const nuevoCliente = await prisma.cliente.create({
+                    data: {
+                        nombre: actualizada.nombre_usuario,
+                        correo: actualizada.correo,
+                        cedula: actualizada.cedula,
+                        tipo_documento: 'CC',
+                        telefono: '00000000',
+                        direccion: 'Creado por cambio de rol'
+                    }
+                });
+                await prisma.usuario.update({
+                    where: { id_usuario: actualizada.id_usuario },
+                    data: { id_cliente: nuevoCliente.id_cliente }
+                });
+            } else {
+                await prisma.usuario.update({
+                    where: { id_usuario: actualizada.id_usuario },
+                    data: { id_cliente: clienteExistente.id_cliente }
+                });
+            }
+        }
+        // Caso B: El usuario pasó a ser ADMINISTRADOR / VETERINARIO (Cualquier rol que NO sea cliente)
+        else {
+            // Si antes era cliente, desvinculamos la ficha de cliente
+            if (actualizada.id_cliente) {
+                await prisma.usuario.update({
+                    where: { id_usuario: actualizada.id_usuario },
+                    data: { id_cliente: null }
+                });
+            }
+
+            // Aseguramos que tenga ficha de EMPLEADO
+            const empleadoExistente = await prisma.empleado.findFirst({
+                where: { OR: [{ correo: actualizada.correo }, { cedula: actualizada.cedula || '---' }] }
+            });
+
+            if (!empleadoExistente) {
+                const nuevoEmp = await prisma.empleado.create({
+                    data: {
+                        nombre: actualizada.nombre_usuario,
+                        correo: actualizada.correo,
+                        cedula: actualizada.cedula,
+                        tipo_documento: 'CC',
+                        telefono: '00000000',
+                        direccion: 'Creado por cambio de rol',
+                        cargo: actualizada.rol?.nombre_rol || 'Staff'
+                    }
+                });
+                await prisma.usuario.update({
+                    where: { id_usuario: actualizada.id_usuario },
+                    data: { id_empleado: nuevoEmp.id_empleado }
+                });
+            } else {
+                // Si el empleado ya existe, actualizamos su cargo
+                await prisma.empleado.update({
+                    where: { id_empleado: empleadoExistente.id_empleado },
+                    data: { cargo: actualizada.rol?.nombre_rol || 'Staff' }
+                });
+                await prisma.usuario.update({
+                    where: { id_usuario: actualizada.id_usuario },
+                    data: { id_empleado: empleadoExistente.id_empleado }
+                });
+            }
+        }
+
         res.json(actualizada);
     } catch (error) {
         console.error('[AUTH] ERROR EN PUT /users/:id:', error);
