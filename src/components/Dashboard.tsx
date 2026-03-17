@@ -130,12 +130,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
               }`}>{item.label}</span>
           )}
         </div>
-        {!sidebarCollapsed && item.shortcut && (
-          <kbd className={`px-1.5 py-0.5 text-xs font-mono rounded border ${isActive ? "bg-blue-500/10 border-blue-500/30 text-blue-400" : "bg-dark-tag border-dark-color text-dark-secondary group-hover:bg-dark-hover"
-            }`}>
-            {item.shortcut}
-          </kbd>
-        )}
+
       </button>
     );
   };
@@ -206,9 +201,9 @@ export function Dashboard({ onLogout }: DashboardProps) {
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           variant="ghost"
           size="sm"
-          className="absolute -right-3 top-6 z-10 w-6 h-6 bg-dark-card border border-dark-color rounded-full p-0 hover:bg-dark-hover"
+          className="absolute -right-4 top-6 z-10 w-8 h-8 bg-dark-card border-2 border-blue-500/40 rounded-full p-0 hover:bg-blue-500/20 shadow-md shadow-blue-500/10 flex items-center justify-center"
         >
-          {sidebarCollapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+          {sidebarCollapsed ? <ChevronRight className="w-4 h-4 text-blue-400" /> : <ChevronLeft className="w-4 h-4 text-blue-400" />}
         </Button>
 
         {/* Logo */}
@@ -227,56 +222,12 @@ export function Dashboard({ onLogout }: DashboardProps) {
             {!sidebarCollapsed && (
               <div>
                 <h1 className="text-xl font-bold text-dark-primary">KaiVet Manager</h1>
-                <p className="text-xs text-dark-secondary font-medium">v1.0.0 • Gestión Integral</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Command Palette Search */}
-        {!sidebarCollapsed && (
-          <div className="p-4 border-b border-dark-color">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
-              <Input
-                placeholder="Buscar módulos... (⌘K)"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-dark-hover border-dark-color text-dark-primary placeholder-dark-secondary pl-10 pr-10 focus:border-dark-cta focus:bg-dark-hover"
-              />
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <kbd className="px-1.5 py-0.5 text-xs font-mono text-dark-secondary bg-dark-card border border-dark-color rounded">⌘K</kbd>
-              </div>
-            </div>
 
-            {/* Search Results */}
-            {searchQuery && (
-              <div className="mt-2 bg-dark-card border border-dark-color rounded-lg max-h-48 overflow-y-auto">
-                {filteredItems.length > 0 ? (
-                  <div className="p-2 space-y-1">
-                    {filteredItems.map(item => (
-                      <button
-                        key={item.label}
-                        onClick={() => {
-                          setActivePage(item.label);
-                          setSearchQuery("");
-                        }}
-                        className="flex items-center gap-3 w-full px-2 py-2 text-left text-sm text-dark-secondary hover:text-dark-primary hover:bg-dark-hover rounded"
-                      >
-                        <item.icon className="w-4 h-4" />
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-4 text-center text-sm text-dark-secondary">
-                    No se encontraron módulos
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-6 overflow-y-auto overflow-x-hidden">
