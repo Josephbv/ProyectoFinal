@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Plus, Search, ShoppingCart, Calendar, Edit, Trash2, User, DollarSign, Stethoscope, Eye } from "lucide-react";
 import { useVentas, Venta, VentaServicio } from "../hooks/useVentas";
 import { VentaModal } from "../modals/VentaModal";
+import { ConfirmDeleteDialog } from "../ui/ConfirmDeleteDialog";
 
 interface VentasPageProps {
   onNewSale?: () => void;
@@ -243,32 +244,14 @@ export function VentasPage({ onNewSale }: VentasPageProps) {
         readOnly={ventaModal.readOnly}
       />
 
-      <AlertDialog open={anularDialog.isOpen} onOpenChange={() => setAnularDialog({ isOpen: false, venta: null })}>
-        <AlertDialogContent className="bg-dark-card border-dark-color">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-dark-primary flex items-center gap-2">
-              <Trash2 className="w-5 h-5 text-red-400" />
-              ¿Anular Factura?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-dark-secondary">
-              Estás a punto de anular la factura #{anularDialog.venta?.id_venta.toString().padStart(5, '0')}.
-              Toma en cuenta que esto cambiará el estado de la factura a 'ANULADA' y no podrá revertirse.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-dark-color text-dark-secondary hover:bg-dark-hover">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleAnularVenta}
-              className="bg-red-600 text-white hover:bg-red-700 font-bold"
-              disabled={loading}
-            >
-              Confirmar Anulación
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        isOpen={anularDialog.isOpen}
+        onClose={() => setAnularDialog({ isOpen: false, venta: null })}
+        onConfirm={handleAnularVenta}
+        title="¿Anular Factura?"
+        description={`¿Estas seguro de anular la factura #${anularDialog.venta?.id_venta.toString().padStart(5, '0')}? Esta acción no se puede deshacer.`}
+        loading={loading}
+      />
     </>
   );
 }

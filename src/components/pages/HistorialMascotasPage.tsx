@@ -14,6 +14,7 @@ import { useEmpleados } from "../hooks/useEmpleados";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
+import { ConfirmDeleteDialog } from "../ui/ConfirmDeleteDialog";
 const toSentenceCase = (str: string = '') => {
   if (!str) return '';
   const s = str.trim().toLowerCase();
@@ -32,7 +33,7 @@ export function HistorialMascotasPage() {
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, entrada: null as HistorialMascota | null });
 
   // Nuevo flujo de navegación
-  const [pasoActual, setPasoActual] = useState<'cliente' | 'mascota' | 'timeline' | 'formulario' | 'detalles' | 'reporteCompleto'>('cliente');
+  const [pasoActual, setPasoActual] = useState<'inicio' | 'cliente' | 'mascota' | 'timeline' | 'formulario' | 'detalles' | 'reporteCompleto'>('inicio');
   const [clienteSeleccionado, setClienteSeleccionado] = useState<any | null>(null);
   const [mascotaSeleccionada, setMascotaSeleccionada] = useState<any | null>(null);
   const [entradaSeleccionada, setEntradaSeleccionada] = useState<HistorialMascota | null>(null);
@@ -814,72 +815,14 @@ export function HistorialMascotasPage() {
       </div>
     );
   };
-
-  const renderSeleccionCliente = () => {
-    const clientesFiltrados = clientes.filter(c =>
-      (c.cedula || '').toLowerCase().includes(busqueda.toLowerCase()) ||
-      (c.nombre || '').toLowerCase().includes(busqueda.toLowerCase())
-    );
-
+  const renderInicio = () => {
     return (
       <div className="p-8 space-y-8 animate-in fade-in duration-500">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-black text-dark-primary tracking-tighter mb-4 text-center w-full">Selección de cliente</h1>
-            <p className="text-dark-secondary text-lg max-w-xl mx-auto">Busca al responsable por su número de cédula en tiempo real.</p>
-          </div>
-
-          <div className="flex items-center gap-4 bg-dark-card border border-dark-color rounded-[2rem] shadow-2xl focus-within:border-blue-500/50 focus-within:ring-4 focus-within:ring-blue-500/5 transition-all mb-8 max-w-4xl mx-auto px-6 overflow-hidden">
-            <Search className="w-8 h-8 text-dark-secondary shrink-0" />
-            <Input
-              placeholder="Buscar por cédula, cliente o contenido del historial..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="h-20 border-none bg-transparent text-xl text-dark-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-dark-secondary/50 shadow-none"
-            />
-          </div>
-
-          {/* Resultados de búsqueda de clientes */}
-          {busqueda && (
-            <div className="space-y-6 max-w-4xl mx-auto">
-              <h3 className="text-xs font-black text-dark-secondary  tracking-[0.3em] pl-6 opacity-50">Clientes Encontrados</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {clientesFiltrados.map(cliente => (
-                  <button
-                    key={cliente.id_cliente}
-                    onClick={() => {
-                      setClienteSeleccionado(cliente);
-                      setPasoActual('mascota');
-                      setBusqueda('');
-                    }}
-                    className="flex items-center gap-6 p-6 bg-dark-card border border-dark-color rounded-[2rem] hover:border-blue-500/40 hover:bg-dark-hover transition-all text-left group shadow-lg"
-                  >
-                    <div className="w-16 h-16 rounded-3xl bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                      <User className="w-8 h-8 text-blue-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-black text-dark-primary  truncate group-hover:text-blue-400 transition-colors">{cliente.nombre}</h3>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-[10px] font-black text-dark-secondary  tracking-widest bg-dark-hover px-2 py-1 rounded-lg">ID: {cliente.cedula || 'N/A'}</span>
-                        <span className="text-[10px] font-black text-emerald-400  tracking-widest">{cliente.telefono || 'Sin telf.'}</span>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-6 h-6 text-dark-secondary group-hover:translate-x-1 transition-transform" />
-                  </button>
-                ))}
-                {clientesFiltrados.length === 0 && (
-                  <div className="col-span-full text-center py-10 bg-dark-card/30 rounded-[2rem] border border-dashed border-dark-color">
-                    <p className="text-dark-secondary">No se encontró ningún cliente con esa búsqueda.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
+        <div className="max-w-6xl mx-auto space-y-8">
           {/* Tabla Global de Historial Médicos */}
-          <div className="space-y-6 pt-12 border-t border-dark-color/30">
+          <div className="space-y-6 pt-0">
             <div className="flex items-center justify-between px-6">
-              <h3 className="text-xl font-black text-dark-primary  tracking-tight flex items-center gap-3">
+              <h3 className="text-xl font-black text-dark-primary tracking-tight flex items-center gap-3">
                 <FileText className="w-6 h-6 text-blue-500" />
                 Registros históricos recientes
               </h3>
@@ -1029,6 +972,88 @@ export function HistorialMascotasPage() {
                       <ChevronsRight className="w-4 h-4" />
                     </Button>
                   </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderSeleccionCliente = () => {
+    // Solo mostramos clientes si hay algo en la búsqueda
+    // La cédula busca coincidencias al INICIO para mayor precisión
+    const clientesFiltrados = busqueda.trim() === ''
+      ? []
+      : clientes.filter(c =>
+        (c.cedula || '').toLowerCase().startsWith(busqueda.toLowerCase()) ||
+        (c.nombre || '').toLowerCase().includes(busqueda.toLowerCase())
+      );
+
+    return (
+      <div className="p-8 space-y-8 animate-in slide-in-from-right duration-500">
+        <div className="max-w-6xl mx-auto space-y-12">
+          <div className="flex items-center justify-between mb-8">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setPasoActual('inicio');
+                setBusqueda('');
+              }}
+              className="text-dark-secondary hover:bg-dark-hover gap-2 font-black tracking-widest"
+            >
+              <ChevronLeft className="w-4 h-4" /> Cancelar y volver
+            </Button>
+          </div>
+
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-black text-dark-primary tracking-tighter mb-4 text-center w-full">Selección de cliente</h1>
+            <p className="text-dark-secondary text-lg max-w-xl mx-auto">Busca al responsable por su número de cédula o nombre para iniciar el registro.</p>
+          </div>
+
+          <div className="flex items-center gap-4 bg-dark-card border border-dark-color rounded-[2rem] shadow-2xl focus-within:border-blue-500/50 focus-within:ring-4 focus-within:ring-blue-500/5 transition-all mb-8 max-w-4xl mx-auto px-6 overflow-hidden">
+            <Search className="w-6 h-6 text-dark-secondary shrink-0" />
+            <Input
+              placeholder="Buscar por cédula o nombre del cliente..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="h-14 border-none bg-transparent text-xl text-dark-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-dark-secondary/50 shadow-none"
+            />
+          </div>
+
+          <div className="space-y-6 max-w-4xl mx-auto">
+            <h3 className="text-xs font-black text-dark-secondary tracking-[0.3em] pl-6 opacity-50 uppercase">
+              {busqueda ? 'Resultados de búsqueda' : 'Todos los clientes'}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {clientesFiltrados.map(cliente => (
+                <button
+                  key={cliente.id_cliente}
+                  onClick={() => {
+                    setClienteSeleccionado(cliente);
+                    setPasoActual('mascota');
+                    setBusqueda('');
+                  }}
+                  className="flex items-center gap-6 p-6 bg-dark-card border border-dark-color rounded-[2rem] hover:border-blue-500/40 hover:bg-dark-hover transition-all text-left group shadow-lg"
+                >
+                  <div className="w-16 h-16 rounded-3xl bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <User className="w-8 h-8 text-blue-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xl font-black text-dark-primary truncate group-hover:text-blue-400 transition-colors">{cliente.nombre}</h3>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-[10px] font-black text-dark-secondary tracking-widest bg-dark-hover px-2 py-1 rounded-lg">ID: {cliente.cedula || 'N/A'}</span>
+                      <span className="text-[10px] font-black text-emerald-400 tracking-widest">{cliente.telefono || 'Sin telf.'}</span>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-dark-secondary group-hover:translate-x-1 transition-transform" />
+                </button>
+              ))}
+              {clientesFiltrados.length === 0 && (
+                <div className="col-span-full text-center py-20 bg-dark-card/30 rounded-[2rem] border border-dashed border-dark-color">
+                  <User className="w-12 h-12 text-dark-secondary/20 mx-auto mb-4" />
+                  <p className="text-dark-secondary">No se encontró ningún cliente con esa búsqueda.</p>
                 </div>
               )}
             </div>
@@ -1343,6 +1368,8 @@ export function HistorialMascotasPage() {
 
   const renderContenido = () => {
     switch (pasoActual) {
+      case 'inicio':
+        return renderInicio();
       case 'cliente':
         return renderSeleccionCliente();
       case 'mascota':
@@ -1352,11 +1379,11 @@ export function HistorialMascotasPage() {
       case 'formulario':
         return renderFormularioHistorial();
       case 'detalles':
-        return entradaSeleccionada ? renderReporteDetallado(entradaSeleccionada) : renderSeleccionCliente();
+        return entradaSeleccionada ? renderReporteDetallado(entradaSeleccionada) : renderInicio();
       case 'reporteCompleto':
-        return entradaSeleccionada ? renderReporteCompleto(entradaSeleccionada.id_mascota) : renderSeleccionCliente();
+        return entradaSeleccionada ? renderReporteCompleto(entradaSeleccionada.id_mascota) : renderInicio();
       default:
-        return renderSeleccionCliente();
+        return renderInicio();
     }
   };
 
@@ -1364,42 +1391,59 @@ export function HistorialMascotasPage() {
     <div className="flex flex-col bg-[#0a0b0c]">
       {!['formulario', 'detalles', 'reporteCompleto'].includes(pasoActual) && (
         <header className="px-10 py-6 border-b border-dark-color bg-dark-bg shrink-0">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-12">
+            <div className="shrink-0">
               <div className="flex items-center gap-3">
                 <ClipboardPlus className="w-6 h-6 text-blue-500" />
                 <h1 className="text-2xl font-black text-dark-primary  tracking-tighter">Historial Mascotas</h1>
               </div>
               <div className="flex items-center gap-4 mt-1">
-                <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
-                  <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'cliente' ? 'bg-blue-500' : 'bg-dark-color'}`} />
-                  <span className={pasoActual === 'cliente' ? 'text-blue-400' : 'text-dark-secondary'}>Cliente</span>
-                </div>
-                <ChevronRight className="w-3 h-3 text-dark-color" />
-                <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
-                  <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'mascota' ? 'bg-pink-500' : 'bg-dark-color'}`} />
-                  <span className={pasoActual === 'mascota' ? 'text-pink-400' : 'text-dark-secondary'}>Mascota</span>
-                </div>
-                <ChevronRight className="w-3 h-3 text-dark-color" />
-                <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
-                  <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'timeline' ? 'bg-emerald-500' : 'bg-dark-color'}`} />
-                  <span className={pasoActual === 'timeline' ? 'text-emerald-400' : 'text-dark-secondary'}>Historial</span>
-                </div>
+                {pasoActual !== 'inicio' && (
+                  <>
+                    <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
+                      <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'cliente' ? 'bg-blue-500' : 'bg-dark-color'}`} />
+                      <span className={pasoActual === 'cliente' ? 'text-blue-400' : 'text-dark-secondary'}>Cliente</span>
+                    </div>
+                    <ChevronRight className="w-3 h-3 text-dark-color" />
+                    <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
+                      <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'mascota' ? 'bg-pink-500' : 'bg-dark-color'}`} />
+                      <span className={pasoActual === 'mascota' ? 'text-pink-400' : 'text-dark-secondary'}>Mascota</span>
+                    </div>
+                    <ChevronRight className="w-3 h-3 text-dark-color" />
+                    <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
+                      <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'timeline' ? 'bg-emerald-500' : 'bg-dark-color'}`} />
+                      <span className={pasoActual === 'timeline' ? 'text-emerald-400' : 'text-dark-secondary'}>Historial</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              {(pasoActual !== 'cliente') && (
+            {/* Buscador Integrado en el Encabezado */}
+            {pasoActual === 'inicio' && (
+              <div className="flex-1 max-w-xl group">
+                <div className="relative flex items-center bg-dark-card border border-dark-color rounded-2xl focus-within:border-blue-500/50 focus-within:ring-4 focus-within:ring-blue-500/5 transition-all shadow-inner px-4 overflow-hidden">
+                  <Search className="w-4 h-4 text-dark-secondary shrink-0 opacity-40 group-focus-within:opacity-100 transition-opacity" />
+                  <Input
+                    placeholder="Buscar historial..."
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    className="h-11 border-none bg-transparent text-xs font-bold text-dark-primary focus-visible:ring-0 placeholder:text-dark-secondary/30 shadow-none w-full"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center gap-4 shrink-0">
+              {pasoActual === 'inicio' && (
                 <Button
-                  variant="outline"
                   onClick={() => {
                     setPasoActual('cliente');
-                    setClienteSeleccionado(null);
-                    setMascotaSeleccionada(null);
+                    setBusqueda('');
                   }}
-                  className="border-dark-color text-dark-secondary hover:bg-dark-hover rounded-2xl h-12 font-black text-xs tracking-widest px-6 transition-all active:scale-95"
+                  className="bg-blue-600 hover:bg-blue-500 text-white font-black tracking-widest px-6 rounded-2xl h-11 shadow-lg shadow-blue-500/20 gap-2 transition-all active:scale-95"
                 >
-                  Reiniciar
+                  <Plus className="w-4 h-4" /> Nuevo
                 </Button>
               )}
             </div>
@@ -1409,40 +1453,15 @@ export function HistorialMascotasPage() {
 
       {renderContenido()}
 
-      <AlertDialog open={deleteDialog.isOpen} onOpenChange={() => setDeleteDialog({ isOpen: false, entrada: null })}>
-        <AlertDialogContent className="bg-gradient-to-br from-[#0f1113] to-[#0a0b0c] border border-red-500/20 rounded-[2.5rem] p-12 shadow-2xl overflow-hidden max-w-md w-full sm:max-w-md mx-auto relative">
-          {/* Fondo decorativo */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+      {/* Alerta de Confirmación de Eliminación Reutilizable */}
+      <ConfirmDeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, entrada: null })}
+        onConfirm={handleEliminarEntrada}
+        title="¿Eliminar registro?"
+        description="Esta acción borrará el registro para siempre y no se podrá deshacer."
+      />
 
-          <div className="flex flex-col items-center text-center relative z-10 w-full">
-            <div className="w-20 h-20 bg-red-500/10 rounded-[2rem] flex items-center justify-center mb-6 border border-red-500/20 relative group">
-              <div className="absolute inset-0 bg-red-500/20 rounded-[2rem] blur-xl group-hover:blur-2xl transition-all opacity-50" />
-              <Trash2 className="w-10 h-10 text-red-500 relative z-10" />
-            </div>
-
-            <AlertDialogHeader className="w-full">
-              <AlertDialogTitle className="text-3xl font-black text-white tracking-tighter mb-4 text-center w-full">
-                ¿Eliminar registro?
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-slate-400 text-sm font-medium leading-relaxed tracking-wide text-center">
-                Esta acción es <strong className="text-red-400 font-bold">irreversible</strong>. El historial médico seleccionado será eliminado de forma permanente y no podrá ser recuperado.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-
-            <AlertDialogFooter className="w-full mt-10 gap-3 flex flex-col sm:flex-row sm:space-x-3">
-              <AlertDialogCancel className="w-full sm:w-1/2 bg-[#1a1c20] hover:bg-[#25282e] text-slate-300 border-slate-700 h-14 rounded-2xl font-black text-xs tracking-widest transition-all mt-0 sm:mt-0">
-                Conservar
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleEliminarEntrada}
-                className="w-full sm:w-1/2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white h-14 rounded-2xl font-black text-xs tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] border border-red-500/50 transition-all mt-3 sm:mt-0"
-              >
-                Sí, eliminar
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

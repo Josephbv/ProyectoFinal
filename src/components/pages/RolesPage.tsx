@@ -8,6 +8,7 @@ import { Shield, Plus, Search, Users, Eye, Edit, Trash2, Lock, CheckCircle, XCir
 import { Switch } from "../ui/switch";
 import { RolModal } from "../modals/RolModal";
 import { useRoles, Rol } from "../hooks/useRoles";
+import { ConfirmDeleteDialog } from "../ui/ConfirmDeleteDialog";
 
 export function RolesPage() {
   const { roles, loading, crearRol, actualizarRol, eliminarRol, toggleActivoRol } = useRoles();
@@ -390,30 +391,14 @@ export function RolesPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Confirmación de Eliminación */}
-      <AlertDialog open={deleteDialog.isOpen} onOpenChange={() => setDeleteDialog({ isOpen: false, rol: null })}>
-        <AlertDialogContent className="bg-dark-card border-dark-color">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-dark-primary">¿Eliminar Rol?</AlertDialogTitle>
-            <AlertDialogDescription className="text-dark-secondary">
-              ¿Estás seguro de que deseas eliminar el rol "{deleteDialog.rol?.nombre}"?
-              Esta acción no se puede deshacer y afectará a los usuarios que tengan este rol asignado.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-dark-color text-dark-secondary hover:bg-dark-hover">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleEliminarRol}
-              className="bg-red-600 text-white hover:bg-red-700"
-              disabled={loading}
-            >
-              Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, rol: null })}
+        onConfirm={handleEliminarRol}
+        title="¿Eliminar Rol?"
+        description={`¿Estás seguro de eliminar el rol "${deleteDialog.rol?.nombre}"? Esta acción afectará a todos los usuarios vinculados.`}
+        loading={loading}
+      />
     </>
   );
 }

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { User, Plus, Search, Edit, Trash2, Briefcase, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, Phone, Mail, Shield } from "lucide-react";
 import { useEmpleados, Empleado } from "../hooks/useEmpleados";
 import { EmpleadoModal } from "../modals/EmpleadoModal";
+import { ConfirmDeleteDialog } from "../ui/ConfirmDeleteDialog";
 
 export function EmpleadosPage() {
     const { empleados, loading, crearEmpleado, actualizarEmpleado, eliminarEmpleado, buscarEmpleados } = useEmpleados();
@@ -244,29 +245,14 @@ export function EmpleadosPage() {
                 readOnly={empleadoModal.readOnly}
             />
 
-            <AlertDialog open={deleteDialog.isOpen} onOpenChange={() => setDeleteDialog({ isOpen: false, empleado: null })}>
-                <AlertDialogContent className="bg-dark-card border-dark-color">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle className="text-dark-primary text-xl font-bold">¿Eliminar Empleado?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-dark-secondary">
-                            Estás a punto de eliminar a <strong>{deleteDialog.empleado?.nombre}</strong>.
-                            Esta acción es irreversible.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel className="border-dark-color text-dark-secondary hover:bg-dark-hover">
-                            Cancelar
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleEliminarEmpleado}
-                            className="bg-red-600 text-white hover:bg-red-700 font-bold"
-                            disabled={loading}
-                        >
-                            Confirmar Eliminación
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <ConfirmDeleteDialog
+                isOpen={deleteDialog.isOpen}
+                onClose={() => setDeleteDialog({ isOpen: false, empleado: null })}
+                onConfirm={handleEliminarEmpleado}
+                title="¿Eliminar Empleado?"
+                description={`¿Estás seguro de eliminar a ${deleteDialog.empleado?.nombre}? Esta acción es irreversible.`}
+                loading={loading}
+            />
         </>
     );
 }

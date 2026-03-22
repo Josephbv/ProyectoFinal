@@ -8,6 +8,7 @@ import { ClienteModal } from "../modals/ClienteModal";
 import { MascotaModal } from "../modals/MascotaModal";
 import { useClientes, Cliente } from "../hooks/useClientes";
 import { useMascotas } from "../hooks/useMascotas";
+import { ConfirmDeleteDialog } from "../ui/ConfirmDeleteDialog";
 
 export function ClientesPage() {
   const { clientes, loading, crearCliente, actualizarCliente, eliminarCliente } = useClientes();
@@ -302,29 +303,14 @@ export function ClientesPage() {
         loading={loading}
       />
 
-      <AlertDialog open={deleteDialog.isOpen} onOpenChange={() => setDeleteDialog({ isOpen: false, cliente: null })}>
-        <AlertDialogContent className="bg-dark-card border-dark-color">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-dark-primary">¿Eliminar Cliente?</AlertDialogTitle>
-            <AlertDialogDescription className="text-dark-secondary">
-              ¿Estás seguro de que deseas eliminar el cliente "{deleteDialog.cliente?.nombre}"?
-              Esta acción también eliminará toda la información relacionada con sus mascotas y ventas.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-dark-color text-dark-secondary hover:bg-dark-hover">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleEliminarCliente}
-              className="bg-red-600 text-white hover:bg-red-700"
-              disabled={loading}
-            >
-              Eliminar Cliente
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, cliente: null })}
+        onConfirm={handleEliminarCliente}
+        title="¿Eliminar Cliente?"
+        description={`¿Estás seguro de eliminar a ${deleteDialog.cliente?.nombre}? Se borrará toda su información y mascotas asociadas.`}
+        loading={loading}
+      />
     </>
   );
 }

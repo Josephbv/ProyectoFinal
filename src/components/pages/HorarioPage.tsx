@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { toast } from "sonner";
 import { Clock, Users, Plus, Search, Filter, User, Calendar, CheckCircle, Edit, Trash2, Eye, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useHorario, Horario } from "../hooks/useHorario";
+import { ConfirmDeleteDialog } from "../ui/ConfirmDeleteDialog";
 
 interface HorarioPageProps {
   onNewHorario?: () => void;
@@ -522,30 +523,14 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Confirmación de Eliminación */}
-      <AlertDialog open={deleteDialog.isOpen} onOpenChange={() => setDeleteDialog({ isOpen: false, horario: null })}>
-        <AlertDialogContent className="bg-dark-card border-dark-color">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-dark-primary">¿Eliminar Horario?</AlertDialogTitle>
-            <AlertDialogDescription className="text-dark-secondary">
-              ¿Estás seguro de que deseas eliminar el horario de "{deleteDialog.horario?.empleado?.nombre}"?
-              Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-dark-color text-dark-secondary hover:bg-dark-hover">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleEliminarHorario}
-              className="bg-red-600 text-white hover:bg-red-700"
-              disabled={loading}
-            >
-              Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, horario: null })}
+        onConfirm={handleEliminarHorario}
+        title="¿Eliminar Horario?"
+        description={`¿Estás seguro de eliminar el horario de "${deleteDialog.horario?.empleado?.nombre}"? Esta acción no se puede deshacer.`}
+        loading={loading}
+      />
     </>
   );
 }

@@ -7,6 +7,7 @@ import { Dog, Plus, Search, Eye, Edit, Trash2, User, ChevronLeft, ChevronRight, 
 import { MascotaModal } from "../modals/MascotaModal";
 import { useMascotas, Mascota } from "../hooks/useMascotas";
 import { useClientes } from "../hooks/useClientes";
+import { ConfirmDeleteDialog } from "../ui/ConfirmDeleteDialog";
 
 export function MascotasPage() {
   const { mascotas, loading, crearMascota, actualizarMascota, eliminarMascota } = useMascotas();
@@ -257,29 +258,14 @@ export function MascotasPage() {
         readOnly={mascotaModal.readOnly}
       />
 
-      <AlertDialog open={deleteDialog.isOpen} onOpenChange={() => setDeleteDialog({ isOpen: false, mascota: null })}>
-        <AlertDialogContent className="bg-dark-card border-dark-color">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-dark-primary">¿Eliminar Mascota?</AlertDialogTitle>
-            <AlertDialogDescription className="text-dark-secondary">
-              ¿Estás seguro de que deseas eliminar a "{deleteDialog.mascota?.nombre}"?
-              Esta acción eliminará el historial médico asociado.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-dark-color text-dark-secondary hover:bg-dark-hover">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleEliminarMascota}
-              className="bg-red-600 text-white hover:bg-red-700"
-              disabled={loading}
-            >
-              Eliminar Mascota
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, mascota: null })}
+        onConfirm={handleEliminarMascota}
+        title="¿Eliminar Mascota?"
+        description={`¿Estás seguro de eliminar a ${deleteDialog.mascota?.nombre}? Se perderá su historial médico permanentemente.`}
+        loading={loading}
+      />
     </>
   );
 }

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText, DollarSign } from "lucide-react";
 import { useAgendamiento, Agendamiento, AgendamientoServicio } from "../hooks/useAgendamiento";
 import { CitaModal } from "../modals/CitaModal";
+import { ConfirmDeleteDialog } from "../ui/ConfirmDeleteDialog";
 
 interface AgendamientoPageProps {
   onNavigate?: (page: string) => void;
@@ -279,29 +280,14 @@ export function AgendamientoPage({ onNavigate }: AgendamientoPageProps) {
         readOnly={citaModal.readOnly}
       />
 
-      <AlertDialog open={deleteDialog.isOpen} onOpenChange={() => setDeleteDialog({ isOpen: false, cita: null })}>
-        <AlertDialogContent className="bg-dark-card border-dark-color">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-dark-primary">¿Eliminar Cita?</AlertDialogTitle>
-            <AlertDialogDescription className="text-dark-secondary">
-              Estás a punto de eliminar la cita seleccionada del {deleteDialog.cita?.fecha}.
-              Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-dark-color text-dark-secondary hover:bg-dark-hover">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleEliminarCita}
-              className="bg-red-600 text-white hover:bg-red-700 font-bold"
-              disabled={loading}
-            >
-              Eliminar Cita
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, cita: null })}
+        onConfirm={handleEliminarCita}
+        title="¿Eliminar Cita?"
+        description={`¿Estás seguro de eliminar la cita del día ${deleteDialog.cita?.fecha}? Esta acción no se puede deshacer.`}
+        loading={loading}
+      />
     </>
   );
 }
