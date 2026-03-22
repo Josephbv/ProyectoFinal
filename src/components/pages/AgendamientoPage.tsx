@@ -3,11 +3,15 @@ import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog";
 import { toast } from "sonner";
-import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText } from "lucide-react";
+import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText, DollarSign } from "lucide-react";
 import { useAgendamiento, Agendamiento, AgendamientoServicio } from "../hooks/useAgendamiento";
 import { CitaModal } from "../modals/CitaModal";
 
-export function AgendamientoPage() {
+interface AgendamientoPageProps {
+  onNavigate?: (page: string) => void;
+}
+
+export function AgendamientoPage({ onNavigate }: AgendamientoPageProps) {
   const { citas, loading, agendarCita, actualizarCita, eliminarCita } = useAgendamiento();
 
   const [busqueda, setBusqueda] = useState("");
@@ -140,6 +144,9 @@ export function AgendamientoPage() {
                   <TableHead className="text-dark-primary font-semibold min-w-[250px]">
                     <div className="flex items-center gap-2"><Ticket className="w-4 h-4" />Servicios</div>
                   </TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center min-w-[100px]">
+                    <div className="flex items-center justify-center gap-2"><DollarSign className="w-4 h-4" />Pago</div>
+                  </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -163,6 +170,20 @@ export function AgendamientoPage() {
                     </TableCell>
                     <TableCell className="text-dark-secondary truncate max-w-[250px]" title={formatearServicios(cita.agendamiento_servicios)}>
                       {formatearServicios(cita.agendamiento_servicios)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-center">
+                        <Button
+                          onClick={() => onNavigate?.("Ventas")}
+                          variant="outline"
+                          size="sm"
+                          className="gap-1.5 bg-emerald-500/15 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/25 hover:border-emerald-400 transition-all duration-200"
+                          title="Ir a Ventas"
+                        >
+                          <DollarSign className="w-4 h-4" />
+                          <span className="text-xs font-medium">Pagar</span>
+                        </Button>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">

@@ -1,16 +1,16 @@
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { PawIcon } from "../PawIcon";
-import { 
-  ArrowRight, 
-  CheckCircle, 
-  Calendar, 
-  Users, 
-  ShoppingCart, 
-  ClipboardList, 
-  Clock, 
-  Shield, 
-  Zap, 
+import { PawIcon } from "../ui/PawIcon";
+import {
+  ArrowRight,
+  CheckCircle,
+  Calendar,
+  Users,
+  ShoppingCart,
+  ClipboardList,
+  Clock,
+  Shield,
+  Zap,
   BarChart3,
   Star,
   TrendingUp,
@@ -191,7 +191,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                       <div className="w-3 h-3 rounded-full bg-white/30"></div>
                     </div>
                   </div>
-                  
+
                   {/* Content */}
                   <div className="p-6 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
@@ -212,7 +212,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                         <div className="text-xs text-green-600">+18% este mes</div>
                       </div>
                     </div>
-                    
+
                     <div className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-blue-900 font-medium">Citas Hoy</span>
@@ -286,7 +286,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {modules.map((module, index) => (
-              <div 
+              <div
                 key={index}
                 className="bg-white border-2 border-blue-100 rounded-xl p-4 text-center hover:border-blue-400 hover:shadow-lg transition-all duration-300 group"
               >

@@ -12,7 +12,7 @@ import {
   Package, Clock, Filter, Download, ShoppingCart, MapPin, Stethoscope,
   Shield, Activity, FileText, Eye, AlertCircle, Bell, Loader2
 } from "lucide-react";
-import { CitasHoy } from "../CitasHoy";
+import { CitasHoy } from "../dashboard/CitasHoy";
 import { useVentas } from "../hooks/useVentas";
 import { useClientes } from "../hooks/useClientes";
 import { useAgendamiento } from "../hooks/useAgendamiento";

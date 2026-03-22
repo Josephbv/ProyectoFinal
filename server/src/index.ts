@@ -3,16 +3,16 @@ import cors from 'cors';
 import 'dotenv/config';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
-import clientesRoutes from './routes/clientes';
-import mascotasRoutes from './routes/mascotas';
-import authRoutes from './routes/auth';
-import ventasRoutes from './routes/ventas';
-import serviciosRoutes from './routes/servicios';
-import historialRoutes from './routes/historial';
-import empleadosRoutes from './routes/empleados';
-import horariosRoutes from './routes/horarios';
-import agendamientoRoutes from './routes/agendamiento';
-import rolesRoutes from './routes/roles';
+import clientesRoutes from './routes/api/clientes';
+import mascotasRoutes from './routes/api/mascotas';
+import authRoutes from './routes/api/auth';
+import ventasRoutes from './routes/api/ventas';
+import serviciosRoutes from './routes/api/servicios';
+import historialRoutes from './routes/api/historial';
+import empleadosRoutes from './routes/api/empleados';
+import horariosRoutes from './routes/api/horarios';
+import agendamientoRoutes from './routes/api/agendamiento';
+import rolesRoutes from './routes/api/roles';
 import usuariosRoutes from './routes/api/usuarios';
 
 // Solución para serializar Decimal de Prisma

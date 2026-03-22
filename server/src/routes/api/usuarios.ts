@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import prisma from '../../prismaClient';
+import prisma from '../../lib/prisma';
 import { sendResetCodeEmail, sendWelcomeEmail } from '../../services/mail.service';
 import bcrypt from 'bcryptjs';
 

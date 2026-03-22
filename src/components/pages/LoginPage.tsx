@@ -5,7 +5,7 @@ import { Label } from "../ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, CreditCard, ChevronRight, ArrowLeft, Shield } from "lucide-react";
-import { PawIcon } from "../PawIcon";
+import { PawIcon } from "../ui/PawIcon";
 import { useEmailAuth } from "../hooks/useEmailAuth";
 
 interface LoginPageProps {

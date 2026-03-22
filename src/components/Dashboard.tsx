@@ -21,7 +21,7 @@ import {
   Moon,
   Sun
 } from "lucide-react";
-import { PawIcon } from "./PawIcon";
+import { PawIcon } from "./ui/PawIcon";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -144,7 +144,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
       case "Clientes":
         return <ClientesPage />;
       case "Agendamiento":
-        return <AgendamientoPage />;
+        return <AgendamientoPage onNavigate={setActivePage} />;
       case "Horario":
         return <HorarioPage
           onNewHorario={() => { setHorarioAEditar(null); setActivePage("NuevoHorario"); }}
