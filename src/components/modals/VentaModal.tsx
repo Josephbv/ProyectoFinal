@@ -8,17 +8,19 @@ import { ShoppingCart, Calendar, User, DollarSign, Stethoscope, Trash2 } from 'l
 import { Venta, VentaServicio } from '../hooks/useVentas';
 import { useClientes } from '../hooks/useClientes';
 import { useServicios } from '../hooks/useServicios';
+import { Agendamiento } from '../hooks/useAgendamiento';
 
 interface VentaModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (venta: Partial<Venta>) => Promise<any>;
   venta?: Venta | null;
+  citaPrevia?: Agendamiento | null;
   loading?: boolean;
   readOnly?: boolean;
 }
 
-export function VentaModal({ isOpen, onClose, onSubmit, venta, loading, readOnly = false }: VentaModalProps) {
+export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loading, readOnly = false }: VentaModalProps) {
   const { clientes } = useClientes();
   const { servicios } = useServicios();
 
@@ -61,17 +63,36 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, loading, readOnly
     setErrors({});
   }, [venta, isOpen]); // Quitado 'servicios' para evitar resets innecesarios
 
-  // Resetear formulario al abrir para nueva venta
+  // Resetear formulario al abrir para nueva venta o pre-cargar de cita
   useEffect(() => {
     if (isOpen && !venta) {
-      setFormData({
-        fecha: new Date().toISOString().split('T')[0],
-        id_cliente: '',
-        total: 0,
-        venta_servicios: []
-      });
+      if (citaPrevia) {
+        // Mapear los servicios de la cita al formato de la venta
+        const serviciosCargar = (citaPrevia.agendamiento_servicios || []).map(as => {
+          const sInfo = servicios.find(s => s.id_servicio === as.id_servicio);
+          return {
+            id_servicio: as.id_servicio,
+            cantidad: 1,
+            precio_unitario: sInfo?.precio || 0
+          };
+        });
+
+        setFormData({
+          fecha: new Date().toISOString().split('T')[0],
+          id_cliente: citaPrevia.id_cliente?.toString() || '',
+          total: serviciosCargar.reduce((acc, s) => acc + s.precio_unitario, 0),
+          venta_servicios: serviciosCargar
+        });
+      } else {
+        setFormData({
+          fecha: new Date().toISOString().split('T')[0],
+          id_cliente: '',
+          total: 0,
+          venta_servicios: []
+        });
+      }
     }
-  }, [isOpen, venta]);
+  }, [isOpen, venta, citaPrevia, servicios]);
   useEffect(() => {
     const nuevoTotal = formData.venta_servicios.reduce((sum, item) => sum + (item.cantidad * item.precio_unitario), 0);
     setFormData(prev => ({ ...prev, total: nuevoTotal }));
@@ -149,8 +170,8 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, loading, readOnly
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl bg-dark-card border-dark-color border-opacity-50">
-        <DialogHeader className="border-b border-dark-color pb-4">
+      <DialogContent className="max-w-3xl bg-dark-card border-dark-color border-opacity-50 max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="border-b border-dark-color p-6 pb-4">
           <DialogTitle className="text-xl font-bold text-dark-primary flex items-center gap-2">
             <div className="p-2 bg-emerald-500/10 rounded-lg">
               <ShoppingCart className="w-5 h-5 text-emerald-400" />
@@ -162,125 +183,127 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, loading, readOnly
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Cliente */}
-            <div className="space-y-2">
-              <Label className="text-dark-primary flex items-center gap-1.5"><User className="w-4 h-4 text-blue-400" />Cliente *</Label>
-              <Select value={formData.id_cliente} onValueChange={(val: string) => handleChange('id_cliente', val)} disabled={readOnly}>
-                <SelectTrigger className="bg-dark-hover border-dark-color text-dark-primary h-10">
-                  <SelectValue placeholder="Seleccionar cliente..." />
-                </SelectTrigger>
-                <SelectContent className="bg-dark-card border-dark-color">
-                  {clientes.map(c => (
-                    <SelectItem key={c.id_cliente} value={c.id_cliente.toString()}>
-                      {c.nombre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.id_cliente && <p className="text-red-400 text-xs">{errors.id_cliente}</p>}
-            </div>
-
-            {/* Fecha */}
-            <div className="space-y-2">
-              <Label className="text-dark-primary flex items-center gap-1.5"><Calendar className="w-4 h-4 text-pink-400" />Fecha *</Label>
-              <Input
-                type="date"
-                value={formData.fecha}
-                onChange={(e) => handleChange('fecha', e.target.value)}
-                className="bg-dark-hover border-dark-color h-10"
-                readOnly={readOnly}
-              />
-              {errors.fecha && <p className="text-red-400 text-xs">{errors.fecha}</p>}
-            </div>
-          </div>
-
-          {/* Selector de Servicios */}
-          <div className="space-y-4 pt-4 border-t border-dark-color">
-            <Label className="text-dark-primary flex items-center gap-1.5 text-base">
-              <Stethoscope className="w-5 h-5 text-emerald-400" />
-              {readOnly ? 'Servicios Facturados' : 'Servicios a Facturar'}
-            </Label>
-
-            {!readOnly && (
-              <>
-                <Select onValueChange={agregarServicio}>
-                  <SelectTrigger className="bg-dark-hover border-emerald-500/30 text-dark-primary h-12">
-                    <SelectValue placeholder="Agregar un servicio a la venta..." />
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Cliente */}
+              <div className="space-y-2">
+                <Label className="text-dark-primary flex items-center gap-1.5"><User className="w-4 h-4 text-blue-400" />Cliente *</Label>
+                <Select value={formData.id_cliente} onValueChange={(val: string) => handleChange('id_cliente', val)} disabled={readOnly || !!citaPrevia}>
+                  <SelectTrigger className="bg-dark-hover border-dark-color text-dark-primary h-10">
+                    <SelectValue placeholder="Seleccionar cliente..." />
                   </SelectTrigger>
                   <SelectContent className="bg-dark-card border-dark-color">
-                    {servicios.map(s => (
-                      <SelectItem key={s.id_servicio} value={s.id_servicio.toString()} disabled={formData.venta_servicios.some(vs => vs.id_servicio === s.id_servicio)}>
-                        {s.nombre_servicio} - ${s.precio.toLocaleString()}
+                    {clientes.map(c => (
+                      <SelectItem key={c.id_cliente} value={c.id_cliente.toString()}>
+                        {c.nombre}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.servicios && <p className="text-red-400 text-sm font-semibold">{errors.servicios}</p>}
-              </>
-            )}
-
-            {/* Lista de Servicios en la Venta */}
-            {formData.venta_servicios.length > 0 && (
-              <div className="space-y-3 mt-4">
-                {formData.venta_servicios.map(item => {
-                  const s_info = servicios.find(s => s.id_servicio === item.id_servicio);
-                  return (
-                    <div key={item.id_servicio} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-dark-hover/50 border border-dark-color gap-3">
-                      <div className="flex-1">
-                        <span className="text-sm font-medium text-dark-primary">{s_info?.nombre_servicio || 'Servicio Desconocido'}</span>
-                        <div className="text-xs text-dark-secondary">${item.precio_unitario.toLocaleString()} c/u</div>
-                      </div>
-
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 bg-dark-bg rounded-lg border border-dark-color p-1">
-                          <Button
-                            type="button" variant="ghost" size="sm"
-                            onClick={() => actualizarCantidad(item.id_servicio, item.cantidad - 1)}
-                            className="h-6 w-6 p-0 text-dark-secondary hover:text-white"
-                            disabled={readOnly}
-                          >-</Button>
-                          <span className="text-sm text-dark-primary w-6 text-center font-medium">{item.cantidad}</span>
-                          <Button
-                            type="button" variant="ghost" size="sm"
-                            onClick={() => actualizarCantidad(item.id_servicio, item.cantidad + 1)}
-                            className="h-6 w-6 p-0 text-dark-secondary hover:text-white"
-                            disabled={readOnly}
-                          >+</Button>
-                        </div>
-
-                        <div className="w-24 text-right">
-                          <span className="text-emerald-400 font-bold">${(item.cantidad * item.precio_unitario).toLocaleString()}</span>
-                        </div>
-
-                        {!readOnly && (
-                          <Button
-                            type="button" variant="ghost" size="sm"
-                            onClick={() => quitarServicio(item.id_servicio)}
-                            className="h-8 w-8 p-0 text-red-400 hover:bg-red-500/20"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+                {errors.id_cliente && <p className="text-red-400 text-xs">{errors.id_cliente}</p>}
               </div>
-            )}
+
+              {/* Fecha */}
+              <div className="space-y-2">
+                <Label className="text-dark-primary flex items-center gap-1.5"><Calendar className="w-4 h-4 text-pink-400" />Fecha *</Label>
+                <Input
+                  type="date"
+                  value={formData.fecha}
+                  onChange={(e) => handleChange('fecha', e.target.value)}
+                  className="bg-dark-hover border-dark-color h-10"
+                  readOnly={readOnly}
+                />
+                {errors.fecha && <p className="text-red-400 text-xs">{errors.fecha}</p>}
+              </div>
+            </div>
+
+            {/* Selector de Servicios */}
+            <div className="space-y-4 pt-4 border-t border-dark-color">
+              <Label className="text-dark-primary flex items-center gap-1.5 text-base">
+                <Stethoscope className="w-5 h-5 text-emerald-400" />
+                {readOnly ? 'Servicios Facturados' : 'Servicios a Facturar'}
+              </Label>
+
+              {!readOnly && (
+                <>
+                  <Select onValueChange={agregarServicio}>
+                    <SelectTrigger className="bg-dark-hover border-emerald-500/30 text-dark-primary h-12">
+                      <SelectValue placeholder="Agregar un servicio a la venta..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-dark-card border-dark-color">
+                      {servicios.map(s => (
+                        <SelectItem key={s.id_servicio} value={s.id_servicio.toString()} disabled={formData.venta_servicios.some(vs => vs.id_servicio === s.id_servicio)}>
+                          {s.nombre_servicio} - ${s.precio.toLocaleString()}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.servicios && <p className="text-red-400 text-sm font-semibold">{errors.servicios}</p>}
+                </>
+              )}
+
+              {/* Lista de Servicios en la Venta */}
+              {formData.venta_servicios.length > 0 && (
+                <div className="space-y-3 mt-4">
+                  {formData.venta_servicios.map(item => {
+                    const s_info = servicios.find(s => s.id_servicio === item.id_servicio);
+                    return (
+                      <div key={item.id_servicio} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-dark-hover/50 border border-dark-color gap-3">
+                        <div className="flex-1">
+                          <span className="text-sm font-medium text-dark-primary">{s_info?.nombre_servicio || 'Servicio Desconocido'}</span>
+                          <div className="text-xs text-dark-secondary">${item.precio_unitario.toLocaleString()} c/u</div>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2 bg-dark-bg rounded-lg border border-dark-color p-1">
+                            <Button
+                              type="button" variant="ghost" size="sm"
+                              onClick={() => actualizarCantidad(item.id_servicio, item.cantidad - 1)}
+                              className="h-6 w-6 p-0 text-dark-secondary hover:text-white"
+                              disabled={readOnly}
+                            >-</Button>
+                            <span className="text-sm text-dark-primary w-6 text-center font-medium">{item.cantidad}</span>
+                            <Button
+                              type="button" variant="ghost" size="sm"
+                              onClick={() => actualizarCantidad(item.id_servicio, item.cantidad + 1)}
+                              className="h-6 w-6 p-0 text-dark-secondary hover:text-white"
+                              disabled={readOnly}
+                            >+</Button>
+                          </div>
+
+                          <div className="w-24 text-right">
+                            <span className="text-emerald-400 font-bold">${(item.cantidad * item.precio_unitario).toLocaleString()}</span>
+                          </div>
+
+                          {!readOnly && (
+                            <Button
+                              type="button" variant="ghost" size="sm"
+                              onClick={() => quitarServicio(item.id_servicio)}
+                              className="h-8 w-8 p-0 text-red-400 hover:bg-red-500/20"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Totales */}
-          <div className="bg-dark-hover/20 border border-dark-color rounded-xl p-4 flex justify-between items-center mt-6">
-            <span className="text-dark-secondary font-medium uppercase tracking-wider text-sm">Total de Venta</span>
-            <span className="text-3xl font-black text-emerald-400 flex items-center">
-              <DollarSign className="w-6 h-6 mr-1 opacity-70" />
+          {/* Totales - Fijo al fondo */}
+          <div className="bg-dark-bg border-t border-dark-color p-6 py-4 flex justify-between items-center">
+            <span className="text-dark-secondary font-medium uppercase tracking-wider text-xs">Total de Venta</span>
+            <span className="text-2xl font-black text-emerald-400 flex items-center">
+              <DollarSign className="w-5 h-5 mr-1 opacity-70" />
               {formData.total.toLocaleString()}
             </span>
           </div>
 
-          <DialogFooter className="gap-3 border-t border-dark-color pt-6 mt-4">
+          <DialogFooter className="gap-3 border-t border-dark-color p-6 pt-4 mt-auto">
             <button
               type="button"
               onClick={onClose}

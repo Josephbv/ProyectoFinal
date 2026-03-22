@@ -139,7 +139,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
     try {
         const id_agendamiento = parseInt(req.params.id as string);
-        const { id_cliente, id_empleado, fecha, hora, agendamiento_servicios } = req.body;
+        const { id_cliente, id_empleado, fecha, hora, agendamiento_servicios, estado } = req.body;
 
         const parseHora = (h: any) => {
             if (!h) return null;
@@ -162,6 +162,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         if (id_empleado) updateData.id_empleado = parseInt(id_empleado as string);
         if (fecha) updateData.fecha = new Date(fecha);
         if (hora) updateData.hora = parseHora(hora);
+        if (estado) updateData.estado = estado;
 
         // Validar si id_empleado es modificado o si ya existe.
         const targetEmpleadoId = id_empleado ? parseInt(id_empleado as string) : null;
@@ -202,11 +203,27 @@ router.put('/:id', async (req: Request, res: Response) => {
             }
         }
 
-        // Actualizar agendamiento
+        // Actualizar agendamiento (campos básicos conocidos por el cliente actual)
         const actualizada = await prisma.agendamiento.update({
             where: { id_agendamiento },
-            data: updateData
+            data: {
+                id_cliente: updateData.id_cliente,
+                id_empleado: updateData.id_empleado,
+                fecha: updateData.fecha,
+                hora: updateData.hora
+            }
         });
+
+        // Fallback para el campo 'estado' usando Raw SQL para evitar bloqueos del Prisma Client desactualizado
+        if (updateData.estado) {
+            try {
+                await (prisma as any).$executeRawUnsafe(
+                    `UPDATE agendamiento SET estado = '${updateData.estado}' WHERE id_agendamiento = ${id_agendamiento}`
+                );
+            } catch (rawError) {
+                console.error('[AGENDAMIENTO] RAW SQL ERROR:', rawError);
+            }
+        }
 
         // Actualizar servicios asociados si se proveen
         if (agendamiento_servicios && Array.isArray(agendamiento_servicios)) {

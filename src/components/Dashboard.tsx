@@ -78,6 +78,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
 
   // State for passing data to edit pages
   const [horarioAEditar, setHorarioAEditar] = useState<any>(null);
+  const [citaAPagar, setCitaAPagar] = useState<any>(null);
 
   // Filter nav items by user's allowed modules.
   // Fail-closed: If no modules are specified, only show "Dashboard" (or the first available).
@@ -140,11 +141,25 @@ export function Dashboard({ onLogout }: DashboardProps) {
       case "Dashboard":
         return <DashboardUnificado onNavigate={setActivePage} />;
       case "Ventas":
-        return <VentasPage onNewSale={() => setActivePage("NuevaVenta")} />;
+        return (
+          <VentasPage
+            onNewSale={() => setActivePage("NuevaVenta")}
+            citaAPagar={citaAPagar}
+            onVentaCerrada={() => setCitaAPagar(null)}
+          />
+        );
       case "Clientes":
         return <ClientesPage />;
       case "Agendamiento":
-        return <AgendamientoPage onNavigate={setActivePage} />;
+        return (
+          <AgendamientoPage
+            onNavigate={setActivePage}
+            onPagar={(cita) => {
+              setCitaAPagar(cita);
+              setActivePage("Ventas");
+            }}
+          />
+        );
       case "Horario":
         return <HorarioPage
           onNewHorario={() => { setHorarioAEditar(null); setActivePage("NuevoHorario"); }}

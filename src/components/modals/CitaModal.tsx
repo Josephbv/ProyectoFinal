@@ -93,6 +93,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
     if (!formData.id_empleado) newErrors.id_empleado = 'Selecciona un empleado';
     if (!formData.fecha) newErrors.fecha = 'La fecha es requerida';
     if (!formData.hora) newErrors.hora = 'La hora es requerida';
+    if (formData.serviciosSeleccionados.length === 0) newErrors.servicios = 'Debes seleccionar al menos un servicio';
 
     // Validación de día laboral
     if (formData.id_empleado && formData.fecha) {
@@ -151,6 +152,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
         ...prev,
         serviciosSeleccionados: [...prev.serviciosSeleccionados, id]
       }));
+      if (errors.servicios) setErrors(prev => ({ ...prev, servicios: '' }));
     }
   };
 
@@ -233,13 +235,13 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
           {/* Servicios */}
           <div className="space-y-4 pt-4 border-t border-dark-color">
             <Label className="text-dark-primary flex items-center gap-1.5"><ListPlus className="w-4 h-4 text-emerald-400" />
-              {readOnly ? 'Servicios Programados' : 'Servicios a Realizar'}
+              {readOnly ? 'Servicios Programados' : 'Servicios a Realizar *'}
             </Label>
 
             {!readOnly && (
               <div className="flex gap-2">
                 <Select onValueChange={agregarServicio}>
-                  <SelectTrigger className="bg-dark-hover border-dark-color text-dark-primary flex-1">
+                  <SelectTrigger className={`bg-dark-hover border-dark-color text-dark-primary flex-1 ${errors.servicios ? 'border-red-500/50' : ''}`}>
                     <SelectValue placeholder="Agregar un servicio..." />
                   </SelectTrigger>
                   <SelectContent className="bg-dark-card border-dark-color">
@@ -252,6 +254,8 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                 </Select>
               </div>
             )}
+
+            {errors.servicios && <p className="text-red-400 text-xs font-medium animate-pulse">{errors.servicios}</p>}
 
             {formData.serviciosSeleccionados.length > 0 && (
               <div className="space-y-2 mt-2">

@@ -7,13 +7,17 @@ import { Plus, Search, ShoppingCart, Calendar, Edit, Trash2, User, DollarSign, S
 import { useVentas, Venta, VentaServicio } from "../hooks/useVentas";
 import { VentaModal } from "../modals/VentaModal";
 import { ConfirmDeleteDialog } from "../ui/ConfirmDeleteDialog";
+import { useAgendamiento, Agendamiento } from "../hooks/useAgendamiento";
 
 interface VentasPageProps {
   onNewSale?: () => void;
+  citaAPagar?: Agendamiento | null;
+  onVentaCerrada?: () => void;
 }
 
-export function VentasPage({ onNewSale }: VentasPageProps) {
+export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPageProps) {
   const { ventas, loading, crearVenta, anularVenta } = useVentas();
+  const { actualizarCita } = useAgendamiento();
 
   const [busqueda, setBusqueda] = useState("");
   const [ventaModal, setVentaModal] = useState({ isOpen: false, venta: null as Venta | null, readOnly: false });
@@ -37,6 +41,12 @@ export function VentasPage({ onNewSale }: VentasPageProps) {
   const ventasPaginadas = ventasFiltradas.slice(startIndex, endIndex);
 
   useEffect(() => {
+    if (citaAPagar) {
+      abrirVentaModal();
+    }
+  }, [citaAPagar]);
+
+  useEffect(() => {
     setCurrentPage(1);
   }, [busqueda]);
 
@@ -44,6 +54,12 @@ export function VentasPage({ onNewSale }: VentasPageProps) {
     const result = await crearVenta(ventaData);
 
     if (result.success) {
+      // Si la venta viene de una cita agendada, marcar la cita como completada
+      if (citaAPagar) {
+        // Enviamos el objeto completo con el nuevo estado para asegurar que el backend lo procese bien
+        await actualizarCita(citaAPagar.id_agendamiento, { ...citaAPagar, estado: 'completada' });
+      }
+
       toast.success("Venta registrada exitosamente");
       cerrarVentaModal();
       return { success: true };
@@ -71,6 +87,7 @@ export function VentasPage({ onNewSale }: VentasPageProps) {
 
   const cerrarVentaModal = () => {
     setVentaModal({ isOpen: false, venta: null, readOnly: false });
+    if (onVentaCerrada) onVentaCerrada();
   };
 
   const calcularTotalVentas = () => {
@@ -240,6 +257,7 @@ export function VentasPage({ onNewSale }: VentasPageProps) {
         onClose={cerrarVentaModal}
         onSubmit={handleCrearEditarVenta}
         venta={ventaModal.venta}
+        citaPrevia={citaAPagar}
         loading={loading}
         readOnly={ventaModal.readOnly}
       />

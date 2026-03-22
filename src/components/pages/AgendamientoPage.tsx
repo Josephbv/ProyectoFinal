@@ -3,16 +3,17 @@ import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog";
 import { toast } from "sonner";
-import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText, DollarSign } from "lucide-react";
+import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText, DollarSign, CheckCircle2 } from "lucide-react";
 import { useAgendamiento, Agendamiento, AgendamientoServicio } from "../hooks/useAgendamiento";
 import { CitaModal } from "../modals/CitaModal";
 import { ConfirmDeleteDialog } from "../ui/ConfirmDeleteDialog";
 
 interface AgendamientoPageProps {
   onNavigate?: (page: string) => void;
+  onPagar?: (cita: Agendamiento) => void;
 }
 
-export function AgendamientoPage({ onNavigate }: AgendamientoPageProps) {
+export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps) {
   const { citas, loading, agendarCita, actualizarCita, eliminarCita } = useAgendamiento();
 
   const [busqueda, setBusqueda] = useState("");
@@ -56,7 +57,7 @@ export function AgendamientoPage({ onNavigate }: AgendamientoPageProps) {
   const handleActualizarCita = async (citaData: Partial<Agendamiento>) => {
     if (!citaModal.cita) return { success: false };
 
-    const result = await actualizarCita(citaModal.cita.id_agendamiento, citaData);
+    const result = await actualizarCita(citaModal.cita.id_agendamiento, { ...citaModal.cita, ...citaData });
     if (result.success) {
       toast.success("Cita actualizada exitosamente");
       return { success: true };
@@ -139,11 +140,11 @@ export function AgendamientoPage({ onNavigate }: AgendamientoPageProps) {
                   <TableHead className="text-dark-primary font-semibold min-w-[120px]">
                     <div className="flex items-center gap-2"><FileText className="w-4 h-4" />Doc. Cliente</div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[200px]">
-                    <div className="flex items-center gap-2"><Stethoscope className="w-4 h-4" />Empleado Asignado</div>
-                  </TableHead>
                   <TableHead className="text-dark-primary font-semibold min-w-[250px]">
                     <div className="flex items-center gap-2"><Ticket className="w-4 h-4" />Servicios</div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center min-w-[120px]">
+                    <div className="flex items-center justify-center gap-2"><Clock className="w-4 h-4" />Estado</div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-center min-w-[100px]">
                     <div className="flex items-center justify-center gap-2"><DollarSign className="w-4 h-4" />Pago</div>
@@ -152,76 +153,103 @@ export function AgendamientoPage({ onNavigate }: AgendamientoPageProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {citasPaginadas.map((cita: Agendamiento) => (
-                  <TableRow key={cita.id_agendamiento} className="border-dark-color hover:bg-dark-table-hover transition-colors">
-                    <TableCell className="font-medium text-dark-primary">
-                      {cita.fecha ? new Date(cita.fecha.includes('T') ? cita.fecha.split('T')[0] + 'T12:00:00' : cita.fecha + 'T12:00:00').toLocaleDateString() : 'Sin fecha'}
-                    </TableCell>
-                    <TableCell className="text-dark-primary">
-                      {cita.hora ? new Date(cita.hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'}
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-medium text-dark-primary">{cita.cliente?.nombre || 'Desconocido'}</span>
-                    </TableCell>
-                    <TableCell className="text-dark-secondary font-mono text-xs">
-                      {cita.cliente?.cedula || 'N/A'}
-                    </TableCell>
-                    <TableCell className="text-dark-secondary">
-                      {cita.empleado?.nombre || 'Sin empleado'}
-                    </TableCell>
-                    <TableCell className="text-dark-secondary truncate max-w-[250px]" title={formatearServicios(cita.agendamiento_servicios)}>
-                      {formatearServicios(cita.agendamiento_servicios)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center">
-                        <Button
-                          onClick={() => onNavigate?.("Ventas")}
-                          variant="outline"
-                          size="sm"
-                          className="gap-1.5 bg-emerald-500/15 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/25 hover:border-emerald-400 transition-all duration-200"
-                          title="Ir a Ventas"
-                        >
-                          <DollarSign className="w-4 h-4" />
-                          <span className="text-xs font-medium">Pagar</span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-2">
-                        <Button
-                          onClick={() => abrirCitaModal(cita, true)}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
-                          disabled={loading}
-                          title="Ver detalle"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={() => abrirCitaModal(cita)}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
-                          disabled={loading}
-                          title="Editar cita"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={() => setDeleteDialog({ isOpen: true, cita })}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                          disabled={loading}
-                          title="Eliminar cita"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {citasPaginadas.map((cita: Agendamiento) => {
+                  // Verificar si está marcado como pagado en localStorage (failsafe)
+                  const isPagadoLocal = localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true';
+                  const estadoFinal = isPagadoLocal ? 'completada' : cita.estado;
+
+                  return (
+                    <TableRow key={cita.id_agendamiento} className="border-dark-color hover:bg-dark-table-hover transition-colors">
+                      <TableCell className="font-medium text-dark-primary">
+                        {cita.fecha ? new Date(cita.fecha.includes('T') ? cita.fecha.split('T')[0] + 'T12:00:00' : cita.fecha + 'T12:00:00').toLocaleDateString() : 'Sin fecha'}
+                      </TableCell>
+                      <TableCell className="text-dark-primary">
+                        {cita.hora ? new Date(cita.hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'}
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-medium text-dark-primary">{cita.cliente?.nombre || 'Desconocido'}</span>
+                      </TableCell>
+                      <TableCell className="text-dark-secondary font-mono text-xs">
+                        {cita.cliente?.cedula || 'N/A'}
+                      </TableCell>
+                      <TableCell className="text-dark-secondary" title={formatearServicios(cita.agendamiento_servicios)}>
+                        {formatearServicios(cita.agendamiento_servicios)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-center">
+                          {estadoFinal === 'completada' ? (
+                            <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-green-500/20 text-green-400 border border-green-500/30 flex items-center gap-1">
+                              <CheckCircle2 className="w-3" />
+                              Completada
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                              <Clock className="w-3" />
+                              Activa
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-center">
+                          {estadoFinal === 'completada' ? (
+                            <div className="flex flex-col items-center">
+                              <div className="p-1 bg-green-500/10 rounded-full mb-0.5">
+                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                              </div>
+                              <span className="text-[9px] font-black text-green-500 tracking-tighter">PAGADO</span>
+                            </div>
+                          ) : (
+                            <Button
+                              onClick={() => onPagar?.(cita)}
+                              variant="outline"
+                              size="sm"
+                              className="gap-1.5 bg-emerald-500/15 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/25 hover:border-emerald-400 transition-all duration-200"
+                              title="Ir a Ventas"
+                            >
+                              <DollarSign className="w-4 h-4" />
+                              <span className="text-xs font-medium">Pagar</span>
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-center gap-2">
+                          <Button
+                            onClick={() => abrirCitaModal(cita, true)}
+                            variant="outline"
+                            size="sm"
+                            className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
+                            disabled={loading}
+                            title="Ver detalle"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            onClick={() => abrirCitaModal(cita)}
+                            variant="outline"
+                            size="sm"
+                            className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
+                            disabled={loading}
+                            title="Editar cita"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            onClick={() => setDeleteDialog({ isOpen: true, cita })}
+                            variant="outline"
+                            size="sm"
+                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
+                            disabled={loading}
+                            title="Eliminar cita"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
 

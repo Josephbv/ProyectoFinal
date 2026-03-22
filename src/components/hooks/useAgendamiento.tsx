@@ -16,6 +16,7 @@ export interface Agendamiento {
   cliente?: any;
   empleado?: any;
   agendamiento_servicios?: AgendamientoServicio[];
+  estado?: 'activa' | 'completada' | 'cancelada';
 }
 
 const API_URL = '/api';
@@ -60,7 +61,7 @@ export function useAgendamiento() {
       const nuevaCita = await apiFetch(`${API_URL}/agendamiento`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(citaData),
+        body: JSON.stringify({ ...citaData, estado: 'activa' }),
       });
       setCitas(prev => [...prev, nuevaCita].sort((a, b) => {
         if (!a.fecha || !b.fecha) return 0;

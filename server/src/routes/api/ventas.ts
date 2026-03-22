@@ -95,8 +95,23 @@ router.patch('/anular/:id', async (req: Request, res: Response) => {
     }
 });
 
-// Nota: Las rutas PUT y DELETE se deshabilitan por lógica de negocio
-// router.put('/:id', ...) -> No permitido
-// router.delete('/:id', ...) -> No permitido
+// DELETE /api/ventas - Borrar TODAS las ventas y REINICIAR el contador de IDs
+router.delete('/', async (_req: Request, res: Response) => {
+    try {
+        await prisma.$transaction([
+            prisma.venta_servicios.deleteMany({}),
+            prisma.ventas.deleteMany({})
+        ]);
+
+        // Reiniciar el contador de identidad (RESEED) para que empiece en 1 de nuevo
+        // Usamos executeRawUnsafe para comandos específicos de SQL Server
+        await prisma.$executeRawUnsafe(`DBCC CHECKIDENT ('ventas', RESEED, 0)`);
+
+        res.json({ success: true, message: 'Todas las ventas han sido eliminadas y el contador reiniciado' });
+    } catch (error) {
+        console.error('[VENTAS] ERROR AL BORRAR TODO:', error);
+        res.status(500).json({ error: 'Error al eliminar todas las ventas' });
+    }
+});
 
 export default router;

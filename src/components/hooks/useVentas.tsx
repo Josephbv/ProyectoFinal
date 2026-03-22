@@ -61,9 +61,9 @@ export function useVentas() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(ventaData),
       });
-      setVentas(prev => [nuevaVenta, ...prev].sort((a, b) => {
+      setVentas(prev => [...prev, nuevaVenta].sort((a, b) => {
         if (!a.fecha || !b.fecha) return 0;
-        return new Date(b.fecha).getTime() - new Date(a.fecha).getTime();
+        return new Date(a.fecha).getTime() - new Date(b.fecha).getTime();
       }));
       return { success: true, data: nuevaVenta };
     } catch (error: any) {

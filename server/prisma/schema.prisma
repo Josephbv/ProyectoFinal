@@ -182,6 +182,7 @@ model agendamiento {
   cliente                cliente                  @relation(fields: [id_cliente], references: [id_cliente])
   empleado               empleado                 @relation(fields: [id_empleado], references: [id_empleado])
   agendamiento_servicios agendamiento_servicios[]
+  estado                 String?                  @default("activa") @db.VarChar(20)
 }
 
 model agendamiento_servicios {
