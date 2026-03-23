@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Dashboard } from "./components/Dashboard";
-import { LoginPage } from "./components/pages/LoginPage";
-import { LandingPage } from "./components/pages/LandingPage";
-import { Toaster } from "./components/ui/sonner";
+import { DashboardLayout as Dashboard } from "./features/dashboard/components/DashboardLayout";
+import { LoginPage } from "./features/auth/pages/LoginPage";
+import { LandingPage } from "./shared/pages/LandingPage";
+import { Toaster } from "./shared/components/sonner";
 import { toast } from "sonner";
 
 export default function App() {
