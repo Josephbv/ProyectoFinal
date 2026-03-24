@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Clock, Users, Plus, Search, Filter, User, Calendar, CheckCircle, Edit, Trash2, Eye, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useHorario, Horario } from "../hooks/useHorario";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
+import { formatTo12h } from '../../../shared/utils/formatTime';
 
 interface HorarioPageProps {
   onNewHorario?: () => void;
@@ -30,11 +31,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
 
   const formatTime = (timeStr: string) => {
     if (!timeStr) return '';
-    if (timeStr.includes('T')) {
-      const date = new Date(timeStr);
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-    return timeStr;
+    return formatTo12h(timeStr);
   };
 
   // Agrupar horarios por empleado (usando cedula o id_empleado como clave)

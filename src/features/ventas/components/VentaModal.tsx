@@ -33,18 +33,36 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Estado para controlar si ya inicializamos el modal al abrirlo
+  const [initialized, setInitialized] = useState(false);
+
+  // Reiniciar estado de inicialización cuando el modal cierra
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      setInitialized(false);
+      setFormData({
+        fecha: new Date().toISOString().split('T')[0],
+        id_cliente: '',
+        total: 0,
+        venta_servicios: []
+      });
+    }
+  }, [isOpen]);
+
+  // Inicializar o cargar datos una sola vez al abrir o cambiar de fuente
+  useEffect(() => {
+    if (!isOpen || initialized) return;
+
+    // Si venimos de Agendamiento, esperar a que Clientes y Servicios estén cargados
+    const listready = clientes.length > 0 && servicios.length > 0;
 
     if (venta) {
-      const serviciosCargados = (venta.venta_servicios || []).map(vs => {
-        const servDoc = servicios.find(s => s.id_servicio === vs.id_servicio);
-        return {
-          id_servicio: vs.id_servicio,
-          cantidad: vs.cantidad || 1,
-          precio_unitario: servDoc?.precio || 0
-        };
-      });
+      // Cargando venta existente para vista de detalles/reporte
+      const serviciosCargados = (venta.venta_servicios || []).map(vs => ({
+        id_servicio: vs.id_servicio,
+        cantidad: vs.cantidad || 1,
+        precio_unitario: vs.servicio?.precio || 0
+      }));
 
       setFormData({
         fecha: venta.fecha ? new Date(venta.fecha).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -52,47 +70,63 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
         total: venta.total || 0,
         venta_servicios: serviciosCargados
       });
-    } else {
-      setFormData(prev => ({
-        ...prev,
+      setInitialized(true);
+    } else if (citaPrevia) {
+      // Si las listas no están listas, esperamos (no marcamos como initialized)
+      if (!listready) return;
+
+      const serviciosCargar = (citaPrevia.agendamiento_servicios || []).map(as => {
+        const sInfo = servicios.find(s => s.id_servicio === as.id_servicio);
+        return {
+          id_servicio: as.id_servicio,
+          cantidad: 1,
+          precio_unitario: sInfo?.precio || 0
+        };
+      });
+
+      const clientID = citaPrevia.id_cliente?.toString() || '';
+      console.log('[VentaModal] Cargando cliente de cita:', clientID);
+
+      setFormData({
         fecha: new Date().toISOString().split('T')[0],
-        id_cliente: prev.id_cliente || '', // Preservar selección si ya existe
-        venta_servicios: prev.venta_servicios.length > 0 ? prev.venta_servicios : []
-      }));
+        id_cliente: clientID,
+        total: serviciosCargar.reduce((acc, s) => acc + s.precio_unitario, 0),
+        venta_servicios: serviciosCargar
+      });
+      setInitialized(true);
+    } else {
+      // Nueva venta manual
+      setFormData({
+        fecha: new Date().toISOString().split('T')[0],
+        id_cliente: '',
+        total: 0,
+        venta_servicios: []
+      });
+      setInitialized(true);
     }
     setErrors({});
-  }, [venta, isOpen]); // Quitado 'servicios' para evitar resets innecesarios
+  }, [isOpen, venta, citaPrevia, servicios, clientes, initialized]);
 
-  // Resetear formulario al abrir para nueva venta o pre-cargar de cita
+  // Si a pesar de todo los servicios llegaron después de inicializar
   useEffect(() => {
-    if (isOpen && !venta) {
-      if (citaPrevia) {
-        // Mapear los servicios de la cita al formato de la venta
-        const serviciosCargar = (citaPrevia.agendamiento_servicios || []).map(as => {
-          const sInfo = servicios.find(s => s.id_servicio === as.id_servicio);
-          return {
-            id_servicio: as.id_servicio,
-            cantidad: 1,
-            precio_unitario: sInfo?.precio || 0
-          };
-        });
-
-        setFormData({
-          fecha: new Date().toISOString().split('T')[0],
-          id_cliente: citaPrevia.id_cliente?.toString() || '',
-          total: serviciosCargar.reduce((acc, s) => acc + s.precio_unitario, 0),
-          venta_servicios: serviciosCargar
-        });
-      } else {
-        setFormData({
-          fecha: new Date().toISOString().split('T')[0],
-          id_cliente: '',
-          total: 0,
-          venta_servicios: []
-        });
+    if (isOpen && citaPrevia && initialized && servicios.length > 0) {
+      const necesitaPrecios = formData.venta_servicios.some(s => s.precio_unitario === 0);
+      if (necesitaPrecios) {
+        setFormData(prev => ({
+          ...prev,
+          venta_servicios: prev.venta_servicios.map(ps => {
+            if (ps.precio_unitario > 0) return ps;
+            const sInfo = servicios.find(s => s.id_servicio === ps.id_servicio);
+            return { ...ps, precio_unitario: sInfo?.precio || 0 };
+          })
+        }));
       }
     }
-  }, [isOpen, venta, citaPrevia, servicios]);
+  }, [servicios, isOpen, initialized, citaPrevia]);
+
+
+
+
   useEffect(() => {
     const nuevoTotal = formData.venta_servicios.reduce((sum, item) => sum + (item.cantidad * item.precio_unitario), 0);
     setFormData(prev => ({ ...prev, total: nuevoTotal }));

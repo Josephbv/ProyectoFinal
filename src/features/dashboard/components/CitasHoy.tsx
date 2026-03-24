@@ -1,6 +1,7 @@
 import { Calendar, Clock } from "lucide-react";
 import { useAgendamiento } from "../../agendamiento/hooks/useAgendamiento";
 import { useMemo } from "react";
+import { formatTo12h } from '../../../shared/utils/formatTime';
 
 interface CitasHoyProps {
   onVerCalendario?: () => void;
@@ -48,7 +49,7 @@ export function CitasHoy({ onVerCalendario }: CitasHoyProps) {
               <div className="text-center min-w-[60px]">
                 <div className="text-lg font-bold text-dark-primary flex items-center gap-1">
                   <Clock className="w-4 h-4 text-blue-400" />
-                  {(cita.hora || '').substring(0, 5)}
+                  {formatTo12h(cita.hora)}
                 </div>
               </div>
 

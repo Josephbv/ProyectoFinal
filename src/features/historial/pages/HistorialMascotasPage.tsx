@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { FileText, Plus, Search, Calendar, Eye, Edit, Trash2, Heart, User, Users, Stethoscope, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardPlus, TrendingUp, Activity, Syringe, CheckCircle, XCircle, Save, Undo2, Phone, Hash } from "lucide-react";
 import { useHistorialMascotas, HistorialMascota } from "../hooks/useHistorialMascotas";
 import { useClientes } from "../../clientes/hooks/useClientes";
+import { formatTo12h } from '../../../shared/utils/formatTime';
 import { useMascotas } from "../../mascotas/hooks/useMascotas";
 import { useUsuario } from "../../configuracion/hooks/useUsuario";
 import { useEmpleados } from "../../empleados/hooks/useEmpleados";
@@ -483,7 +484,7 @@ export function HistorialMascotasPage() {
                     </div>
                     <div>
                       <p className="text-[8px] font-black text-dark-secondary tracking-widest mb-0.5 uppercase">Hora</p>
-                      <p className="text-xs font-black text-dark-primary">{(entrada as any).hora || '00:00'}</p>
+                      <p className="text-xs font-black text-dark-primary">{formatTo12h((entrada as any).hora) || '00:00'}</p>
                     </div>
                   </div>
                 </div>
@@ -863,7 +864,7 @@ export function HistorialMascotasPage() {
                             <span className="text-dark-primary text-xs font-black">
                               {new Date(entrada.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                             </span>
-                            <span className="text-[9px] text-dark-secondary  font-bold tracking-widest">{(entrada as any).hora || '---'}</span>
+                            <span className="text-[9px] text-dark-secondary  font-bold tracking-widest">{formatTo12h((entrada as any).hora) || '---'}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -1331,7 +1332,7 @@ export function HistorialMascotasPage() {
                     <div className="flex items-center gap-3 text-sm font-bold text-slate-400 tracking-widest uppercase mb-1">
                       <span>{h.fecha ? new Date(h.fecha.includes('T') ? h.fecha.split('T')[0] + 'T12:00:00' : h.fecha + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A'}</span>
                       <span className="text-slate-200">|</span>
-                      <span>{(h as any).hora || '00:00'}</span>
+                      <span>{formatTo12h((h as any).hora) || '00:00'}</span>
                       <span className="text-slate-200">|</span>
                       <span className="text-slate-900">{formattedVet}</span>
                     </div>

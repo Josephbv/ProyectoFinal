@@ -250,8 +250,8 @@
     font-feature-settings: var(--default-font-feature-settings, normal);
     font-variation-settings: var(--default-font-variation-settings, normal);
     -webkit-tap-highlight-color: transparent;
-    font-size: 88%;
-    /* Escala optimizada para el estilo visual 'Foto 1' */
+    font-size: 75%;
+    /* Escala general reducida para entorno administrativo denso */
   }
 
   body {
@@ -6082,4 +6082,10 @@ html {
     opacity: var(--tw-exit-opacity, 1);
     transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0) scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1)) rotate(var(--tw-exit-rotate, 0));
   }
+}
+
+/* === ESCALA GLOBAL DE LA UI === */
+/* Reduce el zoom visual de toda la aplicación. Cambiar este valor para ajustar. */
+html {
+  font-size: 13px !important;
 }

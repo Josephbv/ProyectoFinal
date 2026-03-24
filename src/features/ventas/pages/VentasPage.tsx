@@ -56,7 +56,9 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
     if (result.success) {
       // Si la venta viene de una cita agendada, marcar la cita como completada
       if (citaAPagar) {
-        // Enviamos el objeto completo con el nuevo estado para asegurar que el backend lo procese bien
+        // Marcar en localStorage de inmediato para feedback visual instantáneo
+        localStorage.setItem(`pagado_${citaAPagar.id_agendamiento}`, 'true');
+        // Actualizar el estado en el backend
         await actualizarCita(citaAPagar.id_agendamiento, { ...citaAPagar, estado: 'completada' });
       }
 

@@ -7,6 +7,7 @@ import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket,
 import { useAgendamiento, Agendamiento, AgendamientoServicio } from "../hooks/useAgendamiento";
 import { CitaModal } from "../components/CitaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
+import { formatTo12h } from '../../../shared/utils/formatTime';
 
 interface AgendamientoPageProps {
   onNavigate?: (page: string) => void;
@@ -164,7 +165,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                         {cita.fecha ? new Date(cita.fecha.includes('T') ? cita.fecha.split('T')[0] + 'T12:00:00' : cita.fecha + 'T12:00:00').toLocaleDateString() : 'Sin fecha'}
                       </TableCell>
                       <TableCell className="text-dark-primary">
-                        {cita.hora ? new Date(cita.hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'}
+                        {cita.hora ? formatTo12h(cita.hora) : 'Sin hora'}
                       </TableCell>
                       <TableCell>
                         <span className="font-medium text-dark-primary">{cita.cliente?.nombre || 'Desconocido'}</span>
@@ -172,8 +173,10 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                       <TableCell className="text-dark-secondary font-mono text-xs">
                         {cita.cliente?.cedula || 'N/A'}
                       </TableCell>
-                      <TableCell className="text-dark-secondary" title={formatearServicios(cita.agendamiento_servicios)}>
-                        {formatearServicios(cita.agendamiento_servicios)}
+                      <TableCell className="text-center">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/25 text-blue-400 text-xs font-bold">
+                          {cita.agendamiento_servicios?.length ?? 0} servicio{(cita.agendamiento_servicios?.length ?? 0) !== 1 ? 's' : ''}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-center">
@@ -239,9 +242,9 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                             onClick={() => setDeleteDialog({ isOpen: true, cita })}
                             variant="outline"
                             size="sm"
-                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                            disabled={loading}
-                            title="Eliminar cita"
+                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30 disabled:opacity-30 disabled:cursor-not-allowed"
+                            disabled={loading || estadoFinal === 'completada'}
+                            title={estadoFinal === 'completada' ? "No se puede eliminar una cita pagada" : "Eliminar cita"}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>

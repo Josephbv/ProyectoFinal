@@ -1,8 +1,8 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --font-size: 18px;
-  
+  --font-size: 14px;
+
   /* Modern Dark Theme Color Palette */
   --dark-bg: #020617;
   --dark-card: #0f172a;
@@ -15,7 +15,7 @@
   --dark-hover: #1e2535;
   --dark-table-hover: #1c2a3a;
   --dark-border: #334155;
-  
+
   /* Updated theme variables for modern dark mode */
   --background: #020617;
   --foreground: #f8fafc;
@@ -40,7 +40,7 @@
   --font-weight-medium: 600;
   --font-weight-normal: 400;
   --ring: #3b82f6;
-  
+
   /* Chart colors using modern dark theme palette */
   --chart-1: #3b82f6;
   --chart-2: #10b981;
@@ -50,9 +50,9 @@
   --chart-6: #8b5cf6;
   --chart-7: #06b6d4;
   --chart-8: #84cc16;
-  
+
   --radius: 0.75rem;
-  
+
   /* Sidebar colors for modern dark theme */
   --sidebar: #020617;
   --sidebar-foreground: #f8fafc;
@@ -72,74 +72,132 @@
 /* Light mode theme - Paleta Pastel Moderna (Lavanda-Azul-Cyan) */
 .light {
   /* Light Theme Color Palette - Pasteles vibrantes pero suaves */
-  --dark-bg: #EEF2FF;              /* Indigo 50 - Fondo lavanda muy suave */
-  --dark-card: #FFFFFF;            /* Blanco puro - Tarjetas con elevación */
-  --dark-primary-text: #1E1B4B;    /* Indigo 950 - Texto principal oscuro */
-  --dark-secondary-text: #4C1D95;  /* Violet 900 - Texto secundario morado oscuro */
-  --dark-positive: #4ADE80;        /* Green 400 - Verde menta vibrante */
-  --dark-negative: #FB7185;        /* Rose 400 - Rosa coral */
-  --dark-cta: #6366F1;             /* Indigo 500 - Violeta-azul principal */
-  --dark-tag: #DDD6FE;             /* Violet 200 - Tag lavanda */
-  --dark-hover: #E0E7FF;           /* Indigo 100 - Hover lavanda claro */
-  --dark-table-hover: #F5F3FF;     /* Violet 50 - Table hover violeta muy suave */
-  --dark-border: #C7D2FE;          /* Indigo 200 - Bordes lavanda suaves */
-  
+  --dark-bg: #EEF2FF;
+  /* Indigo 50 - Fondo lavanda muy suave */
+  --dark-card: #FFFFFF;
+  /* Blanco puro - Tarjetas con elevación */
+  --dark-primary-text: #1E1B4B;
+  /* Indigo 950 - Texto principal oscuro */
+  --dark-secondary-text: #4C1D95;
+  /* Violet 900 - Texto secundario morado oscuro */
+  --dark-positive: #4ADE80;
+  /* Green 400 - Verde menta vibrante */
+  --dark-negative: #FB7185;
+  /* Rose 400 - Rosa coral */
+  --dark-cta: #6366F1;
+  /* Indigo 500 - Violeta-azul principal */
+  --dark-tag: #DDD6FE;
+  /* Violet 200 - Tag lavanda */
+  --dark-hover: #E0E7FF;
+  /* Indigo 100 - Hover lavanda claro */
+  --dark-table-hover: #F5F3FF;
+  /* Violet 50 - Table hover violeta muy suave */
+  --dark-border: #C7D2FE;
+  /* Indigo 200 - Bordes lavanda suaves */
+
   /* Light theme variables - Tonos pasteles vibrantes */
-  --background: #F8FAFC;           /* Slate 50 - Fondo base casi blanco */
-  --foreground: #1E1B4B;           /* Indigo 950 - Texto principal */
-  --card: #FFFFFF;                 /* Blanco puro - Tarjetas */
-  --card-foreground: #1E1B4B;      /* Indigo 950 - Texto en tarjetas */
-  --popover: #FFFFFF;              /* Blanco puro - Popovers */
-  --popover-foreground: #1E1B4B;   /* Indigo 950 - Texto en popovers */
-  --primary: #6366F1;              /* Indigo 500 - Primario violeta-azul */
-  --primary-foreground: #FFFFFF;   /* Blanco - Texto en botones primarios */
-  --secondary: #E0E7FF;            /* Indigo 100 - Secundario lavanda */
-  --secondary-foreground: #1E1B4B; /* Indigo 950 - Texto en secundario */
-  --muted: #EEF2FF;                /* Indigo 50 - Muted lavanda suave */
-  --muted-foreground: #6B7280;     /* Gray 500 - Texto muted neutral */
-  --accent: #A5B4FC;               /* Indigo 300 - Acento lavanda medio */
-  --accent-foreground: #1E1B4B;    /* Indigo 950 - Texto en acento */
-  --destructive: #FB7185;          /* Rose 400 - Destructivo rosa coral */
-  --destructive-foreground: #FFFFFF; /* Blanco - Texto destructivo */
-  --border: #C7D2FE;               /* Indigo 200 - Bordes lavanda */
-  --input: #FFFFFF;                /* Blanco puro - Inputs */
-  --input-background: #FFFFFF;     /* Blanco puro - Fondo inputs */
-  --switch-background: #DDD6FE;    /* Violet 200 - Switches lavanda */
-  --ring: #A5B4FC;                 /* Indigo 300 - Focus ring lavanda */
-  
+  --background: #F8FAFC;
+  /* Slate 50 - Fondo base casi blanco */
+  --foreground: #1E1B4B;
+  /* Indigo 950 - Texto principal */
+  --card: #FFFFFF;
+  /* Blanco puro - Tarjetas */
+  --card-foreground: #1E1B4B;
+  /* Indigo 950 - Texto en tarjetas */
+  --popover: #FFFFFF;
+  /* Blanco puro - Popovers */
+  --popover-foreground: #1E1B4B;
+  /* Indigo 950 - Texto en popovers */
+  --primary: #6366F1;
+  /* Indigo 500 - Primario violeta-azul */
+  --primary-foreground: #FFFFFF;
+  /* Blanco - Texto en botones primarios */
+  --secondary: #E0E7FF;
+  /* Indigo 100 - Secundario lavanda */
+  --secondary-foreground: #1E1B4B;
+  /* Indigo 950 - Texto en secundario */
+  --muted: #EEF2FF;
+  /* Indigo 50 - Muted lavanda suave */
+  --muted-foreground: #6B7280;
+  /* Gray 500 - Texto muted neutral */
+  --accent: #A5B4FC;
+  /* Indigo 300 - Acento lavanda medio */
+  --accent-foreground: #1E1B4B;
+  /* Indigo 950 - Texto en acento */
+  --destructive: #FB7185;
+  /* Rose 400 - Destructivo rosa coral */
+  --destructive-foreground: #FFFFFF;
+  /* Blanco - Texto destructivo */
+  --border: #C7D2FE;
+  /* Indigo 200 - Bordes lavanda */
+  --input: #FFFFFF;
+  /* Blanco puro - Inputs */
+  --input-background: #FFFFFF;
+  /* Blanco puro - Fondo inputs */
+  --switch-background: #DDD6FE;
+  /* Violet 200 - Switches lavanda */
+  --ring: #A5B4FC;
+  /* Indigo 300 - Focus ring lavanda */
+
   /* Colores específicos para tablas y formularios - Pasteles lavanda */
-  --table-header: #E0E7FF;         /* Indigo 100 - Encabezados lavanda claro */
-  --table-row-even: #FFFFFF;       /* Blanco puro - Filas pares */
-  --table-row-odd: #FAFBFF;        /* Casi blanco con tinte lavanda */
-  --form-bg: #FFFFFF;              /* Blanco puro - Fondo formularios */
-  --form-section: #F8FAFC;         /* Slate 50 - Secciones formulario */
-  --form-field-border: #C7D2FE;    /* Indigo 200 - Bordes campos lavanda */
-  --form-field-focus: #A5B4FC;     /* Indigo 300 - Focus campos lavanda */
-  
+  --table-header: #E0E7FF;
+  /* Indigo 100 - Encabezados lavanda claro */
+  --table-row-even: #FFFFFF;
+  /* Blanco puro - Filas pares */
+  --table-row-odd: #FAFBFF;
+  /* Casi blanco con tinte lavanda */
+  --form-bg: #FFFFFF;
+  /* Blanco puro - Fondo formularios */
+  --form-section: #F8FAFC;
+  /* Slate 50 - Secciones formulario */
+  --form-field-border: #C7D2FE;
+  /* Indigo 200 - Bordes campos lavanda */
+  --form-field-focus: #A5B4FC;
+  /* Indigo 300 - Focus campos lavanda */
+
   /* Chart colors for light mode - Pasteles vibrantes coordinados */
-  --chart-1: #6366F1;              /* Indigo 500 - Violeta-azul */
-  --chart-2: #4ADE80;              /* Green 400 - Verde menta */
-  --chart-3: #A5B4FC;              /* Indigo 300 - Lavanda claro */
-  --chart-4: #FBBF24;              /* Amber 400 - Amarillo dorado */
-  --chart-5: #FB7185;              /* Rose 400 - Rosa coral */
-  --chart-6: #C084FC;              /* Purple 400 - Púrpura pastel */
-  --chart-7: #22D3EE;              /* Cyan 400 - Cyan brillante */
-  --chart-8: #A3E635;              /* Lime 400 - Lima vibrante */
-  
+  --chart-1: #6366F1;
+  /* Indigo 500 - Violeta-azul */
+  --chart-2: #4ADE80;
+  /* Green 400 - Verde menta */
+  --chart-3: #A5B4FC;
+  /* Indigo 300 - Lavanda claro */
+  --chart-4: #FBBF24;
+  /* Amber 400 - Amarillo dorado */
+  --chart-5: #FB7185;
+  /* Rose 400 - Rosa coral */
+  --chart-6: #C084FC;
+  /* Purple 400 - Púrpura pastel */
+  --chart-7: #22D3EE;
+  /* Cyan 400 - Cyan brillante */
+  --chart-8: #A3E635;
+  /* Lime 400 - Lima vibrante */
+
   /* Sidebar colors for light mode - Blanco con acentos lavanda */
-  --sidebar: #FFFFFF;              /* Blanco puro - Sidebar */
-  --sidebar-foreground: #1E1B4B;   /* Indigo 950 - Texto sidebar */
-  --sidebar-primary: #1E1B4B;      /* Indigo 950 - Primario sidebar */
-  --sidebar-primary-foreground: #FFFFFF; /* Blanco - Texto primario */
-  --sidebar-accent: #6366F1;       /* Indigo 500 - Acento violeta-azul */
-  --sidebar-accent-foreground: #FFFFFF; /* Blanco - Texto acento */
-  --sidebar-border: #DDD6FE;       /* Violet 200 - Borde sidebar lavanda */
-  --sidebar-ring: #A5B4FC;         /* Indigo 300 - Focus ring lavanda */
+  --sidebar: #FFFFFF;
+  /* Blanco puro - Sidebar */
+  --sidebar-foreground: #1E1B4B;
+  /* Indigo 950 - Texto sidebar */
+  --sidebar-primary: #1E1B4B;
+  /* Indigo 950 - Primario sidebar */
+  --sidebar-primary-foreground: #FFFFFF;
+  /* Blanco - Texto primario */
+  --sidebar-accent: #6366F1;
+  /* Indigo 500 - Acento violeta-azul */
+  --sidebar-accent-foreground: #FFFFFF;
+  /* Blanco - Texto acento */
+  --sidebar-border: #DDD6FE;
+  /* Violet 200 - Borde sidebar lavanda */
+  --sidebar-ring: #A5B4FC;
+  /* Indigo 300 - Focus ring lavanda */
 
   /* Glass morphism effects for light mode - Blanco glass con tinte lavanda */
-  --glass-bg: rgba(255, 255, 255, 0.95); /* Blanco casi opaco */
-  --glass-border: rgba(99, 102, 241, 0.15); /* Borde indigo suave */
-  --glass-shadow: 0 8px 32px rgba(99, 102, 241, 0.12); /* Sombra indigo pastel */
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  /* Blanco casi opaco */
+  --glass-border: rgba(99, 102, 241, 0.15);
+  /* Borde indigo suave */
+  --glass-shadow: 0 8px 32px rgba(99, 102, 241, 0.12);
+  /* Sombra indigo pastel */
 }
 
 @theme inline {
@@ -184,7 +242,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  
+
   /* Modern dark theme specific colors */
   --color-dark-bg: var(--dark-bg);
   --color-dark-card: var(--dark-card);
@@ -197,11 +255,11 @@
   --color-dark-hover: var(--dark-hover);
   --color-dark-table-hover: var(--dark-table-hover);
   --color-dark-border: var(--dark-border);
-  
+
   /* Glass morphism colors */
   --color-glass-bg: var(--glass-bg);
   --color-glass-border: var(--glass-border);
-  
+
   /* Table and form specific colors */
   --color-table-header: var(--table-header, var(--dark-tag));
   --color-table-row-even: var(--table-row-even, var(--card));
@@ -368,11 +426,14 @@
     color: #1E1B4B !important;
   }
 
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     color: #1E1B4B !important;
   }
 
-  input::placeholder, textarea::placeholder {
+  input::placeholder,
+  textarea::placeholder {
     color: rgba(30, 27, 75, 0.45) !important;
   }
 }
@@ -383,22 +444,53 @@ html {
 
 /* Modern dark theme utility classes */
 @layer utilities {
+
   /* Text colors */
-  .text-dark-primary { color: var(--color-dark-primary-text); }
-  .text-dark-secondary { color: var(--color-dark-secondary-text); }
-  .text-dark-positive { color: var(--color-dark-positive); }
-  .text-dark-negative { color: var(--color-dark-negative); }
-  .text-dark-cta { color: var(--color-dark-cta); }
-  
+  .text-dark-primary {
+    color: var(--color-dark-primary-text);
+  }
+
+  .text-dark-secondary {
+    color: var(--color-dark-secondary-text);
+  }
+
+  .text-dark-positive {
+    color: var(--color-dark-positive);
+  }
+
+  .text-dark-negative {
+    color: var(--color-dark-negative);
+  }
+
+  .text-dark-cta {
+    color: var(--color-dark-cta);
+  }
+
   /* Background colors */
-  .bg-dark-bg { background-color: var(--color-dark-bg); }
-  .bg-dark-card { background-color: var(--color-dark-card); }
-  .bg-dark-tag { background-color: var(--color-dark-tag); }
-  .bg-dark-hover { background-color: var(--color-dark-hover); }
-  .bg-dark-table-hover { background-color: var(--color-dark-table-hover); }
-  
+  .bg-dark-bg {
+    background-color: var(--color-dark-bg);
+  }
+
+  .bg-dark-card {
+    background-color: var(--color-dark-card);
+  }
+
+  .bg-dark-tag {
+    background-color: var(--color-dark-tag);
+  }
+
+  .bg-dark-hover {
+    background-color: var(--color-dark-hover);
+  }
+
+  .bg-dark-table-hover {
+    background-color: var(--color-dark-table-hover);
+  }
+
   /* Border colors */
-  .border-dark-color { border-color: var(--color-dark-border); }
+  .border-dark-color {
+    border-color: var(--color-dark-border);
+  }
 
   /* Glass morphism effects */
   .glass-card {
@@ -454,27 +546,34 @@ html {
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes slideUp {
-    from { 
+    from {
       opacity: 0;
       transform: translateY(10px);
     }
-    to { 
+
+    to {
       opacity: 1;
       transform: translateY(0);
     }
   }
 
   @keyframes scaleIn {
-    from { 
+    from {
       opacity: 0;
       transform: scale(0.95);
     }
-    to { 
+
+    to {
       opacity: 1;
       transform: scale(1);
     }
@@ -491,7 +590,7 @@ html {
     backdrop-filter: blur(20px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(148, 163, 184, 0.05);
   }
-  
+
   .dark-button-primary {
     font-weight: 600;
     padding: 0.75rem 1.5rem;
@@ -501,13 +600,13 @@ html {
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
   }
-  
+
   .dark-button-primary:hover {
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
     transform: translateY(-1px);
   }
-  
+
   .dark-button-secondary {
     font-weight: 600;
     padding: 0.75rem 1.5rem;
@@ -518,13 +617,13 @@ html {
     border: 1px solid rgba(59, 130, 246, 0.3);
     backdrop-filter: blur(10px);
   }
-  
+
   .dark-button-secondary:hover {
     background-color: rgba(59, 130, 246, 0.1);
     border-color: rgba(59, 130, 246, 0.5);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
   }
-  
+
   .dark-nav-item {
     display: flex;
     align-items: center;
@@ -537,14 +636,14 @@ html {
     color: var(--color-dark-secondary-text);
     position: relative;
   }
-  
+
   .dark-nav-item-active {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
     color: var(--color-dark-primary-text);
     border: 1px solid rgba(59, 130, 246, 0.3);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
   }
-  
+
   .dark-nav-item:hover {
     background-color: rgba(148, 163, 184, 0.05);
     color: var(--color-dark-primary-text);
@@ -554,11 +653,11 @@ html {
   .dark-shadow {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   }
-  
+
   .dark-shadow-lg {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
-  
+
   .dark-tag {
     padding: 0.375rem 0.875rem;
     border-radius: 9999px;
@@ -568,11 +667,11 @@ html {
     background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
     border: 1px solid rgba(148, 163, 184, 0.2);
   }
-  
+
   .dark-metric-positive {
     color: var(--color-dark-positive);
   }
-  
+
   .dark-metric-negative {
     color: var(--color-dark-negative);
   }
@@ -631,42 +730,42 @@ html {
     border: 1px solid rgba(199, 210, 254, 0.5);
     box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08), 0 0 0 1px rgba(199, 210, 254, 0.3);
   }
-  
+
   .light .dark-button-primary {
     background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
     color: #ffffff;
   }
-  
+
   .light .dark-button-primary:hover {
     background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
     box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
     transform: translateY(-1px);
   }
-  
+
   .light .dark-button-secondary {
     background-color: rgba(224, 231, 255, 0.5);
     color: #6366F1;
     border: 1px solid rgba(99, 102, 241, 0.3);
   }
-  
+
   .light .dark-button-secondary:hover {
     background-color: rgba(224, 231, 255, 0.8);
     border-color: rgba(99, 102, 241, 0.5);
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
   }
-  
+
   .light .dark-nav-item {
     color: #4C1D95;
   }
-  
+
   .light .dark-nav-item-active {
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
     color: #1E1B4B;
     border: 1px solid rgba(99, 102, 241, 0.3);
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
   }
-  
+
   .light .dark-nav-item:hover {
     background-color: rgba(224, 231, 255, 0.6);
     color: #1E1B4B;
@@ -675,11 +774,11 @@ html {
   .light .dark-shadow {
     box-shadow: 0 4px 16px rgba(99, 102, 241, 0.12);
   }
-  
+
   .light .dark-shadow-lg {
     box-shadow: 0 8px 32px rgba(99, 102, 241, 0.18);
   }
-  
+
   .light .dark-tag {
     background: linear-gradient(135deg, #DDD6FE 0%, #E0E7FF 100%);
     border: 1px solid rgba(165, 180, 252, 0.4);
@@ -708,7 +807,7 @@ html {
     border-color: rgba(165, 180, 252, 0.6);
     box-shadow: 0 8px 32px rgba(99, 102, 241, 0.14);
   }
-  
+
   /* Status indicators for light mode */
   .light .status-online {
     background: linear-gradient(135deg, #4ADE80 0%, #10B981 100%);
@@ -917,9 +1016,12 @@ html {
   }
 
   @keyframes pulse-light {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 1;
     }
+
     50% {
       opacity: 0.7;
     }
