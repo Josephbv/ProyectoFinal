@@ -3,7 +3,7 @@ import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
-import { Plus, Search, ShoppingCart, Calendar, Edit, Trash2, User, DollarSign, Stethoscope, Eye } from "lucide-react";
+import { Plus, Search, ShoppingCart, Calendar, Edit, Trash2, User, DollarSign, Stethoscope, Eye, Hash, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Tag, Fingerprint } from "lucide-react";
 import { useVentas, Venta, VentaServicio } from "../hooks/useVentas";
 import { VentaModal } from "../components/VentaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
@@ -25,14 +25,17 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   const ventasFiltradas = ventas.filter(venta => {
-    const searchStr = busqueda.trim();
-    if (!searchStr) return true;
-    const paddedSearch = searchStr.padStart(5, '0');
-    return venta.id_venta.toString().includes(searchStr) ||
-      venta.id_venta.toString().padStart(5, '0').includes(paddedSearch);
+    const searchLow = busqueda.toLowerCase().trim();
+    if (!searchLow) return true;
+
+    return (
+      venta.id_venta.toString().includes(searchLow) ||
+      (venta.cliente?.nombre || '').toLowerCase().includes(searchLow) ||
+      (venta.cliente?.cedula || '').toLowerCase().includes(searchLow)
+    );
   });
 
   const totalPages = Math.ceil(ventasFiltradas.length / itemsPerPage);
@@ -143,35 +146,41 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-dark-color hover:bg-dark-hover">
-                  <TableHead className="text-dark-primary font-semibold w-24">ID Venta</TableHead>
+                <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
+
+                  <TableHead className="text-dark-primary font-semibold min-w-[100px]">
+                    <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" />Fecha</div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold min-w-[150px]">
+                    <div className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400" />Cliente</div>
+                  </TableHead>
                   <TableHead className="text-dark-primary font-semibold min-w-[120px]">
-                    <div className="flex items-center gap-2"><Calendar className="w-4 h-4" />Fecha</div>
+                    <div className="flex items-center gap-2"><Fingerprint className="w-4 h-4 text-blue-400" />Doc.</div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[200px]">
-                    <div className="flex items-center gap-2"><User className="w-4 h-4" />Cliente</div>
+                  <TableHead className="text-dark-primary font-semibold text-center w-24">
+                    <div className="flex items-center justify-center gap-2"><Stethoscope className="w-4 h-4 text-blue-400" />Serv.</div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center">
-                    <div className="flex items-center justify-center gap-2"><Stethoscope className="w-4 h-4" />Servicios Totales</div>
+                  <TableHead className="text-dark-primary font-semibold text-right min-w-[100px]">
+                    <div className="flex items-center justify-end gap-2"><DollarSign className="w-4 h-4 text-blue-400" />Total</div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-right min-w-[120px]">
-                    <div className="flex items-center justify-end gap-2"><DollarSign className="w-4 h-4" />Total</div>
+                  <TableHead className="text-dark-primary font-semibold text-center w-24">
+                    <div className="flex items-center justify-center gap-2"><Tag className="w-3.5 h-3.5 text-blue-400" />Estado</div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center w-32">Estado</TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center w-28">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {ventasPaginadas.map((venta) => (
                   <TableRow key={venta.id_venta} className="border-dark-color hover:bg-dark-table-hover transition-colors">
-                    <TableCell className="font-mono text-xs text-dark-secondary">
-                      #{venta.id_venta.toString().padStart(5, '0')}
-                    </TableCell>
+
                     <TableCell className="text-dark-primary">
                       {venta.fecha ? venta.fecha.split('T')[0] : ''}
                     </TableCell>
                     <TableCell>
                       <div className="font-medium text-dark-primary">{venta.cliente?.nombre || 'Desconocido'}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm text-dark-secondary">{venta.cliente?.cedula || '---'}</div>
                     </TableCell>
                     <TableCell className="text-center">
                       <span className="inline-flex items-center justify-center bg-dark-hover text-dark-primary rounded-full w-8 h-8 text-xs font-bold">
@@ -234,23 +243,22 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
           </div>
 
           {/* Paginación */}
-          {ventasFiltradas.length > 0 && (
-            <div className="flex items-center justify-between pt-4 mt-4 border-t border-dark-color">
-              <div className="text-sm text-dark-secondary">
-                Mostrando {startIndex + 1}-{Math.min(endIndex, ventasFiltradas.length)} de {ventasFiltradas.length} ventas
+          <div className="flex items-center justify-between pt-4 mt-4 border-t border-dark-color">
+            <div className="text-sm text-dark-secondary">
+              Mostrando {startIndex + 1}-{Math.min(endIndex, ventasFiltradas.length)} de {ventasFiltradas.length} ventas
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-dark-secondary">
+                Página {currentPage} de {totalPages || 1}
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1 || loading}
-                  variant="outline" size="sm" className="border-dark-color text-dark-secondary">Anterior</Button>
-                <Button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages || loading}
-                  variant="outline" size="sm" className="border-dark-color text-dark-secondary">Siguiente</Button>
+              <div className="flex items-center gap-1">
+                <Button onClick={() => setCurrentPage(1)} disabled={currentPage === 1 || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
+                <Button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1 || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
+                <Button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
+                <Button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </main>
 

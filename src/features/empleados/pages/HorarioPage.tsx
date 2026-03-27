@@ -9,7 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/components/dialog";
 
 import { toast } from "sonner";
-import { Clock, Users, Plus, Search, Filter, User, Calendar, CheckCircle, Edit, Trash2, Eye, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Clock, Users, Plus, Search, Filter, User, Calendar, CheckCircle, Edit, Trash2, Eye, AlertCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useHorario, Horario } from "../hooks/useHorario";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 import { formatTo12h } from '../../../shared/utils/formatTime';
@@ -27,7 +27,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
 
   // Estados para paginación
   const [paginaActual, setPaginaActual] = useState(1);
-  const [elementosPorPagina] = useState(5);
+  const [elementosPorPagina] = useState(10);
 
   const formatTime = (timeStr: string) => {
     if (!timeStr) return '';
@@ -95,12 +95,20 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
   const handleEliminarHorario = async () => {
     if (!deleteDialog.horario) return;
 
-    const resultado = await eliminarHorario(deleteDialog.horario.id_horario);
+    const empleadoCC = deleteDialog.horario.empleado?.cedula;
+    const horariosAEliminar = horarios.filter((h: Horario) => h.empleado?.cedula === empleadoCC);
 
-    if (resultado.success) {
-      toast.success("Horario eliminado exitosamente");
-    } else {
-      toast.error(resultado.error || "Error al eliminar horario");
+    let todosExitosos = true;
+    for (const h of horariosAEliminar) {
+      const resultado = await eliminarHorario(h.id_horario);
+      if (!resultado.success) {
+        todosExitosos = false;
+        toast.error(`Error al eliminar el día ${h.dia_semana}`);
+      }
+    }
+
+    if (todosExitosos) {
+      toast.success("Todos los horarios del empleado han sido eliminados");
     }
 
     setDeleteDialog({ isOpen: false, horario: null });
@@ -162,7 +170,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-dark-color hover:bg-dark-hover">
+                <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
                   <TableHead className="text-dark-primary font-semibold">
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4" />
@@ -312,79 +320,28 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
           </div>
 
           {/* Paginación */}
-          {totalPaginas > 1 && (
-            <div className="flex items-center justify-between pt-6 mt-6 border-t border-dark-color">
-              <div className="text-sm text-dark-secondary">
-                Mostrando {indiceInicio + 1}-{Math.min(indiceFin, empleadosFiltrados.length)} de {empleadosFiltrados.length} empleados
+          <div className="flex items-center justify-between pt-6 mt-6 border-t border-dark-color">
+            <div className="text-sm text-dark-secondary">
+              Mostrando {indiceInicio + 1}-{Math.min(indiceFin, empleadosFiltrados.length)} de {empleadosFiltrados.length} empleados
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-dark-secondary">Página {paginaActual} de {totalPaginas || 1}</span>
               </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))}
-                  disabled={paginaActual === 1}
-                  className="border-dark-color text-dark-secondary hover:bg-dark-hover hover:text-dark-primary"
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  Anterior
-                </Button>
-
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
-                    let pageNumber;
-                    if (totalPaginas <= 5) {
-                      pageNumber = i + 1;
-                    } else if (paginaActual <= 3) {
-                      pageNumber = i + 1;
-                    } else if (paginaActual >= totalPaginas - 2) {
-                      pageNumber = totalPaginas - 4 + i;
-                    } else {
-                      pageNumber = paginaActual - 2 + i;
-                    }
-
-                    return (
-                      <Button
-                        key={pageNumber}
-                        variant={paginaActual === pageNumber ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setPaginaActual(pageNumber)}
-                        className={`w-8 h-8 p-0 ${paginaActual === pageNumber
-                          ? "bg-blue-600 text-white hover:bg-blue-700"
-                          : "border-dark-color text-dark-secondary hover:bg-dark-hover hover:text-dark-primary"
-                          }`}
-                      >
-                        {pageNumber}
-                      </Button>
-                    );
-                  })}
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))}
-                  disabled={paginaActual === totalPaginas}
-                  className="border-dark-color text-dark-secondary hover:bg-dark-hover hover:text-dark-primary"
-                >
-                  Siguiente
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
+              <div className="flex items-center gap-1">
+                <Button onClick={() => setPaginaActual(1)} disabled={paginaActual === 1 || loading || totalPaginas === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
+                <Button onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))} disabled={paginaActual === 1 || loading || totalPaginas === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
+                <Button onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActual === totalPaginas || loading || totalPaginas === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
+                <Button onClick={() => setPaginaActual(totalPaginas)} disabled={paginaActual === totalPaginas || loading || totalPaginas === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Footer de la tabla */}
           <div className="flex items-center justify-between pt-4 mt-4 border-t border-dark-color">
-            <div className="text-sm text-dark-secondary">
-              Total: {stats.totalEmpleados} empleados • {stats.totalHorarios} días programados
-            </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="text-dark-secondary">Días disponibles: {stats.disponibles}</span>
-              </div>
-            </div>
+
+
           </div>
         </div>
       </main>
@@ -452,14 +409,12 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="flex items-center gap-2">
-                              <Switch
-                                checked={horario.disponible}
-                                onCheckedChange={() => handleCambiarEstado(horario)}
-                                disabled={loading}
-                              />
-                              <span className={`text-[10px] font-bold uppercase tracking-wider w-24 ${horario.disponible ? 'text-[#22c55e]' : 'text-[#64748b]'}`}>
+                              <Badge className={`${horario.disponible
+                                ? 'bg-emerald-900/30 text-emerald-400'
+                                : 'bg-red-900/30 text-red-400'
+                                } border-0 text-[10px] font-bold uppercase tracking-wider`}>
                                 {horario.disponible ? 'Disponible' : 'No disponible'}
-                              </span>
+                              </Badge>
                             </div>
 
                           </div>
@@ -524,8 +479,8 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
         isOpen={deleteDialog.isOpen}
         onClose={() => setDeleteDialog({ isOpen: false, horario: null })}
         onConfirm={handleEliminarHorario}
-        title="¿Eliminar Horario?"
-        description={`¿Estás seguro de eliminar el horario de "${deleteDialog.horario?.empleado?.nombre}"? Esta acción no se puede deshacer.`}
+        title="¿Eliminar todos los horarios?"
+        description={`¿Estás seguro de eliminar el registro completo de horarios de "${deleteDialog.horario?.empleado?.nombre}"? Se borrarán todos los días asignados. Esta acción no se puede deshacer.`}
         loading={loading}
       />
     </>

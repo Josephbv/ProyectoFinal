@@ -266,11 +266,13 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
                       <SelectValue placeholder="Agregar un servicio a la venta..." />
                     </SelectTrigger>
                     <SelectContent className="bg-dark-card border-dark-color">
-                      {servicios.map(s => (
-                        <SelectItem key={s.id_servicio} value={s.id_servicio.toString()} disabled={formData.venta_servicios.some(vs => vs.id_servicio === s.id_servicio)}>
-                          {s.nombre_servicio} - ${s.precio.toLocaleString()}
-                        </SelectItem>
-                      ))}
+                      {servicios
+                        .filter(s => s.estado === 'activo')
+                        .map(s => (
+                          <SelectItem key={s.id_servicio} value={s.id_servicio.toString()} disabled={formData.venta_servicios.some(vs => vs.id_servicio === s.id_servicio)}>
+                            {s.nombre_servicio} - ${s.precio.toLocaleString()}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   {errors.servicios && <p className="text-red-400 text-sm font-semibold">{errors.servicios}</p>}

@@ -3,7 +3,7 @@ import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
-import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText, DollarSign, CheckCircle2 } from "lucide-react";
+import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText, DollarSign, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useAgendamiento, Agendamiento, AgendamientoServicio } from "../hooks/useAgendamiento";
 import { CitaModal } from "../components/CitaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
@@ -23,7 +23,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(8);
+  const [itemsPerPage] = useState(10);
 
   const citasFiltradas = citas.filter(cita => {
     const matchBusqueda = (cita.cliente?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -128,27 +128,27 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-dark-color hover:bg-dark-hover">
+                <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
                   <TableHead className="text-dark-primary font-semibold min-w-[120px]">
-                    <div className="flex items-center gap-2"><Calendar className="w-4 h-4" />Fecha</div>
+                    <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-indigo-400" />Fecha</div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold min-w-[100px]">
-                    <div className="flex items-center gap-2"><Clock className="w-4 h-4" />Hora</div>
+                    <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-indigo-400" />Hora</div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold w-[200px]">
-                    <div className="flex items-center gap-2"><User className="w-4 h-4" />Cliente</div>
+                    <div className="flex items-center gap-2"><User className="w-4 h-4 text-indigo-400" />Cliente</div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[120px]">
-                    <div className="flex items-center gap-2"><FileText className="w-4 h-4" />Doc. Cliente</div>
+                  <TableHead className="text-dark-primary font-semibold min-w-[150px]">
+                    <div className="flex items-center gap-2"><FileText className="w-4 h-4 text-indigo-400" />Doc. Cliente</div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[250px]">
-                    <div className="flex items-center gap-2"><Ticket className="w-4 h-4" />Servicios</div>
+                  <TableHead className="text-dark-primary font-semibold min-w-[200px]">
+                    <div className="flex items-center gap-2"><Ticket className="w-4 h-4 text-indigo-400" />Servicios</div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-center min-w-[120px]">
-                    <div className="flex items-center justify-center gap-2"><Clock className="w-4 h-4" />Estado</div>
+                    <div className="flex items-center justify-center gap-2"><Clock className="w-4 h-4 text-indigo-400" />Estado</div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-center min-w-[100px]">
-                    <div className="flex items-center justify-center gap-2"><DollarSign className="w-4 h-4" />Pago</div>
+                    <div className="flex items-center justify-center gap-2"><DollarSign className="w-4 h-4 text-indigo-400" />Pago</div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
                 </TableRow>
@@ -282,23 +282,22 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
           </div>
 
           {/* Paginación */}
-          {citasFiltradas.length > 0 && (
-            <div className="flex items-center justify-between pt-4 mt-4 border-t border-dark-color">
-              <div className="text-sm text-dark-secondary">
-                Mostrando {startIndex + 1}-{Math.min(endIndex, citasFiltradas.length)} de {citasFiltradas.length} citas
+          <div className="flex items-center justify-between pt-4 mt-4 border-t border-dark-color">
+            <div className="text-sm text-dark-secondary">
+              Mostrando {startIndex + 1}-{Math.min(endIndex, citasFiltradas.length)} de {citasFiltradas.length} citas
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-dark-secondary">Página {currentPage} de {totalPages || 1}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1 || loading}
-                  variant="outline" size="sm" className="border-dark-color text-dark-secondary">Anterior</Button>
-                <Button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages || loading}
-                  variant="outline" size="sm" className="border-dark-color text-dark-secondary">Siguiente</Button>
+              <div className="flex items-center gap-1">
+                <Button onClick={() => setCurrentPage(1)} disabled={currentPage === 1 || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
+                <Button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1 || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
+                <Button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
+                <Button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </main>
 

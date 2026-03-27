@@ -3,7 +3,7 @@ import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
-import { User, Plus, Search, Edit, Trash2, Briefcase, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, Phone, Mail, Shield } from "lucide-react";
+import { User, Plus, Search, Edit, Trash2, Briefcase, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, Phone, Mail, Shield, Hash, Fingerprint } from "lucide-react";
 import { useEmpleados, Empleado } from "../hooks/useEmpleados";
 import { EmpleadoModal } from "../components/EmpleadoModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
@@ -16,7 +16,7 @@ export function EmpleadosPage() {
 
     // Paginación
     const [paginaActual, setPaginaActual] = useState(1);
-    const [elementosPorPagina] = useState(5);
+    const [elementosPorPagina] = useState(10);
 
     const empleadosFiltrados = buscarEmpleados(busqueda);
 
@@ -113,22 +113,30 @@ export function EmpleadosPage() {
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-dark-color hover:bg-dark-hover">
-                                    <TableHead className="text-dark-primary font-semibold w-16 text-center">ID</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold w-32">Cédula</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[250px]">Nombre</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[150px]">Email</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[150px]">Teléfono</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[200px]">Cargo</TableHead>
+                                <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
+
+                                    <TableHead className="text-dark-primary font-semibold w-36">
+                                        <div className="flex items-center gap-2"><Fingerprint className="w-4 h-4 text-blue-400" />Cédula</div>
+                                    </TableHead>
+                                    <TableHead className="text-dark-primary font-semibold min-w-[250px]">
+                                        <div className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400" />Nombre</div>
+                                    </TableHead>
+                                    <TableHead className="text-dark-primary font-semibold min-w-[150px]">
+                                        <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-blue-400" />Email</div>
+                                    </TableHead>
+                                    <TableHead className="text-dark-primary font-semibold min-w-[150px]">
+                                        <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-blue-400" />Teléfono</div>
+                                    </TableHead>
+                                    <TableHead className="text-dark-primary font-semibold min-w-[200px]">
+                                        <div className="flex items-center gap-2"><Briefcase className="w-4 h-4 text-blue-400" />Cargo</div>
+                                    </TableHead>
                                     <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {empleadosPaginados.map((empleado) => (
                                     <TableRow key={empleado.id_empleado} className="border-dark-color hover:bg-dark-table-hover transition-colors">
-                                        <TableCell className="text-dark-secondary text-center text-sm">
-                                            #{empleado.id_empleado}
-                                        </TableCell>
+
                                         <TableCell className="text-dark-primary font-mono text-sm">
                                             {empleado.cedula || 'N/A'}
                                         </TableCell>
@@ -143,22 +151,13 @@ export function EmpleadosPage() {
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-dark-secondary">
-                                            <div className="flex items-center gap-2">
-                                                <Mail className="w-3.5 h-3.5 text-blue-400" />
-                                                <span className="text-xs text-dark-primary">{empleado.correo || 'N/A'}</span>
-                                            </div>
+                                            <span className="text-xs text-dark-primary">{empleado.correo || 'N/A'}</span>
                                         </TableCell>
                                         <TableCell className="text-dark-secondary">
-                                            <div className="flex items-center gap-2">
-                                                <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                                                <span className="text-xs">{empleado.telefono || 'N/A'}</span>
-                                            </div>
+                                            <span className="text-xs">{empleado.telefono || 'N/A'}</span>
                                         </TableCell>
                                         <TableCell className="text-dark-secondary">
-                                            <div className="flex items-center gap-2">
-                                                <Briefcase className="w-4 h-4 text-emerald-400" />
-                                                <span className="capitalize">{empleado.cargo || 'Sin Especificar'}</span>
-                                            </div>
+                                            <span className="capitalize">{empleado.cargo || 'Sin Especificar'}</span>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center justify-center gap-2">
@@ -216,22 +215,18 @@ export function EmpleadosPage() {
                         </Table>
 
                         {/* Paginación */}
-                        {empleadosFiltrados.length > 0 && (
-                            <div className="flex items-center justify-between pt-4 mt-4 border-t border-dark-color">
-                                <div className="text-sm text-dark-secondary">
-                                    Mostrando {indiceInicio + 1}-{Math.min(indiceFin, empleadosFiltrados.length)} de {empleadosFiltrados.length} empleados
-                                </div>
-
-                                {totalPaginas > 1 && (
-                                    <div className="flex items-center gap-1">
-                                        <Button variant="outline" size="sm" onClick={() => setPaginaActual(1)} disabled={paginaActual === 1 || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
-                                        <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))} disabled={paginaActual === 1 || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
-                                        <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActual === totalPaginas || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
-                                        <Button variant="outline" size="sm" onClick={() => setPaginaActual(totalPaginas)} disabled={paginaActual === totalPaginas || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
-                                    </div>
-                                )}
+                        <div className="flex items-center justify-between pt-4 mt-4 border-t border-dark-color">
+                            <div className="text-sm text-dark-secondary">
+                                Mostrando {indiceInicio + 1}-{Math.min(indiceFin, empleadosFiltrados.length)} de {empleadosFiltrados.length} empleados
                             </div>
-                        )}
+
+                            <div className="flex items-center gap-1">
+                                <Button variant="outline" size="sm" onClick={() => setPaginaActual(1)} disabled={paginaActual === 1 || loading || totalPaginas === 0} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
+                                <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))} disabled={paginaActual === 1 || loading || totalPaginas === 0} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
+                                <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActual === totalPaginas || loading || totalPaginas === 0} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
+                                <Button variant="outline" size="sm" onClick={() => setPaginaActual(totalPaginas)} disabled={paginaActual === totalPaginas || loading || totalPaginas === 0} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>

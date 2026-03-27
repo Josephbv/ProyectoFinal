@@ -21,6 +21,7 @@ import {
   Moon,
   Sun
 } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "../../../shared/components/tooltip";
 import { PawIcon } from "../../../shared/components/PawIcon";
 import { Separator } from "../../../shared/components/separator";
 import { Button } from "../../../shared/components/button";
@@ -41,6 +42,8 @@ import { RolesPage } from "../../configuracion/pages/RolesPage";
 import { UsuariosPage } from "../../configuracion/pages/UsuariosPage";
 import { NuevaVentaPage } from "../../ventas/pages/NuevaVentaPage";
 import { NuevoHorarioPage } from "../../empleados/pages/NuevoHorarioPage";
+import { MascotaFormPageWrapper as MascotaFormPage } from "../../mascotas/pages/MascotaFormPageWrapper";
+import { Mascota } from "../../mascotas/hooks/useMascotas";
 
 const mainNavItems = [
   { icon: BarChart3, label: "Dashboard", active: true, shortcut: "⌘D" },
@@ -79,6 +82,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
   // State for passing data to edit pages
   const [horarioAEditar, setHorarioAEditar] = useState<any>(null);
   const [citaAPagar, setCitaAPagar] = useState<any>(null);
+  const [mascotaAEditar, setMascotaAEditar] = useState<any>(null);
 
   // Filter nav items by user's allowed modules.
   // Fail-closed: If no modules are specified, only show "Dashboard" (or the first available).
@@ -111,7 +115,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
 
   const renderNavItem = (item: any, isActive: boolean) => {
     const Icon = item.icon;
-    return (
+    const button = (
       <button
         key={item.label}
         onClick={() => {
@@ -131,9 +135,23 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
               }`}>{item.label}</span>
           )}
         </div>
-
       </button>
     );
+
+    if (sidebarCollapsed) {
+      return (
+        <Tooltip key={item.label} delayDuration={0}>
+          <TooltipTrigger asChild>
+            {button}
+          </TooltipTrigger>
+          <TooltipContent side="right" className="bg-white text-black border-blue-500/30 font-bold px-3 py-2 shadow-2xl">
+            {item.label}
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
+
+    return button;
   };
 
   const renderContent = () => {
@@ -149,7 +167,12 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
           />
         );
       case "Clientes":
-        return <ClientesPage />;
+        return <ClientesPage
+          onNewMascota={(clientId) => {
+            setMascotaAEditar({ id_cliente: clientId });
+            setActivePage("MascotaForm");
+          }}
+        />;
       case "Agendamiento":
         return (
           <AgendamientoPage
@@ -166,7 +189,19 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
           onEditHorario={(horario) => { setHorarioAEditar(horario); setActivePage("NuevoHorario"); }}
         />;
       case "Mascotas":
-        return <MascotasPage />;
+        return <MascotasPage
+          onNewMascota={() => { setMascotaAEditar(null); setActivePage("MascotaForm"); }}
+          onEditMascota={(mascota: Mascota) => { setMascotaAEditar(mascota); setActivePage("MascotaForm"); }}
+          onViewMascota={(mascota: Mascota) => { setMascotaAEditar({ ...mascota, readOnly: true }); setActivePage("MascotaForm"); }}
+        />;
+      case "MascotaForm":
+        const isReadOnly = mascotaAEditar?.readOnly || false;
+        return <MascotaFormPage
+          onBack={() => setActivePage("Mascotas")}
+          onSuccess={() => setActivePage("Mascotas")}
+          mascota={mascotaAEditar}
+          readOnly={isReadOnly}
+        />;
       case "Historial Mascotas":
         return <HistorialMascotasPage />;
       case "Servicios":

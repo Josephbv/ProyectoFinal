@@ -155,36 +155,38 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const titleText = "text-black dark:text-black !text-black font-black";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800 flex items-center justify-center p-4 md:p-8 font-sans">
-      <div className={`w-full transition-all duration-500 ease-in-out transform ${authMode === 'register' ? 'max-w-2xl' : 'max-w-md'} relative z-10`}>
+    <div style={{ position: 'fixed', inset: 0, background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #4338ca 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', zIndex: 50, overflowY: 'auto' }}>
+      <div style={{ width: '100%', maxWidth: authMode === 'register' ? '500px' : '360px', position: 'relative', zIndex: 10, margin: 'auto', flexShrink: 0 }}>
 
         {/* Branding */}
-        <div className="flex flex-col items-center mb-6 space-y-3">
-          <div className="p-3 bg-white rounded-2xl shadow-lg ring-4 ring-blue-400/30">
-            <PawIcon className="w-8 h-8 text-blue-600" />
+        <div className="flex flex-col items-center mb-4 space-y-1.5">
+          <div className="p-2 bg-white rounded-2xl shadow-xl ring-2 ring-white/20">
+            <PawIcon className="w-6 h-6 text-blue-600" />
           </div>
-          <h1 className="text-white text-2xl font-bold tracking-tight uppercase drop-shadow-md">Kaivet Manager</h1>
+          <h1 className="text-white text-lg font-bold tracking-tight uppercase drop-shadow-lg">Kaivet</h1>
         </div>
 
-        <Card className="bg-white dark:bg-white border-none shadow-2xl rounded-3xl overflow-hidden animate-in fade-in zoom-in-95 duration-500">
-          <CardHeader className="pt-10 pb-6 px-8 text-center bg-white border-b border-slate-100">
-            <CardTitle className={`text-3xl tracking-tight mb-2 ${titleText}`} style={{ color: '#000000' }}>
-              {authMode === 'login' && '¡Hola de nuevo!'}
+        <div style={{ background: 'white', borderRadius: '40px', overflow: 'hidden', boxShadow: '0 25px 60px rgba(0,0,0,0.18)', border: 'none' }}>
+          {/* Header */}
+          <div style={{ paddingTop: '40px', paddingBottom: '20px', paddingLeft: '32px', paddingRight: '32px', textAlign: 'center', borderBottom: '1px solid #f8fafc' }}>
+            <CardTitle className={`text-xl tracking-tight mb-0.5 ${titleText}`} style={{ color: '#000000' }}>
+              {authMode === 'login' && '¡Bienvenido!'}
               {authMode === 'register' && 'Crear Cuenta'}
-              {authMode === 'forgot-password' && 'Recuperar Clave'}
-              {authMode === 'reset-password' && 'Nueva Contraseña'}
-              {authMode === 'activate-account' && 'Activar Cuenta'}
+              {authMode === 'forgot-password' && 'Recuperar'}
+              {authMode === 'reset-password' && 'Nueva Clave'}
+              {authMode === 'activate-account' && 'Activar'}
             </CardTitle>
-            <CardDescription className={`${blackText} opacity-80`} style={{ color: '#000000' }}>
-              {authMode === 'login' && 'Ingresa tus datos para entrar al sistema.'}
-              {authMode === 'register' && 'Regístrate para gestionar tu veterinaria.'}
-              {authMode === 'forgot-password' && 'Te ayudaremos a recuperar tu acceso.'}
-              {authMode === 'reset-password' && 'Define tus nuevas credenciales.'}
-              {authMode === 'activate-account' && 'Crea tu nueva contraseña para acceder.'}
+            <CardDescription className="text-black/60 text-[11px] font-medium leading-tight text-center" style={{ color: '#000000' }}>
+              {authMode === 'login' && 'Ingresa para gestionar tu veterinaria.'}
+              {authMode === 'register' && 'Regístrate en el sistema.'}
+              {authMode === 'forgot-password' && 'Recupera tu acceso.'}
+              {authMode === 'reset-password' && 'Define tu nueva contraseña.'}
+              {authMode === 'activate-account' && 'Crea tu contraseña.'}
             </CardDescription>
-          </CardHeader>
+          </div>
 
-          <CardContent className="px-8 py-10 bg-white">
+          {/* Content */}
+          <div style={{ padding: '32px' }}>
             <form
               onSubmit={(e) => {
                 if (authMode === 'login') handleLogin(e);
@@ -328,14 +330,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
               <Button
                 type="submit"
-                className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-2xl shadow-lg shadow-blue-200 active:scale-[0.98] transition-all"
+                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all"
               >
                 {loading ? (
-                  <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    {authMode === 'login' ? 'Iniciar Sesión' : authMode === 'register' ? 'Registrarse ahora' : authMode === 'activate-account' ? 'Activar Cuenta' : 'Continuar'}
-                    <ChevronRight size={20} />
+                    {authMode === 'login' ? 'Entrar' : authMode === 'register' ? 'Registrarse' : 'Continuar'}
+                    <ChevronRight size={16} />
                   </span>
                 )}
               </Button>
@@ -343,33 +345,33 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               {(authMode === 'forgot-password' || authMode === 'reset-password' || authMode === 'activate-account') && (
                 <button
                   type="button"
-                  className={`w-full text-sm flex items-center justify-center gap-2 mt-2 transition-opacity hover:opacity-70 !text-black dark:text-black font-bold`}
+                  className="w-full text-xs flex items-center justify-center gap-1 mt-1 transition-opacity hover:opacity-70 text-black font-bold"
                   style={{ color: '#000000' }}
                   onClick={() => {
                     setAuthMode('login');
                     setIsSubmitted(false);
                   }}
                 >
-                  <ArrowLeft size={16} className="text-black" />
-                  Volver al inicio
+                  <ArrowLeft size={14} />
+                  Volver
                 </button>
               )}
             </form>
 
-            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+            <div className="mt-4 pt-4 border-t border-slate-100 text-center">
               <button
                 onClick={() => {
                   setAuthMode(authMode === 'login' ? 'register' : 'login');
                   setIsSubmitted(false);
                   setShowPassword(false);
                 }}
-                className={`text-sm transition-all !text-black dark:text-black`}
+                className="text-[12px] transition-all text-black hover:opacity-70"
                 style={{ color: '#000000' }}
               >
                 {authMode === 'login' ? (
-                  <>¿Eres nuevo? <span className="font-extrabold underline underline-offset-4 !text-black" style={{ color: '#000000' }}>Regístrate aquí</span></>
+                  <>¿Sin cuenta? <span className="font-extrabold underline underline-offset-2">Regístrate</span></>
                 ) : (
-                  <>¿Ya tienes cuenta? <span className="font-extrabold underline underline-offset-4 !text-black" style={{ color: '#000000' }}>Inicia sesión</span></>
+                  <>¿Ya tienes cuenta? <span className="font-extrabold underline underline-offset-2">Logín</span></>
                 )}
               </button>
 
@@ -378,8 +380,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <span className={`text-[10px] uppercase tracking-widest !text-black dark:text-black font-bold opacity-40`} style={{ color: '#000000' }}>Protocolo Seguro</span>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

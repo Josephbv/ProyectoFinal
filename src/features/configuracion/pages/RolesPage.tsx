@@ -23,7 +23,7 @@ export function RolesPage() {
 
   // Paginación
   const [paginaActual, setPaginaActual] = useState(1);
-  const [elementosPorPagina] = useState(5);
+  const [elementosPorPagina] = useState(10);
 
   const totalPaginas = Math.ceil(rolesFiltrados.length / elementosPorPagina);
   const indiceInicio = (paginaActual - 1) * elementosPorPagina;
@@ -198,11 +198,17 @@ export function RolesPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-dark-color hover:bg-dark-hover">
-                  <TableHead className="text-dark-primary font-semibold">Rol</TableHead>
-                  <TableHead className="text-dark-primary font-semibold">Módulos</TableHead>
-                  <TableHead className="text-dark-primary font-semibold">Estado</TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center">Acciones</TableHead>
+                <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
+                  <TableHead className="text-dark-primary font-semibold min-w-[200px]">
+                    <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-blue-400" />Rol</div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold min-w-[150px]">
+                    <div className="flex items-center gap-2"><Lock className="w-4 h-4 text-blue-400" />Módulos</div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold min-w-[150px]">
+                    <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-400" />Estado</div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -282,14 +288,12 @@ export function RolesPage() {
                 Mostrando {indiceInicio + 1}-{Math.min(indiceFin, rolesFiltrados.length)} de {rolesFiltrados.length} roles
               </div>
 
-              {totalPaginas > 1 && (
-                <div className="flex items-center gap-1">
-                  <Button variant="outline" size="sm" onClick={() => setPaginaActual(1)} disabled={paginaActual === 1 || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
-                  <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))} disabled={paginaActual === 1 || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
-                  <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActual === totalPaginas || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
-                  <Button variant="outline" size="sm" onClick={() => setPaginaActual(totalPaginas)} disabled={paginaActual === totalPaginas || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
-                </div>
-              )}
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="sm" onClick={() => setPaginaActual(1)} disabled={paginaActual === 1 || loading || totalPaginas === 0} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
+                <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))} disabled={paginaActual === 1 || loading || totalPaginas === 0} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
+                <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActual === totalPaginas || loading || totalPaginas === 0} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
+                <Button variant="outline" size="sm" onClick={() => setPaginaActual(totalPaginas)} disabled={paginaActual === totalPaginas || loading || totalPaginas === 0} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
+              </div>
             </div>
           )}
         </div>

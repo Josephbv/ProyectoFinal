@@ -45,7 +45,7 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
 
     // Horarios por día
     const [horariosPorDia, setHorariosPorDia] = useState<{
-        [key: string]: { id_horario?: number; horaInicio: string; horaFin: string; }
+        [key: string]: { id_horario?: number; horaInicio: string; horaFin: string; disponible?: boolean }
     }>({});
 
     const [formData, setFormData] = useState({
@@ -61,12 +61,16 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
         observaciones: ''
     });
 
-    // Filtrar empleados (por cédula)
-    const empleadosDisponibles = empleados.filter((emp: any) =>
-        emp.cedula?.includes(busquedaEmpleado)
-    );
-
     const { horarios } = useHorario();
+
+    // Filtrar empleados: Que coincidan con la búsqueda Y que NO tengan horario asignado ya
+    const empleadosDisponibles = empleados.filter((emp: any) => {
+        const matchesSearch = emp.nombre.toLowerCase().includes(busquedaEmpleado.toLowerCase()) ||
+            emp.cedula?.includes(busquedaEmpleado);
+        const yaTieneHorario = horarios.some((h: any) => h.id_empleado === emp.id_empleado);
+
+        return matchesSearch && !yaTieneHorario;
+    });
 
     useEffect(() => {
         if (horarioAEditar && empleados.length > 0 && horarios.length > 0) {
@@ -96,7 +100,8 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
                     mapaHorarios[h.dia_semana] = {
                         id_horario: h.id_horario,
                         horaInicio: hInicio,
-                        horaFin: hFin
+                        horaFin: hFin,
+                        disponible: h.disponible
                     };
                 });
 
@@ -134,7 +139,7 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
                     dia_semana: dia,
                     hora_inicio: horarioDia.horaInicio,
                     hora_fin: horarioDia.horaFin,
-                    disponible: formData.disponible,
+                    disponible: horarioDia.disponible !== false,
                     observaciones: formData.observaciones
                 };
 
@@ -171,7 +176,7 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
                     dia_semana: dia,
                     hora_inicio: horarioDia.horaInicio,
                     hora_fin: horarioDia.horaFin,
-                    disponible: formData.disponible,
+                    disponible: horarioDia.disponible !== false,
                     observaciones: formData.observaciones
                 };
                 const resultado = await crearHorario(dataToSubmit as any);
@@ -189,16 +194,50 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
     };
 
     const seleccionarEmpleado = (empleado: any) => {
-        setEmpleadoSeleccionado(empleado);
-        setBusquedaEmpleado(`${empleado.nombre}`);
-        setMostrarListaEmpleados(false);
+        // ¿Ya tiene horarios en la base de datos?
+        const horariosEmpleado = horarios.filter((h: any) => h.id_empleado === empleado.id_empleado);
 
-        setFormData(prev => ({
-            ...prev,
-            cc: empleado.cedula || '',
-            nombre: empleado.nombre,
-            apellido: '' // Empleado doesn't have apellido
-        }));
+        if (horariosEmpleado.length > 0) {
+            toast.info(`${empleado.nombre} ya tiene horarios asignados. Cargando datos para edición...`);
+
+            // Cargamos todos sus horarios de la misma forma que haríamos en useEffect
+            const diasConHorario = horariosEmpleado.map((h: any) => h.dia_semana);
+            const mapaHorarios: any = {};
+
+            horariosEmpleado.forEach((h: any) => {
+                mapaHorarios[h.dia_semana] = {
+                    id_horario: h.id_horario,
+                    horaInicio: formatTimeForInput(h.hora_inicio),
+                    horaFin: formatTimeForInput(h.hora_fin),
+                    disponible: h.disponible
+                };
+            });
+
+            setDiasSeleccionados(diasConHorario);
+            setHorariosPorDia(mapaHorarios);
+            setEmpleadoSeleccionado(empleado);
+            setBusquedaEmpleado(`${empleado.nombre}`);
+
+            setFormData(prev => ({
+                ...prev,
+                cc: empleado.cedula || '',
+                nombre: empleado.nombre,
+                disponible: horariosEmpleado[0].disponible ?? true,
+                observaciones: horariosEmpleado[0].observaciones || ''
+            }));
+        } else {
+            // No tiene horarios, proceso de creación normal
+            setEmpleadoSeleccionado(empleado);
+            setBusquedaEmpleado(`${empleado.nombre}`);
+            setMostrarListaEmpleados(false);
+
+            setFormData(prev => ({
+                ...prev,
+                cc: empleado.cedula || '',
+                nombre: empleado.nombre,
+                apellido: ''
+            }));
+        }
     };
 
     const toggleDia = (dia: string) => {
@@ -404,11 +443,16 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
                                                             <div className="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-lg text-xs font-bold border border-blue-500/20">{dia}</div>
                                                             <div className="flex items-center gap-2">
                                                                 <Switch
-                                                                    checked={formData.disponible}
-                                                                    onCheckedChange={() => setFormData(p => ({ ...p, disponible: !p.disponible }))}
+                                                                    checked={horarioDia.disponible !== false}
+                                                                    onCheckedChange={(checked) => {
+                                                                        setHorariosPorDia(prev => ({
+                                                                            ...prev,
+                                                                            [dia]: { ...prev[dia], disponible: checked }
+                                                                        }));
+                                                                    }}
                                                                 />
-                                                                <span className={`text-[10px] font-bold uppercase tracking-wider w-20 ${formData.disponible ? 'text-[#22c55e]' : 'text-[#64748b]'}`}>
-                                                                    {formData.disponible ? 'Disponible' : 'Descanso'}
+                                                                <span className={`text-[10px] font-bold uppercase tracking-wider w-20 ${horarioDia.disponible !== false ? 'text-[#22c55e]' : 'text-[#64748b]'}`}>
+                                                                    {horarioDia.disponible !== false ? 'Disponible' : 'Descanso'}
                                                                 </span>
                                                             </div>
                                                         </div>

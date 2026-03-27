@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/components/dialog";
 import { toast } from "sonner";
-import { Wrench, Plus, Search, Clock, DollarSign, Eye, Edit, Trash2, Users, Award, AlertCircle, CheckCircle, Tag, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Wrench, Plus, Search, Clock, DollarSign, Eye, Edit, Trash2, Users, Award, AlertCircle, CheckCircle, Tag, Star, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ListFilter, Hash } from "lucide-react";
 import { useServicios, Servicio } from "../hooks/useServicios";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 import { ServicioModal } from "../components/ServicioModal";
@@ -20,7 +20,7 @@ export function ServiciosPage() {
 
   // Estados para paginación
   const [paginaActual, setPaginaActual] = useState(1);
-  const [elementosPorPagina] = useState(8);
+  const [elementosPorPagina] = useState(10);
 
   const serviciosFiltrados = buscarServicios(busqueda);
   const estadisticas = obtenerEstadisticas();
@@ -191,15 +191,25 @@ export function ServiciosPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-dark-color hover:bg-dark-hover">
-                  <TableHead className="text-dark-primary font-semibold">
+                <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
+                  <TableHead className="text-dark-primary font-semibold min-w-[300px]">
                     <div className="flex items-center gap-2">
-                      <Wrench className="w-4 h-4" />
+                      <Wrench className="w-4 h-4 text-blue-400" />
                       Servicio
                     </div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold">Precio</TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center">Estado</TableHead>
+                  <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-blue-400" />
+                      Precio
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center min-w-[120px]">
+                    <div className="flex items-center justify-center gap-2">
+                      <ListFilter className="w-4 h-4 text-blue-400" />
+                      Estado
+                    </div>
+                  </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -304,84 +314,24 @@ export function ServiciosPage() {
           </div>
 
           {/* Paginación */}
-          {totalPaginas > 1 && (
-            <div className="flex items-center justify-between pt-6 mt-6 border-t border-dark-color">
-              <div className="text-sm text-dark-secondary">
-                Mostrando {indiceInicio + 1}-{Math.min(indiceFin, serviciosFiltrados.length)} de {serviciosFiltrados.length} servicios
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))}
-                  disabled={paginaActual === 1}
-                  className="border-dark-color text-dark-secondary hover:bg-dark-hover hover:text-dark-primary"
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  Anterior
-                </Button>
-
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
-                    let pageNumber;
-                    if (totalPaginas <= 5) {
-                      pageNumber = i + 1;
-                    } else if (paginaActual <= 3) {
-                      pageNumber = i + 1;
-                    } else if (paginaActual >= totalPaginas - 2) {
-                      pageNumber = totalPaginas - 4 + i;
-                    } else {
-                      pageNumber = paginaActual - 2 + i;
-                    }
-
-                    return (
-                      <Button
-                        key={pageNumber}
-                        variant={paginaActual === pageNumber ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setPaginaActual(pageNumber)}
-                        className={`w-8 h-8 p-0 ${paginaActual === pageNumber
-                          ? "bg-blue-600 text-white hover:bg-blue-700"
-                          : "border-dark-color text-dark-secondary hover:bg-dark-hover hover:text-dark-primary"
-                          }`}
-                      >
-                        {pageNumber}
-                      </Button>
-                    );
-                  })}
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))}
-                  disabled={paginaActual === totalPaginas}
-                  className="border-dark-color text-dark-secondary hover:bg-dark-hover hover:text-dark-primary"
-                >
-                  Siguiente
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Footer de la tabla */}
-          <div className="flex items-center justify-between pt-4 mt-4 border-t border-dark-color">
+          <div className="flex items-center justify-between pt-6 mt-6 border-t border-dark-color">
             <div className="text-sm text-dark-secondary">
-              Total: {servicios.length} servicios registrados
+              Mostrando {indiceInicio + 1}-{Math.min(indiceFin, serviciosFiltrados.length)} de {serviciosFiltrados.length} servicios
             </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="text-dark-secondary">Activos: {estadisticas.serviciosActivos}</span>
+
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-dark-secondary">Página {paginaActual} de {totalPaginas || 1}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-                <span className="text-dark-secondary">Ingresos: ${(estadisticas.ingresosPotenciales / 1000000).toFixed(1)}M</span>
+              <div className="flex items-center gap-1">
+                <Button onClick={() => setPaginaActual(1)} disabled={paginaActual === 1 || loading || totalPaginas === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
+                <Button onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))} disabled={paginaActual === 1 || loading || totalPaginas === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
+                <Button onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActual === totalPaginas || loading || totalPaginas === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
+                <Button onClick={() => setPaginaActual(totalPaginas)} disabled={paginaActual === totalPaginas || loading || totalPaginas === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
               </div>
             </div>
           </div>
+
         </div>
       </main>
 

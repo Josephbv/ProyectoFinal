@@ -184,7 +184,6 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
                   <SelectContent className="bg-dark-card border-dark-color">
                     <SelectItem value="activo">Activo</SelectItem>
                     <SelectItem value="inactivo">Inactivo</SelectItem>
-                    <SelectItem value="mantenimiento">Mantenimiento</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

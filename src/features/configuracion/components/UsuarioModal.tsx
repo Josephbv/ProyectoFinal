@@ -183,9 +183,9 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                     type="email"
                                     value={formData.correo}
                                     onChange={(e) => handleChange('correo', e.target.value)}
-                                    className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
+                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${usuario ? 'opacity-60 cursor-not-allowed' : ''}`}
                                     placeholder="correo@ejemplo.com"
-                                    readOnly={readOnly}
+                                    readOnly={readOnly || !!usuario}
                                 />
                             </div>
                             <div className="space-y-2">
@@ -213,8 +213,8 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                 <select
                                     value={formData.tipo_documento}
                                     onChange={(e) => handleChange('tipo_documento', e.target.value)}
-                                    disabled={readOnly}
-                                    className="w-full h-10 px-3 py-2 bg-dark-hover border border-dark-color rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none cursor-pointer"
+                                    disabled={readOnly || !!usuario}
+                                    className={`w-full h-10 px-3 py-2 bg-dark-hover border border-dark-color rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none cursor-pointer ${usuario ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 >
                                     <option value="CC">Cédula de Ciudadanía</option>
                                     <option value="CE">Cédula de Extranjería</option>
@@ -228,9 +228,9 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                 <Input
                                     value={formData.cedula}
                                     onChange={(e) => handleChange('cedula', e.target.value)}
-                                    className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
+                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${usuario ? 'opacity-60 cursor-not-allowed' : ''}`}
                                     placeholder="1001780XXX"
-                                    readOnly={readOnly}
+                                    readOnly={readOnly || !!usuario}
                                 />
                             </div>
                         </div>

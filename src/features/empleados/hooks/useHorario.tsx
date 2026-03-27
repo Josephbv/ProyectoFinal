@@ -8,6 +8,7 @@ export interface Horario {
   hora_fin: string;
   id_empleado: number;
   disponible?: boolean;
+  observaciones?: string;
   empleado?: any;
 }
 

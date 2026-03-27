@@ -3,24 +3,25 @@ import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
-import { Users, Plus, Search, Mail, Phone, Eye, Edit, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, FileText, Dog } from "lucide-react";
+import { Users, Plus, Search, Mail, Phone, Eye, Edit, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, FileText, Dog, Fingerprint, Hash } from "lucide-react";
 import { ClienteModal } from "../components/ClienteModal";
-import { MascotaModal } from "../../mascotas/components/MascotaModal";
 import { useClientes, Cliente } from "../hooks/useClientes";
 import { useMascotas } from "../../mascotas/hooks/useMascotas";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 
-export function ClientesPage() {
+interface ClientesPageProps {
+  onNewMascota?: (clientId: number) => void;
+}
+
+export function ClientesPage({ onNewMascota }: ClientesPageProps) {
   const { clientes, loading, crearCliente, actualizarCliente, eliminarCliente } = useClientes();
-  const { crearMascota } = useMascotas();
   const [busqueda, setBusqueda] = useState("");
   const [clienteModal, setClienteModal] = useState({ isOpen: false, cliente: null as Cliente | null, readOnly: false });
-  const [petModal, setPetModal] = useState({ isOpen: false, initialClientId: 0 });
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, cliente: null as Cliente | null });
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(10);
 
   const clientesFiltrados = clientes.filter(cliente => {
     const matchBusqueda = (cliente.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -158,28 +159,28 @@ export function ClientesPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-dark-color hover:bg-dark-hover">
+                <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
                   <TableHead className="text-dark-primary font-semibold min-w-[200px]">
                     <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
+                      <Users className="w-4 h-4 text-blue-500" />
                       Cliente
                     </div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                  <TableHead className="text-dark-primary font-semibold min-w-[150px]">
                     <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4" />
+                      <Fingerprint className="w-4 h-4 text-blue-500" />
                       Documento
                     </div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold min-w-[150px]">
                     <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4" />
+                      <Phone className="w-4 h-4 text-blue-500" />
                       Teléfono
                     </div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold min-w-[200px]">
                     <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
+                      <Mail className="w-4 h-4 text-blue-500" />
                       Correo
                     </div>
                   </TableHead>
@@ -291,17 +292,7 @@ export function ClientesPage() {
         readOnly={clienteModal.readOnly}
       />
 
-      <MascotaModal
-        isOpen={petModal.isOpen}
-        onClose={() => setPetModal({ isOpen: false, initialClientId: 0 })}
-        initialClientId={petModal.initialClientId}
-        onSubmit={async (data) => {
-          const res = await crearMascota(data);
-          if (res.success) toast.success("Mascota registrada exitosamente");
-          return res;
-        }}
-        loading={loading}
-      />
+
 
       <ConfirmDeleteDialog
         isOpen={deleteDialog.isOpen}

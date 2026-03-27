@@ -58,7 +58,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
   const { citas } = useAgendamiento();
 
   const [formData, setFormData] = useState({
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: new Date().toLocaleDateString('sv-SE'),
     hora: '',
     id_cliente: '',
     id_empleado: '',
@@ -70,7 +70,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
   useEffect(() => {
     if (cita) {
       setFormData({
-        fecha: cita.fecha ? cita.fecha.split('T')[0] : new Date().toISOString().split('T')[0],
+        fecha: cita.fecha ? cita.fecha.split('T')[0] : new Date().toLocaleDateString('sv-SE'),
         hora: extraerHHmm(cita.hora),
         id_cliente: cita.id_cliente.toString(),
         id_empleado: cita.id_empleado.toString(),
@@ -78,7 +78,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
       });
     } else {
       setFormData({
-        fecha: new Date().toISOString().split('T')[0],
+        fecha: new Date().toLocaleDateString('sv-SE'),
         hora: '',
         id_cliente: '',
         id_empleado: '',
@@ -88,7 +88,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
     setErrors({});
   }, [cita, isOpen]);
 
-  // ─── Calcular slots disponibles ────────────────────────────────────────────
+  // ─── Calcular slots disponibles considerando DURACIÓN ─────────────────────
   const slotsDisponibles = useMemo(() => {
     if (!formData.id_empleado || !formData.fecha) return [];
 
@@ -96,45 +96,79 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
     const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const nombreDia = diasSemana[fechaCita.getDay()];
 
-    // Horario del empleado para ese día
     const horarioDia = horarios.find(
       h => h.id_empleado === parseInt(formData.id_empleado) && h.dia_semana === nombreDia && h.disponible !== false
     );
-    if (!horarioDia) return []; // no trabaja ese día
+    if (!horarioDia) return [];
 
     const inicioStr = extraerHHmm(horarioDia.hora_inicio);
     const finStr = extraerHHmm(horarioDia.hora_fin);
     if (!inicioStr || !finStr) return [];
 
-    let slots = generarSlots(inicioStr, finStr);
+    let slotsBase = generarSlots(inicioStr, finStr);
 
-    // Si es hoy, eliminar horas que ya pasaron (hora local actual)
+    // 1. Minutos ocupados por citas existentes (30 mins x cada servicio)
+    const minutosOcupados = new Set<number>();
+    citas.forEach(c => {
+      if (c.id_empleado !== parseInt(formData.id_empleado)) return;
+      if (!c.fecha || c.estado === 'cancelada') return;
+      if (cita && c.id_agendamiento === cita.id_agendamiento) return; // ignoramos la propia cita en edición
+
+      const fCita = c.fecha.split('T')[0];
+      if (fCita !== formData.fecha) return;
+
+      const [h, m] = extraerHHmm(c.hora).split(':').map(Number);
+      const startMin = h * 60 + m;
+      const numServicios = c.agendamiento_servicios?.length || 1;
+      const duracion = numServicios * 30;
+
+      for (let i = 0; i < duracion; i += 30) {
+        minutosOcupados.add(startMin + i);
+      }
+    });
+
+    // 2. Filtrar slots hoy (pasados)
     const hoy = new Date().toISOString().split('T')[0];
     if (formData.fecha === hoy) {
       const ahora = new Date();
       const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes();
-      slots = slots.filter(s => {
+      slotsBase = slotsBase.filter(s => {
         const [h, m] = s.split(':').map(Number);
         return h * 60 + m > minutosAhora;
       });
     }
 
-    // Eliminar slots ya ocupados por otras citas del empleado en esa fecha
-    // (excepto la cita que estamos editando)
-    const citasOcupadas = citas.filter(c => {
-      if (c.id_empleado !== parseInt(formData.id_empleado)) return false;
-      if (!c.fecha) return false;
-      const fCita = c.fecha.split('T')[0];
-      if (fCita !== formData.fecha) return false;
-      if (c.estado === 'cancelada') return false;
-      if (cita && c.id_agendamiento === cita.id_agendamiento) return false; // edición
+    // 3. Filtrar slots ya ocupados (el punto de inicio está ocupado)
+    let slotsLibres = slotsBase.filter(s => {
+      const [h, m] = s.split(':').map(Number);
+      return !minutosOcupados.has(h * 60 + m);
+    });
+
+    // 4. VALIDACIÓN CRÍTICA: Filtrar por huecos CONSECUTIVOS suficientes
+    // Cada servicio seleccionado requiere 30 min libres.
+    const numServiciosActual = formData.serviciosSeleccionados.length || 1;
+    const duracionRequerida = numServiciosActual * 30;
+
+    return slotsLibres.filter(s => {
+      const [h, m] = s.split(':').map(Number);
+      const inicioProbable = h * 60 + m;
+
+      // Chequear si desde 'inicioProbable' hay 'duracionRequerida' de espacio libre
+      for (let offset = 0; offset < duracionRequerida; offset += 30) {
+        const minCheck = inicioProbable + offset;
+        // Debe estar dentro del horario laboral y NO estar en minutosOcupados
+        const hCheck = Math.floor(minCheck / 60);
+        const mCheck = minCheck % 60;
+        const timeStr = `${hCheck.toString().padStart(2, '0')}:${mCheck.toString().padStart(2, '0')}`;
+
+        // Si el minuto está ocupado o se sale de los slots base del día, no cabe
+        if (minutosOcupados.has(minCheck) || !slotsBase.includes(timeStr)) {
+          return false;
+        }
+      }
       return true;
     });
-    const horasOcupadas = new Set(citasOcupadas.map(c => extraerHHmm(c.hora)));
-    slots = slots.filter(s => !horasOcupadas.has(s));
-
-    return slots;
-  }, [formData.id_empleado, formData.fecha, horarios, citas, cita]);
+  }, [formData.id_empleado, formData.fecha, formData.serviciosSeleccionados.length, horarios, citas, cita]);
 
   // Si el slot seleccionado ya no es válido, limpiarlo
   useEffect(() => {
@@ -215,7 +249,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-dark-card border-dark-color border-opacity-50">
+      <DialogContent className="max-w-2xl bg-dark-card border-dark-color border-opacity-50 max-h-[90vh] overflow-y-auto custom-scrollbar">
         <DialogHeader className="border-b border-dark-color pb-4">
           <DialogTitle className="text-xl font-bold text-dark-primary flex items-center gap-2">
             <div className="p-2 bg-blue-500/10 rounded-lg">
@@ -255,9 +289,14 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                   <SelectValue placeholder="Asignar empleado..." />
                 </SelectTrigger>
                 <SelectContent className="bg-dark-card border-dark-color">
-                  {empleados.map(e => (
-                    <SelectItem key={e.id_empleado} value={e.id_empleado.toString()}>{e.nombre} ({e.cargo})</SelectItem>
-                  ))}
+                  {empleados
+                    .filter(e =>
+                      horarios.some(h => h.id_empleado === e.id_empleado) &&
+                      e.cargo?.toLowerCase() !== 'administrador'
+                    )
+                    .map(e => (
+                      <SelectItem key={e.id_empleado} value={e.id_empleado.toString()}>{e.nombre} ({e.cargo})</SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
               {errors.id_empleado && <p className="text-red-400 text-xs">{errors.id_empleado}</p>}
@@ -335,11 +374,13 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                     <SelectValue placeholder="Agregar un servicio..." />
                   </SelectTrigger>
                   <SelectContent className="bg-dark-card border-dark-color">
-                    {servicios.map(s => (
-                      <SelectItem key={s.id_servicio} value={s.id_servicio.toString()}>
-                        {s.nombre_servicio} - ${s.precio}
-                      </SelectItem>
-                    ))}
+                    {servicios
+                      .filter(s => s.estado === 'activo')
+                      .map(s => (
+                        <SelectItem key={s.id_servicio} value={s.id_servicio.toString()}>
+                          {s.nombre_servicio} - ${s.precio}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               );
@@ -348,7 +389,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
             {errors.servicios && <p className="text-red-400 text-xs font-medium">{errors.servicios}</p>}
 
             {formData.serviciosSeleccionados.length > 0 && (
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-[120px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-dark-color">
                 {formData.serviciosSeleccionados.map(id_servicio => {
                   const servicio = servicios.find(s => s.id_servicio === id_servicio);
                   if (!servicio) return null;

@@ -3,22 +3,26 @@ import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
-import { Dog, Plus, Search, Eye, Edit, Trash2, User, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import { MascotaModal } from "../components/MascotaModal";
+import { Dog, Plus, Search, Eye, Edit, Trash2, User, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Hash, Info, Fingerprint } from "lucide-react";
 import { useMascotas, Mascota } from "../hooks/useMascotas";
 import { useClientes } from "../../clientes/hooks/useClientes";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 
-export function MascotasPage() {
-  const { mascotas, loading, crearMascota, actualizarMascota, eliminarMascota } = useMascotas();
+interface MascotasPageProps {
+  onNewMascota: () => void;
+  onEditMascota: (mascota: Mascota) => void;
+  onViewMascota: (mascota: Mascota) => void;
+}
+
+export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: MascotasPageProps) {
+  const { mascotas, loading, eliminarMascota } = useMascotas();
   const { clientes } = useClientes();
   const [busqueda, setBusqueda] = useState("");
-  const [mascotaModal, setMascotaModal] = useState({ isOpen: false, mascota: null as Mascota | null, readOnly: false });
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, mascota: null as Mascota | null });
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(10);
 
   const mascotasConId = mascotas.map((m, index) => ({ ...m, displayId: index + 1 }));
 
@@ -27,13 +31,25 @@ export function MascotasPage() {
     return cliente ? cliente.nombre : 'Cliente Desconocido';
   };
 
+  const getClienteCedula = (id_cliente: number) => {
+    const cliente = clientes.find(c => c.id_cliente === id_cliente);
+    return cliente ? cliente.cedula : '---';
+  };
+
   const mascotasFiltradas = mascotas.filter(mascota => {
     const searchLow = busqueda.toLowerCase().trim();
     if (!searchLow) return true;
 
-    const petId = mascota.id_mascota.toString();
+    const mascotaNombre = (mascota.nombre || '').toLowerCase();
+    const cliente = clientes.find(c => c.id_cliente === mascota.id_cliente);
+    const clienteNombre = (cliente?.nombre || '').toLowerCase();
+    const clienteCedula = (cliente?.cedula || '').toLowerCase();
 
-    return petId.includes(searchLow);
+    return (
+      mascotaNombre.includes(searchLow) ||
+      clienteNombre.includes(searchLow) ||
+      clienteCedula.includes(searchLow)
+    );
   });
 
   // Cálculos de paginación
@@ -50,16 +66,6 @@ export function MascotasPage() {
     setCurrentPage(1);
   }, [busqueda]);
 
-  const handleGuardarMascota = async (mascotaData: Partial<Mascota>, resetAfter: boolean = false) => {
-    if (mascotaData.id_mascota) {
-      const resultado = await actualizarMascota(mascotaData.id_mascota, mascotaData);
-      if (resultado.success) toast.success(`Mascota ${mascotaData.nombre} actualizada`);
-    } else {
-      const resultado = await crearMascota(mascotaData);
-      if (resultado.success) toast.success(`Mascota ${mascotaData.nombre} registrada`);
-    }
-  };
-
   const handleEliminarMascota = async () => {
     if (!deleteDialog.mascota) return;
 
@@ -72,14 +78,6 @@ export function MascotasPage() {
     }
 
     setDeleteDialog({ isOpen: false, mascota: null });
-  };
-
-  const abrirMascotaModal = (mascota?: Mascota, readOnly: boolean = false) => {
-    setMascotaModal({ isOpen: true, mascota: mascota || null, readOnly });
-  };
-
-  const cerrarMascotaModal = () => {
-    setMascotaModal({ isOpen: false, mascota: null, readOnly: false });
   };
 
   const getEspecieIcon = (especie: string) => {
@@ -108,7 +106,7 @@ export function MascotasPage() {
             </div>
 
             <button
-              onClick={() => abrirMascotaModal()}
+              onClick={onNewMascota}
               className="dark-button-primary gap-2 flex items-center"
               disabled={loading}
             >
@@ -124,26 +122,30 @@ export function MascotasPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-dark-color hover:bg-dark-hover">
-                  <TableHead className="text-dark-primary font-semibold w-16 text-center">
-                    ID
-                  </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[200px]">
+                <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
+
+                  <TableHead className="text-dark-primary font-semibold min-w-[140px]">
                     <div className="flex items-center gap-2">
-                      <Dog className="w-4 h-4" />
+                      <Dog className="w-4 h-4 text-blue-400" />
                       Mascota
                     </div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[150px]">
-                    Especie / Raza
+                  <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                    <div className="flex items-center gap-2"><Info className="w-4 h-4 text-blue-400" />Especie / Raza</div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[200px]">
+                  <TableHead className="text-dark-primary font-semibold min-w-[140px]">
                     <div className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
+                      <User className="w-4 h-4 text-blue-400" />
                       Dueño / Cliente
                     </div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center w-40">
+                  <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                    <div className="flex items-center gap-2">
+                      <Fingerprint className="w-4 h-4 text-blue-400" />
+                      Doc. Dueño
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center w-28">
                     Acciones
                   </TableHead>
                 </TableRow>
@@ -153,9 +155,7 @@ export function MascotasPage() {
                 {mascotasPaginadas.length > 0 ? (
                   mascotasPaginadas.map((mascota) => (
                     <TableRow key={mascota.id_mascota} className="border-dark-color hover:bg-dark-table-hover transition-colors">
-                      <TableCell className="text-dark-secondary font-medium text-center">
-                        <span className="opacity-50">#{mascota.id_mascota}</span>
-                      </TableCell>
+
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-dark-hover rounded-full flex items-center justify-center shadow-lg border border-dark-color">
@@ -183,9 +183,15 @@ export function MascotasPage() {
                       </TableCell>
 
                       <TableCell>
+                        <div className="text-sm text-dark-secondary">
+                          {getClienteCedula(mascota.id_cliente)}
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
                         <div className="flex items-center justify-center gap-1.5">
                           <Button
-                            onClick={() => abrirMascotaModal(mascota, true)}
+                            onClick={() => onViewMascota(mascota)}
                             variant="outline"
                             size="sm"
                             className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
@@ -195,7 +201,7 @@ export function MascotasPage() {
                             <Eye className="w-4 h-4" />
                           </Button>
                           <Button
-                            onClick={() => abrirMascotaModal(mascota)}
+                            onClick={() => onEditMascota(mascota)}
                             variant="outline"
                             size="sm"
                             className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
@@ -249,14 +255,7 @@ export function MascotasPage() {
         </div>
       </main>
 
-      <MascotaModal
-        isOpen={mascotaModal.isOpen}
-        onClose={cerrarMascotaModal}
-        onSubmit={(data, reset) => handleGuardarMascota(data, reset)}
-        mascota={mascotaModal.mascota}
-        loading={loading}
-        readOnly={mascotaModal.readOnly}
-      />
+
 
       <ConfirmDeleteDialog
         isOpen={deleteDialog.isOpen}

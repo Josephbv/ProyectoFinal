@@ -3,7 +3,7 @@ import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
-import { Users, Plus, Search, Edit, Shield, ShieldOff, Lock, Unlock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, User, Briefcase } from "lucide-react";
+import { Users, Plus, Search, Edit, Shield, ShieldOff, Lock, Unlock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, User, Briefcase, Hash, Activity, Fingerprint, FileDigit } from "lucide-react";
 import { useUsuarios, Usuario } from "../hooks/useUsuarios";
 import { UsuarioModal } from "../components/UsuarioModal";
 export function UsuariosPage() {
@@ -14,7 +14,7 @@ export function UsuariosPage() {
 
     // Paginación
     const [paginaActual, setPaginaActual] = useState(1);
-    const [elementosPorPagina] = useState(5);
+    const [elementosPorPagina] = useState(10);
 
     const usuariosFiltrados = buscarUsuarios(busqueda);
 
@@ -128,23 +128,30 @@ export function UsuariosPage() {
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-dark-color hover:bg-dark-hover">
-                                    <TableHead className="text-dark-primary font-semibold w-16 text-center">ID</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[200px]">Username / Correo</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[120px]">Tipo Doc.</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[150px]">Documento</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[150px]">Rol Base</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold text-center min-w-[100px]">Estado</TableHead>
-                                    <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
+                                <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
 
+                                    <TableHead className="text-dark-primary font-semibold min-w-[200px]">
+                                        <div className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400" />Username / Correo</div>
+                                    </TableHead>
+                                    <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                                        <div className="flex items-center gap-2"><FileDigit className="w-4 h-4 text-blue-400" />Tipo Doc.</div>
+                                    </TableHead>
+                                    <TableHead className="text-dark-primary font-semibold min-w-[150px]">
+                                        <div className="flex items-center gap-2"><Fingerprint className="w-4 h-4 text-blue-400" />Documento</div>
+                                    </TableHead>
+                                    <TableHead className="text-dark-primary font-semibold min-w-[150px]">
+                                        <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-blue-400" />Rol Base</div>
+                                    </TableHead>
+                                    <TableHead className="text-dark-primary font-semibold text-center min-w-[100px]">
+                                        <div className="flex items-center justify-center gap-2"><Activity className="w-4 h-4 text-blue-400" />Estado</div>
+                                    </TableHead>
+                                    <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {usuariosPaginados.map((usuario) => (
                                     <TableRow key={usuario.id_usuario} className="border-dark-color hover:bg-dark-table-hover transition-colors">
-                                        <TableCell className="text-dark-secondary text-center text-sm font-mono">
-                                            #{usuario.id_usuario}
-                                        </TableCell>
+
                                         <TableCell className="font-medium text-dark-primary">
                                             <div className="flex items-center gap-3">
                                                 <div className={`w - 8 h - 8 rounded - full flex items - center justify - center text - white font - bold text - xs shadow ${usuario.estado === 'bloqueado' ? 'bg-red-900/50' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} `}>
@@ -167,18 +174,15 @@ export function UsuariosPage() {
                                         <TableCell>
                                             <div className="flex flex-col gap-1.5 align-middle justify-center">
                                                 <span className="flex w-fit items-center gap-1.5 text-sm text-dark-secondary capitalize px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-md">
-                                                    <Shield className="w-3.5 h-3.5 text-blue-400" />
                                                     <span className="text-blue-400 font-medium">{usuario.rol?.nombre_rol || 'Indefinido'}</span>
                                                 </span>
                                                 {usuario.id_cliente && usuario.rol?.nombre_rol?.toLowerCase() !== 'cliente' && (
                                                     <span className="flex w-fit items-center gap-1.5 text-xs px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-md">
-                                                        <User className="w-3 h-3 text-green-400" />
                                                         <span className="text-green-400">Cliente (Vinculado)</span>
                                                     </span>
                                                 )}
                                                 {usuario.id_empleado && usuario.rol?.nombre_rol?.toLowerCase() === 'cliente' && (
                                                     <span className="flex w-fit items-center gap-1.5 text-xs px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded-md">
-                                                        <Briefcase className="w-3 h-3 text-purple-400" />
                                                         <span className="text-purple-400">Empleado (Vinculado)</span>
                                                     </span>
                                                 )}
@@ -256,14 +260,12 @@ export function UsuariosPage() {
                                     Mostrando {indiceInicio + 1}-{Math.min(indiceFin, usuariosFiltrados.length)} de {usuariosFiltrados.length} cuentas
                                 </div>
 
-                                {totalPaginas > 1 && (
-                                    <div className="flex items-center gap-1">
-                                        <Button variant="outline" size="sm" onClick={() => setPaginaActual(1)} disabled={paginaActual === 1 || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
-                                        <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))} disabled={paginaActual === 1 || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
-                                        <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActual === totalPaginas || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
-                                        <Button variant="outline" size="sm" onClick={() => setPaginaActual(totalPaginas)} disabled={paginaActual === totalPaginas || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
-                                    </div>
-                                )}
+                                <div className="flex items-center gap-1">
+                                    <Button variant="outline" size="sm" onClick={() => setPaginaActual(1)} disabled={paginaActual === 1 || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
+                                    <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))} disabled={paginaActual === 1 || loading} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
+                                    <Button variant="outline" size="sm" onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActual === totalPaginas || loading || totalPaginas <= 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
+                                    <Button variant="outline" size="sm" onClick={() => setPaginaActual(totalPaginas)} disabled={paginaActual === totalPaginas || loading || totalPaginas <= 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
+                                </div>
                             </div>
                         )}
                     </div>

@@ -29,6 +29,7 @@ export interface HistorialMascota {
   mascotaId: number; // Alias to support both
   nombreMascota: string;
   nombreCliente: string;
+  cedulaCliente?: string;
   mascota?: any;
   avanceCitas?: any;
 }
@@ -84,6 +85,7 @@ export function useHistorialMascotas() {
         mascotaId: h.id_mascota,
         nombreMascota: h.mascota?.nombre || h.nombreMascota || 'Mascota',
         nombreCliente: h.mascota?.cliente?.nombre || h.nombreCliente || 'Cliente',
+        cedulaCliente: h.mascota?.cliente?.cedula || h.cedulaCliente || '',
         descripcion: h.motivoConsulta || h.descripcion || 'Consulta Médica',
         tipoVisita: tipoVisitaArr,
         sintomas: safeParse(h.sintomas, []),

@@ -5,13 +5,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/components/dialog";
 import { toast } from "sonner";
-import { FileText, Plus, Search, Calendar, Eye, Edit, Trash2, Heart, User, Users, Stethoscope, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardPlus, TrendingUp, Activity, Syringe, CheckCircle, XCircle, Save, Undo2, Phone, Hash } from "lucide-react";
+import { FileText, Plus, Search, Calendar, Eye, Edit, Trash2, Heart, User, Users, Stethoscope, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardPlus, TrendingUp, Activity, Syringe, CheckCircle, XCircle, Save, Undo2, Phone, Hash, Fingerprint } from "lucide-react";
 import { useHistorialMascotas, HistorialMascota } from "../hooks/useHistorialMascotas";
 import { useClientes } from "../../clientes/hooks/useClientes";
 import { formatTo12h } from '../../../shared/utils/formatTime';
 import { useMascotas } from "../../mascotas/hooks/useMascotas";
 import { useUsuario } from "../../configuracion/hooks/useUsuario";
 import { useEmpleados } from "../../empleados/hooks/useEmpleados";
+import { useServicios } from "../../servicios/hooks/useServicios";
 import { Input } from "../../../shared/components/input";
 import { Label } from "../../../shared/components/label";
 import { Textarea } from "../../../shared/components/textarea";
@@ -47,6 +48,7 @@ export function HistorialMascotasPage() {
   const { mascotas } = useMascotas();
   const { usuarios } = useUsuario();
   const { empleados } = useEmpleados();
+  const { servicios } = useServicios();
 
   // Estado del formulario
   const [selectedClientId, setSelectedClientId] = useState<string>('');
@@ -84,7 +86,7 @@ export function HistorialMascotasPage() {
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(10);
 
   const historialFiltrado = historiales.filter(entrada => {
     const searchLow = busqueda.toLowerCase().trim();
@@ -97,6 +99,7 @@ export function HistorialMascotasPage() {
       (entrada.tratamiento || '').toLowerCase().includes(searchLow) ||
       (entrada.nombreMascota || '').toLowerCase().includes(searchLow) ||
       (entrada.nombreCliente || '').toLowerCase().includes(searchLow) ||
+      (entrada.cedulaCliente || '').toLowerCase().includes(searchLow) ||
       (entrada.veterinario || '').toLowerCase().includes(searchLow)
     );
   }).sort((a, b) => a.id_historial - b.id_historial);
@@ -539,15 +542,13 @@ export function HistorialMascotasPage() {
         .map(e => ({ id: `emp-${e.id_empleado}`, nombre: `Dr. ${e.nombre}`, cedula: e.cedula }))
     ].filter((v, i, a) => a.findIndex(t => t.nombre === v.nombre) === i);
 
-    const visitTypes = [
-      { id: 'consulta', label: 'Consulta', color: 'blue' },
-      { id: 'vacunacion', label: 'Vacunación', color: 'green' },
-      { id: 'cirugia', label: 'Cirugía', color: 'purple' },
-      { id: 'emergencia', label: 'Emergencia', color: 'red' },
-      { id: 'control', label: 'Control', color: 'yellow' },
-      { id: 'desparasitacion', label: 'Desparasitación', color: 'orange' },
-      { id: 'estetica', label: 'Estética', color: 'pink' }
-    ];
+    const visitTypes = servicios
+      .filter(s => s.estado === 'activo')
+      .map(s => ({
+        id: s.nombre_servicio.toLowerCase().replace(/\s+/g, '_'),
+        label: s.nombre_servicio,
+        color: 'blue'
+      }));
 
     const toggleTipoVisita = (tipo: string) => {
       setFormData(prev => {
@@ -735,7 +736,7 @@ export function HistorialMascotasPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-6 bg-blue-500 rounded-full" />
-                  <h3 className="text-lg font-black text-dark-primary  tracking-widest">{toSentenceCase('Categoría del registro')} <span className="text-red-500">*</span></h3>
+                  <h3 className="text-lg font-black text-dark-primary  tracking-widest">Tipo de servicio <span className="text-red-500">*</span></h3>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {visitTypes.map(type => (
@@ -834,30 +835,41 @@ export function HistorialMascotasPage() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-dark-color hover:bg-dark-hover bg-dark-hover/30">
-                      <TableHead className="text-dark-primary font-black text-[10px] tracking-widest py-6">ID</TableHead>
-                      <TableHead className="text-dark-primary font-black text-[10px] tracking-widest py-6">Paciente</TableHead>
-                      <TableHead className="text-dark-primary font-black text-[10px] tracking-widest py-6">Propietario</TableHead>
-                      <TableHead className="text-dark-primary font-black text-[10px] tracking-widest py-6">Fecha / hora</TableHead>
-                      <TableHead className="text-dark-primary font-black text-[10px] tracking-widest py-6">Categoría</TableHead>
-                      <TableHead className="text-dark-primary font-black text-[10px] tracking-widest py-6">Veterinario</TableHead>
-                      <TableHead className="text-dark-primary font-black text-[10px] tracking-widest text-center py-6">Acciones</TableHead>
+                    <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
+
+                      <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                        <div className="flex items-center gap-2"><Heart className="w-4 h-4 text-blue-400" />Paciente</div>
+                      </TableHead>
+                      <TableHead className="text-dark-primary font-semibold min-w-[140px]">
+                        <div className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400" />Propietario</div>
+                      </TableHead>
+                      <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                        <div className="flex items-center gap-2"><Fingerprint className="w-4 h-4 text-blue-400" />Documento</div>
+                      </TableHead>
+                      <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                        <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" />Fecha / hora</div>
+                      </TableHead>
+                      <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                        <div className="flex items-center gap-2"><Activity className="w-4 h-4 text-blue-400" />Categoría</div>
+                      </TableHead>
+                      <TableHead className="text-dark-primary font-semibold min-w-[140px]">
+                        <div className="flex items-center gap-2"><Stethoscope className="w-4 h-4 text-blue-400" />Veterinario</div>
+                      </TableHead>
+                      <TableHead className="text-dark-primary font-semibold text-center w-28">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {historialPaginado.map((entrada) => (
                       <TableRow key={entrada.id_historial} className="border-dark-color hover:bg-dark-table-hover transition-colors group">
-                        <TableCell className="font-mono text-[10px] text-dark-secondary">#{entrada.id_historial}</TableCell>
+
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-400">
-                              <Heart className="w-3 h-3" />
-                            </div>
-                            <span className="font-black text-dark-primary text-xs">{toSentenceCase(entrada.nombreMascota)}</span>
-                          </div>
+                          <span className="font-semibold text-dark-primary text-xs">{toSentenceCase(entrada.nombreMascota)}</span>
                         </TableCell>
                         <TableCell>
                           <span className="text-dark-secondary text-xs font-bold tracking-tighter">{toSentenceCase(entrada.nombreCliente)}</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-dark-secondary text-xs">{entrada.cedulaCliente || '---'}</span>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col">
@@ -930,51 +942,49 @@ export function HistorialMascotasPage() {
                 </Table>
               </div>
 
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between p-6 border-t border-dark-color bg-dark-hover/20">
-                  <span className="text-[10px] font-black text-dark-secondary  tracking-[0.2em]">
-                    Página {currentPage} de {totalPages}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      onClick={() => goToPage(1)}
-                      disabled={currentPage === 1 || loading}
-                      variant="outline"
-                      size="sm"
-                      className="w-10 h-10 p-0 border-dark-color rounded-xl hover:bg-dark-hover"
-                    >
-                      <ChevronsLeft className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      onClick={() => goToPage(currentPage - 1)}
-                      disabled={currentPage === 1 || loading}
-                      variant="outline"
-                      size="sm"
-                      className="w-10 h-10 p-0 border-dark-color rounded-xl hover:bg-dark-hover"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      onClick={() => goToPage(currentPage + 1)}
-                      disabled={currentPage === totalPages || loading}
-                      variant="outline"
-                      size="sm"
-                      className="w-10 h-10 p-0 border-dark-color rounded-xl hover:bg-dark-hover"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      onClick={() => goToPage(totalPages)}
-                      disabled={currentPage === totalPages || loading}
-                      variant="outline"
-                      size="sm"
-                      className="w-10 h-10 p-0 border-dark-color rounded-xl hover:bg-dark-hover"
-                    >
-                      <ChevronsRight className="w-4 h-4" />
-                    </Button>
-                  </div>
+              <div className="flex items-center justify-between p-6 border-t border-dark-color bg-dark-hover/20">
+                <span className="text-[10px] font-black text-dark-secondary  tracking-[0.2em]">
+                  Página {currentPage} de {totalPages || 1}
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={() => goToPage(1)}
+                    disabled={currentPage === 1 || loading || totalPages === 0}
+                    variant="outline"
+                    size="sm"
+                    className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"
+                  >
+                    <ChevronsLeft className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1 || loading || totalPages === 0}
+                    variant="outline"
+                    size="sm"
+                    className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"
+                  >
+                    <ChevronLeft className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages || loading || totalPages === 0}
+                    variant="outline"
+                    size="sm"
+                    className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"
+                  >
+                    <ChevronRight className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    onClick={() => goToPage(totalPages)}
+                    disabled={currentPage === totalPages || loading || totalPages === 0}
+                    variant="outline"
+                    size="sm"
+                    className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"
+                  >
+                    <ChevronsRight className="w-3 h-3" />
+                  </Button>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>

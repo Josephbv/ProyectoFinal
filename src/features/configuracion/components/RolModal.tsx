@@ -144,17 +144,16 @@ export function RolModal({ isOpen, onClose, onSubmit, rol, loading, roles = [] }
             {errors.modulos && <p className="text-red-400 text-sm">{errors.modulos}</p>}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {modulosDisponibles.map((modulo) => (
-                <div key={modulo} className="flex items-center space-x-3 p-3 bg-dark-hover rounded-lg border border-dark-color">
+                <div key={modulo} className="flex items-center justify-between p-3 bg-dark-hover rounded-xl border border-dark-color hover:border-blue-500/30 transition-all group cursor-pointer" onClick={() => handleModuloToggle(modulo)}>
+                  <Label className="text-dark-primary text-sm font-semibold cursor-pointer">
+                    {modulo}
+                  </Label>
                   <Switch
                     checked={formData.modulos.includes(modulo)}
                     onCheckedChange={() => handleModuloToggle(modulo)}
+                    className="h-9 w-16 data-[state=checked]:!bg-[#00d084] data-[state=unchecked]:!bg-[#ff5a5f] border-transparent transition-all duration-300"
+                    onClick={(e) => e.stopPropagation()}
                   />
-                  <span className={`text-[10px] font-bold uppercase tracking-wider w-20 ${formData.modulos.includes(modulo) ? 'text-[#22c55e]' : 'text-[#64748b]'}`}>
-                    {formData.modulos.includes(modulo) ? 'Habilitado' : 'Inactivo'}
-                  </span>
-                  <Label className="text-dark-primary text-sm font-medium flex-1">
-                    {modulo}
-                  </Label>
                 </div>
               ))}
             </div>

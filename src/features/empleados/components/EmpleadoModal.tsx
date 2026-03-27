@@ -133,8 +133,8 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                                 <select
                                     value={formData.tipo_documento}
                                     onChange={(e) => handleChange('tipo_documento', e.target.value)}
-                                    disabled={readOnly}
-                                    className={`w-full h-10 px-3 py-2 bg-dark-hover border ${errors.tipo_documento ? 'border-red-500' : 'border-dark-color'} rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none appearance-none`}
+                                    disabled={readOnly || !!empleado}
+                                    className={`w-full h-10 px-3 py-2 bg-dark-hover border ${errors.tipo_documento ? 'border-red-500' : 'border-dark-color'} rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none appearance-none ${empleado ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 >
                                     <option value="Cédula de Ciudadanía">C.C.</option>
                                     <option value="Cédula de Extranjería">C.E.</option>
@@ -149,9 +149,9 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                                 <Input
                                     value={formData.cedula}
                                     onChange={(e) => handleChange('cedula', e.target.value)}
-                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.cedula ? 'border-red-500' : ''}`}
+                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.cedula ? 'border-red-500' : ''} ${empleado ? 'opacity-60 cursor-not-allowed' : ''}`}
                                     placeholder="Número de documento"
-                                    readOnly={readOnly}
+                                    readOnly={readOnly || !!empleado}
                                 />
                                 {errors.cedula && <p className="text-red-400 text-sm">{errors.cedula}</p>}
                             </div>
@@ -179,9 +179,9 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                                 <Input
                                     value={formData.correo}
                                     onChange={(e) => handleChange('correo', e.target.value)}
-                                    className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.correo ? 'border-red-500' : ''}`}
+                                    className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.correo ? 'border-red-500' : ''} ${empleado ? 'opacity-60 cursor-not-allowed' : ''}`}
                                     placeholder="ejemplo@correo.com"
-                                    readOnly={readOnly}
+                                    readOnly={readOnly || !!empleado}
                                 />
                             </div>
                             {errors.correo && <p className="text-red-400 text-sm">{errors.correo}</p>}
