@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from "../../../shared/components/button";
 import { Input } from "../../../shared/components/input";
 import { Label } from "../../../shared/components/label";
@@ -26,6 +26,7 @@ import {
 import { toast } from 'sonner';
 import { Mascota } from '../hooks/useMascotas';
 import { useClientes } from '../../clientes/hooks/useClientes';
+import { useEmailAuth } from '../../auth/hooks/useEmailAuth';
 
 interface MascotaFormPageProps {
     onBack: () => void;
@@ -47,12 +48,14 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
     initialClientId
 }) => {
     const { clientes } = useClientes();
+    const { user } = useEmailAuth();
+    const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<Partial<Mascota>>({
         nombre: '',
         especie: '',
         raza: '',
-        id_cliente: 0,
+        id_cliente: isClienteRole && user?.id_cliente ? user.id_cliente : 0,
         edad: null,
         fecha_nacimiento: '',
         peso: null,
@@ -64,15 +67,35 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [searchTerm, setSearchTerm] = useState('');
+    const initialName = isClienteRole && user?.id_cliente ? (clientes.find(c => c.id_cliente === user.id_cliente)?.nombre || '') : '';
+    const [searchTerm, setSearchTerm] = useState(initialName);
     const [showResults, setShowResults] = useState(false);
     const [tieneVacunas, setTieneVacunas] = useState(false);
     const [listaVacunas, setListaVacunas] = useState<Array<{ nombre: string, fecha: string }>>([]);
     const [currentVacuna, setCurrentVacuna] = useState({ nombre: '', fecha: new Date().toISOString().split('T')[0] });
 
     useEffect(() => {
+        const formatDateForInput = (date: any) => {
+            if (!date) return '';
+            // Si ya es un string YYYY-MM-DD, no hacer nada
+            if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+            // Si es un objeto Date o un string ISO
+            try {
+                const d = new Date(date);
+                if (isNaN(d.getTime())) return '';
+                return d.toISOString().split('T')[0];
+            } catch (e) {
+                return '';
+            }
+        };
+
         if (mascota) {
-            setFormData(mascota);
+            setFormData({
+                ...mascota,
+                fecha_nacimiento: formatDateForInput(mascota.fecha_nacimiento),
+                fecha_desparasitacion: formatDateForInput(mascota.fecha_desparasitacion),
+                fecha_ultima_vacuna: formatDateForInput(mascota.fecha_ultima_vacuna)
+            });
             setSearchTerm(mascota.cliente?.nombre || '');
 
             // Parsear vacunas JSON
@@ -101,13 +124,19 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
             }
         } else {
             let defaultSearchTerm = '';
-            if (initialClientId && clientes && clientes.length > 0) {
+            let defaultClientId = initialClientId || 0;
+
+            if (isClienteRole && user?.id_cliente) {
+                defaultClientId = user.id_cliente;
+                const c = clientes.find((cli) => cli.id_cliente === user.id_cliente);
+                if (c) defaultSearchTerm = c.nombre;
+            } else if (initialClientId && clientes && clientes.length > 0) {
                 const c = clientes.find((cli) => cli.id_cliente === initialClientId);
                 if (c) defaultSearchTerm = c.nombre;
             }
 
             setFormData({
-                nombre: '', especie: '', raza: '', id_cliente: initialClientId || 0,
+                nombre: '', especie: '', raza: '', id_cliente: defaultClientId,
                 edad: null, fecha_nacimiento: '', peso: null, vacunas: '',
                 fecha_ultima_vacuna: '', fecha_desparasitacion: '', observaciones: '', foto: ''
             });
@@ -115,14 +144,19 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
             setListaVacunas([]);
             setTieneVacunas(false);
         }
-    }, [mascota, initialClientId, clientes]);
+    }, [mascota, initialClientId, clientes, isClienteRole, user?.id_cliente]);
 
     const isLoading = externalLoading || loading;
 
-    const filteredClientes = clientes.filter(c =>
-        c.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.cedula?.includes(searchTerm)
-    );
+    const filteredClientes = useMemo(() => {
+        if (isClienteRole) {
+            return clientes.filter(c => c.id_cliente === user?.id_cliente);
+        }
+        return clientes.filter(c =>
+            c.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.cedula?.includes(searchTerm)
+        );
+    }, [clientes, searchTerm, isClienteRole, user?.id_cliente]);
 
     const selectedCliente = clientes.find(c => c.id_cliente === formData.id_cliente);
 
@@ -299,12 +333,12 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                                 }}
                                                 onFocus={() => setShowResults(true)}
                                                 className="bg-dark-hover border-dark-color text-dark-primary h-11"
-                                                readOnly={readOnly}
+                                                readOnly={readOnly || isClienteRole}
                                             />
-                                            {showResults && searchTerm.length > 0 && !readOnly && (
+                                            {showResults && searchTerm.length > 0 && !readOnly && !isClienteRole && (
                                                 <div className="absolute z-50 w-full mt-2 bg-dark-card border border-dark-color rounded-xl shadow-2xl max-h-60 overflow-y-auto overflow-x-hidden">
                                                     {filteredClientes.length > 0 ? (
-                                                        filteredClientes.map(c => (
+                                                        filteredClientes.map((c: any) => (
                                                             <div
                                                                 key={c.id_cliente}
                                                                 className="px-5 py-3 hover:bg-dark-hover cursor-pointer text-sm text-dark-primary border-b border-dark-color/30 last:border-0 transition-colors"

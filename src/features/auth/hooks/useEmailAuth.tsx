@@ -12,6 +12,8 @@ interface User {
   permisos_especificos?: string;
   estado?: string;
   modulos?: string[];
+  id_cliente?: number;
+  id_empleado?: number;
 }
 
 interface AuthState {

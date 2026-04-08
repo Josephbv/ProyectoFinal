@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Dog, Plus, Search, Eye, Edit, Trash2, User, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Hash, Info, Fingerprint } from "lucide-react";
 import { useMascotas, Mascota } from "../hooks/useMascotas";
 import { useClientes } from "../../clientes/hooks/useClientes";
+import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 
 interface MascotasPageProps {
@@ -17,14 +18,15 @@ interface MascotasPageProps {
 export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: MascotasPageProps) {
   const { mascotas, loading, eliminarMascota } = useMascotas();
   const { clientes } = useClientes();
+  const { user } = useEmailAuth();
   const [busqueda, setBusqueda] = useState("");
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, mascota: null as Mascota | null });
+
+  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-
-  const mascotasConId = mascotas.map((m, index) => ({ ...m, displayId: index + 1 }));
 
   const getClienteNombre = (id_cliente: number) => {
     const cliente = clientes.find(c => c.id_cliente === id_cliente);
@@ -37,6 +39,11 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
   };
 
   const mascotasFiltradas = mascotas.filter(mascota => {
+    // Si es cliente, solo ve sus mascotas
+    if (isClienteRole) {
+      if (mascota.id_cliente !== user?.id_cliente) return false;
+    }
+
     const searchLow = busqueda.toLowerCase().trim();
     if (!searchLow) return true;
 
@@ -94,16 +101,18 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
             <p className="text-sm text-dark-secondary mt-1">Registro y control de pacientes</p>
           </div>
           <div className="flex items-center space-x-3">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
-              <input
-                type="text"
-                placeholder="Buscar por ID de mascota..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
-              />
-            </div>
+            {!isClienteRole && (
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
+                <input
+                  type="text"
+                  placeholder="Buscar por ID de mascota..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
+                />
+              </div>
+            )}
 
             <button
               onClick={onNewMascota}
@@ -210,16 +219,18 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button
-                            onClick={() => setDeleteDialog({ isOpen: true, mascota })}
-                            variant="outline"
-                            size="sm"
-                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                            disabled={loading}
-                            title="Eliminar"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {!isClienteRole && (
+                            <Button
+                              onClick={() => setDeleteDialog({ isOpen: true, mascota })}
+                              variant="outline"
+                              size="sm"
+                              className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
+                              disabled={loading}
+                              title="Eliminar"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

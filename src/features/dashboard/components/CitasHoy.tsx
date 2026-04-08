@@ -3,21 +3,30 @@ import { useAgendamiento } from "../../agendamiento/hooks/useAgendamiento";
 import { useMemo } from "react";
 import { formatTo12h } from '../../../shared/utils/formatTime';
 
+import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
+
 interface CitasHoyProps {
   onVerCalendario?: () => void;
 }
 
 export function CitasHoy({ onVerCalendario }: CitasHoyProps) {
   const { citas, loading } = useAgendamiento();
+  const { user } = useEmailAuth();
+  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
+
   const hoy = useMemo(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   }, []);
+
   // Filtrar citas de hoy directamente del array de citas
-  const citasHoy = useMemo(() =>
-    citas.filter(c => c.fecha && c.fecha.startsWith(hoy)),
-    [citas, hoy]
-  );
+  const citasHoy = useMemo(() => {
+    let filtered = citas.filter(c => c.fecha && c.fecha.startsWith(hoy));
+    if (isClienteRole) {
+      filtered = filtered.filter(c => c.id_cliente === user?.id_cliente);
+    }
+    return filtered;
+  }, [citas, hoy, isClienteRole, user?.id_cliente]);
 
   if (loading && citas.length === 0) {
     return (
@@ -33,9 +42,11 @@ export function CitasHoy({ onVerCalendario }: CitasHoyProps) {
         <div>
           <h3 className="text-xl font-bold text-dark-primary mb-2 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-blue-400" />
-            Citas de Hoy
+            {isClienteRole ? "Mis Citas de Hoy" : "Citas de Hoy"}
           </h3>
-          <p className="text-dark-secondary font-medium">Agenda del día — {citasHoy.length} citas programadas</p>
+          <p className="text-dark-secondary font-medium">
+            {isClienteRole ? `Tienes ${citasHoy.length} citas para el día de hoy` : `Agenda del día — ${citasHoy.length} citas programadas`}
+          </p>
         </div>
         <button className="dark-button-secondary" onClick={onVerCalendario}>
           Ver Calendario

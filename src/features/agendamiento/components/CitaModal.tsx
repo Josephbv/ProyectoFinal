@@ -11,6 +11,7 @@ import { useServicios } from '../../servicios/hooks/useServicios';
 import { useHorario } from '../../empleados/hooks/useHorario';
 import { formatTo12h } from '../../../shared/utils/formatTime';
 import { toast } from 'sonner';
+import { useEmailAuth } from '../../auth/hooks/useEmailAuth';
 
 interface CitaModalProps {
   isOpen: boolean;
@@ -56,11 +57,14 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
   const { servicios } = useServicios();
   const { horarios } = useHorario();
   const { citas } = useAgendamiento();
+  const { user } = useEmailAuth();
+
+  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
 
   const [formData, setFormData] = useState({
     fecha: new Date().toLocaleDateString('sv-SE'),
     hora: '',
-    id_cliente: '',
+    id_cliente: isClienteRole && user?.id_cliente ? user.id_cliente.toString() : '',
     id_empleado: '',
     serviciosSeleccionados: [] as number[]
   });
@@ -80,13 +84,13 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
       setFormData({
         fecha: new Date().toLocaleDateString('sv-SE'),
         hora: '',
-        id_cliente: '',
+        id_cliente: isClienteRole && user?.id_cliente ? user.id_cliente.toString() : '',
         id_empleado: '',
         serviciosSeleccionados: []
       });
     }
     setErrors({});
-  }, [cita, isOpen]);
+  }, [cita, isOpen, isClienteRole, user?.id_cliente]);
 
   // ─── Calcular slots disponibles considerando DURACIÓN ─────────────────────
   const slotsDisponibles = useMemo(() => {
@@ -268,14 +272,16 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
             {/* Cliente */}
             <div className="space-y-2">
               <Label className="text-dark-primary flex items-center gap-1.5"><User className="w-4 h-4 text-indigo-400" />Cliente *</Label>
-              <Select value={formData.id_cliente} onValueChange={(val: string) => handleChange('id_cliente', val)} disabled={readOnly}>
+              <Select value={formData.id_cliente} onValueChange={(val: string) => handleChange('id_cliente', val)} disabled={readOnly || isClienteRole}>
                 <SelectTrigger className="bg-dark-hover border-dark-color text-dark-primary h-10">
                   <SelectValue placeholder="Seleccionar cliente..." />
                 </SelectTrigger>
                 <SelectContent className="bg-dark-card border-dark-color">
-                  {clientes.map(c => (
-                    <SelectItem key={c.id_cliente} value={c.id_cliente.toString()}>{c.nombre}</SelectItem>
-                  ))}
+                  {clientes
+                    .filter(c => !isClienteRole || c.id_cliente === user?.id_cliente)
+                    .map(c => (
+                      <SelectItem key={c.id_cliente} value={c.id_cliente.toString()}>{c.nombre}</SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
               {errors.id_cliente && <p className="text-red-400 text-xs">{errors.id_cliente}</p>}

@@ -8,6 +8,7 @@ import { useVentas, Venta, VentaServicio } from "../hooks/useVentas";
 import { VentaModal } from "../components/VentaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 import { useAgendamiento, Agendamiento } from "../../agendamiento/hooks/useAgendamiento";
+import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 
 interface VentasPageProps {
   onNewSale?: () => void;
@@ -18,16 +19,24 @@ interface VentasPageProps {
 export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPageProps) {
   const { ventas, loading, crearVenta, anularVenta } = useVentas();
   const { actualizarCita } = useAgendamiento();
+  const { user } = useEmailAuth();
 
   const [busqueda, setBusqueda] = useState("");
   const [ventaModal, setVentaModal] = useState({ isOpen: false, venta: null as Venta | null, readOnly: false });
   const [anularDialog, setAnularDialog] = useState({ isOpen: false, venta: null as Venta | null });
+
+  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   const ventasFiltradas = ventas.filter(venta => {
+    // Si es cliente, solo ve sus ventas
+    if (isClienteRole) {
+      if (venta.id_cliente !== user?.id_cliente) return false;
+    }
+
     const searchLow = busqueda.toLowerCase().trim();
     if (!searchLow) return true;
 
@@ -116,25 +125,29 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-3">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
-              <input
-                type="text"
-                placeholder="Buscar por ID o nombre..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full sm:w-64 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-emerald-500 focus:outline-none"
-              />
-            </div>
+            {!isClienteRole && (
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
+                <input
+                  type="text"
+                  placeholder="Buscar por ID o nombre..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full sm:w-64 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+            )}
 
-            <button
-              onClick={() => abrirVentaModal()}
-              className="dark-button-primary gap-2 flex items-center"
-              disabled={loading}
-            >
-              <Plus className="w-4 h-4" />
-              Nueva Venta
-            </button>
+            {!isClienteRole && (
+              <button
+                onClick={() => abrirVentaModal()}
+                className="dark-button-primary gap-2 flex items-center"
+                disabled={loading}
+              >
+                <Plus className="w-4 h-4" />
+                Nueva Venta
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -209,16 +222,18 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                           <Eye className="w-4 h-4" />
                         </Button>
 
-                        <Button
-                          onClick={() => setAnularDialog({ isOpen: true, venta })}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                          disabled={loading || venta.estado === 'anulada'}
-                          title="Anular Factura"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {!isClienteRole && (
+                          <Button
+                            onClick={() => setAnularDialog({ isOpen: true, venta })}
+                            variant="outline"
+                            size="sm"
+                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
+                            disabled={loading || venta.estado === 'anulada'}
+                            title="Anular Factura"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

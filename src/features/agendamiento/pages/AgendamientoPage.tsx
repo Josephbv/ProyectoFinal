@@ -8,6 +8,7 @@ import { useAgendamiento, Agendamiento, AgendamientoServicio } from "../hooks/us
 import { CitaModal } from "../components/CitaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 import { formatTo12h } from '../../../shared/utils/formatTime';
+import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 
 interface AgendamientoPageProps {
   onNavigate?: (page: string) => void;
@@ -16,16 +17,24 @@ interface AgendamientoPageProps {
 
 export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps) {
   const { citas, loading, agendarCita, actualizarCita, eliminarCita } = useAgendamiento();
+  const { user } = useEmailAuth();
 
   const [busqueda, setBusqueda] = useState("");
   const [citaModal, setCitaModal] = useState({ isOpen: false, cita: null as Agendamiento | null, readOnly: false });
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, cita: null as Agendamiento | null });
+
+  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
   const citasFiltradas = citas.filter(cita => {
+    // Si es cliente, solo ve sus citas
+    if (isClienteRole) {
+      if (cita.id_cliente !== user?.id_cliente) return false;
+    }
+
     const matchBusqueda = (cita.cliente?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cita.cliente?.cedula || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cita.empleado?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -102,16 +111,18 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
             <p className="text-sm text-dark-secondary mt-1">Programa citas y asigna empleados a los pacientes</p>
           </div>
           <div className="flex items-center space-x-3">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
-              <input
-                type="text"
-                placeholder="Buscar por cliente, empleado o fecha..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
-              />
-            </div>
+            {!isClienteRole && (
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
+                <input
+                  type="text"
+                  placeholder="Buscar por cliente, empleado o fecha..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
+                />
+              </div>
+            )}
             <button
               onClick={() => abrirCitaModal()}
               className="dark-button-primary gap-2 flex items-center"
@@ -141,15 +152,17 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                   <TableHead className="text-dark-primary font-semibold min-w-[150px]">
                     <div className="flex items-center gap-2"><FileText className="w-4 h-4 text-indigo-400" />Doc. Cliente</div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[200px]">
-                    <div className="flex items-center gap-2"><Ticket className="w-4 h-4 text-indigo-400" />Servicios</div>
+                  <TableHead className="text-dark-primary font-semibold text-center min-w-[150px]">
+                    <div className="flex items-center justify-center gap-2"><Ticket className="w-4 h-4 text-indigo-400" />Servicios</div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-center min-w-[120px]">
                     <div className="flex items-center justify-center gap-2"><Clock className="w-4 h-4 text-indigo-400" />Estado</div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center min-w-[100px]">
-                    <div className="flex items-center justify-center gap-2"><DollarSign className="w-4 h-4 text-indigo-400" />Pago</div>
-                  </TableHead>
+                  {!isClienteRole && (
+                    <TableHead className="text-dark-primary font-semibold text-center min-w-[100px]">
+                      <div className="flex items-center justify-center gap-2"><DollarSign className="w-4 h-4 text-indigo-400" />Pago</div>
+                    </TableHead>
+                  )}
                   <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -193,29 +206,31 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-center">
-                          {estadoFinal === 'completada' ? (
-                            <div className="flex flex-col items-center">
-                              <div className="p-1 bg-green-500/10 rounded-full mb-0.5">
-                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      {!isClienteRole && (
+                        <TableCell>
+                          <div className="flex items-center justify-center">
+                            {estadoFinal === 'completada' ? (
+                              <div className="flex flex-col items-center">
+                                <div className="p-1 bg-green-500/10 rounded-full mb-0.5">
+                                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                </div>
+                                <span className="text-[9px] font-black text-green-500 tracking-tighter">PAGADO</span>
                               </div>
-                              <span className="text-[9px] font-black text-green-500 tracking-tighter">PAGADO</span>
-                            </div>
-                          ) : (
-                            <Button
-                              onClick={() => onPagar?.(cita)}
-                              variant="outline"
-                              size="sm"
-                              className="gap-1.5 bg-emerald-500/15 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/25 hover:border-emerald-400 transition-all duration-200"
-                              title="Ir a Ventas"
-                            >
-                              <DollarSign className="w-4 h-4" />
-                              <span className="text-xs font-medium">Pagar</span>
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
+                            ) : (
+                              <Button
+                                onClick={() => onPagar?.(cita)}
+                                variant="outline"
+                                size="sm"
+                                className="gap-1.5 bg-emerald-500/15 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/25 hover:border-emerald-400 transition-all duration-200"
+                                title="Ir a Ventas"
+                              >
+                                <DollarSign className="w-4 h-4" />
+                                <span className="text-xs font-medium">Pagar</span>
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      )}
                       <TableCell>
                         <div className="flex items-center justify-center gap-2">
                           <Button

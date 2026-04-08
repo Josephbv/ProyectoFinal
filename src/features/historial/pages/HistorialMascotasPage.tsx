@@ -17,6 +17,8 @@ import { Input } from "../../../shared/components/input";
 import { Label } from "../../../shared/components/label";
 import { Textarea } from "../../../shared/components/textarea";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
+import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
+
 const toSentenceCase = (str: string = '') => {
   if (!str) return '';
   const s = str.trim().toLowerCase();
@@ -30,9 +32,12 @@ const toTitleCase = (str: string = '') => {
 
 export function HistorialMascotasPage() {
   const { historiales, loading, cargarHistoriales, crearEntradaHistorial, actualizarEntradaHistorial, eliminarEntradaHistorial } = useHistorialMascotas();
+  const { user } = useEmailAuth();
 
   const [busqueda, setBusqueda] = useState("");
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, entrada: null as HistorialMascota | null });
+
+  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
 
   // Nuevo flujo de navegación
   const [pasoActual, setPasoActual] = useState<'inicio' | 'cliente' | 'mascota' | 'timeline' | 'formulario' | 'detalles' | 'reporteCompleto'>('inicio');
@@ -89,6 +94,11 @@ export function HistorialMascotasPage() {
   const [itemsPerPage] = useState(10);
 
   const historialFiltrado = historiales.filter(entrada => {
+    // Si es cliente, solo ve historiales de sus mascotas
+    if (isClienteRole) {
+      if (entrada.mascota?.id_cliente !== user?.id_cliente) return false;
+    }
+
     const searchLow = busqueda.toLowerCase().trim();
     if (!searchLow) return true;
 
@@ -123,6 +133,13 @@ export function HistorialMascotasPage() {
   useEffect(() => {
     setCurrentPage(1);
   }, [busqueda]);
+
+  // Redirigir si es cliente y está en el paso de selección de cliente
+  useEffect(() => {
+    if (isClienteRole && pasoActual === 'cliente') {
+      setPasoActual('inicio');
+    }
+  }, [isClienteRole, pasoActual]);
 
   // Helpers para estilos
   const getTipoVisitaColor = (tipo: string) => {
@@ -342,7 +359,7 @@ export function HistorialMascotasPage() {
   };
 
   const cerrarVistaActual = () => {
-    setPasoActual('cliente');
+    setPasoActual(isClienteRole ? 'inicio' : 'cliente');
     setEntradaSeleccionada(null);
   };
 
@@ -906,24 +923,28 @@ export function HistorialMascotasPage() {
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button
-                              onClick={() => abrirFormulario(entrada)}
-                              variant="outline"
-                              size="sm"
-                              className="h-9 w-9 p-0 bg-yellow-500/10 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500 hover:text-white rounded-xl transition-all"
-                              title="Editar"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              onClick={() => setDeleteDialog({ isOpen: true, entrada })}
-                              variant="outline"
-                              size="sm"
-                              className="h-9 w-9 p-0 bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all"
-                              title="Eliminar"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            {!isClienteRole && (
+                              <>
+                                <Button
+                                  onClick={() => abrirFormulario(entrada)}
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-9 w-9 p-0 bg-yellow-500/10 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500 hover:text-white rounded-xl transition-all"
+                                  title="Editar"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  onClick={() => setDeleteDialog({ isOpen: true, entrada })}
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-9 w-9 p-0 bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all"
+                                  title="Eliminar"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -1082,7 +1103,7 @@ export function HistorialMascotasPage() {
         <div className="max-w-4xl mx-auto">
           <Button
             variant="ghost"
-            onClick={() => setPasoActual('cliente')}
+            onClick={() => setPasoActual(isClienteRole ? 'inicio' : 'cliente')}
             className="mb-8 text-dark-secondary hover:bg-dark-hover gap-2 font-black  tracking-widest"
           >
             <ChevronLeft className="w-4 h-4" /> Volver
@@ -1159,12 +1180,14 @@ export function HistorialMascotasPage() {
             >
               <ChevronLeft className="w-4 h-4" /> Volver a Mascotas
             </Button>
-            <Button
-              onClick={() => abrirFormulario()}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-black tracking-widest px-8 rounded-2xl h-12 shadow-xl shadow-blue-500/20 gap-2 transition-all active:scale-95 hover:scale-[1.02]"
-            >
-              <Plus className="w-4 h-4" /> Nuevo
-            </Button>
+            {!isClienteRole && (
+              <Button
+                onClick={() => abrirFormulario()}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-black tracking-widest px-8 rounded-2xl h-12 shadow-xl shadow-blue-500/20 gap-2 transition-all active:scale-95 hover:scale-[1.02]"
+              >
+                <Plus className="w-4 h-4" /> Nuevo
+              </Button>
+            )}
           </div>
 
           <header className="bg-dark-card border border-dark-color rounded-[3rem] p-10 shadow-2xl mb-12 flex flex-col md:flex-row items-center gap-10">
@@ -1205,12 +1228,16 @@ export function HistorialMascotasPage() {
                       <Button onClick={() => abrirDetalles(entrada)} variant="outline" size="icon" className="w-10 h-10 rounded-2xl border-dark-color text-blue-400 hover:bg-blue-500/10">
                         <Eye className="w-5 h-5" />
                       </Button>
-                      <Button onClick={() => abrirFormulario(entrada)} variant="outline" size="icon" className="w-10 h-10 rounded-2xl border-dark-color text-yellow-400 hover:bg-yellow-500/10">
-                        <Edit className="w-5 h-5" />
-                      </Button>
-                      <Button onClick={() => setDeleteDialog({ isOpen: true, entrada })} variant="outline" size="icon" className="w-10 h-10 rounded-2xl border-dark-color text-red-400 hover:bg-red-500/10">
-                        <Trash2 className="w-5 h-5" />
-                      </Button>
+                      {!isClienteRole && (
+                        <>
+                          <Button onClick={() => abrirFormulario(entrada)} variant="outline" size="icon" className="w-10 h-10 rounded-2xl border-dark-color text-yellow-400 hover:bg-yellow-500/10">
+                            <Edit className="w-5 h-5" />
+                          </Button>
+                          <Button onClick={() => setDeleteDialog({ isOpen: true, entrada })} variant="outline" size="icon" className="w-10 h-10 rounded-2xl border-dark-color text-red-400 hover:bg-red-500/10">
+                            <Trash2 className="w-5 h-5" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1291,7 +1318,7 @@ export function HistorialMascotasPage() {
         </div>
 
         {/* Contenido del Reporte (Formato A4) */}
-        <div className="max-w-[1000px] mx-auto w-full p-16 print:p-0 bg-white print:shadow-none shadow-2xl my-10 print:my-0">
+        <div id="printable-report-area" className="max-w-[1000px] mx-auto w-full p-16 print:p-0 bg-white print:shadow-none shadow-2xl my-10 print:my-0">
           {/* Header del Documento */}
           <div className="flex justify-between items-start border-b-2 border-slate-900 pb-10 mb-10 text-slate-900">
             <div>
@@ -1411,11 +1438,15 @@ export function HistorialMascotasPage() {
               <div className="flex items-center gap-4 mt-1">
                 {pasoActual !== 'inicio' && (
                   <>
-                    <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
-                      <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'cliente' ? 'bg-blue-500' : 'bg-dark-color'}`} />
-                      <span className={pasoActual === 'cliente' ? 'text-blue-400' : 'text-dark-secondary'}>Cliente</span>
-                    </div>
-                    <ChevronRight className="w-3 h-3 text-dark-color" />
+                    {!isClienteRole && (
+                      <>
+                        <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
+                          <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'cliente' ? 'bg-blue-500' : 'bg-dark-color'}`} />
+                          <span className={pasoActual === 'cliente' ? 'text-blue-400' : 'text-dark-secondary'}>Cliente</span>
+                        </div>
+                        <ChevronRight className="w-3 h-3 text-dark-color" />
+                      </>
+                    )}
                     <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
                       <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'mascota' ? 'bg-pink-500' : 'bg-dark-color'}`} />
                       <span className={pasoActual === 'mascota' ? 'text-pink-400' : 'text-dark-secondary'}>Mascota</span>
@@ -1431,7 +1462,7 @@ export function HistorialMascotasPage() {
             </div>
 
             {/* Buscador Integrado en el Encabezado */}
-            {pasoActual === 'inicio' && (
+            {pasoActual === 'inicio' && !isClienteRole && (
               <div className="flex-1 max-w-xl group">
                 <div className="relative flex items-center bg-dark-card border border-dark-color rounded-2xl focus-within:border-blue-500/50 focus-within:ring-4 focus-within:ring-blue-500/5 transition-all shadow-inner px-4 overflow-hidden">
                   <Search className="w-4 h-4 text-dark-secondary shrink-0 opacity-40 group-focus-within:opacity-100 transition-opacity" />
@@ -1446,7 +1477,7 @@ export function HistorialMascotasPage() {
             )}
 
             <div className="flex items-center gap-4 shrink-0">
-              {pasoActual === 'inicio' && (
+              {pasoActual === 'inicio' && !isClienteRole && (
                 <Button
                   onClick={() => {
                     setPasoActual('cliente');

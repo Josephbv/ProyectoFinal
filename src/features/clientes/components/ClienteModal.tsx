@@ -229,33 +229,6 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
               {errors.direccion && <p className="text-red-400 text-xs">{errors.direccion}</p>}
             </div>
 
-            {readOnly && (
-              <div className="pt-4 border-t border-dark-color space-y-4">
-                <h3 className="text-sm font-bold text-dark-primary flex items-center gap-2">
-                  <Dog className="w-4 h-4 text-indigo-400" />
-                  Mascotas asociadas
-                </h3>
-                <div className="grid grid-cols-1 gap-2">
-                  {clienteMascotas.length > 0 ? (
-                    clienteMascotas.map(m => (
-                      <div key={m.id_mascota} className="flex items-center justify-between p-3 bg-dark-hover/30 rounded-xl border border-dark-color">
-                        <div className="flex items-center gap-3">
-                          <Dog className="w-4 h-4 text-indigo-400 opacity-70" />
-                          <div>
-                            <p className="text-xs font-bold text-dark-primary">{m.nombre}</p>
-                            <p className="text-[10px] text-dark-secondary italic">{m.especie} {m.raza ? `· ${m.raza}` : ''}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-4 border-2 border-dashed border-dark-color rounded-xl">
-                      <p className="text-[10px] text-dark-secondary">No hay mascotas registradas</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
 
           <DialogFooter className="gap-2 pt-4">

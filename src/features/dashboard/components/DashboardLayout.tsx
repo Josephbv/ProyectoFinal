@@ -87,11 +87,20 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
   // Filter nav items by user's allowed modules.
   // Fail-closed: If no modules are specified, only show "Dashboard" (or the first available).
   const filterByModules = (items: typeof mainNavItems) => {
-    const modulos = user?.modulos;
-    // Administrador role always has full access (fallback if modules list is missing)
+    const isCliente = user?.rol?.toLowerCase().includes('cliente');
+
+    // Administrador role always has full access
     if (user?.rol?.toLowerCase() === 'administrador') return items;
 
-    if (!modulos || modulos.length === 0) {
+    let modulos = user?.modulos || [];
+
+    // Para clientes, nos aseguramos que vean Ventas y Clientes (Mi Perfil)
+    if (isCliente) {
+      if (!modulos.includes("Ventas")) modulos = [...modulos, "Ventas"];
+      if (!modulos.includes("Clientes")) modulos = [...modulos, "Clientes"];
+    }
+
+    if (modulos.length === 0) {
       // If no modules list, only show Dashboard as a safety measure
       return items.filter(item => item.label === "Dashboard");
     }
@@ -240,7 +249,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
         : '#020617'
     }}>
       {/* Sidebar */}
-      <div className={`${sidebarCollapsed ? 'w-20' : 'w-56'} bg-dark-card border-r border-dark-color flex flex-col transition-all duration-300 relative shadow-2xl overflow-hidden`} style={{
+      <div className={`${sidebarCollapsed ? 'w-20' : 'w-56'} bg-dark-card border-r border-dark-color flex flex-col transition-all duration-300 relative shadow-2xl overflow-hidden print:hidden`} style={{
         boxShadow: theme === 'light'
           ? '0 0 50px rgba(59, 130, 246, 0.1)'
           : '0 0 50px rgba(0, 0, 0, 0.3)'

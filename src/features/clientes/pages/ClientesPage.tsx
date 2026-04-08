@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Users, Plus, Search, Mail, Phone, Eye, Edit, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, FileText, Dog, Fingerprint, Hash } from "lucide-react";
 import { ClienteModal } from "../components/ClienteModal";
 import { useClientes, Cliente } from "../hooks/useClientes";
-import { useMascotas } from "../../mascotas/hooks/useMascotas";
+import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 
 interface ClientesPageProps {
@@ -15,15 +15,23 @@ interface ClientesPageProps {
 
 export function ClientesPage({ onNewMascota }: ClientesPageProps) {
   const { clientes, loading, crearCliente, actualizarCliente, eliminarCliente } = useClientes();
+  const { user } = useEmailAuth();
   const [busqueda, setBusqueda] = useState("");
   const [clienteModal, setClienteModal] = useState({ isOpen: false, cliente: null as Cliente | null, readOnly: false });
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, cliente: null as Cliente | null });
+
+  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
   const clientesFiltrados = clientes.filter(cliente => {
+    // Si es cliente, solo puede ver SU propio registro
+    if (isClienteRole) {
+      return cliente.id_cliente === user?.id_cliente;
+    }
+
     const matchBusqueda = (cliente.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cliente.correo || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cliente.cedula || '').toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -127,29 +135,37 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
       <header className="bg-dark-bg border-b border-dark-color px-8 py-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-dark-primary">Gestión de Clientes</h1>
-            <p className="text-sm text-dark-secondary mt-1">Directorio de Clientes</p>
+            <h1 className="text-2xl font-semibold text-dark-primary">
+              {isClienteRole ? "Mi Perfil" : "Gestión de Clientes"}
+            </h1>
+            <p className="text-sm text-dark-secondary mt-1">
+              {isClienteRole ? "Consulta y edita tus datos personales" : "Directorio de Clientes"}
+            </p>
           </div>
           <div className="flex items-center space-x-3">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
-              <input
-                type="text"
-                placeholder="Buscar por cédula o nombre..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
-              />
-            </div>
+            {!isClienteRole && (
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
+                <input
+                  type="text"
+                  placeholder="Buscar por cédula o nombre..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
+                />
+              </div>
+            )}
 
-            <button
-              onClick={() => abrirClienteModal()}
-              className="dark-button-primary gap-2 flex items-center"
-              disabled={loading}
-            >
-              <Plus className="w-4 h-4" />
-              Nuevo Cliente
-            </button>
+            {!isClienteRole && (
+              <button
+                onClick={() => abrirClienteModal()}
+                className="dark-button-primary gap-2 flex items-center"
+                disabled={loading}
+              >
+                <Plus className="w-4 h-4" />
+                Nuevo Cliente
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -241,20 +257,22 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
                           size="sm"
                           className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
                           disabled={loading}
-                          title="Editar cliente"
+                          title="Editar perfil"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button
-                          onClick={() => setDeleteDialog({ isOpen: true, cliente })}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                          disabled={loading}
-                          title="Eliminar"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {!isClienteRole && (
+                          <Button
+                            onClick={() => setDeleteDialog({ isOpen: true, cliente })}
+                            variant="outline"
+                            size="sm"
+                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
+                            disabled={loading}
+                            title="Eliminar"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

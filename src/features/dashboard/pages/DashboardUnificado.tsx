@@ -17,16 +17,41 @@ import { useVentas } from "../../ventas/hooks/useVentas";
 import { useClientes } from "../../clientes/hooks/useClientes";
 import { useAgendamiento } from "../../agendamiento/hooks/useAgendamiento";
 import { useMascotas } from "../../mascotas/hooks/useMascotas";
+import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 
 const COLORS = ['#3B82F6', '#22C55E', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
 
 export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const [activeTab, setActiveTab] = useState('resumen');
   const [periodo, setPeriodo] = useState('6m');
+  const { user } = useEmailAuth();
+  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
 
-  const { ventas, loading: loadingVentas } = useVentas();
-  const { clientes, loading: loadingClientes } = useClientes();
-  const { citas, loading: loadingCitas } = useAgendamiento();
+  const { ventas: allVentas, loading: loadingVentas } = useVentas();
+  const { clientes: allClientes, loading: loadingClientes } = useClientes();
+  const { citas: allCitas, loading: loadingCitas } = useAgendamiento();
+  const { mascotas: allMascotas } = useMascotas();
+
+  // Filtrar datos si es cliente
+  const ventas = useMemo(() => {
+    if (isClienteRole) return allVentas.filter(v => v.id_cliente === user?.id_cliente);
+    return allVentas;
+  }, [allVentas, isClienteRole, user?.id_cliente]);
+
+  const clientes = useMemo(() => {
+    if (isClienteRole) return allClientes.filter(c => c.id_cliente === user?.id_cliente);
+    return allClientes;
+  }, [allClientes, isClienteRole, user?.id_cliente]);
+
+  const citas = useMemo(() => {
+    if (isClienteRole) return allCitas.filter(c => c.id_cliente === user?.id_cliente);
+    return allCitas;
+  }, [allCitas, isClienteRole, user?.id_cliente]);
+
+  const mascotasCount = useMemo(() => {
+    if (isClienteRole) return allMascotas.filter(m => m.id_cliente === user?.id_cliente).length;
+    return allMascotas.length;
+  }, [allMascotas, isClienteRole, user?.id_cliente]);
 
   // Procesar datos para gráficos
   const chartData = useMemo(() => {
@@ -133,19 +158,19 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Tarjetas de métricas */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="dark-card hover:dark-shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div className="dark-card hover:dark-shadow-lg transition-all duration-300 hover:-translate-y-1" onClick={() => onNavigate?.("Mascotas")}>
               <div className="flex items-center justify-between mb-4">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                  <Users className="w-7 h-7 text-white" />
+                  <Heart className="w-7 h-7 text-white" />
                 </div>
               </div>
               <div>
-                <h3 className="text-3xl font-bold text-dark-primary mb-1">{metrics.clientesTotal}</h3>
-                <p className="text-sm font-medium text-dark-secondary">Clientes Totales</p>
+                <h3 className="text-3xl font-bold text-dark-primary mb-1">{mascotasCount}</h3>
+                <p className="text-sm font-medium text-dark-secondary">{isClienteRole ? "Mis Mascotas" : "Mascotas Registradas"}</p>
               </div>
             </div>
 
-            <div className="dark-card hover:dark-shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div className="dark-card hover:dark-shadow-lg transition-all duration-300 hover:-translate-y-1" onClick={() => onNavigate?.("Agendamiento")}>
               <div className="flex items-center justify-between mb-4">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
                   <Calendar className="w-7 h-7 text-white" />
@@ -153,11 +178,11 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
               </div>
               <div>
                 <h3 className="text-3xl font-bold text-dark-primary mb-1">{metrics.citasHoy}</h3>
-                <p className="text-sm font-medium text-dark-secondary">Citas Hoy</p>
+                <p className="text-sm font-medium text-dark-secondary">{isClienteRole ? "Mis Citas Hoy" : "Citas Hoy"}</p>
               </div>
             </div>
 
-            <div className="dark-card hover:dark-shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div className="dark-card hover:dark-shadow-lg transition-all duration-300 hover:-translate-y-1" onClick={() => onNavigate?.("Ventas")}>
               <div className="flex items-center justify-between mb-4">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
                   <BarChart3 className="w-7 h-7 text-white" />
@@ -165,7 +190,7 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
               </div>
               <div>
                 <h3 className="text-3xl font-bold text-dark-primary mb-1">${metrics.ventasTotal.toLocaleString('es-CO')}</h3>
-                <p className="text-sm font-medium text-dark-secondary">Ventas Totales</p>
+                <p className="text-sm font-medium text-dark-secondary">{isClienteRole ? "Mis Pagos Totales" : "Ventas Totales"}</p>
               </div>
             </div>
           </div>
