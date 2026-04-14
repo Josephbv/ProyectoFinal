@@ -9,8 +9,8 @@ export class RolesController {
             // 1. Core Roles Configuration
             const coreRolesDef = [
                 { nombre: 'Administrador', modulos: ['Dashboard', 'Ventas', 'Clientes', 'Agendamiento', 'Mascotas', 'Historial Mascotas', 'Horario', 'Servicios', 'Empleados', 'Roles', 'Usuarios'] },
-                { nombre: 'Veterinario', modulos: ['Dashboard', 'Ventas', 'Clientes', 'Agendamiento', 'Mascotas', 'Historial Mascotas', 'Horario', 'Servicios'] },
-                { nombre: 'Cliente', modulos: ['Dashboard', 'Ventas', 'Clientes', 'Agendamiento', 'Mascotas', 'Historial Mascotas'] }
+                { nombre: 'Veterinario', modulos: ['Ventas', 'Agendamiento', 'Mascotas', 'Historial Mascotas', 'Horario', 'Servicios'] },
+                { nombre: 'Cliente', modulos: ['Ventas', 'Clientes', 'Agendamiento', 'Mascotas', 'Historial Mascotas'] }
             ];
 
             // 2. Initial Setup: Create missing core roles if they don't exist

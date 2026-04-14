@@ -110,7 +110,15 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
     const now = new Date();
     const hoy = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-    const citasHoy = citas.filter(c => c.fecha && c.fecha.startsWith(hoy)).length;
+    const currentMin = now.getHours() * 60 + now.getMinutes();
+    const hoyCount = citas.filter(c => {
+      if (!c.fecha || !c.fecha.startsWith(hoy)) return false;
+      if (!c.hora) return true;
+      const [h, m] = c.hora.split(':').map(Number);
+      const startMin = h * 60 + m;
+      const duration = (c.agendamiento_servicios?.length || 1) * 30;
+      return currentMin < (startMin + duration);
+    }).length;
 
     const ventasHoyCount = ventas.filter(v => {
       const fechaRaw = v.fecha || (v as any).fecha_venta || '';
@@ -121,7 +129,7 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
       ventasTotal: totalVentas,
       ventasHoy: ventasHoyCount,
       clientesTotal: totalClientes,
-      citasHoy: citasHoy,
+      citasHoy: hoyCount,
       ticketPromedio: ventas.length > 0 ? totalVentas / ventas.length : 0
     };
   }, [ventas, clientes, citas]);

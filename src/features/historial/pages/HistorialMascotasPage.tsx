@@ -38,6 +38,7 @@ export function HistorialMascotasPage() {
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, entrada: null as HistorialMascota | null });
 
   const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
+  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
 
   // Nuevo flujo de navegación
   const [pasoActual, setPasoActual] = useState<'inicio' | 'cliente' | 'mascota' | 'timeline' | 'formulario' | 'detalles' | 'reporteCompleto'>('inicio');
@@ -97,6 +98,22 @@ export function HistorialMascotasPage() {
     // Si es cliente, solo ve historiales de sus mascotas
     if (isClienteRole) {
       if (entrada.mascota?.id_cliente !== user?.id_cliente) return false;
+    }
+
+    // Si es veterinario, solo ve historiales donde él sea el facultativo
+    if (isVetRole) {
+      const vetName = (entrada.veterinario || '').toLowerCase();
+      // Limpiamos prefijos como "Dr." para una comparación más flexible
+      const cleanVetName = vetName.replace(/^(?:(?:dr|dra|doctor|doctora)\.?\s*)+/i, '').trim();
+
+      const myUsername = (user?.nombre_usuario || '').toLowerCase().trim();
+      const myFullName = (user?.nombre_completo || '').toLowerCase().trim();
+
+      const isMine = cleanVetName.includes(myUsername) ||
+        cleanVetName.includes(myFullName) ||
+        myFullName.includes(cleanVetName);
+
+      if (!isMine) return false;
     }
 
     const searchLow = busqueda.toLowerCase().trim();
@@ -934,15 +951,17 @@ export function HistorialMascotasPage() {
                                 >
                                   <Edit className="w-4 h-4" />
                                 </Button>
-                                <Button
-                                  onClick={() => setDeleteDialog({ isOpen: true, entrada })}
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-9 w-9 p-0 bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all"
-                                  title="Eliminar"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
+                                {!isVetRole && (
+                                  <Button
+                                    onClick={() => setDeleteDialog({ isOpen: true, entrada })}
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-9 w-9 p-0 bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all"
+                                    title="Eliminar"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
                               </>
                             )}
                           </div>
@@ -1233,9 +1252,11 @@ export function HistorialMascotasPage() {
                           <Button onClick={() => abrirFormulario(entrada)} variant="outline" size="icon" className="w-10 h-10 rounded-2xl border-dark-color text-yellow-400 hover:bg-yellow-500/10">
                             <Edit className="w-5 h-5" />
                           </Button>
-                          <Button onClick={() => setDeleteDialog({ isOpen: true, entrada })} variant="outline" size="icon" className="w-10 h-10 rounded-2xl border-dark-color text-red-400 hover:bg-red-500/10">
-                            <Trash2 className="w-5 h-5" />
-                          </Button>
+                          {!isVetRole && (
+                            <Button onClick={() => setDeleteDialog({ isOpen: true, entrada })} variant="outline" size="icon" className="w-10 h-10 rounded-2xl border-dark-color text-red-400 hover:bg-red-500/10">
+                              <Trash2 className="w-5 h-5" />
+                            </Button>
+                          )}
                         </>
                       )}
                     </div>

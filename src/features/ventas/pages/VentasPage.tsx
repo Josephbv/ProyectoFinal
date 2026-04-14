@@ -3,7 +3,7 @@ import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
-import { Plus, Search, ShoppingCart, Calendar, Edit, Trash2, User, DollarSign, Stethoscope, Eye, Hash, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Tag, Fingerprint } from "lucide-react";
+import { Plus, Search, ShoppingCart, Calendar, Trash2, User, DollarSign, Stethoscope, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Tag, Fingerprint, AlertTriangle } from "lucide-react";
 import { useVentas, Venta, VentaServicio } from "../hooks/useVentas";
 import { VentaModal } from "../components/VentaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
@@ -23,9 +23,10 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
 
   const [busqueda, setBusqueda] = useState("");
   const [ventaModal, setVentaModal] = useState({ isOpen: false, venta: null as Venta | null, readOnly: false });
-  const [anularDialog, setAnularDialog] = useState({ isOpen: false, venta: null as Venta | null });
+  const [anularDialog, setAnularDialog] = useState({ isOpen: false, venta: null as Venta | null, motivo: '' });
 
   const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
+  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,11 +86,15 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
 
   const handleAnularVenta = async () => {
     if (!anularDialog.venta) return;
+    if (!anularDialog.motivo.trim()) {
+      toast.warning('Debes ingresar el motivo de anulación');
+      return;
+    }
 
-    const result = await anularVenta(anularDialog.venta.id_venta);
+    const result = await anularVenta(anularDialog.venta.id_venta, anularDialog.motivo.trim());
     if (result.success) {
       toast.success("Venta anulada exitosamente");
-      setAnularDialog({ isOpen: false, venta: null });
+      setAnularDialog({ isOpen: false, venta: null, motivo: '' });
     } else {
       toast.error(result.error || "Error al anular venta");
     }
@@ -138,7 +143,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
               </div>
             )}
 
-            {!isClienteRole && (
+            {!isClienteRole && !isVetRole && (
               <button
                 onClick={() => abrirVentaModal()}
                 className="dark-button-primary gap-2 flex items-center"
@@ -222,9 +227,9 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                           <Eye className="w-4 h-4" />
                         </Button>
 
-                        {!isClienteRole && (
+                        {!isClienteRole && !isVetRole && (
                           <Button
-                            onClick={() => setAnularDialog({ isOpen: true, venta })}
+                            onClick={() => setAnularDialog({ isOpen: true, venta, motivo: '' })}
                             variant="outline"
                             size="sm"
                             className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
@@ -287,16 +292,58 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
         readOnly={ventaModal.readOnly}
       />
 
-      <ConfirmDeleteDialog
-        isOpen={anularDialog.isOpen}
-        onClose={() => setAnularDialog({ isOpen: false, venta: null })}
-        onConfirm={handleAnularVenta}
-        title="¿Anular Factura?"
-        description={`¿Estas seguro de anular la factura #${anularDialog.venta?.id_venta.toString().padStart(5, '0')}? Esta acción no se puede deshacer.`}
-        loading={loading}
-        confirmText="SÍ, ANULAR AHORA"
-        loadingText="ANULANDO..."
-      />
+      {/* Diálogo de Anulación con Motivo */}
+      {anularDialog.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setAnularDialog({ isOpen: false, venta: null, motivo: '' })} />
+          <div className="relative z-10 w-full max-w-md bg-dark-card border border-red-500/30 rounded-2xl shadow-2xl shadow-red-500/10 p-6 space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-red-500/15 rounded-xl">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-dark-primary">¿Anular Factura?</h3>
+                <p className="text-xs text-dark-secondary">Factura #{anularDialog.venta?.id_venta.toString().padStart(5, '0')}</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-dark-secondary">
+              Esta acción <span className="text-red-400 font-semibold">no se puede deshacer</span>. Por favor indica el motivo de la anulación.
+            </p>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-dark-primary uppercase tracking-wide">Motivo de Anulación *</label>
+              <textarea
+                value={anularDialog.motivo}
+                onChange={e => setAnularDialog(prev => ({ ...prev, motivo: e.target.value }))}
+                placeholder="Ej: Error en el precio, cliente solicitó cancelación..."
+                rows={3}
+                className="w-full bg-dark-hover border border-dark-color rounded-xl px-4 py-3 text-sm text-dark-primary placeholder-dark-secondary focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500/50 resize-none transition-all"
+                autoFocus
+              />
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setAnularDialog({ isOpen: false, venta: null, motivo: '' })}
+                className="flex-1 dark-button-secondary"
+                disabled={loading}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleAnularVenta}
+                disabled={loading || !anularDialog.motivo.trim()}
+                className="flex-1 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition-all shadow-lg shadow-red-500/20"
+              >
+                {loading ? 'Anulando...' : 'Sí, Anular Ahora'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

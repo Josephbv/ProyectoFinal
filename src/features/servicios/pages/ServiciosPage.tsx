@@ -7,11 +7,15 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { toast } from "sonner";
 import { Wrench, Plus, Search, Clock, DollarSign, Eye, Edit, Trash2, Users, Award, AlertCircle, CheckCircle, Tag, Star, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ListFilter, Hash } from "lucide-react";
 import { useServicios, Servicio } from "../hooks/useServicios";
+import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 import { ServicioModal } from "../components/ServicioModal";
 
 export function ServiciosPage() {
   const { servicios, loading, agregarServicio, actualizarServicio, eliminarServicio, buscarServicios, obtenerEstadisticas } = useServicios();
+  const { user } = useEmailAuth();
+
+  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
 
   const [busqueda, setBusqueda] = useState("");
   const [servicioModal, setServicioModal] = useState({ isOpen: false, servicio: null as Servicio | null });
@@ -173,14 +177,16 @@ export function ServiciosPage() {
                 className="pl-10 pr-4 py-2 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
               />
             </div>
-            <button
-              onClick={() => abrirServicioModal()}
-              className="dark-button-primary gap-2 flex items-center"
-              disabled={loading}
-            >
-              <Plus className="w-4 h-4" />
-              Registrar
-            </button>
+            {!isVetRole && (
+              <button
+                onClick={() => abrirServicioModal()}
+                className="dark-button-primary gap-2 flex items-center"
+                disabled={loading}
+              >
+                <Plus className="w-4 h-4" />
+                Registrar
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -241,7 +247,7 @@ export function ServiciosPage() {
                         <Switch
                           checked={servicio.estado === 'activo'}
                           onCheckedChange={() => handleCambiarEstado(servicio)}
-                          disabled={loading}
+                          disabled={loading || isVetRole}
                         />
                         <span className={`text-[10px] font-bold uppercase tracking-wider w-12 ${servicio.estado === 'activo' ? 'text-[#22c55e]' : 'text-[#64748b]'}`}>
                           {servicio.estado === 'activo' ? 'Activo' : 'Inactivo'}
@@ -261,26 +267,30 @@ export function ServiciosPage() {
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button
-                          onClick={() => abrirServicioModal(servicio)}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 border-dark-color text-yellow-400 hover:bg-yellow-900/20 hover:border-yellow-400"
-                          title="Editar"
-                          disabled={loading}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={() => setDeleteDialog({ isOpen: true, servicio })}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 border-dark-color text-red-400 hover:bg-red-900/20 hover:border-red-400"
-                          title="Eliminar"
-                          disabled={loading}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {!isVetRole && (
+                          <>
+                            <Button
+                              onClick={() => abrirServicioModal(servicio)}
+                              variant="outline"
+                              size="sm"
+                              className="p-2 h-9 w-9 border-dark-color text-yellow-400 hover:bg-yellow-900/20 hover:border-yellow-400"
+                              title="Editar"
+                              disabled={loading}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              onClick={() => setDeleteDialog({ isOpen: true, servicio })}
+                              variant="outline"
+                              size="sm"
+                              className="p-2 h-9 w-9 border-dark-color text-red-400 hover:bg-red-900/20 hover:border-red-400"
+                              title="Eliminar"
+                              disabled={loading}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

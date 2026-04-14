@@ -24,6 +24,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, cita: null as Agendamiento | null });
 
   const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
+  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,6 +34,11 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
     // Si es cliente, solo ve sus citas
     if (isClienteRole) {
       if (cita.id_cliente !== user?.id_cliente) return false;
+    }
+
+    // Si es veterinario, solo ve las citas asignadas a él
+    if (isVetRole) {
+      if (cita.id_empleado !== user?.id_empleado) return false;
     }
 
     const matchBusqueda = (cita.cliente?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -111,7 +117,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
             <p className="text-sm text-dark-secondary mt-1">Programa citas y asigna empleados a los pacientes</p>
           </div>
           <div className="flex items-center space-x-3">
-            {!isClienteRole && (
+            {!isVetRole && (
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
                 <input
@@ -123,13 +129,15 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                 />
               </div>
             )}
-            <button
-              onClick={() => abrirCitaModal()}
-              className="dark-button-primary gap-2 flex items-center"
-            >
-              <Plus className="w-4 h-4" />
-              Agendar Cita
-            </button>
+            {!isVetRole && (
+              <button
+                onClick={() => abrirCitaModal()}
+                className="dark-button-primary gap-2 flex items-center"
+              >
+                <Plus className="w-4 h-4" />
+                {isClienteRole ? "Solicitar Cita" : "Agendar Cita"}
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -206,7 +214,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                           )}
                         </div>
                       </TableCell>
-                      {!isClienteRole && (
+                      {!isClienteRole && !isVetRole && (
                         <TableCell>
                           <div className="flex items-center justify-center">
                             {estadoFinal === 'completada' ? (
@@ -216,18 +224,50 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                                 </div>
                                 <span className="text-[9px] font-black text-green-500 tracking-tighter">PAGADO</span>
                               </div>
-                            ) : (
-                              <Button
-                                onClick={() => onPagar?.(cita)}
-                                variant="outline"
-                                size="sm"
-                                className="gap-1.5 bg-emerald-500/15 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/25 hover:border-emerald-400 transition-all duration-200"
-                                title="Ir a Ventas"
-                              >
-                                <DollarSign className="w-4 h-4" />
-                                <span className="text-xs font-medium">Pagar</span>
-                              </Button>
-                            )}
+                            ) : (() => {
+                              // Lógica de "Puedo Pagar": Robusta ante formatos ISO o locales
+                              if (!cita.fecha || !cita.hora) return null;
+
+                              try {
+                                const fechaBase = cita.fecha.split('T')[0];
+                                let horaBase = cita.hora.includes('T') ? cita.hora.split('T')[1].substring(0, 5) : cita.hora.substring(0, 5);
+
+                                const [year, month, day] = fechaBase.split('-').map(Number);
+                                const [hours, minutes] = horaBase.split(':').map(Number);
+
+                                const fechaCita = new Date(year, month - 1, day, hours, minutes);
+                                const ahora = new Date();
+                                const puedoPagar = ahora >= fechaCita;
+
+                                return (
+                                  <Button
+                                    onClick={() => puedoPagar && onPagar?.(cita)}
+                                    variant="outline"
+                                    size="sm"
+                                    className={`gap-1.5 transition-all duration-200 ${puedoPagar
+                                      ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/25 shadow-lg shadow-emerald-500/10'
+                                      : 'bg-dark-hover border-dark-color text-dark-secondary opacity-50 grayscale cursor-not-allowed'
+                                      }`}
+                                    title={puedoPagar ? "Ir a Ventas" : `Disponible el ${new Date(fechaCita).toLocaleDateString()} a las ${formatTo12h(horaBase)}`}
+                                    disabled={!puedoPagar}
+                                  >
+                                    {puedoPagar ? (
+                                      <>
+                                        <DollarSign className="w-4 h-4 animate-pulse" />
+                                        <span className="text-xs font-bold">Pagar</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Clock className="w-3.5 h-3.5" />
+                                        <span className="text-[10px] font-medium">Espera</span>
+                                      </>
+                                    )}
+                                  </Button>
+                                );
+                              } catch (e) {
+                                return <span className="text-[9px] text-red-400">Error fecha</span>;
+                              }
+                            })()}
                           </div>
                         </TableCell>
                       )}
@@ -243,26 +283,30 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button
-                            onClick={() => abrirCitaModal(cita)}
-                            variant="outline"
-                            size="sm"
-                            className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
-                            disabled={loading}
-                            title="Editar cita"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            onClick={() => setDeleteDialog({ isOpen: true, cita })}
-                            variant="outline"
-                            size="sm"
-                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30 disabled:opacity-30 disabled:cursor-not-allowed"
-                            disabled={loading || estadoFinal === 'completada'}
-                            title={estadoFinal === 'completada' ? "No se puede eliminar una cita pagada" : "Eliminar cita"}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {!isClienteRole && !isVetRole && (
+                            <>
+                              <Button
+                                onClick={() => abrirCitaModal(cita)}
+                                variant="outline"
+                                size="sm"
+                                className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
+                                disabled={loading}
+                                title="Editar cita"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                onClick={() => setDeleteDialog({ isOpen: true, cita })}
+                                variant="outline"
+                                size="sm"
+                                className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30 disabled:opacity-30 disabled:cursor-not-allowed"
+                                disabled={loading || estadoFinal === 'completada'}
+                                title={estadoFinal === 'completada' ? "No se puede eliminar una cita pagada" : "Eliminar cita"}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

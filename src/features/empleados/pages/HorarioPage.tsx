@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../shared/components/card";
 import { Badge } from "../../../shared/components/badge";
 import { Button } from "../../../shared/components/button";
@@ -13,6 +13,7 @@ import { Clock, Users, Plus, Search, Filter, User, Calendar, CheckCircle, Edit, 
 import { useHorario, Horario } from "../hooks/useHorario";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 import { formatTo12h } from '../../../shared/utils/formatTime';
+import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 
 interface HorarioPageProps {
   onNewHorario?: () => void;
@@ -21,6 +22,9 @@ interface HorarioPageProps {
 
 export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
   const { horarios, loading, crearHorario, actualizarHorario, eliminarHorario } = useHorario();
+  const { user } = useEmailAuth();
+
+  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
   const [busqueda, setBusqueda] = useState("");
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, horario: null as any | null });
   const [verDetallesDialog, setVerDetallesDialog] = useState({ isOpen: false, horario: null as any | null });
@@ -56,6 +60,13 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
   // Filtrar empleados: se omiten administradores si el requerimiento es no mostrar a Administrador, 
   // pero solo filtra la vista. O mejor, si el usuario pide sacarlo, podemos omitir "Administrador".
   const empleadosFiltrados = empleadosArray.filter(empleado => {
+    // Si es veterinario, solo ve su propio horario
+    if (isVetRole) {
+      const myId = user?.id_empleado;
+      const isMine = empleado.horarios.some(h => h.id_empleado === myId);
+      if (!isMine) return false;
+    }
+
     // Excluir únicamente al Administrador Maestro (usando su cédula o nombre identificador)
     if (empleado.cc === '1001780874' || empleado.nombre.toLowerCase().includes('joseph ballestas')) return false;
 
@@ -152,14 +163,16 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
                 className="pl-10 pr-4 py-2 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
               />
             </div>
-            <button
-              onClick={() => onNewHorario?.()}
-              className="dark-button-primary gap-2 flex items-center"
-              disabled={loading}
-            >
-              <Plus className="w-4 h-4" />
-              Registrar
-            </button>
+            {!isVetRole && (
+              <button
+                onClick={() => onNewHorario?.()}
+                className="dark-button-primary gap-2 flex items-center"
+                disabled={loading}
+              >
+                <Plus className="w-4 h-4" />
+                Registrar
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -266,26 +279,30 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button
-                            onClick={() => onEditHorario?.(empleado.horarios[0])}
-                            variant="outline"
-                            size="sm"
-                            className="p-2 h-9 w-9 border-dark-color text-yellow-400 hover:bg-yellow-900/20 hover:border-yellow-400"
-                            disabled={loading}
-                            title="Editar horario"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            onClick={() => setDeleteDialog({ isOpen: true, horario: empleado.horarios[0] })}
-                            variant="outline"
-                            size="sm"
-                            className="p-2 h-9 w-9 border-dark-color text-red-400 hover:bg-red-900/20 hover:border-red-400"
-                            disabled={loading}
-                            title="Eliminar horario"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {!isVetRole && (
+                            <>
+                              <Button
+                                onClick={() => onEditHorario?.(empleado.horarios[0])}
+                                variant="outline"
+                                size="sm"
+                                className="p-2 h-9 w-9 border-dark-color text-yellow-400 hover:bg-yellow-900/20 hover:border-yellow-400"
+                                disabled={loading}
+                                title="Editar horario"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                onClick={() => setDeleteDialog({ isOpen: true, horario: empleado.horarios[0] })}
+                                variant="outline"
+                                size="sm"
+                                className="p-2 h-9 w-9 border-dark-color text-red-400 hover:bg-red-900/20 hover:border-red-400"
+                                disabled={loading}
+                                title="Eliminar horario"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

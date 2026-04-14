@@ -148,31 +148,28 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
       return !minutosOcupados.has(h * 60 + m);
     });
 
-    // 4. VALIDACIÓN CRÍTICA: Filtrar por huecos CONSECUTIVOS suficientes
-    // Cada servicio seleccionado requiere 30 min libres.
-    const numServiciosActual = formData.serviciosSeleccionados.length || 1;
-    const duracionRequerida = numServiciosActual * 30;
+    // 4. VALIDACIÓN: Mostrar slots que tengan al menos 30 min (el mínimo)
+    // No filtramos por la duración total aquí para que las horas no "desaparezcan".
+    // La validación de duración total se hace al seleccionar o al agregar servicios.
+    const duracionMinima = 30;
 
     return slotsLibres.filter(s => {
       const [h, m] = s.split(':').map(Number);
       const inicioProbable = h * 60 + m;
 
-      // Chequear si desde 'inicioProbable' hay 'duracionRequerida' de espacio libre
-      for (let offset = 0; offset < duracionRequerida; offset += 30) {
+      for (let offset = 0; offset < duracionMinima; offset += 30) {
         const minCheck = inicioProbable + offset;
-        // Debe estar dentro del horario laboral y NO estar en minutosOcupados
         const hCheck = Math.floor(minCheck / 60);
         const mCheck = minCheck % 60;
         const timeStr = `${hCheck.toString().padStart(2, '0')}:${mCheck.toString().padStart(2, '0')}`;
 
-        // Si el minuto está ocupado o se sale de los slots base del día, no cabe
         if (minutosOcupados.has(minCheck) || !slotsBase.includes(timeStr)) {
           return false;
         }
       }
       return true;
     });
-  }, [formData.id_empleado, formData.fecha, formData.serviciosSeleccionados.length, horarios, citas, cita]);
+  }, [formData.id_empleado, formData.fecha, horarios, citas, cita]);
 
   // Si el slot seleccionado ya no es válido, limpiarlo
   useEffect(() => {
@@ -222,12 +219,104 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
   };
 
+  /**
+   * Calcula cuántos minutos libres hay a partir de un slot dado,
+   * considerando TANTO la hora de cierre del empleado COMO la próxima cita existente.
+   * Devuelve el número máximo de servicios permitidos (30 min c/u).
+   */
+  const obtenerMaxServiciosEnSlot = (horaSlot: string): number => {
+    if (!formData.id_empleado || !formData.fecha) return 99;
+
+    const [hS, mS] = horaSlot.split(':').map(Number);
+    const inicioMin = hS * 60 + mS;
+
+    // 1. Límite por horario de cierre del empleado
+    const fechaCita = new Date(formData.fecha + 'T00:00:00');
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const nombreDia = diasSemana[fechaCita.getDay()];
+    const horarioDia = horarios.find(
+      h => h.id_empleado === parseInt(formData.id_empleado) && h.dia_semana === nombreDia
+    );
+    let limiteMin = horarioDia ? (() => {
+      const [hF, mF] = extraerHHmm(horarioDia.hora_fin).split(':').map(Number);
+      return hF * 60 + mF;
+    })() : inicioMin + 9999;
+
+    // 2. Límite por la PRÓXIMA CITA del mismo empleado ese día
+    const citasDelEmpleadoEseDia = citas.filter(c => {
+      if (c.id_empleado !== parseInt(formData.id_empleado)) return false;
+      if (!c.fecha || c.estado === 'cancelada') return false;
+      if (cita && c.id_agendamiento === cita.id_agendamiento) return false; // ignorar la propia
+      const fCita = c.fecha.split('T')[0];
+      return fCita === formData.fecha;
+    });
+
+    // Encontrar la cita más cercana que empieza DESPUÉS del slot seleccionado
+    let proximaCitaMin = Infinity;
+    citasDelEmpleadoEseDia.forEach(c => {
+      const horaC = extraerHHmm(c.hora);
+      if (!horaC) return;
+      const [hC, mC] = horaC.split(':').map(Number);
+      const startC = hC * 60 + mC;
+      if (startC > inicioMin && startC < proximaCitaMin) {
+        proximaCitaMin = startC;
+      }
+    });
+
+    // 3. Usar el límite más restrictivo
+    const limiteEfectivo = Math.min(limiteMin, proximaCitaMin === Infinity ? limiteMin : proximaCitaMin);
+    const minutosLibres = limiteEfectivo - inicioMin;
+    return Math.max(1, Math.floor(minutosLibres / 30));
+  };
+
   const agregarServicio = (id_servicio: string) => {
     const id = parseInt(id_servicio);
-    if (id && !formData.serviciosSeleccionados.includes(id)) {
-      setFormData(prev => ({ ...prev, serviciosSeleccionados: [...prev.serviciosSeleccionados, id] }));
-      if (errors.servicios) setErrors(prev => ({ ...prev, servicios: '' }));
+    if (!id || formData.serviciosSeleccionados.includes(id)) return;
+
+    // VALIDACIÓN INTELIGENTE: ¿Cabe este nuevo servicio considerando la próxima cita?
+    if (formData.hora && formData.id_empleado && formData.fecha) {
+      const maxServicios = obtenerMaxServiciosEnSlot(formData.hora);
+      const nuevaCantidad = formData.serviciosSeleccionados.length + 1;
+
+      if (nuevaCantidad > maxServicios) {
+        // Determinar el motivo del límite para el mensaje
+        const [hS, mS] = formData.hora.split(':').map(Number);
+        const inicioMin = hS * 60 + mS;
+
+        const citasDelDia = citas.filter(c => {
+          if (c.id_empleado !== parseInt(formData.id_empleado)) return false;
+          if (!c.fecha || c.estado === 'cancelada') return false;
+          if (cita && c.id_agendamiento === cita.id_agendamiento) return false;
+          return c.fecha.split('T')[0] === formData.fecha;
+        });
+
+        let proximaCitaMin = Infinity;
+        let horaProxima = '';
+        citasDelDia.forEach(c => {
+          const horaC = extraerHHmm(c.hora);
+          if (!horaC) return;
+          const [hC, mC] = horaC.split(':').map(Number);
+          const startC = hC * 60 + mC;
+          if (startC > inicioMin && startC < proximaCitaMin) {
+            proximaCitaMin = startC;
+            horaProxima = horaC;
+          }
+        });
+
+        const descripcion = horaProxima
+          ? `Desde las ${formatTo12h(formData.hora)} solo hay espacio para ${maxServicios} servicio(s) porque a las ${formatTo12h(horaProxima)} ya hay otra cita agendada.`
+          : `A partir de las ${formatTo12h(formData.hora)} solo se puede(n) agendar ${maxServicios} servicio(s) según el horario de cierre.`;
+
+        toast.warning('Límite de servicios alcanzado', {
+          description: descripcion,
+          duration: 5000
+        });
+        return;
+      }
     }
+
+    setFormData(prev => ({ ...prev, serviciosSeleccionados: [...prev.serviciosSeleccionados, id] }));
+    if (errors.servicios) setErrors(prev => ({ ...prev, servicios: '' }));
   };
 
   const quitarServicio = (id_servicio: number) => {
@@ -235,6 +324,25 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
       ...prev,
       serviciosSeleccionados: prev.serviciosSeleccionados.filter(id => id !== id_servicio)
     }));
+  };
+
+  /** Verifica si una hora específica tiene espacio para N servicios (usa gap detection) */
+  const verificarEspacioParaServicios = (horaSlot: string, numServicios: number) => {
+    if (!formData.id_empleado || !formData.fecha) return true;
+    const maxServicios = obtenerMaxServiciosEnSlot(horaSlot);
+    return numServicios <= maxServicios;
+  };
+
+  const seleccionarHora = (slot: string) => {
+    const numServicios = formData.serviciosSeleccionados.length || 1;
+    if (!verificarEspacioParaServicios(slot, numServicios)) {
+      const maxServicios = obtenerMaxServiciosEnSlot(slot);
+      toast.warning("Horario insuficiente", {
+        description: `Este horario solo permite ${maxServicios} servicio(s). Por favor, selecciona menos servicios o una hora anterior.`,
+      });
+      return;
+    }
+    handleChange('hora', slot);
   };
 
   // ─── Mensaje descriptivo de slots ─────────────────────────────────────────
@@ -340,7 +448,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                   <button
                     key={slot}
                     type="button"
-                    onClick={() => { handleChange('hora', slot); }}
+                    onClick={() => seleccionarHora(slot)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150
                       ${formData.hora === slot
                         ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20'
@@ -395,27 +503,40 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
             {errors.servicios && <p className="text-red-400 text-xs font-medium">{errors.servicios}</p>}
 
             {formData.serviciosSeleccionados.length > 0 && (
-              <div className="space-y-2 max-h-[120px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-dark-color">
-                {formData.serviciosSeleccionados.map(id_servicio => {
-                  const servicio = servicios.find(s => s.id_servicio === id_servicio);
-                  if (!servicio) return null;
-                  const isPaid = cita && (cita.estado === 'completada' || localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true');
+              <div className="space-y-2">
+                <div className="max-h-[120px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-dark-color space-y-2">
+                  {formData.serviciosSeleccionados.map(id_servicio => {
+                    const servicio = servicios.find(s => s.id_servicio === id_servicio);
+                    if (!servicio) return null;
+                    const isPaid = cita && (cita.estado === 'completada' || localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true');
 
-                  return (
-                    <div key={id_servicio} className="flex items-center justify-between p-2 rounded-lg bg-dark-hover border border-dark-color">
-                      <span className="text-sm text-dark-primary">{servicio.nombre_servicio}</span>
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm text-emerald-400 font-semibold">${servicio.precio}</span>
-                        {!readOnly && !isPaid && (
-                          <Button type="button" variant="ghost" size="sm" onClick={() => quitarServicio(id_servicio)}
-                            className="h-6 w-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-400/10">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        )}
+                    return (
+                      <div key={id_servicio} className="flex items-center justify-between p-2 rounded-lg bg-dark-hover border border-dark-color">
+                        <span className="text-sm text-dark-primary">{servicio.nombre_servicio}</span>
+                        <div className="flex items-center gap-4">
+                          <span className="text-sm text-emerald-400 font-semibold">${servicio.precio.toLocaleString()}</span>
+                          {!readOnly && !isPaid && (
+                            <Button type="button" variant="ghost" size="sm" onClick={() => quitarServicio(id_servicio)}
+                              className="h-6 w-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-400/10">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+
+                {/* TOTAL SECTION */}
+                <div className="flex justify-between items-center p-3 mt-2 rounded-xl bg-blue-500/5 border border-dashed border-blue-500/30">
+                  <span className="text-sm font-bold text-dark-primary uppercase tracking-wider">Total de la cita</span>
+                  <span className="text-xl font-black text-emerald-400">
+                    ${formData.serviciosSeleccionados.reduce((acc, id) => {
+                      const s = servicios.find(srv => srv.id_servicio === id);
+                      return acc + (Number(s?.precio) || 0);
+                    }, 0).toLocaleString()}
+                  </span>
+                </div>
               </div>
             )}
           </div>

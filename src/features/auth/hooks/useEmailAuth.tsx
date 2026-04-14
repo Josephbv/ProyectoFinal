@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
 
 interface User {
@@ -14,6 +14,7 @@ interface User {
   modulos?: string[];
   id_cliente?: number;
   id_empleado?: number;
+  ultimo_acceso?: string;
 }
 
 interface AuthState {
@@ -25,18 +26,10 @@ interface AuthState {
 const API_URL = '/api/auth';
 const ROLES_URL = '/api/roles';
 
-// All modules available in the sidebar
-const ALL_MODULES = [
-  'Dashboard', 'Ventas', 'Clientes', 'Agendamiento',
-  'Mascotas', 'Historial Mascotas', 'Horario', 'Servicios',
-  'Empleados', 'Roles', 'Usuarios'
-];
-
 // Fetch modules for a given role name from the backend
 async function fetchModulosForRol(rolName: string): Promise<string[]> {
   try {
     if (!rolName) return [];
-    // Siempre consultar al backend para tener la lista real del rol
     const data = await apiFetch(`${ROLES_URL}/by-name/${encodeURIComponent(rolName)}`);
     return data.modulos || [];
   } catch {
@@ -64,6 +57,26 @@ export function useEmailAuth() {
 
   const [loading, setLoading] = useState(false);
 
+  // Escuchar actualizaciones globales para sincronizar componentes (como el sidebar)
+  useEffect(() => {
+    const syncAuth = () => {
+      const saved = localStorage.getItem('kaivet_auth_data');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          setAuthState({
+            user: data.usuario,
+            token: data.token,
+            isAuthenticated: !!data.token
+          });
+        } catch (e) { }
+      }
+    };
+
+    window.addEventListener('kaivet-auth-update', syncAuth);
+    return () => window.removeEventListener('kaivet-auth-update', syncAuth);
+  }, []);
+
   const register = useCallback(async (userData: any): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
     try {
@@ -84,7 +97,6 @@ export function useEmailAuth() {
         body: JSON.stringify(payload),
       });
 
-      // Fetch modules for the role
       const rolName = data.usuario?.rol || payload.nombre_rol || 'cliente';
       const modulos = await fetchModulosForRol(rolName);
       const usuarioConModulos = { ...data.usuario, modulos };
@@ -96,6 +108,7 @@ export function useEmailAuth() {
         isAuthenticated: true,
       });
 
+      window.dispatchEvent(new CustomEvent('kaivet-auth-update'));
       return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message };
@@ -113,18 +126,24 @@ export function useEmailAuth() {
         body: JSON.stringify({ correo: email, contrasena: password }),
       });
 
-      // Fetch modules for the role
       const rolName = data.usuario?.rol || '';
       const modulos = await fetchModulosForRol(rolName);
-      const usuarioConModulos = { ...data.usuario, modulos };
 
-      localStorage.setItem('kaivet_auth_data', JSON.stringify({ ...data, usuario: usuarioConModulos }));
+      // Registrar la fecha de acceso actual
+      const usuarioConAcceso = {
+        ...data.usuario,
+        modulos,
+        ultimo_acceso: new Date().toISOString()
+      };
+
+      localStorage.setItem('kaivet_auth_data', JSON.stringify({ ...data, usuario: usuarioConAcceso }));
       setAuthState({
-        user: usuarioConModulos,
+        user: usuarioConAcceso,
         token: data.token,
         isAuthenticated: true,
       });
 
+      window.dispatchEvent(new CustomEvent('kaivet-auth-update'));
       return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message };
@@ -140,6 +159,7 @@ export function useEmailAuth() {
       token: null,
       isAuthenticated: false,
     });
+    window.dispatchEvent(new CustomEvent('kaivet-auth-update'));
   }, []);
 
   const requestPasswordReset = useCallback(async (email: string): Promise<{ success: boolean; message?: string; error?: string; token?: string }> => {
@@ -174,6 +194,17 @@ export function useEmailAuth() {
     }
   }, []);
 
+  const updateUser = useCallback((newData: Partial<User>) => {
+    const saved = localStorage.getItem('kaivet_auth_data');
+    if (saved) {
+      const data = JSON.parse(saved);
+      const updatedUser = { ...data.usuario, ...newData };
+      localStorage.setItem('kaivet_auth_data', JSON.stringify({ ...data, usuario: updatedUser }));
+      setAuthState(prev => ({ ...prev, user: updatedUser }));
+      window.dispatchEvent(new CustomEvent('kaivet-auth-update'));
+    }
+  }, []);
+
   return {
     ...authState,
     loading,
@@ -181,6 +212,7 @@ export function useEmailAuth() {
     login,
     logout,
     requestPasswordReset,
-    resetPassword
+    resetPassword,
+    updateUser
   };
 }

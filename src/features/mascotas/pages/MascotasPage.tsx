@@ -23,6 +23,7 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, mascota: null as Mascota | null });
 
   const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
+  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -114,14 +115,16 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
               </div>
             )}
 
-            <button
-              onClick={onNewMascota}
-              className="dark-button-primary gap-2 flex items-center"
-              disabled={loading}
-            >
-              <Plus className="w-4 h-4" />
-              Nueva Mascota
-            </button>
+            {!isClienteRole && !isVetRole && (
+              <button
+                onClick={onNewMascota}
+                className="dark-button-primary gap-2 flex items-center"
+                disabled={loading}
+              >
+                <Plus className="w-4 h-4" />
+                Nueva Mascota
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -209,17 +212,19 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button
-                            onClick={() => onEditMascota(mascota)}
-                            variant="outline"
-                            size="sm"
-                            className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
-                            disabled={loading}
-                            title="Editar mascota"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          {!isClienteRole && (
+                          {!isVetRole && (
+                            <Button
+                              onClick={() => onEditMascota(mascota)}
+                              variant="outline"
+                              size="sm"
+                              className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
+                              disabled={loading}
+                              title="Editar mascota"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {!isClienteRole && !isVetRole && (
                             <Button
                               onClick={() => setDeleteDialog({ isOpen: true, mascota })}
                               variant="outline"
@@ -265,8 +270,6 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
           </div>
         </div>
       </main>
-
-
 
       <ConfirmDeleteDialog
         isOpen={deleteDialog.isOpen}

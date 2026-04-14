@@ -4,7 +4,7 @@ import { Button } from '../../../shared/components/button';
 import { Input } from '../../../shared/components/input';
 import { Label } from '../../../shared/components/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../shared/components/select';
-import { ShoppingCart, Calendar, User, DollarSign, Stethoscope, Trash2 } from 'lucide-react';
+import { ShoppingCart, Calendar, User, DollarSign, Stethoscope, Trash2, AlertTriangle } from 'lucide-react';
 import { Venta, VentaServicio } from '../hooks/useVentas';
 import { useClientes } from '../../clientes/hooks/useClientes';
 import { useServicios } from '../../servicios/hooks/useServicios';
@@ -292,21 +292,26 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
                         </div>
 
                         <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-2 bg-dark-bg rounded-lg border border-dark-color p-1">
-                            <Button
-                              type="button" variant="ghost" size="sm"
-                              onClick={() => actualizarCantidad(item.id_servicio, item.cantidad - 1)}
-                              className="h-6 w-6 p-0 text-dark-secondary hover:text-white"
-                              disabled={readOnly}
-                            >-</Button>
-                            <span className="text-sm text-dark-primary w-6 text-center font-medium">{item.cantidad}</span>
-                            <Button
-                              type="button" variant="ghost" size="sm"
-                              onClick={() => actualizarCantidad(item.id_servicio, item.cantidad + 1)}
-                              className="h-6 w-6 p-0 text-dark-secondary hover:text-white"
-                              disabled={readOnly}
-                            >+</Button>
-                          </div>
+                          {readOnly ? (
+                            <div className="flex items-center gap-2 px-3 py-1 bg-dark-card border border-dark-color rounded-lg">
+                              <span className="text-xs text-dark-secondary">Cant:</span>
+                              <span className="text-sm font-bold text-dark-primary">{item.cantidad}</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 bg-dark-bg rounded-lg border border-dark-color p-1">
+                              <Button
+                                type="button" variant="ghost" size="sm"
+                                onClick={() => actualizarCantidad(item.id_servicio, item.cantidad - 1)}
+                                className="h-6 w-6 p-0 text-dark-secondary hover:text-white"
+                              >-</Button>
+                              <span className="text-sm text-dark-primary w-6 text-center font-medium">{item.cantidad}</span>
+                              <Button
+                                type="button" variant="ghost" size="sm"
+                                onClick={() => actualizarCantidad(item.id_servicio, item.cantidad + 1)}
+                                className="h-6 w-6 p-0 text-dark-secondary hover:text-white"
+                              >+</Button>
+                            </div>
+                          )}
 
                           <div className="w-24 text-right">
                             <span className="text-emerald-400 font-bold">${(item.cantidad * item.precio_unitario).toLocaleString()}</span>
@@ -326,9 +331,25 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
                     );
                   })}
                 </div>
-              )}
+              )
+              }
             </div>
           </div>
+
+          {/* Motivo de Anulación - visible solo en detalle de venta anulada */}
+          {readOnly && venta?.estado === 'anulada' && (() => {
+            const motivo = venta.motivo_anulacion || localStorage.getItem(`motivo_anulacion_${venta.id_venta}`);
+            if (!motivo) return null;
+            return (
+              <div className="mx-6 mb-2 flex items-start gap-3 p-4 rounded-xl bg-red-500/8 border border-red-500/25">
+                <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-red-400 uppercase tracking-wide mb-1">Motivo de Anulación</p>
+                  <p className="text-sm text-dark-primary">{motivo}</p>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Totales - Fijo al fondo */}
           <div className="bg-dark-bg border-t border-dark-color p-6 py-4 flex justify-between items-center">

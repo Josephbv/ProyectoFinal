@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   BarChart3,
   Users,
@@ -19,7 +19,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Moon,
-  Sun
+  Sun,
+  Eye
 } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "../../../shared/components/tooltip";
 import { PawIcon } from "../../../shared/components/PawIcon";
@@ -44,6 +45,8 @@ import { NuevaVentaPage } from "../../ventas/pages/NuevaVentaPage";
 import { NuevoHorarioPage } from "../../empleados/pages/NuevoHorarioPage";
 import { MascotaFormPageWrapper as MascotaFormPage } from "../../mascotas/pages/MascotaFormPageWrapper";
 import { Mascota } from "../../mascotas/hooks/useMascotas";
+import { PerfilClientePage } from "../../clientes/pages/PerfilClientePage";
+import { PerfilEmpleadoPage } from "../../empleados/pages/PerfilEmpleadoPage";
 
 const mainNavItems = [
   { icon: BarChart3, label: "Dashboard", active: true, shortcut: "⌘D" },
@@ -78,8 +81,9 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const { theme, toggleTheme } = useTheme();
   const { user } = useEmailAuth();
+  const isCliente = user?.rol?.toLowerCase().includes('cliente');
+  const isVet = user?.rol?.toLowerCase().includes('veterinario');
 
-  // State for passing data to edit pages
   const [horarioAEditar, setHorarioAEditar] = useState<any>(null);
   const [citaAPagar, setCitaAPagar] = useState<any>(null);
   const [mascotaAEditar, setMascotaAEditar] = useState<any>(null);
@@ -88,6 +92,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
   // Fail-closed: If no modules are specified, only show "Dashboard" (or the first available).
   const filterByModules = (items: typeof mainNavItems) => {
     const isCliente = user?.rol?.toLowerCase().includes('cliente');
+    const isVet = user?.rol?.toLowerCase().includes('veterinario');
 
     // Administrador role always has full access
     if (user?.rol?.toLowerCase() === 'administrador') return items;
@@ -97,7 +102,18 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
     // Para clientes, nos aseguramos que vean Ventas y Clientes (Mi Perfil)
     if (isCliente) {
       if (!modulos.includes("Ventas")) modulos = [...modulos, "Ventas"];
-      if (!modulos.includes("Clientes")) modulos = [...modulos, "Clientes"];
+      // El cliente ya no ve el módulo "Clientes" en el menú lateral conforme al requerimiento del profesor
+      // El cliente no debe ver el Dashboard
+      return items.filter(item => item.label !== "Dashboard" && item.label !== "Clientes" && modulos.includes(item.label));
+    }
+
+    // Para veterinarios, aplicamos sus restricciones
+    if (isVet) {
+      return items.filter(item =>
+        item.label !== "Dashboard" &&
+        item.label !== "Clientes" &&
+        modulos.includes(item.label)
+      );
     }
 
     if (modulos.length === 0) {
@@ -107,13 +123,31 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
     return items.filter(item => modulos.includes(item.label));
   };
 
-  const visibleMainNav = filterByModules(mainNavItems);
-  const visibleMascotasItems = filterByModules(mascotasItems);
-  const visibleOperationsItems = filterByModules(operationsItems);
-  const visibleConfigItems = filterByModules(configItems);
+  const visibleMainNav = useMemo(() => filterByModules(mainNavItems), [user?.modulos, user?.rol]);
+  const visibleMascotasItems = useMemo(() => filterByModules(mascotasItems), [user?.modulos, user?.rol]);
+  const visibleOperationsItems = useMemo(() => filterByModules(operationsItems), [user?.modulos, user?.rol]);
+  const visibleConfigItems = useMemo(() => filterByModules(configItems), [user?.modulos, user?.rol]);
 
   // Search: only over visible modules
-  const allNavItems = [...visibleMainNav, ...visibleMascotasItems, ...visibleOperationsItems, ...visibleConfigItems];
+  const allNavItems = useMemo(() =>
+    [...visibleMainNav, ...visibleMascotasItems, ...visibleOperationsItems, ...visibleConfigItems]
+    , [visibleMainNav, visibleMascotasItems, visibleOperationsItems, visibleConfigItems]);
+
+  // Redirigir si intenta entrar a un módulo no permitido
+  useEffect(() => {
+    // Si el usuario ya cargó y el módulo actual no está en la lista permitida
+    if (user && allNavItems.length > 0) {
+      // Páginas internas que no están en el menú lateral pero deben ser accesibles
+      const paginasInternas = ["NuevoHorario", "MascotaForm", "NuevaVenta", "MiPerfil", "MiPerfilEmpleado"];
+
+      const isAllowed = paginasInternas.includes(activePage) || allNavItems.some((item: any) => item.label === activePage);
+
+      if (!isAllowed) {
+        // Enviar al primer módulo que sí tenga permitido
+        setActivePage(allNavItems[0].label);
+      }
+    }
+  }, [user, allNavItems, activePage]);
 
   // Filtrar items basado en la búsqueda
   const filteredItems = searchQuery
@@ -182,6 +216,10 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
             setActivePage("MascotaForm");
           }}
         />;
+      case "MiPerfil":
+        return <PerfilClientePage />;
+      case "MiPerfilEmpleado":
+        return <PerfilEmpleadoPage />;
       case "Agendamiento":
         return (
           <AgendamientoPage
@@ -379,12 +417,34 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
                   <User className="w-4 h-4 text-white" />
                   <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border border-dark-card"></div>
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold text-dark-primary truncate">
                     {user?.nombre_usuario || user?.nombre_completo || 'Usuario'}
                   </p>
                   <p className="text-xs text-blue-400 truncate">{user?.rol || 'Sin Rol'}</p>
                 </div>
+                {isCliente && (
+                  <Button
+                    onClick={() => setActivePage("MiPerfil")}
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-full"
+                    title="Ver mi perfil"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                )}
+                {isVet && (
+                  <Button
+                    onClick={() => setActivePage("MiPerfilEmpleado")}
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-full"
+                    title="Ver mi perfil"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
 
               {/* Theme Switcher */}

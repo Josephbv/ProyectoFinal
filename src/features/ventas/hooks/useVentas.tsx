@@ -16,6 +16,7 @@ export interface Venta {
   id_cliente: number;
   cliente?: any;
   venta_servicios?: VentaServicio[];
+  motivo_anulacion?: string;
 }
 
 const API_URL = '/api';
@@ -27,8 +28,16 @@ export function useVentas() {
   const cargarVentas = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch(`${API_URL}/ventas`);
-      setVentas(data || []);
+      const data: Venta[] = await apiFetch(`${API_URL}/ventas`);
+      // Enriquecer ventas anuladas con el motivo guardado localmente
+      const enriched = (data || []).map(v => {
+        if (v.estado === 'anulada') {
+          const motivo = localStorage.getItem(`motivo_anulacion_${v.id_venta}`);
+          return motivo ? { ...v, motivo_anulacion: motivo } : v;
+        }
+        return v;
+      });
+      setVentas(enriched);
     } catch (error) {
       console.error('Error al cargar ventas:', error);
     } finally {
@@ -73,11 +82,13 @@ export function useVentas() {
     }
   }, []);
 
-  const anularVenta = useCallback(async (id: number) => {
+  const anularVenta = useCallback(async (id: number, motivo: string) => {
     setLoading(true);
     try {
       const anulada = await apiFetch(`${API_URL}/ventas/anular/${id}`, { method: 'PATCH' });
-      setVentas(prev => prev.map(v => v.id_venta === id ? { ...v, estado: 'anulada' } : v));
+      // Guardar el motivo localmente para mostrarlo en el detalle
+      localStorage.setItem(`motivo_anulacion_${id}`, motivo);
+      setVentas(prev => prev.map(v => v.id_venta === id ? { ...v, estado: 'anulada', motivo_anulacion: motivo } : v));
       return { success: true, data: anulada };
     } catch (error: any) {
       return { success: false, error: error.message || 'Error al anular venta' };

@@ -19,9 +19,29 @@ export function CitasHoy({ onVerCalendario }: CitasHoyProps) {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   }, []);
 
-  // Filtrar citas de hoy directamente del array de citas
+  // Filtrar citas de hoy que aún no han terminado
   const citasHoy = useMemo(() => {
-    let filtered = citas.filter(c => c.fecha && c.fecha.startsWith(hoy));
+    const now = new Date();
+    const currentMin = now.getHours() * 60 + now.getMinutes();
+
+    let filtered = citas.filter(c => {
+      // 1. Debe ser de hoy
+      if (!c.fecha || !c.fecha.startsWith(hoy)) return false;
+
+      // 2. Si no tiene hora, la dejamos (por seguridad)
+      if (!c.hora) return true;
+
+      // 3. Calcular hora de fin (asumiendo 30 min por servicio)
+      const [h, m] = c.hora.split(':').map(Number);
+      const startMin = h * 60 + m;
+      const numServicios = c.agendamiento_servicios?.length || 1;
+      const duration = numServicios * 30;
+      const endMin = startMin + duration;
+
+      // 4. Solo mostrar si aún no termina
+      return currentMin < endMin;
+    });
+
     if (isClienteRole) {
       filtered = filtered.filter(c => c.id_cliente === user?.id_cliente);
     }
