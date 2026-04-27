@@ -40,8 +40,23 @@ export function useUsuarios() {
     const cargarUsuarios = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await apiFetch(`${API_URL}/usuarios`);
-            setUsuarios(data || []);
+            const data: any[] = await apiFetch(`${API_URL}/auth/users`);
+            const mapped = (data || []).map((u: any) => ({
+                ...u,
+                id_usuario: u.idUsuario || u.IdUsuario || u.id_usuario,
+                nombre_usuario: u.nombreUsuario || u.NombreUsuario || u.nombre_usuario,
+                nombre_completo: u.nombreCompleto || u.NombreCompleto || u.nombre_completo,
+                correo: u.correo || u.Correo,
+                cedula: u.cedula || u.Cedula,
+                id_rol: u.idRol || u.IdRol || u.id_rol,
+                activo: u.activo !== undefined ? u.activo : u.Activo,
+                rol: u.rol || (u.idRolNavigation || u.IdRolNavigation ? {
+                    id_rol: (u.idRolNavigation || u.IdRolNavigation).idRol || (u.idRolNavigation || u.IdRolNavigation).IdRol,
+                    nombre_rol: (u.idRolNavigation || u.IdRolNavigation).nombreRol || (u.idRolNavigation || u.IdRolNavigation).NombreRol,
+                    activo: (u.idRolNavigation || u.IdRolNavigation).activo !== undefined ? (u.idRolNavigation || u.IdRolNavigation).activo : (u.idRolNavigation || u.IdRolNavigation).Activo
+                } : undefined)
+            }));
+            setUsuarios(mapped);
         } catch (error) {
             console.error('Error al cargar usuarios:', error);
         } finally {
@@ -54,7 +69,7 @@ export function useUsuarios() {
     const crearUsuario = useCallback(async (usuarioData: Partial<Usuario>) => {
         setLoading(true);
         try {
-            const nuevo = await apiFetch(`${API_URL}/usuarios`, {
+            const nuevo = await apiFetch(`${API_URL}/auth/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(usuarioData),
@@ -71,7 +86,7 @@ export function useUsuarios() {
     const actualizarUsuario = useCallback(async (id: number, usuarioData: Partial<Usuario>) => {
         setLoading(true);
         try {
-            const actualizado = await apiFetch(`${API_URL}/usuarios/${id}`, {
+            const actualizado = await apiFetch(`${API_URL}/auth/users/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(usuarioData),
@@ -88,7 +103,7 @@ export function useUsuarios() {
     const eliminarUsuario = useCallback(async (id: number) => {
         setLoading(true);
         try {
-            await apiFetch(`${API_URL}/usuarios/${id}`, { method: 'DELETE' });
+            await apiFetch(`${API_URL}/auth/users/${id}`, { method: 'DELETE' });
             setUsuarios(prev => prev.filter(u => u.id_usuario !== id));
             return { success: true };
         } catch (error: any) {

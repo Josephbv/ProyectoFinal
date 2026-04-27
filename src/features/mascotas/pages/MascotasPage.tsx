@@ -22,8 +22,9 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
   const [busqueda, setBusqueda] = useState("");
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, mascota: null as Mascota | null });
 
-  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
-  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
+  const roleName = typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '';
+  const isClienteRole = roleName.toLowerCase().includes('cliente');
+  const isVetRole = roleName.toLowerCase().includes('veterinario');
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -165,8 +166,8 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
 
               <TableBody>
                 {mascotasPaginadas.length > 0 ? (
-                  mascotasPaginadas.map((mascota) => (
-                    <TableRow key={mascota.id_mascota} className="border-dark-color hover:bg-dark-table-hover transition-colors">
+                  mascotasPaginadas.map((mascota, index) => (
+                    <TableRow key={`${mascota.id_mascota}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors">
 
                       <TableCell>
                         <div className="flex items-center gap-3">

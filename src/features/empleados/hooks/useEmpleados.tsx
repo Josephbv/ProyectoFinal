@@ -21,8 +21,19 @@ export function useEmpleados() {
     const cargarEmpleados = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await apiFetch(`${API_URL}/empleados`);
-            setEmpleados(data || []);
+            const data: any[] = await apiFetch(`${API_URL}/empleados`);
+            const mapped = (data || []).map((e: any) => ({
+                ...e,
+                id_empleado: e.idEmpleado || e.IdEmpleado || e.id_empleado,
+                nombre: e.nombre || e.Nombre,
+                cargo: e.cargo || e.Cargo,
+                cedula: e.cedula || e.Cedula,
+                telefono: e.telefono || e.Telefono,
+                correo: e.correo || e.Correo,
+                direccion: e.direccion || e.Direccion,
+                tipo_documento: e.tipoDocumento || e.TipoDocumento || e.tipo_documento
+            }));
+            setEmpleados(mapped);
         } catch (error) {
             console.error('Error al cargar empleados:', error);
         } finally {

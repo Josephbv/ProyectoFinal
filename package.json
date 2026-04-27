@@ -57,8 +57,6 @@
       },
       "scripts": {
             "dev": "vite --open",
-            "server": "cd server && npm run dev",
-            "dev:all": "concurrently --names \"FRONTEND,BACKEND\" --prefix-colors \"blue,green\" \"vite\" \"cd server && npm run dev\"",
             "build": "vite build"
       }
 }

@@ -215,9 +215,9 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                                 >
                                     <option value="" disabled>Seleccionar rol</option>
                                     {roles
-                                        .filter(rol => rol.nombre.toLowerCase() !== 'cliente')
-                                        .map((rol) => (
-                                            <option key={rol.id} value={rol.nombre} className="text-dark-primary">
+                                        .filter(rol => (rol.nombre || '').toLowerCase() !== 'cliente')
+                                        .map((rol, index) => (
+                                            <option key={`${rol.id}-${index}`} value={rol.nombre} className="text-dark-primary">
                                                 {rol.nombre}
                                             </option>
                                         ))}

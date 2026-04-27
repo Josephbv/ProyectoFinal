@@ -228,8 +228,8 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
                     <SelectValue placeholder="Seleccionar cliente..." />
                   </SelectTrigger>
                   <SelectContent className="bg-dark-card border-dark-color">
-                    {clientes.map(c => (
-                      <SelectItem key={c.id_cliente} value={c.id_cliente.toString()}>
+                    {clientes.map((c, idx) => (
+                      <SelectItem key={`${c.id_cliente || idx}`} value={String(c.id_cliente || '')}>
                         {c.nombre}
                       </SelectItem>
                     ))}
@@ -268,9 +268,9 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
                     <SelectContent className="bg-dark-card border-dark-color">
                       {servicios
                         .filter(s => s.estado === 'activo')
-                        .map(s => (
-                          <SelectItem key={s.id_servicio} value={s.id_servicio.toString()} disabled={formData.venta_servicios.some(vs => vs.id_servicio === s.id_servicio)}>
-                            {s.nombre_servicio} - ${s.precio.toLocaleString()}
+                        .map((s, idx) => (
+                          <SelectItem key={`${s.id_servicio || idx}`} value={String(s.id_servicio || '')} disabled={formData.venta_servicios.some(vs => vs.id_servicio === s.id_servicio)}>
+                            {s.nombre_servicio} - ${s.precio ? s.precio.toLocaleString() : '0'}
                           </SelectItem>
                         ))}
                     </SelectContent>
@@ -282,10 +282,10 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
               {/* Lista de Servicios en la Venta */}
               {formData.venta_servicios.length > 0 && (
                 <div className="space-y-3 mt-4">
-                  {formData.venta_servicios.map(item => {
+                  {formData.venta_servicios.map((item, idx) => {
                     const s_info = servicios.find(s => s.id_servicio === item.id_servicio);
                     return (
-                      <div key={item.id_servicio} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-dark-hover/50 border border-dark-color gap-3">
+                      <div key={`${item.id_servicio}-${idx}`} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-dark-hover/50 border border-dark-color gap-3">
                         <div className="flex-1">
                           <span className="text-sm font-medium text-dark-primary">{s_info?.nombre_servicio || 'Servicio Desconocido'}</span>
                           <div className="text-xs text-dark-secondary">${item.precio_unitario.toLocaleString()} c/u</div>

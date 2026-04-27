@@ -26,11 +26,13 @@ export function useServicios() {
   const cargarServicios = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch(`${API_URL}/servicios`);
+      const data: any[] = await apiFetch(`${API_URL}/servicios`);
       const mapped = (data || []).map((s: any) => ({
         ...s,
-        id: s.id_servicio,
-        nombre: s.nombre_servicio
+        id_servicio: s.idServicio || s.IdServicio || s.id_servicio,
+        nombre_servicio: s.nombreServicio || s.NombreServicio || s.nombre_servicio || s.nombre || s.Nombre,
+        precio: s.precio || s.Precio,
+        estado: s.estado || s.Estado || 'activo'
       }));
       setServicios(mapped);
     } catch (error) {

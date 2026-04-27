@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../../shared/components/dialog';
+import { Button } from '../../../shared/components/button';
+import { Input } from '../../../shared/components/input';
+import { Label } from '../../../shared/components/label';
+import { Textarea } from '../../../shared/components/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../shared/components/select';
 import { HistorialMascota } from '../hooks/useHistorialMascotas';
 import { FileText, Heart, Stethoscope, Thermometer, Activity, User, Search, Calendar, Clock, XCircle, CheckCircle } from 'lucide-react';
-import { useClientes } from '../hooks/useClientes';
-import { useMascotas } from '../hooks/useMascotas';
+import { useClientes } from '../../clientes/hooks/useClientes';
+import { useMascotas } from '../../mascotas/hooks/useMascotas';
 import { toast } from 'sonner';
-import { useUsuario } from '../hooks/useUsuario';
-import { useEmpleados } from '../hooks/useEmpleados';
+import { useUsuarios } from '../../configuracion/hooks/useUsuarios';
+import { useEmpleados } from '../../empleados/hooks/useEmpleados';
 
 interface HistorialMascotaModalProps {
   isOpen: boolean;
@@ -24,21 +24,21 @@ interface HistorialMascotaModalProps {
 export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, loading }: HistorialMascotaModalProps) {
   const { clientes } = useClientes();
   const { mascotas } = useMascotas();
-  const { usuarios } = useUsuario();
+  const { usuarios } = useUsuarios();
   const { empleados } = useEmpleados();
 
   // Combinar doctores de Usuarios y de Empleados
   const doctores = [
     ...usuarios
-      .filter(u => {
-        const roleName = u.roles?.nombre_rol?.toLowerCase();
+      .filter((u: any) => {
+        const roleName = u.roles?.nombre_rol?.toLowerCase() || u.rol?.nombre_rol?.toLowerCase();
         return roleName === 'veterinario' || roleName === 'administrador' || roleName === 'admin';
       })
-      .map(u => ({ id: `user-${u.id_usuario}`, nombre: `Dr. ${u.nombre_usuario}` })),
+      .map((u: any) => ({ id: `user-${u.id_usuario}`, nombre: `Dr. ${u.nombre_usuario}` })),
     ...empleados
-      .filter(e => e.cargo?.toLowerCase() === 'veterinario')
-      .map(e => ({ id: `emp-${e.id_empleado}`, nombre: `Dr. ${e.nombre}` }))
-  ].filter((v, i, a) => a.findIndex(t => t.nombre === v.nombre) === i); // Deduplicar por nombre
+      .filter((e: any) => e.cargo?.toLowerCase() === 'veterinario')
+      .map((e: any) => ({ id: `emp-${e.id_empleado}`, nombre: `Dr. ${e.nombre}` }))
+  ].filter((v: any, i: number, a: any[]) => a.findIndex((t: any) => t.nombre === v.nombre) === i); // Deduplicar por nombre
 
   const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [selectedPetId, setSelectedPetId] = useState<string>('');
@@ -77,7 +77,7 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
   useEffect(() => {
     if (entrada) {
       setFormData({
-        mascotaId: entrada.id_mascota.toString(),
+        mascotaId: entrada.id_mascota?.toString() || '',
         nombreMascota: entrada.nombreMascota,
         clienteId: (entrada as any).id_cliente?.toString() || '',
         nombreCliente: entrada.nombreCliente,
@@ -95,7 +95,7 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
         vacunasAplicadas: (entrada as any).vacunasAplicadas || []
       });
       setSelectedClientId((entrada as any).id_cliente?.toString() || '');
-      setSelectedPetId(entrada.id_mascota.toString());
+      setSelectedPetId(entrada.id_mascota?.toString() || '');
     } else {
       resetForm();
     }
@@ -195,8 +195,8 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
     }
   };
 
-  const selectedClient = clientes.find(c => c.id_cliente.toString() === selectedClientId);
-  const clientPets = mascotas.filter(m => m.id_cliente?.toString() === selectedClientId);
+  const selectedClient = clientes.find((c: any) => c.id_cliente?.toString() === selectedClientId);
+  const clientPets = mascotas.filter((m: any) => m.id_cliente?.toString() === selectedClientId);
 
   const visitTypes = [
     { id: 'consulta', label: 'Consulta', color: 'blue' },
@@ -251,7 +251,7 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
                     <SelectContent className="bg-dark-card border-dark-color max-h-60">
                       {clientes.length === 0 ? (
                         <div className="p-4 text-center text-xs text-dark-secondary italic">No hay clientes cargados</div>
-                      ) : clientes.map(c => (
+                      ) : clientes.map((c: any) => (
                         <SelectItem key={c.id_cliente} value={c.id_cliente.toString()}>
                           {c.nombre} {c.cedula ? `(${c.cedula})` : ''}
                         </SelectItem>
@@ -275,7 +275,7 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
                       </p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
-                        {clientPets.filter(p => !entrada || p.id_mascota.toString() === selectedPetId).map(pet => (
+                        {clientPets.filter((p: any) => !entrada || p.id_mascota.toString() === selectedPetId).map((pet: any) => (
                           <button
                             key={pet.id_mascota}
                             type="button"
@@ -337,7 +337,7 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
                       <SelectValue placeholder="Seleccionar..." />
                     </SelectTrigger>
                     <SelectContent className="bg-dark-card border-dark-color">
-                      {doctores.map(d => (
+                      {doctores.map((d: any) => (
                         <SelectItem key={d.id} value={d.nombre} className="text-xs">
                           {d.nombre}
                         </SelectItem>
@@ -353,7 +353,7 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
                   {errors.tipoVisita && <p className="text-red-400 text-[10px]">{errors.tipoVisita}</p>}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {visitTypes.map(type => (
+                  {visitTypes.map((type: any) => (
                     <button
                       key={type.id}
                       type="button"

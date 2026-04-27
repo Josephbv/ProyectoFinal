@@ -41,7 +41,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
   // Agrupar horarios por empleado (usando cedula o id_empleado como clave)
   const empleadosConHorarios = horarios.reduce((acc, horario) => {
     const emp = horario.empleado;
-    const key = emp?.cedula || horario.id_empleado.toString();
+    const key = emp?.cedula || (String(horario.id_empleado || '') || String(Math.random()));
 
     if (!acc[key]) {
       acc[key] = {
@@ -209,7 +209,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {empleadosPaginados.map((empleado: any) => {
+                {empleadosPaginados.map((empleado: any, index: number) => {
                   const diasOrdenados = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
                   const diasTrabajo = empleado.horarios
                     .map((h: Horario) => h.dia_semana)
@@ -218,7 +218,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
                   const todosDisponibles = empleado.horarios.every((h: any) => h.disponible);
 
                   return (
-                    <TableRow key={empleado.cc} className="border-dark-color hover:bg-dark-table-hover transition-colors">
+                    <TableRow key={`${empleado.cc}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors">
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg">
@@ -231,7 +231,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
                       </TableCell>
 
                       <TableCell>
-                        <Badge className={`${empleado.apellido.toLowerCase() === 'veterinario'
+                        <Badge className={`${(empleado.apellido || '').toLowerCase() === 'veterinario'
                           ? 'bg-emerald-900/30 text-emerald-400'
                           : 'bg-blue-900/30 text-blue-400'
                           } border-0`}>
@@ -249,12 +249,16 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
 
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
-                          {diasTrabajo.slice(0, 3).map((dia: string, idx: number) => (
-                            <Badge key={idx} className="bg-blue-900/20 text-blue-400 border-0 text-xs">
-                              {dia.slice(0, 3)}
-                            </Badge>
-                          ))}
-                          {diasTrabajo.length > 3 && (
+                          {diasTrabajo && diasTrabajo.length > 0 ? (
+                            diasTrabajo.slice(0, 3).map((dia: string, idx: number) => (
+                              <Badge key={`${dia}-${idx}`} className="bg-blue-900/20 text-blue-400 border-0 text-xs">
+                                {(dia || 'Día').substring(0, 3)}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-[10px] text-dark-secondary italic">Sin horario</span>
+                          )}
+                          {diasTrabajo && diasTrabajo.length > 3 && (
                             <Badge className="bg-slate-700/20 text-slate-400 border-0 text-xs">
                               +{diasTrabajo.length - 3}
                             </Badge>

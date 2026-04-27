@@ -29,8 +29,23 @@ export function useClientes() {
   const cargarClientes = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch(`${API_URL}/clientes`);
-      setClientes(data || []);
+      const data: any[] = await apiFetch(`${API_URL}/clientes`);
+      const mapped = (data || []).map((c: any) => ({
+        ...c,
+        id_cliente: c.idCliente || c.IdCliente || c.id_cliente,
+        tipo_documento: c.tipoDocumento || c.TipoDocumento || c.tipo_documento,
+        nombre: c.nombre || c.Nombre,
+        cedula: c.cedula || c.Cedula,
+        mascotas: (c.mascota || c.Mascota || c.mascotas || [])
+          .filter((m: any) => m !== null)
+          .map((m: any) => ({
+            ...m,
+            id_mascota: m.idMascota || m.IdMascota || m.id_mascota,
+            id_cliente: m.idCliente || m.IdCliente || m.id_cliente,
+            nombre: m.nombre || m.Nombre
+          }))
+      }));
+      setClientes(mapped);
     } catch (error) {
       console.error('Error al cargar clientes:', error);
     } finally {

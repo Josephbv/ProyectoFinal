@@ -21,8 +21,19 @@ export function useUsuario() {
   const cargarUsuarios = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch(`${API_URL}/users`);
-      setUsuarios(data || []);
+      const data: any[] = await apiFetch(`${API_URL}/users`);
+      const mapped = (data || []).map((u: any) => ({
+        ...u,
+        id_usuario: u.idUsuario || u.IdUsuario || u.id_usuario,
+        nombre_usuario: u.nombreUsuario || u.NombreUsuario || u.nombre_usuario,
+        nombre_completo: u.nombreCompleto || u.NombreCompleto || u.nombre_completo,
+        id_rol: u.idRol || u.IdRol || u.id_rol,
+        roles: u.roles || (u.idRolNavigation || u.IdRolNavigation ? {
+          id_rol: (u.idRolNavigation || u.IdRolNavigation).idRol || (u.idRolNavigation || u.IdRolNavigation).IdRol,
+          nombre_rol: (u.idRolNavigation || u.IdRolNavigation).nombreRol || (u.idRolNavigation || u.IdRolNavigation).NombreRol
+        } : undefined)
+      }));
+      setUsuarios(mapped);
     } catch (error) {
       console.error('Error al cargar usuarios:', error);
     } finally {

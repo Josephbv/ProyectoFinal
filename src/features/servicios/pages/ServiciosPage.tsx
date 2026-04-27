@@ -15,7 +15,8 @@ export function ServiciosPage() {
   const { servicios, loading, agregarServicio, actualizarServicio, eliminarServicio, buscarServicios, obtenerEstadisticas } = useServicios();
   const { user } = useEmailAuth();
 
-  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
+  const roleName = typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '';
+  const isVetRole = roleName.toLowerCase().includes('veterinario');
 
   const [busqueda, setBusqueda] = useState("");
   const [servicioModal, setServicioModal] = useState({ isOpen: false, servicio: null as Servicio | null });
@@ -220,8 +221,8 @@ export function ServiciosPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {serviciosPaginados.map((servicio) => (
-                  <TableRow key={servicio.id} className="border-dark-color hover:bg-dark-table-hover transition-colors">
+                {serviciosPaginados.map((servicio, index) => (
+                  <TableRow key={`${servicio.id || index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors">
                     <TableCell className="font-medium text-dark-primary">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">

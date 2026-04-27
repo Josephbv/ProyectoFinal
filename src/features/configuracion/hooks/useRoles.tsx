@@ -19,8 +19,18 @@ export const useRoles = () => {
   const cargarRoles = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch(API_URL);
-      setRoles(data || []);
+      const data: any[] = await apiFetch(API_URL);
+      const mapped = (data || []).map((r: any) => ({
+        ...r,
+        id: (r.idRol || r.IdRol || r.id_rol || r.id)?.toString(),
+        id_rol: r.idRol || r.IdRol || r.id_rol,
+        nombre: r.nombreRol || r.NombreRol || r.nombre_rol || r.nombre || 'Sin nombre',
+        activo: r.activo !== undefined ? r.activo : r.Activo,
+        modulos: (r.modulos || (r.idPermisos || r.IdPermisos || [])
+          .filter((p: any) => p !== null)
+          .map((p: any) => p.nombreModulo || p.NombreModulo || p.descripcion || 'Módulo'))
+      }));
+      setRoles(mapped);
     } catch (error) {
       console.error('Error al cargar roles:', error);
     } finally {

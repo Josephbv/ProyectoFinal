@@ -28,16 +28,29 @@ export function useVentas() {
   const cargarVentas = useCallback(async () => {
     setLoading(true);
     try {
-      const data: Venta[] = await apiFetch(`${API_URL}/ventas`);
-      // Enriquecer ventas anuladas con el motivo guardado localmente
-      const enriched = (data || []).map(v => {
-        if (v.estado === 'anulada') {
-          const motivo = localStorage.getItem(`motivo_anulacion_${v.id_venta}`);
-          return motivo ? { ...v, motivo_anulacion: motivo } : v;
-        }
-        return v;
-      });
-      setVentas(enriched);
+      const data: any[] = await apiFetch(`${API_URL}/ventas`);
+      const mapped = (data || []).map((v: any) => ({
+        ...v,
+        id_venta: v.idVenta || v.IdVenta || v.id_venta,
+        fecha: v.fecha || v.Fecha,
+        total: v.total || v.Total,
+        estado: v.estado || v.Estado,
+        id_cliente: v.idCliente || v.IdCliente || v.id_cliente,
+        cliente: v.cliente || (v.idClienteNavigation || v.IdClienteNavigation ? {
+          id_cliente: (v.idClienteNavigation || v.IdClienteNavigation).idCliente || (v.idClienteNavigation || v.IdClienteNavigation).IdCliente,
+          nombre: (v.idClienteNavigation || v.IdClienteNavigation).nombre || (v.idClienteNavigation || v.IdClienteNavigation).Nombre,
+          cedula: (v.idClienteNavigation || v.IdClienteNavigation).cedula || (v.idClienteNavigation || v.IdClienteNavigation).Cedula
+        } : undefined),
+        venta_servicios: v.venta_servicios || (v.ventaServicios || v.VentaServicios ? (v.ventaServicios || v.VentaServicios)
+          .filter((vs: any) => vs !== null)
+          .map((vs: any) => ({
+            id_venta: vs.idVenta || vs.IdVenta,
+            id_servicio: vs.idServicio || vs.IdServicio,
+            cantidad: vs.cantidad || vs.Cantidad
+          })) : []),
+        motivo_anulacion: v.estado === 'anulada' ? (v.motivoAnulacion || v.MotivoAnulacion || localStorage.getItem(`motivo_anulacion_${v.idVenta || v.id_venta}`)) : undefined
+      }));
+      setVentas(mapped);
     } catch (error) {
       console.error('Error al cargar ventas:', error);
     } finally {

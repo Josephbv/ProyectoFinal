@@ -27,8 +27,21 @@ export function useMascotas() {
   const cargarMascotas = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch(`${API_URL}/mascotas`);
-      setMascotas(data || []);
+      const data: any[] = await apiFetch(`${API_URL}/mascotas`);
+      const mapped = (data || []).map((m: any) => ({
+        ...m,
+        id_mascota: m.idMascota || m.IdMascota || m.id_mascota,
+        id_cliente: m.idCliente || m.IdCliente || m.id_cliente,
+        nombre: m.nombre || m.Nombre,
+        especie: m.especie || m.Especie,
+        raza: m.raza || m.Raza,
+        cliente: m.cliente || (m.idClienteNavigation || m.IdClienteNavigation ? {
+          id_cliente: (m.idClienteNavigation || m.IdClienteNavigation).idCliente || (m.idClienteNavigation || m.IdClienteNavigation).IdCliente,
+          nombre: (m.idClienteNavigation || m.IdClienteNavigation).nombre || (m.idClienteNavigation || m.IdClienteNavigation).Nombre,
+          cedula: (m.idClienteNavigation || m.IdClienteNavigation).cedula || (m.idClienteNavigation || m.IdClienteNavigation).Cedula
+        } : undefined)
+      }));
+      setMascotas(mapped);
     } catch (error) {
       console.error('Error al cargar mascotas:', error);
     } finally {

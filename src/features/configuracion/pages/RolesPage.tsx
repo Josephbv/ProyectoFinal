@@ -18,7 +18,7 @@ export function RolesPage() {
   const [detallesDialog, setDetallesDialog] = useState({ isOpen: false, rol: null as Rol | null });
 
   const rolesFiltrados = roles.filter(rol =>
-    rol.nombre.toLowerCase().includes(busqueda.toLowerCase())
+    (rol.nombre || '').toLowerCase().includes((busqueda || '').toLowerCase())
   );
 
   // Paginación
@@ -212,8 +212,8 @@ export function RolesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rolesPaginados.map((rol) => (
-                  <TableRow key={rol.id} className="border-dark-color hover:bg-dark-table-hover">
+                {rolesPaginados.map((rol, index) => (
+                  <TableRow key={`${rol.id}-${index}`} className="border-dark-color hover:bg-dark-table-hover">
                     <TableCell className="font-medium text-dark-primary">
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 ${getColorForRole(rol.nombre)} rounded-full flex items-center justify-center`}>
@@ -225,7 +225,7 @@ export function RolesPage() {
                     <TableCell className="text-dark-primary">
                       <div className="flex items-center gap-1">
                         <Lock className="w-4 h-4 text-dark-secondary" />
-                        <span className="font-medium">{rol.modulos.length}</span>
+                        <span className="font-medium">{(rol.modulos || []).length}</span>
                         <span className="text-dark-secondary text-sm">módulos</span>
                       </div>
                     </TableCell>
@@ -258,8 +258,8 @@ export function RolesPage() {
                           variant="outline"
                           size="sm"
                           className="p-2 h-9 w-9 border-dark-color text-yellow-400 hover:bg-yellow-900/20 hover:border-yellow-400"
-                          disabled={loading || rol.nombre.toLowerCase() === 'administrador'}
-                          title={rol.nombre.toLowerCase() === 'administrador' ? 'No se puede editar el rol base Administrador' : 'Editar rol'}
+                          disabled={loading || (rol.nombre || '').toLowerCase() === 'administrador'}
+                          title={(rol.nombre || '').toLowerCase() === 'administrador' ? 'No se puede editar el rol base Administrador' : 'Editar rol'}
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -268,8 +268,8 @@ export function RolesPage() {
                           variant="outline"
                           size="sm"
                           className="p-2 h-9 w-9 border-dark-color text-red-400 hover:bg-red-600/10 hover:border-red-400"
-                          disabled={loading || ['administrador', 'cliente', 'veterinario'].includes(rol.nombre.toLowerCase())}
-                          title={['administrador', 'cliente', 'veterinario'].includes(rol.nombre.toLowerCase()) ? 'No se puede eliminar los roles base del sistema' : 'Eliminar rol'}
+                          disabled={loading || ['administrador', 'cliente', 'veterinario'].includes((rol.nombre || '').toLowerCase())}
+                          title={['administrador', 'cliente', 'veterinario'].includes((rol.nombre || '').toLowerCase()) ? 'No se puede eliminar los roles base del sistema' : 'Eliminar rol'}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

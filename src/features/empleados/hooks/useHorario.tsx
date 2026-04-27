@@ -21,8 +21,23 @@ export function useHorario() {
   const cargarHorarios = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch(`${API_URL}/horarios`);
-      setHorarios(data || []);
+      const data: any[] = await apiFetch(`${API_URL}/horarios`);
+      const mapped = (data || []).map((h: any) => ({
+        ...h,
+        id_horario: h.idHorario || h.IdHorario || h.id_horario,
+        dia_semana: h.diaSemana || h.DiaSemana || h.dia_semana,
+        hora_inicio: h.horaInicio || h.HoraInicio || h.hora_inicio,
+        hora_fin: h.horaFin || h.HoraFin || h.hora_fin,
+        id_empleado: h.idEmpleado || h.IdEmpleado || h.id_empleado,
+        disponible: h.disponible !== undefined ? h.disponible : h.Disponible,
+        empleado: h.empleado || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation ? {
+          id_empleado: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).idEmpleado || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).IdEmpleado,
+          nombre: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).nombre || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).Nombre,
+          cedula: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).cedula || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).Cedula,
+          cargo: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).cargo || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).Cargo
+        } : undefined)
+      }));
+      setHorarios(mapped);
     } catch (error) {
       console.error('Error al cargar horarios:', error);
     } finally {

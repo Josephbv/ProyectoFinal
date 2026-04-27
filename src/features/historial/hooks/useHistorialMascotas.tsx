@@ -35,7 +35,6 @@ export interface HistorialMascota {
 }
 
 const API_BASE = '/api';
-const DIAGNOSTIC_URL = 'http://localhost:3001/api';
 
 export function useHistorialMascotas() {
   const [historiales, setHistoriales] = useState<HistorialMascota[]>([]);
@@ -81,11 +80,13 @@ export function useHistorialMascotas() {
 
       return {
         ...h,
-        id: h.id_historial,
-        mascotaId: h.id_mascota,
-        nombreMascota: h.mascota?.nombre || h.nombreMascota || 'Mascota',
-        nombreCliente: h.mascota?.cliente?.nombre || h.nombreCliente || 'Cliente',
-        cedulaCliente: h.mascota?.cliente?.cedula || h.cedulaCliente || '',
+        id: h.idHistorial || h.IdHistorial || h.id_historial,
+        id_historial: h.idHistorial || h.IdHistorial || h.id_historial,
+        mascotaId: h.idMascota || h.IdMascota || h.id_mascota,
+        id_mascota: h.idMascota || h.IdMascota || h.id_mascota,
+        nombreMascota: h.idMascotaNavigation?.nombre || h.IdMascotaNavigation?.Nombre || h.mascota?.nombre || h.nombreMascota || 'Mascota',
+        nombreCliente: h.idMascotaNavigation?.idClienteNavigation?.nombre || h.IdMascotaNavigation?.IdClienteNavigation?.Nombre || h.mascota?.cliente?.nombre || h.nombreCliente || 'Cliente',
+        cedulaCliente: h.idMascotaNavigation?.idClienteNavigation?.cedula || h.IdMascotaNavigation?.IdClienteNavigation?.Cedula || h.mascota?.cliente?.cedula || h.cedulaCliente || '',
         descripcion: h.motivoConsulta || h.descripcion || 'Consulta Médica',
         tipoVisita: tipoVisitaArr,
         sintomas: safeParse(h.sintomas, []),
@@ -105,14 +106,7 @@ export function useHistorialMascotas() {
       let url = id_mascota ? `${API_BASE}/historial/mascota/${id_mascota}` : `${API_BASE}/historial`;
       console.log(`[DEBUG] Intentando cargar historiales desde: ${url}`);
 
-      let data;
-      try {
-        data = await apiFetch(url);
-      } catch (proxyError) {
-        console.warn('[DEBUG] Fallo vía proxy, intentando bypass directo a 3001...', proxyError);
-        const directUrl = id_mascota ? `${DIAGNOSTIC_URL}/historial/mascota/${id_mascota}` : `${DIAGNOSTIC_URL}/historial`;
-        data = await apiFetch(directUrl);
-      }
+      const data = await apiFetch(url);
 
       console.log(`[DEBUG] Datos recibidos:`, data);
       const mappedData = (data || []).map(mapHistorial);
@@ -141,21 +135,11 @@ export function useHistorialMascotas() {
     try {
       console.log('[DEBUG] Enviando POST a /historial:', entradaData);
 
-      let nueva;
-      try {
-        nueva = await apiFetch(`${API_BASE}/historial`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(entradaData),
-        });
-      } catch (proxyError) {
-        console.warn('[DEBUG] Fallo POST vía proxy, intentando bypass directo...', proxyError);
-        nueva = await apiFetch(`${DIAGNOSTIC_URL}/historial`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(entradaData),
-        });
-      }
+      const nueva = await apiFetch(`${API_BASE}/historial`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entradaData),
+      });
 
       const mappedNueva = mapHistorial(nueva);
 

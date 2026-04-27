@@ -149,13 +149,13 @@ export function UsuariosPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {usuariosPaginados.map((usuario) => (
-                                    <TableRow key={usuario.id_usuario} className="border-dark-color hover:bg-dark-table-hover transition-colors">
+                                {usuariosPaginados.map((usuario, index) => (
+                                    <TableRow key={`${usuario.id_usuario || index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors">
 
                                         <TableCell className="font-medium text-dark-primary">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w - 8 h - 8 rounded - full flex items - center justify - center text - white font - bold text - xs shadow ${usuario.estado === 'bloqueado' ? 'bg-red-900/50' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} `}>
-                                                    {usuario.nombre_usuario.substring(0, 1).toUpperCase()}
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow ${usuario.estado === 'bloqueado' ? 'bg-red-900/50' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} `}>
+                                                    {(usuario.nombre_usuario || 'U').substring(0, 1).toUpperCase()}
                                                 </div>
                                                 <div>
                                                     <div className={`font - semibold ${usuario.estado === 'bloqueado' ? 'text-dark-secondary line-through' : ''} `}>{usuario.nombre_usuario}</div>

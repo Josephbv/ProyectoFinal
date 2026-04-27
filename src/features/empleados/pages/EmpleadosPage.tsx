@@ -134,8 +134,8 @@ export function EmpleadosPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {empleadosPaginados.map((empleado) => (
-                                    <TableRow key={empleado.id_empleado} className="border-dark-color hover:bg-dark-table-hover transition-colors">
+                                {empleadosPaginados.map((empleado, index) => (
+                                    <TableRow key={`${empleado.id_empleado || index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors">
 
                                         <TableCell className="text-dark-primary font-mono text-sm">
                                             {empleado.cedula || 'N/A'}

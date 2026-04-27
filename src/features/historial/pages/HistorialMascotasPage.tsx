@@ -37,8 +37,9 @@ export function HistorialMascotasPage() {
   const [busqueda, setBusqueda] = useState("");
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, entrada: null as HistorialMascota | null });
 
-  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
-  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
+  const roleName = typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '';
+  const isClienteRole = roleName.toLowerCase().includes('cliente');
+  const isVetRole = roleName.toLowerCase().includes('veterinario');
 
   // Nuevo flujo de navegación
   const [pasoActual, setPasoActual] = useState<'inicio' | 'cliente' | 'mascota' | 'timeline' | 'formulario' | 'detalles' | 'reporteCompleto'>('inicio');
@@ -893,8 +894,8 @@ export function HistorialMascotasPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {historialPaginado.map((entrada) => (
-                      <TableRow key={entrada.id_historial} className="border-dark-color hover:bg-dark-table-hover transition-colors group">
+                    {historialPaginado.map((entrada, index) => (
+                      <TableRow key={`${entrada.id_historial}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors group">
 
                         <TableCell>
                           <span className="font-semibold text-dark-primary text-xs">{toSentenceCase(entrada.nombreMascota)}</span>
@@ -1224,8 +1225,8 @@ export function HistorialMascotasPage() {
           </header>
 
           <div className="space-y-12 pl-8 border-l border-dark-color relative">
-            {historialesPaginados.map((entrada) => (
-              <div key={entrada.id_historial} className="relative">
+            {historialesPaginados.map((entrada, index) => (
+              <div key={`${entrada.id_historial}-${index}`} className="relative">
                 <div className="absolute -left-[41px] top-4 w-5 h-5 rounded-full bg-[#0a0b0c] border-[4px] border-blue-500 z-10" />
 
                 <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl hover:border-blue-500/30 transition-all group">

@@ -25,8 +25,9 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
   const [ventaModal, setVentaModal] = useState({ isOpen: false, venta: null as Venta | null, readOnly: false });
   const [anularDialog, setAnularDialog] = useState({ isOpen: false, venta: null as Venta | null, motivo: '' });
 
-  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
-  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
+  const roleName = typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '';
+  const isClienteRole = roleName.toLowerCase().includes('cliente');
+  const isVetRole = roleName.toLowerCase().includes('veterinario');
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,7 +43,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
     if (!searchLow) return true;
 
     return (
-      venta.id_venta.toString().includes(searchLow) ||
+      venta.id_venta?.toString().includes(searchLow) ||
       (venta.cliente?.nombre || '').toLowerCase().includes(searchLow) ||
       (venta.cliente?.cedula || '').toLowerCase().includes(searchLow)
     );
@@ -303,7 +304,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
               </div>
               <div>
                 <h3 className="text-lg font-bold text-dark-primary">¿Anular Factura?</h3>
-                <p className="text-xs text-dark-secondary">Factura #{anularDialog.venta?.id_venta.toString().padStart(5, '0')}</p>
+                <p className="text-xs text-dark-secondary">Factura #{anularDialog.venta?.id_venta?.toString().padStart(5, '0')}</p>
               </div>
             </div>
 

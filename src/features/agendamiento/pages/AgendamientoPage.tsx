@@ -23,8 +23,9 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
   const [citaModal, setCitaModal] = useState({ isOpen: false, cita: null as Agendamiento | null, readOnly: false });
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, cita: null as Agendamiento | null });
 
-  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
-  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
+  const roleName = typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '';
+  const isClienteRole = roleName.toLowerCase().includes('cliente');
+  const isVetRole = roleName.toLowerCase().includes('veterinario');
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -175,13 +176,13 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {citasPaginadas.map((cita: Agendamiento) => {
+                {citasPaginadas.map((cita: Agendamiento, index: number) => {
                   // Verificar si está marcado como pagado en localStorage (failsafe)
                   const isPagadoLocal = localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true';
                   const estadoFinal = isPagadoLocal ? 'completada' : cita.estado;
 
                   return (
-                    <TableRow key={cita.id_agendamiento} className="border-dark-color hover:bg-dark-table-hover transition-colors">
+                    <TableRow key={`${cita.id_agendamiento}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors">
                       <TableCell className="font-medium text-dark-primary">
                         {cita.fecha ? new Date(cita.fecha.includes('T') ? cita.fecha.split('T')[0] + 'T12:00:00' : cita.fecha + 'T12:00:00').toLocaleDateString() : 'Sin fecha'}
                       </TableCell>

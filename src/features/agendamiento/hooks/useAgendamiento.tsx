@@ -28,8 +28,32 @@ export function useAgendamiento() {
   const cargarCitas = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch(`${API_URL}/agendamiento`);
-      setCitas(data || []);
+      const data: any[] = await apiFetch(`${API_URL}/agendamiento`);
+      const mapped = (data || []).map((a: any) => ({
+        ...a,
+        id_agendamiento: a.idAgendamiento || a.IdAgendamiento || a.id_agendamiento,
+        id_cliente: a.idCliente || a.IdCliente || a.id_cliente,
+        id_empleado: a.idEmpleado || a.IdEmpleado || a.id_empleado,
+        fecha: a.fecha || a.Fecha,
+        hora: a.hora || a.Hora,
+        estado: a.estado || a.Estado,
+        cliente: a.cliente || (a.idClienteNavigation || a.IdClienteNavigation ? {
+          id_cliente: (a.idClienteNavigation || a.IdClienteNavigation).idCliente || (a.idClienteNavigation || a.IdClienteNavigation).IdCliente,
+          nombre: (a.idClienteNavigation || a.IdClienteNavigation).nombre || (a.idClienteNavigation || a.IdClienteNavigation).Nombre,
+          cedula: (a.idClienteNavigation || a.IdClienteNavigation).cedula || (a.idClienteNavigation || a.IdClienteNavigation).Cedula
+        } : undefined),
+        empleado: a.empleado || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation ? {
+          id_empleado: (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).idEmpleado || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).IdEmpleado,
+          nombre: (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).nombre || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).Nombre
+        } : undefined),
+        agendamiento_servicios: a.agendamiento_servicios || (a.idServicios || a.IdServicios ? (a.idServicios || a.IdServicios)
+          .filter((s: any) => s !== null)
+          .map((s: any) => ({
+            id_servicio: s.idServicio || s.IdServicio,
+            nombre: s.nombreServicio || s.NombreServicio
+          })) : [])
+      }));
+      setCitas(mapped);
     } catch (error) {
       console.error('Error al cargar citas:', error);
     } finally {

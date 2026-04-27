@@ -207,8 +207,8 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
               </TableHeader>
 
               <TableBody>
-                {clientesPaginados.map((cliente) => (
-                  <TableRow key={cliente.id_cliente} className="border-dark-color hover:bg-dark-table-hover transition-colors">
+                {clientesPaginados.map((cliente, index) => (
+                  <TableRow key={`${cliente.id_cliente}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors">
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 ${getAvatarColor(cliente.nombre || '')} rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg`}>

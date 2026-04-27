@@ -49,7 +49,8 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
 }) => {
     const { clientes } = useClientes();
     const { user } = useEmailAuth();
-    const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
+    const roleName = typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '';
+    const isClienteRole = roleName.toLowerCase().includes('cliente');
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<Partial<Mascota>>({
         nombre: '',
@@ -153,8 +154,8 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
             return clientes.filter(c => c.id_cliente === user?.id_cliente);
         }
         return clientes.filter(c =>
-            c.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            c.cedula?.includes(searchTerm)
+            (c.nombre || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+            (c.cedula || '').includes(searchTerm || '')
         );
     }, [clientes, searchTerm, isClienteRole, user?.id_cliente]);
 

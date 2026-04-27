@@ -59,7 +59,8 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
   const { citas } = useAgendamiento();
   const { user } = useEmailAuth();
 
-  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
+  const roleName = typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '';
+  const isClienteRole = roleName.toLowerCase().includes('cliente');
 
   const [formData, setFormData] = useState({
     fecha: new Date().toLocaleDateString('sv-SE'),
@@ -76,8 +77,8 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
       setFormData({
         fecha: cita.fecha ? cita.fecha.split('T')[0] : new Date().toLocaleDateString('sv-SE'),
         hora: extraerHHmm(cita.hora),
-        id_cliente: cita.id_cliente.toString(),
-        id_empleado: cita.id_empleado.toString(),
+        id_cliente: cita.id_cliente?.toString() || '',
+        id_empleado: cita.id_empleado?.toString() || '',
         serviciosSeleccionados: cita.agendamiento_servicios ? cita.agendamiento_servicios.map(s => s.id_servicio) : []
       });
     } else {
@@ -387,8 +388,8 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                 <SelectContent className="bg-dark-card border-dark-color">
                   {clientes
                     .filter(c => !isClienteRole || c.id_cliente === user?.id_cliente)
-                    .map(c => (
-                      <SelectItem key={c.id_cliente} value={c.id_cliente.toString()}>{c.nombre}</SelectItem>
+                    .map((c, idx) => (
+                      <SelectItem key={c.id_cliente || `client-${idx}`} value={String(c.id_cliente || '')}>{c.nombre}</SelectItem>
                     ))}
                 </SelectContent>
               </Select>
@@ -406,10 +407,10 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                   {empleados
                     .filter(e =>
                       horarios.some(h => h.id_empleado === e.id_empleado) &&
-                      e.cargo?.toLowerCase() !== 'administrador'
+                      (e.cargo || '').toLowerCase() !== 'administrador'
                     )
-                    .map(e => (
-                      <SelectItem key={e.id_empleado} value={e.id_empleado.toString()}>{e.nombre} ({e.cargo})</SelectItem>
+                    .map((e, idx) => (
+                      <SelectItem key={e.id_empleado || `emp-${idx}`} value={String(e.id_empleado || '')}>{e.nombre} ({e.cargo})</SelectItem>
                     ))}
                 </SelectContent>
               </Select>
@@ -490,8 +491,8 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                   <SelectContent className="bg-dark-card border-dark-color">
                     {servicios
                       .filter(s => s.estado === 'activo')
-                      .map(s => (
-                        <SelectItem key={s.id_servicio} value={s.id_servicio.toString()}>
+                      .map((s, idx) => (
+                        <SelectItem key={`${s.id_servicio || idx}`} value={(s.id_servicio || '').toString()}>
                           {s.nombre_servicio} - ${s.precio}
                         </SelectItem>
                       ))}
@@ -505,13 +506,13 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
             {formData.serviciosSeleccionados.length > 0 && (
               <div className="space-y-2">
                 <div className="max-h-[120px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-dark-color space-y-2">
-                  {formData.serviciosSeleccionados.map(id_servicio => {
+                  {formData.serviciosSeleccionados.map((id_servicio, idx) => {
                     const servicio = servicios.find(s => s.id_servicio === id_servicio);
                     if (!servicio) return null;
                     const isPaid = cita && (cita.estado === 'completada' || localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true');
 
                     return (
-                      <div key={id_servicio} className="flex items-center justify-between p-2 rounded-lg bg-dark-hover border border-dark-color">
+                      <div key={`${id_servicio}-${idx}`} className="flex items-center justify-between p-2 rounded-lg bg-dark-hover border border-dark-color">
                         <span className="text-sm text-dark-primary">{servicio.nombre_servicio}</span>
                         <div className="flex items-center gap-4">
                           <span className="text-sm text-emerald-400 font-semibold">${servicio.precio.toLocaleString()}</span>
@@ -553,6 +554,6 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }
