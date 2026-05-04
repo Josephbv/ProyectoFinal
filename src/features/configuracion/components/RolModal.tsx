@@ -1,11 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../../shared/components/dialog';
 import { Button } from '../../../shared/components/button';
 import { Input } from '../../../shared/components/input';
 import { Label } from '../../../shared/components/label';
-import { Switch } from '../../../shared/components/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../shared/components/select';
-import { Shield, Lock } from 'lucide-react';
+import { Shield, Lock, Check } from 'lucide-react';
 
 interface Rol {
   id: string;
@@ -29,83 +27,66 @@ const modulosDisponibles = [
 ];
 
 export function RolModal({ isOpen, onClose, onSubmit, rol, loading, roles = [] }: RolModalProps) {
-  const [formData, setFormData] = useState({
-    nombre: '',
-    modulos: [] as string[]
-  });
-
+  const [nombre, setNombre] = useState('');
+  const [modulos, setModulos] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const initialized = useRef(false);
 
+  // Solo inicializar cuando el modal abre por primera vez
   useEffect(() => {
-    if (rol) {
-      setFormData({
-        nombre: rol.nombre,
-        modulos: rol.modulos || []
-      });
-    } else {
-      setFormData({
-        nombre: '',
-        modulos: []
-      });
+    if (isOpen && !initialized.current) {
+      setNombre(rol?.nombre || '');
+      setModulos(rol?.modulos ? [...rol.modulos] : []);
+      setErrors({});
+      initialized.current = true;
     }
-    setErrors({});
-  }, [rol, isOpen]);
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.nombre) {
-      newErrors.nombre = 'El nombre del rol es obligatorio';
-    } else {
-      const coreRoles = ['administrador', 'cliente', 'veterinario'];
-      if (coreRoles.includes(formData.nombre.toLowerCase().trim())) {
-        newErrors.nombre = 'Este es un nombre reservado para el sistema.';
-      } else if (roles) {
-        const existeRole = roles.some(r => r.nombre.toLowerCase().trim() === formData.nombre.toLowerCase().trim() && r.id !== rol?.id);
-        if (existeRole) {
-          newErrors.nombre = 'Ya existe otro rol con este nombre.';
-        }
-      }
+    if (!isOpen) {
+      initialized.current = false;
     }
+  }, [isOpen]);
 
-    if (formData.modulos.length === 0) {
-      newErrors.modulos = 'Debe asignar por lo menos un (1) módulo al rol.';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const toggleModulo = (modulo: string) => {
+    setModulos(prev =>
+      prev.includes(modulo)
+        ? prev.filter(m => m !== modulo)
+        : [...prev, modulo]
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: Record<string, string> = {};
 
-    if (!validateForm()) return;
+    if (!nombre.trim()) {
+      newErrors.nombre = 'El nombre del rol es obligatorio';
+    } else if (!rol) {
+      // Solo validar nombres reservados al CREAR, no al editar
+      const coreRoles = ['administrador', 'cliente', 'veterinario'];
+      if (coreRoles.includes(nombre.toLowerCase().trim())) {
+        newErrors.nombre = 'Este es un nombre reservado para el sistema.';
+      } else {
+        const existeRole = roles.some(r =>
+          r.nombre.toLowerCase().trim() === nombre.toLowerCase().trim()
+        );
+        if (existeRole) newErrors.nombre = 'Ya existe otro rol con este nombre.';
+      }
+    }
 
-    const result = await onSubmit(formData);
-    if (result.success) {
+    if (modulos.length === 0) {
+      newErrors.modulos = 'Debe asignar por lo menos un (1) módulo al rol.';
+    }
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
+    const result = await onSubmit({ nombre, modulos });
+    if (result?.success) {
       onClose();
     }
   };
 
-  const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
-
-  const handleModuloToggle = (modulo: string) => {
-    setFormData(prev => ({
-      ...prev,
-      modulos: prev.modulos.includes(modulo)
-        ? prev.modulos.filter(m => m !== modulo)
-        : [...prev.modulos, modulo]
-    }));
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-dark-card border-dark-color">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-dark-primary flex items-center gap-2">
@@ -113,49 +94,57 @@ export function RolModal({ isOpen, onClose, onSubmit, rol, loading, roles = [] }
             {rol ? 'Editar Rol' : 'Nuevo Rol'}
           </DialogTitle>
           <DialogDescription className="text-dark-secondary">
-            {rol ? 'Actualiza la información del rol' : 'Define un nuevo rol con sus permisos correspondientes'}
+            {rol ? 'Actualiza los módulos disponibles para este rol' : 'Define un nuevo rol con sus permisos correspondientes'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="nombre" className="text-dark-primary">Nombre del Rol *</Label>
-              <Input
-                id="nombre"
-                placeholder="Ej. Recepcionista, Ayudante, etc..."
-                value={formData.nombre}
-                onChange={(e) => handleChange('nombre', e.target.value)}
-                disabled={!!rol}
-                className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
-              />
-              {errors.nombre && <p className="text-red-400 text-sm">{errors.nombre}</p>}
-              {!rol && <p className="text-xs text-dark-secondary italic">Nota: No se pueden crear roles con los nombres reservados (Administrador, Cliente, Veterinario).</p>}
-            </div>
+          {/* Nombre */}
+          <div className="space-y-2">
+            <Label htmlFor="nombre" className="text-dark-primary">Nombre del Rol *</Label>
+            <Input
+              id="nombre"
+              placeholder="Ej. Recepcionista, Ayudante, etc..."
+              value={nombre}
+              onChange={(e) => {
+                setNombre(e.target.value);
+                if (errors.nombre) setErrors(prev => ({ ...prev, nombre: '' }));
+              }}
+              disabled={!!rol}
+              className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
+            />
+            {errors.nombre && <p className="text-red-400 text-sm">{errors.nombre}</p>}
+            {!rol && <p className="text-xs text-dark-secondary italic">Nota: No se pueden crear roles con los nombres reservados (Administrador, Cliente, Veterinario).</p>}
           </div>
 
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-dark-primary flex items-center gap-2">
-                <Lock className="w-4 h-4" />
-                Módulos ({formData.modulos.length})
-              </h3>
-            </div>
+          {/* Módulos */}
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-dark-primary flex items-center gap-2">
+              <Lock className="w-4 h-4" />
+              Módulos ({modulos.length})
+            </h3>
             {errors.modulos && <p className="text-red-400 text-sm">{errors.modulos}</p>}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {modulosDisponibles.map((modulo) => (
-                <div key={modulo} className="flex items-center justify-between p-3 bg-dark-hover rounded-xl border border-dark-color hover:border-blue-500/30 transition-all group cursor-pointer" onClick={() => handleModuloToggle(modulo)}>
-                  <Label className="text-dark-primary text-sm font-semibold cursor-pointer">
-                    {modulo}
-                  </Label>
-                  <Switch
-                    checked={formData.modulos.includes(modulo)}
-                    onCheckedChange={() => handleModuloToggle(modulo)}
-                    className="h-9 w-16 data-[state=checked]:!bg-[#00d084] data-[state=unchecked]:!bg-[#ff5a5f] border-transparent transition-all duration-300"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {modulosDisponibles.map((modulo) => {
+                const isSelected = modulos.includes(modulo);
+                return (
+                  <button
+                    key={modulo}
+                    type="button"
+                    onClick={() => toggleModulo(modulo)}
+                    className={`flex items-center justify-between p-3 rounded-xl border-2 text-left transition-all duration-150 ${isSelected
+                      ? 'bg-blue-500/20 border-blue-500 text-dark-primary'
+                      : 'bg-dark-hover border-dark-color text-dark-secondary hover:border-blue-400/40'
+                      }`}
+                  >
+                    <span className="text-sm font-semibold">{modulo}</span>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-dark-secondary'
+                      }`}>
+                      {isSelected && <Check className="w-3 h-3 text-white" />}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

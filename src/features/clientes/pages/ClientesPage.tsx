@@ -7,6 +7,7 @@ import { Users, Plus, Search, Mail, Phone, Eye, Edit, Trash2, ChevronLeft, Chevr
 import { ClienteModal } from "../components/ClienteModal";
 import { useClientes, Cliente } from "../hooks/useClientes";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
+import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 
 interface ClientesPageProps {
@@ -15,12 +16,16 @@ interface ClientesPageProps {
 
 export function ClientesPage({ onNewMascota }: ClientesPageProps) {
   const { clientes, loading, crearCliente, actualizarCliente, eliminarCliente } = useClientes();
+  const { usuarios, eliminarUsuario } = useUsuarios();
   const { user } = useEmailAuth();
   const [busqueda, setBusqueda] = useState("");
   const [clienteModal, setClienteModal] = useState({ isOpen: false, cliente: null as Cliente | null, readOnly: false });
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, cliente: null as Cliente | null });
 
-  const isClienteRole = user?.rol?.toLowerCase().includes('cliente');
+  const rolName = (typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '').toLowerCase();
+  const isClienteRole = rolName.includes('cliente');
+
+  console.log('[DEBUG Clientes] User:', user?.nombre_usuario, 'Rol:', user?.rol, 'rolName:', rolName, 'isClienteRole:', isClienteRole);
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -92,9 +97,17 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
 
   const handleEliminarCliente = async () => {
     if (!deleteDialog.cliente) return;
+
+    // Buscar si hay un usuario vinculado a este cliente
+    const usuarioVinculado = usuarios.find(u => u.id_cliente === deleteDialog.cliente?.id_cliente);
+
+    if (usuarioVinculado) {
+      await eliminarUsuario(usuarioVinculado.id_usuario);
+    }
+
     const resultado = await eliminarCliente(deleteDialog.cliente.id_cliente);
     if (resultado.success) {
-      toast.success("Cliente eliminado exitosamente");
+      toast.success("Cliente y cuenta de usuario eliminados exitosamente");
     } else {
       toast.error(resultado.error || "Error al eliminar cliente");
     }
@@ -200,7 +213,7 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
                       Correo
                     </div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center w-40">
+                  <TableHead className="text-dark-primary font-semibold text-center min-w-[160px]">
                     Acciones
                   </TableHead>
                 </TableRow>
@@ -247,7 +260,7 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
                           size="sm"
                           className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
                           disabled={loading}
-                          title="Ver detalle"
+                          title="Ver detalles"
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
@@ -257,22 +270,20 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
                           size="sm"
                           className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
                           disabled={loading}
-                          title="Editar perfil"
+                          title="Editar cliente"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        {!isClienteRole && (
-                          <Button
-                            onClick={() => setDeleteDialog({ isOpen: true, cliente })}
-                            variant="outline"
-                            size="sm"
-                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                            disabled={loading}
-                            title="Eliminar"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        )}
+                        <Button
+                          onClick={() => setDeleteDialog({ isOpen: true, cliente })}
+                          variant="outline"
+                          size="sm"
+                          className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
+                          disabled={loading}
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

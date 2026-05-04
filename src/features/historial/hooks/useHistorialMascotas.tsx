@@ -133,20 +133,42 @@ export function useHistorialMascotas() {
   const crearEntradaHistorial = useCallback(async (entradaData: Partial<HistorialMascota>) => {
     setLoading(true);
     try {
-      console.log('[DEBUG] Enviando POST a /historial:', entradaData);
+      const payload: any = {
+        IdMascota: Number(entradaData.id_mascota || (entradaData as any).mascotaId),
+        Fecha: entradaData.fecha ? entradaData.fecha.split('T')[0] : new Date().toISOString().split('T')[0],
+        Hora: (entradaData as any).hora || new Date().toTimeString().slice(0, 5),
+        TipoVisita: Array.isArray(entradaData.tipoVisita) ? JSON.stringify(entradaData.tipoVisita) : entradaData.tipoVisita,
+        Veterinario: (entradaData as any).veterinario,
+        MotivoConsulta: (entradaData as any).motivoConsulta,
+        Sintomas: typeof entradaData.sintomas === 'string' ? entradaData.sintomas : JSON.stringify(entradaData.sintomas),
+        Diagnostico: entradaData.diagnostico,
+        Tratamiento: entradaData.tratamiento,
+        Medicamentos: typeof entradaData.medicamentos === 'string' ? entradaData.medicamentos : JSON.stringify(entradaData.medicamentos),
+        Examenes: typeof entradaData.examenes === 'string' ? entradaData.examenes : JSON.stringify(entradaData.examenes),
+        Peso: (entradaData as any).peso ? Number((entradaData as any).peso) : null,
+        Temperatura: (entradaData as any).temperatura ? Number((entradaData as any).temperatura) : null,
+        FrecuenciaCardiaca: (entradaData as any).frecuenciaCardiaca ? parseInt((entradaData as any).frecuenciaCardiaca) : null,
+        FrecuenciaRespiratoria: (entradaData as any).frecuenciaRespiratoria ? parseInt((entradaData as any).frecuenciaRespiratoria) : null,
+        ProximaCita: (entradaData as any).proximaCita ? (entradaData as any).proximaCita.split('T')[0] : null,
+        Observaciones: entradaData.observaciones || (entradaData as any).observaciones,
+        Costo: (entradaData as any).costo ? Number((entradaData as any).costo) : null,
+        VacunasAplicadas: typeof entradaData.vacunasAplicadas === 'string' ? entradaData.vacunasAplicadas : JSON.stringify(entradaData.vacunasAplicadas),
+        Receta: (entradaData as any).receta,
+        Estado: entradaData.estado || 'normal',
+        Descripcion: (entradaData as any).descripcion || (entradaData as any).motivoConsulta || entradaData.diagnostico,
+        IdMascotaNavigation: null,
+      };
+
+      console.log('[DEBUG] Enviando POST a /historial:', payload);
 
       const nueva = await apiFetch(`${API_BASE}/historial`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entradaData),
+        body: JSON.stringify(payload),
       });
 
       const mappedNueva = mapHistorial(nueva);
-
-      // Actualizar el estado local inmediatamente para evitar depender de la latencia del refresco
       setHistoriales(prev => [mappedNueva, ...prev]);
-
-      // Refrescar desde el servidor para sincronizar relaciones
       await cargarHistoriales();
 
       return { success: true, data: mappedNueva };
@@ -161,17 +183,43 @@ export function useHistorialMascotas() {
   const actualizarEntradaHistorial = useCallback(async (id: number, entradaData: Partial<HistorialMascota>) => {
     setLoading(true);
     try {
+      const payload: any = {
+        IdHistorial: Number(id),
+        IdMascota: Number(entradaData.id_mascota || (entradaData as any).mascotaId || (entradaData as any).IdMascota),
+        Fecha: entradaData.fecha ? (typeof entradaData.fecha === 'string' ? entradaData.fecha.split('T')[0] : new Date(entradaData.fecha).toISOString().split('T')[0]) : null,
+        Hora: (entradaData as any).hora || new Date().toTimeString().slice(0, 5),
+        TipoVisita: Array.isArray(entradaData.tipoVisita) ? JSON.stringify(entradaData.tipoVisita) : entradaData.tipoVisita,
+        Veterinario: (entradaData as any).veterinario,
+        MotivoConsulta: (entradaData as any).motivoConsulta,
+        Sintomas: typeof entradaData.sintomas === 'string' ? entradaData.sintomas : JSON.stringify(entradaData.sintomas),
+        Diagnostico: entradaData.diagnostico,
+        Tratamiento: entradaData.tratamiento,
+        Medicamentos: typeof entradaData.medicamentos === 'string' ? entradaData.medicamentos : JSON.stringify(entradaData.medicamentos),
+        Examenes: typeof entradaData.examenes === 'string' ? entradaData.examenes : JSON.stringify(entradaData.examenes),
+        Peso: (entradaData as any).peso ? Number((entradaData as any).peso) : null,
+        Temperatura: (entradaData as any).temperatura ? Number((entradaData as any).temperatura) : null,
+        FrecuenciaCardiaca: (entradaData as any).frecuenciaCardiaca ? parseInt((entradaData as any).frecuenciaCardiaca) : null,
+        FrecuenciaRespiratoria: (entradaData as any).frecuenciaRespiratoria ? parseInt((entradaData as any).frecuenciaRespiratoria) : null,
+        ProximaCita: (entradaData as any).proximaCita ? (typeof (entradaData as any).proximaCita === 'string' ? (entradaData as any).proximaCita.split('T')[0] : new Date((entradaData as any).proximaCita).toISOString().split('T')[0]) : null,
+        Observaciones: entradaData.observaciones,
+        Costo: (entradaData as any).costo ? Number((entradaData as any).costo) : null,
+        VacunasAplicadas: typeof entradaData.vacunasAplicadas === 'string' ? entradaData.vacunasAplicadas : JSON.stringify(entradaData.vacunasAplicadas),
+        Receta: (entradaData as any).receta,
+        Estado: entradaData.estado || 'normal',
+        Descripcion: (entradaData as any).descripcion || (entradaData as any).motivoConsulta || entradaData.diagnostico,
+        IdMascotaNavigation: null,
+      };
+
+      console.log('[DEBUG] Enviando PUT a /historial:', id, payload);
+
       const actualizada = await apiFetch(`${API_BASE}/historial/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entradaData),
+        body: JSON.stringify(payload),
       });
 
       const mappedActualizada = mapHistorial(actualizada);
-
       setHistoriales(prev => prev.map(h => h.id_historial === id ? mappedActualizada : h));
-
-      // Forzar carga para sincronizar relaciones completas desde el servidor (nombres, etc)
       await cargarHistoriales();
 
       return { success: true, data: mappedActualizada };

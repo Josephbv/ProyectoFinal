@@ -20,12 +20,8 @@ interface ServicioModalProps {
 export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, loading }: ServicioModalProps) {
   const [formData, setFormData] = useState({
     nombre: '',
-    categoria: 'consulta' as 'consulta' | 'cirugia' | 'vacunacion' | 'laboratorio' | 'estetica' | 'emergencia' | 'domicilio' | 'especializada',
     descripcion: '',
     precio: 0,
-    costo: 0,
-    equipoNecesario: [] as string[],
-    materialesIncluidos: [] as string[],
     estado: 'activo' as 'activo' | 'inactivo' | 'mantenimiento',
   });
 
@@ -35,23 +31,15 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
     if (servicio) {
       setFormData({
         nombre: servicio.nombre_servicio || servicio.nombre || '',
-        categoria: (servicio.categoria as any) || 'consulta',
         descripcion: servicio.descripcion || '',
         precio: servicio.precio || 0,
-        costo: servicio.costo || 0,
-        equipoNecesario: servicio.equipoNecesario || [],
-        materialesIncluidos: servicio.materialesIncluidos || [],
         estado: (servicio.estado as any) || 'activo',
       });
     } else {
       setFormData({
         nombre: '',
-        categoria: 'consulta',
         descripcion: '',
         precio: 0,
-        costo: 0,
-        equipoNecesario: [],
-        materialesIncluidos: [],
         estado: 'activo',
       });
     }
@@ -60,9 +48,12 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+    const tieneNumeros = (valor: string) => /\d/.test(valor);
 
     if (!formData.nombre.trim()) {
       newErrors.nombre = 'El nombre es requerido';
+    } else if (tieneNumeros(formData.nombre)) {
+      newErrors.nombre = 'El nombre no puede contener números';
     } else {
       // Validar nombre duplicado (ignorando mayúsculas/minúsculas y espacios extra)
       const nombreIngresado = formData.nombre.trim().toLowerCase();
@@ -78,7 +69,12 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
       }
     }
 
-    if (!formData.descripcion.trim()) newErrors.descripcion = 'La descripción es requerida';
+    if (!formData.descripcion.trim()) {
+      newErrors.descripcion = 'La descripción es requerida';
+    } else if (tieneNumeros(formData.descripcion)) {
+      newErrors.descripcion = 'La descripción no puede contener números';
+    }
+
     if (formData.precio <= 0) newErrors.precio = 'El precio debe ser mayor a 0';
 
     setErrors(newErrors);
@@ -110,7 +106,7 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-dark-card border-dark-color">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-dark-primary flex items-center gap-2">

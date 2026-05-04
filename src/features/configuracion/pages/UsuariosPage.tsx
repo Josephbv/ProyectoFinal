@@ -40,7 +40,11 @@ export function UsuariosPage() {
 
     const handleActualizarUsuario = async (data: Partial<Usuario>) => {
         if (!usuarioModal.usuario) return { success: false };
-        const result = await actualizarUsuario(usuarioModal.usuario.id_usuario, data);
+        // Mezclamos los datos previos (como id_cliente, id_empleado) con los nuevos del formulario
+        const result = await actualizarUsuario(usuarioModal.usuario.id_usuario, {
+            ...usuarioModal.usuario,
+            ...data
+        });
         if (result.success) {
             toast.success("Información del usuario actualizada");
             return { success: true };
@@ -193,25 +197,25 @@ export function UsuariosPage() {
                                             {getEstadoBadge(usuario.estado)}
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center justify-center gap-2">
+                                            <div className="flex items-center justify-center gap-1.5">
                                                 <Button
                                                     onClick={() => abrirUsuarioModal(usuario, true)}
                                                     variant="outline"
                                                     size="sm"
-                                                    className="p-2 h-8 w-8 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
+                                                    className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
                                                     title="Ver detalle de auditoría"
                                                 >
-                                                    <Eye className="w-3.5 h-3.5" />
+                                                    <Eye className="w-4 h-4" />
                                                 </Button>
 
                                                 <Button
                                                     onClick={() => abrirUsuarioModal(usuario)}
                                                     variant="outline"
                                                     size="sm"
-                                                    className="p-2 h-8 w-8 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
+                                                    className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
                                                     title="Editar cuenta"
                                                 >
-                                                    <Edit className="w-3.5 h-3.5" />
+                                                    <Edit className="w-4 h-4" />
                                                 </Button>
 
                                                 {/* Toggle Bloqueo Rápido */}
@@ -220,23 +224,25 @@ export function UsuariosPage() {
                                                         onClick={() => setStatusDialog({ isOpen: true, usuario, newState: 'bloqueado' })}
                                                         variant="outline"
                                                         size="sm"
-                                                        className="p-2 h-8 w-8 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
+                                                        className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
                                                         disabled={usuario.correo === 'josephballestas10@gmail.com' || usuario.cedula === '1001780874'}
                                                         title={usuario.correo === 'josephballestas10@gmail.com' ? 'El Administrador Maestro no puede ser bloqueado' : 'Bloquear Acceso'}
                                                     >
-                                                        <Lock className="w-3.5 h-3.5" />
+                                                        <Lock className="w-4 h-4" />
                                                     </Button>
                                                 ) : (
-                                                    <Button
-                                                        onClick={() => setStatusDialog({ isOpen: true, usuario, newState: 'activo' })}
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="p-2 h-8 w-8 bg-emerald-500/20 border-emerald-500 text-emerald-400 hover:bg-emerald-500/30"
-                                                        disabled={usuario.correo === 'josephballestas10@gmail.com' || usuario.cedula === '1001780874'}
-                                                        title="Desbloquear Acceso"
-                                                    >
-                                                        <Unlock className="w-3.5 h-3.5" />
-                                                    </Button>
+                                                    /* No se puede habilitar si es Administrador, según requerimiento */
+                                                    usuario.rol?.nombre_rol?.toLowerCase() !== 'administrador' && (
+                                                        <Button
+                                                            onClick={() => setStatusDialog({ isOpen: true, usuario, newState: 'activo' })}
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="p-2 h-9 w-9 bg-emerald-500/20 border-emerald-500 text-emerald-400 hover:bg-emerald-500/30"
+                                                            title="Habilitar Acceso"
+                                                        >
+                                                            <Activity className="w-4 h-4" />
+                                                        </Button>
+                                                    )
                                                 )}
                                             </div>
                                         </TableCell>

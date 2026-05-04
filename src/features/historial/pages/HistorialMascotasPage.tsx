@@ -243,7 +243,7 @@ export function HistorialMascotasPage() {
 
     if (result.success) {
       toast.success(entradaSeleccionada ? "Historial actualizado" : "Historial creado");
-      setPasoActual('cliente');
+      setPasoActual('inicio');
       setEntradaSeleccionada(null);
       resetForm();
       cargarHistoriales();
@@ -377,7 +377,7 @@ export function HistorialMascotasPage() {
   };
 
   const cerrarVistaActual = () => {
-    setPasoActual(isClienteRole ? 'inicio' : 'cliente');
+    setPasoActual('inicio');
     setEntradaSeleccionada(null);
   };
 
@@ -414,6 +414,9 @@ export function HistorialMascotasPage() {
   };
 
   function renderReporteDetallado(entrada: HistorialMascota) {
+    const mascotaInfo = mascotas.find((m: any) => m.id_mascota === entrada.id_mascota) || entrada.mascota || mascotaSeleccionada;
+    const clienteInfo = clientes.find((c: any) => c.id_cliente === mascotaInfo?.id_cliente) || mascotaInfo?.cliente || clienteSeleccionado;
+
     return (
       <div className="flex flex-col bg-[#0a0b0c] animate-in fade-in duration-500 overflow-y-auto min-h-screen">
         {/* Header del Reporte */}
@@ -455,17 +458,17 @@ export function HistorialMascotasPage() {
                 <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-xl mb-3 transform -rotate-3 group-hover:rotate-0 transition-transform">
                   <Heart className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-lg font-black text-dark-primary tracking-tight mb-0.5">{entrada.mascota?.nombre || (entrada as any).nombreMascota || 'Mascota'}</h3>
+                <h3 className="text-lg font-black text-dark-primary tracking-tight mb-0.5">{toSentenceCase(mascotaInfo?.nombre || (entrada as any).nombreMascota || 'Mascota')}</h3>
                 <p className="text-[9px] font-black text-pink-400 tracking-[0.2em] mb-3 uppercase">Mascota</p>
 
                 <div className="w-full grid grid-cols-2 gap-2 pt-3 border-t border-dark-color/40">
                   <div className="bg-dark-bg/30 p-2 rounded-xl border border-dark-color/30 flex flex-col">
                     <p className="text-[7px] font-black text-dark-secondary tracking-[0.1em] mb-0.5">Edad</p>
-                    <p className="text-[10px] font-black text-emerald-400">{entrada.mascota?.edad || 'N/A'} años</p>
+                    <p className="text-[10px] font-black text-emerald-400">{mascotaInfo?.edad || 'N/A'} meses</p>
                   </div>
                   <div className="bg-dark-bg/30 p-2 rounded-xl border border-dark-color/30 flex flex-col">
                     <p className="text-[7px] font-black text-dark-secondary tracking-[0.1em] mb-0.5">Peso</p>
-                    <p className="text-[10px] font-black text-blue-400">{entrada.mascota?.peso || 'N/A'} kg</p>
+                    <p className="text-[10px] font-black text-blue-400">{mascotaInfo?.peso || 'N/A'} kg</p>
                   </div>
                 </div>
               </div>
@@ -482,20 +485,20 @@ export function HistorialMascotasPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] font-black text-blue-400 tracking-widest leading-none mb-1.5 opacity-80">{toSentenceCase('Cliente')}</p>
                     <h4 className="text-base font-black text-dark-primary truncate leading-tight tracking-tight">
-                      {toSentenceCase(entrada.mascota?.cliente?.nombre || (entrada as any).nombreCliente || 'Desconocido')}
+                      {toSentenceCase(clienteInfo?.nombre || (entrada as any).nombreCliente || 'Desconocido')}
                     </h4>
-                    <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60 uppercase">Cédula: {entrada.mascota?.cliente?.cedula || 'N/A'}</p>
+                    <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60 uppercase">Cédula: {clienteInfo?.cedula || 'N/A'}</p>
                   </div>
                 </div>
 
                 <div className="space-y-2 pt-4 border-t border-dark-color/40">
                   <div className="flex items-center gap-3 text-[10px] text-dark-secondary/80 font-bold">
                     <Phone className="w-3 h-3 text-blue-400" />
-                    <span className="truncate">{entrada.mascota?.cliente?.telefono || 'No registrado'}</span>
+                    <span className="truncate">{clienteInfo?.telefono || 'No registrado'}</span>
                   </div>
                   <div className="flex items-center gap-3 text-[10px] text-dark-secondary/80 font-bold">
                     <Search className="w-3 h-3 text-blue-400" />
-                    <span className="truncate">{toSentenceCase(entrada.mascota?.cliente?.direccion || 'No registrado')}</span>
+                    <span className="truncate">{toSentenceCase(clienteInfo?.direccion || 'No registrado')}</span>
                   </div>
                 </div>
               </div>
@@ -683,7 +686,7 @@ export function HistorialMascotasPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
                       <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Edad</p>
-                      <p className="text-xs font-black text-emerald-400 break-all">{mascotaSeleccionada?.edad || 'N/A'} años</p>
+                      <p className="text-xs font-black text-emerald-400 break-all">{mascotaSeleccionada?.edad || 'N/A'} meses</p>
                     </div>
                     <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
                       <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Peso</p>
@@ -692,7 +695,13 @@ export function HistorialMascotasPage() {
                     <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
                       <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Nacimiento</p>
                       <p className="text-xs font-black text-purple-400 break-all">
-                        {mascotaSeleccionada?.fecha_nacimiento ? new Date(mascotaSeleccionada.fecha_nacimiento).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }) : 'N/A'}
+                        {mascotaSeleccionada?.fecha_nacimiento
+                          ? new Date(
+                            (mascotaSeleccionada.fecha_nacimiento.includes('T')
+                              ? mascotaSeleccionada.fecha_nacimiento.split('T')[0]
+                              : mascotaSeleccionada.fecha_nacimiento) + 'T12:00:00'
+                          ).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })
+                          : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -909,7 +918,9 @@ export function HistorialMascotasPage() {
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="text-dark-primary text-xs font-black">
-                              {new Date(entrada.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                              {new Date(
+                                (entrada.fecha.includes('T') ? entrada.fecha.split('T')[0] : entrada.fecha) + 'T12:00:00'
+                              ).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                             </span>
                             <span className="text-[9px] text-dark-secondary  font-bold tracking-widest">{formatTo12h((entrada as any).hora) || '---'}</span>
                           </div>
@@ -931,13 +942,14 @@ export function HistorialMascotasPage() {
                           <span className="text-dark-primary text-xs font-bold ">{toSentenceCase(entrada.veterinario) || '---'}</span>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center justify-center gap-2">
+                          <div className="flex items-center justify-center gap-1.5">
                             <Button
                               onClick={() => abrirDetalles(entrada)}
                               variant="outline"
                               size="sm"
-                              className="h-9 w-9 p-0 bg-blue-500/10 border-blue-500/30 text-blue-400 hover:bg-blue-500 hover:text-white rounded-xl transition-all"
-                              title="Ver Reporte"
+                              className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
+                              title="Ver reporte"
+                              disabled={loading}
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
@@ -947,8 +959,9 @@ export function HistorialMascotasPage() {
                                   onClick={() => abrirFormulario(entrada)}
                                   variant="outline"
                                   size="sm"
-                                  className="h-9 w-9 p-0 bg-yellow-500/10 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500 hover:text-white rounded-xl transition-all"
+                                  className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
                                   title="Editar"
+                                  disabled={loading}
                                 >
                                   <Edit className="w-4 h-4" />
                                 </Button>
@@ -957,8 +970,9 @@ export function HistorialMascotasPage() {
                                     onClick={() => setDeleteDialog({ isOpen: true, entrada })}
                                     variant="outline"
                                     size="sm"
-                                    className="h-9 w-9 p-0 bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all"
+                                    className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
                                     title="Eliminar"
+                                    disabled={loading}
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </Button>
@@ -1123,7 +1137,7 @@ export function HistorialMascotasPage() {
         <div className="max-w-4xl mx-auto">
           <Button
             variant="ghost"
-            onClick={() => setPasoActual(isClienteRole ? 'inicio' : 'cliente')}
+            onClick={() => setPasoActual('inicio')}
             className="mb-8 text-dark-secondary hover:bg-dark-hover gap-2 font-black  tracking-widest"
           >
             <ChevronLeft className="w-4 h-4" /> Volver
@@ -1237,7 +1251,9 @@ export function HistorialMascotasPage() {
                           ID: #{entrada.id_historial}
                         </span>
                         <span className="text-[10px] font-black text-dark-secondary  tracking-widest">
-                          {new Date(entrada.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                          {new Date(
+                            (entrada.fecha.includes('T') ? entrada.fecha.split('T')[0] : entrada.fecha) + 'T12:00:00'
+                          ).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                         </span>
                       </div>
                       <h3 className="text-2xl font-black text-dark-primary  tracking-tight group-hover:text-blue-400 transition-colors">
@@ -1298,7 +1314,10 @@ export function HistorialMascotasPage() {
         return dateB - dateA; // Newest first
       });
 
-    const mascota = historialesMascota[0]?.mascota || mascotaSeleccionada; return (
+    const mascotaInfo = mascotas.find(m => m.id_mascota === idMascota) || mascotaSeleccionada || historialesMascota[0]?.mascota;
+    const clienteInfo = clientes.find(c => c.id_cliente === mascotaInfo?.id_cliente) || mascotaInfo?.cliente || clienteSeleccionado;
+
+    return (
       <div className="flex flex-col bg-white text-slate-900 min-h-screen animate-in fade-in duration-700 overflow-y-auto print:overflow-visible print:bg-white print:block">
         <style dangerouslySetInnerHTML={{
           __html: `
@@ -1357,21 +1376,21 @@ export function HistorialMascotasPage() {
           <div className="grid grid-cols-2 gap-10 mb-12">
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200">
               <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mb-4">Información del Paciente</h3>
-              <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(mascota?.nombre)}</p>
+              <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(mascotaInfo?.nombre || historialesMascota[0]?.nombreMascota)}</p>
               <div className="space-y-1 text-sm font-semibold text-slate-600">
-                <p>Especie: <span className="text-slate-900">{toSentenceCase(mascota?.especie)}</span></p>
-                <p>Raza: <span className="text-slate-900">{toSentenceCase(mascota?.raza)}</span></p>
-                <p>Edad: <span className="text-slate-900">{mascota?.edad || 'N/A'} años</span></p>
-                <p>Peso: <span className="text-slate-900">{mascota?.peso || 'N/A'} kg</span></p>
+                <p>Especie: <span className="text-slate-900">{toSentenceCase(mascotaInfo?.especie) || 'N/A'}</span></p>
+                <p>Raza: <span className="text-slate-900">{toSentenceCase(mascotaInfo?.raza) || 'N/A'}</span></p>
+                <p>Edad: <span className="text-slate-900">{mascotaInfo?.edad || 'N/A'} años</span></p>
+                <p>Peso: <span className="text-slate-900">{mascotaInfo?.peso || 'N/A'} kg</span></p>
               </div>
             </div>
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200">
               <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mb-4">Información del Propietario</h3>
-              <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(mascota?.cliente?.nombre)}</p>
+              <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(clienteInfo?.nombre || historialesMascota[0]?.nombreCliente)}</p>
               <div className="space-y-1 text-sm font-semibold text-slate-600">
-                <p>ID: <span className="text-slate-900">{mascota?.cliente?.cedula || 'N/A'}</span></p>
-                <p>Teléfono: <span className="text-slate-900">{mascota?.cliente?.telefono || 'N/A'}</span></p>
-                <p>Dirección: <span className="text-slate-900 text-left">{toSentenceCase(mascota?.cliente?.direccion)}</span></p>
+                <p>ID: <span className="text-slate-900">{clienteInfo?.cedula || historialesMascota[0]?.cedulaCliente || 'N/A'}</span></p>
+                <p>Teléfono: <span className="text-slate-900">{clienteInfo?.telefono || 'N/A'}</span></p>
+                <p>Dirección: <span className="text-slate-900 text-left">{toSentenceCase(clienteInfo?.direccion) || 'N/A'}</span></p>
               </div>
             </div>
           </div>

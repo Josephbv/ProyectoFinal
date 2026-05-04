@@ -36,6 +36,9 @@ export function useClientes() {
         tipo_documento: c.tipoDocumento || c.TipoDocumento || c.tipo_documento,
         nombre: c.nombre || c.Nombre,
         cedula: c.cedula || c.Cedula,
+        correo: c.correo || c.Correo,
+        telefono: c.telefono || c.Telefono,
+        direccion: c.direccion || c.Direccion,
         mascotas: (c.mascota || c.Mascota || c.mascotas || [])
           .filter((m: any) => m !== null)
           .map((m: any) => ({
@@ -58,11 +61,26 @@ export function useClientes() {
   const crearCliente = useCallback(async (clienteData: Partial<Cliente>) => {
     setLoading(true);
     try {
-      const nuevo = await apiFetch(`${API_URL}/clientes`, {
+      const payload: any = {
+        Nombre: clienteData.nombre,
+        TipoDocumento: clienteData.tipo_documento,
+        Cedula: clienteData.cedula,
+        Telefono: clienteData.telefono,
+        Correo: clienteData.correo,
+        Direccion: clienteData.direccion,
+      };
+      const response = await apiFetch(`${API_URL}/clientes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(clienteData),
+        body: JSON.stringify(payload),
       });
+
+      // Mapear el ID correctamente antes de agregarlo al estado local
+      const nuevo = {
+        ...response,
+        id_cliente: response.idCliente || response.IdCliente || response.id_cliente
+      };
+
       setClientes(prev => [nuevo, ...prev]);
       return { success: true, data: nuevo };
     } catch (error: any) {
@@ -75,13 +93,22 @@ export function useClientes() {
   const actualizarCliente = useCallback(async (id: number, clienteData: Partial<Cliente>) => {
     setLoading(true);
     try {
-      const actualizado = await apiFetch(`${API_URL}/clientes/${id}`, {
+      const payload: any = {
+        IdCliente: id,
+        Nombre: clienteData.nombre,
+        TipoDocumento: clienteData.tipo_documento,
+        Cedula: clienteData.cedula,
+        Telefono: clienteData.telefono,
+        Correo: clienteData.correo,
+        Direccion: clienteData.direccion,
+      };
+      await apiFetch(`${API_URL}/clientes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(clienteData),
+        body: JSON.stringify(payload),
       });
-      setClientes(prev => prev.map(c => c.id_cliente === id ? actualizado : c));
-      return { success: true, data: actualizado };
+      setClientes(prev => prev.map(c => c.id_cliente === id ? { ...c, ...clienteData } : c));
+      return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message };
     } finally {

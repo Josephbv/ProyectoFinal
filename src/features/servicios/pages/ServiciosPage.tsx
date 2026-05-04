@@ -54,41 +54,7 @@ export function ServiciosPage() {
     }
   };
 
-  const getCategoriaColor = (categoria: string) => {
-    switch (categoria) {
-      case "consulta":
-        return "bg-blue-900/20 text-blue-400";
-      case "cirugia":
-        return "bg-purple-900/20 text-purple-400";
-      case "vacunacion":
-        return "bg-green-900/20 text-green-400";
-      case "laboratorio":
-        return "bg-cyan-900/20 text-cyan-400";
-      case "estetica":
-        return "bg-pink-900/20 text-pink-400";
-      case "emergencia":
-        return "bg-red-900/20 text-red-400";
-      case "domicilio":
-        return "bg-orange-900/20 text-orange-400";
-      case "especializada":
-        return "bg-violet-900/20 text-violet-400";
-      default:
-        return "bg-gray-900/20 text-gray-400";
-    }
-  };
 
-  const renderStars = (count: number) => {
-    return (
-      <div className="flex space-x-1">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className={`w-3 h-3 ${i < count ? 'text-yellow-400 fill-current' : 'text-gray-600'}`}
-          />
-        ))}
-      </div>
-    );
-  };
 
   const handleCrearServicio = async (servicioData: any) => {
     const result = await agregarServicio(servicioData);
@@ -105,32 +71,37 @@ export function ServiciosPage() {
   const handleActualizarServicio = async (servicioData: any) => {
     if (!servicioModal.servicio) return { success: false };
 
-    const result = await actualizarServicio(servicioModal.servicio.id!, servicioData);
+    const result = await actualizarServicio(
+      servicioModal.servicio.id_servicio || servicioModal.servicio.id!,
+      servicioData
+    );
     if (result.success) {
-      toast.success("Servicio actualizado exitosamente");
+      toast.success('Servicio actualizado exitosamente');
       cerrarServicioModal();
       return { success: true };
     } else {
-      toast.error(result.error || "Error al actualizar servicio");
+      toast.error(result.error || 'Error al actualizar servicio');
       return { success: false };
     }
   };
 
   const handleCambiarEstado = async (servicio: Servicio) => {
     const nuevoEstado = servicio.estado === 'activo' ? 'inactivo' : 'activo';
-
-    const result = await actualizarServicio(servicio.id!, { estado: nuevoEstado });
+    const result = await actualizarServicio(
+      servicio.id_servicio || servicio.id!,
+      { ...servicio, estado: nuevoEstado }
+    );
     if (result.success) {
       toast.success(`Servicio marcado como ${nuevoEstado}`);
     } else {
-      toast.error("Error al cambiar estado del servicio");
+      toast.error('Error al cambiar estado del servicio');
     }
   };
 
   const handleEliminarServicio = async () => {
     if (!deleteDialog.servicio) return;
 
-    const result = await eliminarServicio(deleteDialog.servicio.id!);
+    const result = await eliminarServicio(deleteDialog.servicio.id_servicio || deleteDialog.servicio.id!);
     if (result.success) {
       toast.success("Servicio eliminado exitosamente");
       setDeleteDialog({ isOpen: false, servicio: null });
@@ -262,7 +233,7 @@ export function ServiciosPage() {
                           onClick={() => abrirDetalles(servicio)}
                           variant="outline"
                           size="sm"
-                          className="p-2 h-9 w-9 border-dark-color text-blue-400 hover:bg-blue-900/20 hover:border-blue-400"
+                          className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
                           title="Ver detalle"
                           disabled={loading}
                         >
@@ -274,7 +245,7 @@ export function ServiciosPage() {
                               onClick={() => abrirServicioModal(servicio)}
                               variant="outline"
                               size="sm"
-                              className="p-2 h-9 w-9 border-dark-color text-yellow-400 hover:bg-yellow-900/20 hover:border-yellow-400"
+                              className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
                               title="Editar"
                               disabled={loading}
                             >
@@ -284,7 +255,7 @@ export function ServiciosPage() {
                               onClick={() => setDeleteDialog({ isOpen: true, servicio })}
                               variant="outline"
                               size="sm"
-                              className="p-2 h-9 w-9 border-dark-color text-red-400 hover:bg-red-900/20 hover:border-red-400"
+                              className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
                               title="Eliminar"
                               disabled={loading}
                             >
@@ -376,21 +347,14 @@ export function ServiciosPage() {
                 <h3 className="text-lg font-semibold text-dark-primary border-b border-dark-color pb-2">
                   Información General
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-dark-secondary mb-1">Nombre</label>
-                    <p className="text-dark-primary">{verDetallesDialog.servicio.nombre || verDetallesDialog.servicio.nombre_servicio}</p>
+                    <p className="text-dark-primary font-bold text-lg">{verDetallesDialog.servicio.nombre || verDetallesDialog.servicio.nombre_servicio}</p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-dark-secondary mb-1">Categoría</label>
-                    <div className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getCategoriaColor(verDetallesDialog.servicio.categoria || 'consulta')} w-fit`}>
-                      <Tag className="w-3 h-3" />
-                      {(verDetallesDialog.servicio.categoria || 'consulta').charAt(0).toUpperCase() + (verDetallesDialog.servicio.categoria || 'consulta').slice(1)}
-                    </div>
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-dark-secondary mb-1">Descripción</label>
-                    <p className="text-dark-primary">{verDetallesDialog.servicio.descripcion || 'Sin descripción'}</p>
+                  <div className="md:col-span-1">
+                    <label className="block text-sm font-medium text-dark-secondary mb-1 border-t border-dark-color pt-4">Descripción</label>
+                    <p className="text-dark-primary leading-relaxed bg-dark-hover/30 p-4 rounded-xl border border-dark-color/30">{verDetallesDialog.servicio.descripcion || 'Sin descripción'}</p>
                   </div>
                 </div>
               </div>
@@ -415,42 +379,7 @@ export function ServiciosPage() {
                 </div>
               </div>
 
-              {/* Equipos y Materiales */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-dark-primary border-b border-dark-color pb-2">
-                  Equipos y Materiales
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-dark-secondary mb-1">Equipo Necesario</label>
-                    <div className="flex flex-wrap gap-2">
-                      {verDetallesDialog.servicio.equipoNecesario?.length ? (
-                        verDetallesDialog.servicio.equipoNecesario.map((equipo, index) => (
-                          <span key={index} className="px-2 py-1 bg-blue-900/20 text-blue-400 rounded text-sm">
-                            {equipo}
-                          </span>
-                        ))
-                      ) : (
-                        <p className="text-dark-secondary">No hay equipos especificados</p>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-dark-secondary mb-1">Materiales Incluidos</label>
-                    <div className="flex flex-wrap gap-2">
-                      {verDetallesDialog.servicio.materialesIncluidos?.length ? (
-                        verDetallesDialog.servicio.materialesIncluidos.map((material, index) => (
-                          <span key={index} className="px-2 py-1 bg-green-900/20 text-green-400 rounded text-sm">
-                            {material}
-                          </span>
-                        ))
-                      ) : (
-                        <p className="text-dark-secondary">No hay materiales especificados</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+
 
 
 

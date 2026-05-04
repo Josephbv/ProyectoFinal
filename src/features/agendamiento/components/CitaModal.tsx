@@ -61,12 +61,13 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
 
   const roleName = typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '';
   const isClienteRole = roleName.toLowerCase().includes('cliente');
+  const isVetRole = roleName.toLowerCase().includes('veterinario');
 
   const [formData, setFormData] = useState({
     fecha: new Date().toLocaleDateString('sv-SE'),
     hora: '',
     id_cliente: isClienteRole && user?.id_cliente ? user.id_cliente.toString() : '',
-    id_empleado: '',
+    id_empleado: isVetRole && user?.id_empleado ? user.id_empleado.toString() : '',
     serviciosSeleccionados: [] as number[]
   });
 
@@ -86,7 +87,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
         fecha: new Date().toLocaleDateString('sv-SE'),
         hora: '',
         id_cliente: isClienteRole && user?.id_cliente ? user.id_cliente.toString() : '',
-        id_empleado: '',
+        id_empleado: isVetRole && user?.id_empleado ? user.id_empleado.toString() : '',
         serviciosSeleccionados: []
       });
     }

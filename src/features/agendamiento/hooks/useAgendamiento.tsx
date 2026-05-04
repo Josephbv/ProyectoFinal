@@ -82,10 +82,19 @@ export function useAgendamiento() {
   const agendarCita = useCallback(async (citaData: any) => {
     setLoading(true);
     try {
+      const payload: any = {
+        Fecha: citaData.fecha ? citaData.fecha.split('T')[0] : null,
+        Hora: citaData.hora ? (citaData.hora.length === 5 ? `${citaData.hora}:00` : citaData.hora) : null,
+        IdCliente: Number(citaData.id_cliente),
+        IdEmpleado: Number(citaData.id_empleado),
+        Estado: 'activa',
+        // Services are sent as a separate array of IDs for the many-to-many relation
+        IdServicios: citaData.agendamiento_servicios?.map((s: any) => ({ IdServicio: Number(s.id_servicio) })) || [],
+      };
       const nuevaCita = await apiFetch(`${API_URL}/agendamiento`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...citaData, estado: 'activa' }),
+        body: JSON.stringify(payload),
       });
       setCitas(prev => [...prev, nuevaCita].sort((a, b) => {
         if (!a.fecha || !b.fecha) return 0;
@@ -102,12 +111,21 @@ export function useAgendamiento() {
   const actualizarCita = useCallback(async (id: number, datosActualizados: any) => {
     setLoading(true);
     try {
+      const payload: any = {
+        IdAgendamiento: Number(id),
+        Fecha: datosActualizados.fecha ? datosActualizados.fecha.split('T')[0] : null,
+        Hora: datosActualizados.hora ? (datosActualizados.hora.length === 5 ? `${datosActualizados.hora}:00` : datosActualizados.hora) : null,
+        IdCliente: Number(datosActualizados.id_cliente),
+        IdEmpleado: Number(datosActualizados.id_empleado),
+        Estado: datosActualizados.estado || 'activa',
+        IdServicios: datosActualizados.agendamiento_servicios?.map((s: any) => ({ IdServicio: Number(s.id_servicio) })) || [],
+      };
       const citaActualizada = await apiFetch(`${API_URL}/agendamiento/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datosActualizados),
+        body: JSON.stringify(payload),
       });
-      setCitas(prev => prev.map(c => c.id_agendamiento === id ? citaActualizada : c));
+      setCitas(prev => prev.map(c => c.id_agendamiento === id ? { ...c, ...datosActualizados } : c));
       return { success: true, data: citaActualizada };
     } catch (error: any) {
       return { success: false, error: error.message || 'Error al actualizar cita' };

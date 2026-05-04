@@ -9,7 +9,8 @@ import { toast } from "sonner";
 import { ShoppingCart, Calendar, User, DollarSign, Stethoscope, Package, Calculator, CheckCircle2, X, Plus, ChevronLeft, Search, Heart } from 'lucide-react';
 import { useVentas } from "../hooks/useVentas";
 import { useClientes, Cliente, Mascota } from "../../clientes/hooks/useClientes";
-import { useUsuario, Usuario } from "../../configuracion/hooks/useUsuario";
+import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
+import { useServicios } from "../../servicios/hooks/useServicios";
 import { Separator } from "../../../shared/components/separator";
 
 interface NuevaVentaPageProps {
@@ -17,34 +18,11 @@ interface NuevaVentaPageProps {
     onSuccess: () => void;
 }
 
-const serviciosDisponibles = [
-    { nombre: 'Consulta General', precio: 45000 },
-    { nombre: 'Vacunación', precio: 35000 },
-    { nombre: 'Desparasitación', precio: 25000 },
-    { nombre: 'Limpieza Dental', precio: 80000 },
-    { nombre: 'Cirugía Menor', precio: 150000 },
-    { nombre: 'Control de Peso', precio: 30000 },
-    { nombre: 'Peluquería Canina', precio: 40000 },
-    { nombre: 'Ecografía', precio: 60000 },
-    { nombre: 'Radiografía', precio: 55000 },
-    { nombre: 'Análisis de Sangre', precio: 35000 },
-    { nombre: 'Castración', precio: 120000 }
-];
-
-const productosDisponibles = [
-    { nombre: 'Vacuna Antirrábica', precio: 35000 },
-    { nombre: 'Vacuna Múltiple', precio: 55000 },
-    { nombre: 'Desparasitante', precio: 18000 },
-    { nombre: 'Antibiótico', precio: 45000 },
-    { nombre: 'Analgésico', precio: 25000 },
-    { nombre: 'Vitaminas', precio: 35000 },
-    { nombre: 'Collar Antipulgas', precio: 28000 }
-];
-
 export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
     const { crearVenta, loading: loadingVentas } = useVentas();
     const { clientes } = useClientes();
-    const { usuarios } = useUsuario();
+    const { usuarios } = useUsuarios();
+    const { servicios: dbServicios } = useServicios();
 
     const [busquedaCedula, setBusquedaCedula] = useState("");
     const [clienteSeleccionado, setClienteSeleccionado] = useState<Cliente | null>(null);
@@ -58,8 +36,8 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
         cliente: '',
         mascota: '',
         veterinario: '',
-        servicios: [] as { nombre: string; precio: number; cantidad: number }[],
-        productos: [] as { nombre: string; precio: number; cantidad: number }[],
+        servicios: [] as { id_servicio: number; nombre: string; precio: number; cantidad: number }[],
+        productos: [] as { id_servicio: number; nombre: string; precio: number; cantidad: number }[],
         subtotal: 0,
         descuento: 0,
         impuestos: 0,
@@ -68,16 +46,17 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
         observaciones: ''
     });
 
-    const doctores = usuarios.filter(u => {
-        const roleName = u.roles?.nombre_rol?.toLowerCase();
-        return roleName === 'administrador' || roleName === 'veterinario';
+    const doctores = (usuarios as any[]).filter(u => {
+        const rolObj = u.rol || u.roles;
+        const roleName = (typeof rolObj === 'string' ? rolObj : rolObj?.nombre_rol)?.toLowerCase() || '';
+        return roleName.includes('administrador') || roleName.includes('veterinario');
     });
 
     useEffect(() => {
         const serviciosTotal = formData.servicios.reduce((sum, s) => sum + (s.precio * s.cantidad), 0);
         const productosTotal = formData.productos.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
         const subtotal = serviciosTotal + productosTotal;
-        const total = subtotal; // No taxes, no discounts
+        const total = subtotal;
 
         setFormData(prev => ({
             ...prev,
@@ -97,7 +76,6 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
             setClientesEncontrados(matches);
             setMostrarResultados(true);
 
-            // Si hay un match exacto por cédula, seleccionarlo automáticamente
             const matchExacto = clientes.find(c => c.cedula === valor);
             if (matchExacto) {
                 seleccionarCliente(matchExacto);
@@ -122,53 +100,49 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
         toast.success("Cliente seleccionado");
     };
 
-    const addServicio = (servicioNombre: string) => {
-        const servicio = serviciosDisponibles.find(s => s.nombre === servicioNombre);
-        if (servicio && !formData.servicios.find(s => s.nombre === servicio.nombre)) {
+    const addServicio = (servicioId: string) => {
+        const idNum = parseInt(servicioId);
+        const servicio = dbServicios.find(s => s.id_servicio === idNum);
+        if (servicio && !formData.servicios.find(s => s.id_servicio === idNum)) {
             setFormData(prev => ({
                 ...prev,
-                servicios: [...prev.servicios, { ...servicio, cantidad: 1 }]
+                servicios: [...prev.servicios, {
+                    id_servicio: servicio.id_servicio,
+                    nombre: servicio.nombre_servicio || (servicio as any).nombre || 'Servicio',
+                    precio: servicio.precio,
+                    cantidad: 1
+                }]
             }));
         }
     };
 
-    const removeServicio = (nombre: string) => {
+    const removeServicio = (id_servicio: number) => {
         setFormData(prev => ({
             ...prev,
-            servicios: prev.servicios.filter(s => s.nombre !== nombre)
+            servicios: prev.servicios.filter(s => s.id_servicio !== id_servicio)
         }));
     };
 
-    const addProducto = (productoNombre: string) => {
-        const producto = productosDisponibles.find(p => p.nombre === productoNombre);
-        if (producto && !formData.productos.find(p => p.nombre === producto.nombre)) {
-            setFormData(prev => ({
-                ...prev,
-                productos: [...prev.productos, { ...producto, cantidad: 1 }]
-            }));
-        }
-    };
-
-    const removeProducto = (nombre: string) => {
+    const removeProducto = (id_servicio: number) => {
         setFormData(prev => ({
             ...prev,
-            productos: prev.productos.filter(p => p.nombre !== nombre)
+            productos: prev.productos.filter(p => p.id_servicio !== id_servicio)
         }));
     };
 
-    const updateQuantity = (type: 'servicios' | 'productos', nombre: string, delta: number) => {
+    const updateQuantity = (type: 'servicios' | 'productos', id_servicio: number, delta: number) => {
         setFormData(prev => ({
             ...prev,
             [type]: prev[type].map(item =>
-                item.nombre === nombre ? { ...item, cantidad: Math.max(1, item.cantidad + delta) } : item
+                item.id_servicio === id_servicio ? { ...item, cantidad: Math.max(1, item.cantidad + delta) } : item
             )
         }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
 
-        if (!formData.cliente) {
+        if (!clienteSeleccionado) {
             toast.error("Debe seleccionar un cliente");
             return;
         }
@@ -182,19 +156,12 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
             id_cliente: clienteSeleccionado?.id_cliente || (clienteSeleccionado as any)?.id,
             fecha: formData.fecha,
             hora: formData.hora,
-            cliente: formData.cliente, // conservado para compatibilidad si algún log lo lee
-            mascota: formData.mascota,
-            servicios: [
-                ...formData.servicios.map(s => ({ nombre: s.nombre, precio: s.precio, cantidad: s.cantidad })),
-                ...formData.productos.map(p => ({ nombre: p.nombre, precio: p.precio, cantidad: p.cantidad }))
+            venta_servicios: [
+                ...formData.servicios.map(s => ({ id_servicio: s.id_servicio, cantidad: s.cantidad })),
+                ...formData.productos.map(p => ({ id_servicio: p.id_servicio, cantidad: p.cantidad }))
             ],
-            subtotal: formData.subtotal,
-            descuento: formData.descuento,
-            impuestos: formData.impuestos,
             total: formData.total,
             estado: formData.estado === 'completada' ? 'completada' : 'pendiente',
-            veterinario: formData.veterinario,
-            vendedor: formData.veterinario || 'Sistema',
             observaciones: formData.observaciones
         });
 
@@ -232,7 +199,6 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
 
             <main className="p-4">
                 <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
-                    {/* Left Column: Client and Pet Information */}
                     <div className="lg:col-span-4 space-y-4">
                         <div className="bg-dark-hover/10 rounded-xl border border-dark-color border-opacity-30 p-4 sticky top-4 z-30">
                             <div className="flex items-center gap-3 text-dark-primary border-b border-dark-color border-opacity-20 pb-4 mb-4">
@@ -248,26 +214,26 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
                                             value={busquedaCedula}
                                             onChange={(e) => handleBusquedaChange(e.target.value)}
                                             placeholder="Ingrese documento o nombre..."
-                                            className="bg-dark-card border-dark-color text-dark-primary h-10 px-4 rounded-lg focus:ring-2 focus:ring-blue-500/20"
-                                            onBlur={() => setTimeout(() => setMostrarResultados(false), 200)}
-                                            onFocus={() => busquedaCedula && setMostrarResultados(true)}
+                                            className="bg-dark-card border-dark-color text-dark-primary h-12 pl-10 focus:ring-2 focus:ring-blue-500/20"
                                         />
-                                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary opacity-50" />
+                                        <Search className="absolute left-3 top-3.5 w-5 h-5 text-dark-secondary" />
                                     </div>
 
                                     {mostrarResultados && clientesEncontrados.length > 0 && (
-                                        <div className="absolute z-[100] w-full mt-2 bg-dark-card border border-dark-color rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                                            {clientesEncontrados.map(cliente => (
+                                        <div className="absolute z-50 w-full mt-1 bg-dark-card border border-dark-color rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2">
+                                            {clientesEncontrados.map((c) => (
                                                 <button
-                                                    key={cliente.id_cliente}
-                                                    className="w-full text-left p-3 hover:bg-blue-500/10 border-b border-dark-color/30 last:border-0 transition-colors group"
-                                                    onMouseDown={(e) => {
-                                                        e.preventDefault();
-                                                        seleccionarCliente(cliente);
-                                                    }}
+                                                    key={c.id_cliente}
+                                                    onClick={() => seleccionarCliente(c)}
+                                                    className="w-full flex items-center gap-3 p-3 hover:bg-dark-hover text-left transition-colors border-b border-dark-color last:border-0"
                                                 >
-                                                    <p className="text-dark-primary font-bold group-hover:text-blue-400 transition-colors">{cliente.nombre}</p>
-                                                    <p className="text-[10px] text-dark-secondary uppercase tracking-wider">CC: {cliente.cedula}</p>
+                                                    <div className="w-8 h-8 bg-blue-500/10 rounded-full flex items-center justify-center">
+                                                        <User className="w-4 h-4 text-blue-400" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-semibold text-dark-primary">{c.nombre}</p>
+                                                        <p className="text-[10px] text-dark-secondary">CC: {c.cedula}</p>
+                                                    </div>
                                                 </button>
                                             ))}
                                         </div>
@@ -275,14 +241,25 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
                                 </div>
 
                                 {clienteSeleccionado && (
-                                    <div className="p-3 bg-blue-500/5 rounded-xl border border-blue-500/20 animate-in slide-in-from-left-2 duration-300">
+                                    <div className="p-4 bg-blue-500/5 rounded-xl border border-blue-500/20 space-y-3 animate-in zoom-in-95">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                                            <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
                                                 <User className="w-5 h-5 text-blue-400" />
                                             </div>
                                             <div>
-                                                <p className="text-sm text-dark-primary font-bold">{clienteSeleccionado.nombre}</p>
-                                                <p className="text-[10px] text-dark-secondary">{clienteSeleccionado.correo} | {clienteSeleccionado.telefono}</p>
+                                                <p className="text-sm font-bold text-dark-primary">{clienteSeleccionado.nombre}</p>
+                                                <p className="text-xs text-dark-secondary">{clienteSeleccionado.correo}</p>
+                                            </div>
+                                        </div>
+                                        <Separator className="bg-blue-500/10" />
+                                        <div className="grid grid-cols-2 gap-2 text-[10px]">
+                                            <div className="flex items-center gap-2 text-dark-secondary">
+                                                <DollarSign className="w-3 h-3" />
+                                                <span>Saldo: $0.00</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-dark-secondary text-right justify-end">
+                                                <Calendar className="w-3 h-3" />
+                                                <span>Miembro hace 1 año</span>
                                             </div>
                                         </div>
                                     </div>
@@ -290,9 +267,9 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
                             </div>
 
                             {clienteSeleccionado && (
-                                <div className="pt-4 mt-4 border-t border-dark-color border-opacity-20 space-y-4 animate-in fade-in duration-500">
+                                <div className="mt-6 space-y-5 animate-in slide-in-from-left-2">
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] text-dark-secondary uppercase font-bold ml-1">Paciente</Label>
+                                        <Label className="text-[10px] text-dark-secondary uppercase font-bold ml-1">Mascota Principal</Label>
                                         <Select
                                             value={formData.mascota}
                                             onValueChange={(val: string) => setFormData(prev => ({ ...prev, mascota: val }))}
@@ -334,89 +311,103 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
                                 </div>
                             )}
                         </div>
-
-                        <div className="lg:col-span-5 space-y-4">
-                            <section className="bg-dark-hover/10 rounded-xl border border-dark-color border-opacity-20 p-4 space-y-4">
-                                <div className="flex items-center gap-3 text-dark-primary border-b border-dark-color border-opacity-10 pb-4">
-                                    <Stethoscope className="w-5 h-5 text-blue-400" />
-                                    <h2 className="text-lg font-semibold">Servicios</h2>
-                                </div>
-                                <Select onValueChange={addServicio}>
-                                    <SelectTrigger className="bg-dark-card border-dark-color text-dark-primary h-10">
-                                        <SelectValue placeholder="Agregar servicio..." />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-dark-card border-dark-color">
-                                        {serviciosDisponibles.map(s => (
-                                            <SelectItem key={s.nombre} value={s.nombre}>
-                                                <div className="flex justify-between items-center w-full min-w-[200px] text-xs">
-                                                    <span>{s.nombre}</span>
-                                                    <b className="text-blue-400 ml-4">${s.precio.toLocaleString()}</b>
-                                                </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-
-                                <div className="space-y-2">
-                                    {formData.servicios.map(s => (
-                                        <div key={s.nombre} className="flex items-center justify-between p-3 bg-dark-card/40 rounded-lg border border-dark-color/50 text-xs animate-in zoom-in-95">
-                                            <div className="flex-1">
-                                                <p className="text-dark-primary font-bold">{s.nombre}</p>
-                                                <p className="text-[10px] text-dark-secondary italic">${s.precio.toLocaleString()}</p>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Button size="icon" variant="ghost" onClick={() => updateQuantity('servicios', s.nombre, -1)} className="w-7 h-7 bg-dark-hover border border-dark-color">-</Button>
-                                                <span className="w-6 text-center font-bold">{s.cantidad}</span>
-                                                <Button size="icon" variant="ghost" onClick={() => updateQuantity('servicios', s.nombre, 1)} className="w-7 h-7 bg-dark-hover border border-dark-color">+</Button>
-                                                <Button size="icon" variant="ghost" onClick={() => removeServicio(s.nombre)} className="w-7 h-7 text-red-400 hover:bg-red-500/10 ml-1"><X className="w-4 h-4" /></Button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-
-                            <section className="bg-dark-hover/10 rounded-xl border border-dark-color border-opacity-20 p-4 space-y-4">
-                                <div className="flex items-center gap-3 text-dark-primary border-b border-dark-color border-opacity-10 pb-4">
-                                    <Package className="w-5 h-5 text-purple-400" />
-                                    <h2 className="text-lg font-semibold">Productos</h2>
-                                </div>
-                                <Select onValueChange={addProducto}>
-                                    <SelectTrigger className="bg-dark-card border-dark-color text-dark-primary h-10">
-                                        <SelectValue placeholder="Agregar producto..." />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-dark-card border-dark-color">
-                                        {productosDisponibles.map(p => (
-                                            <SelectItem key={p.nombre} value={p.nombre}>
-                                                <div className="flex justify-between items-center w-full min-w-[200px] text-xs">
-                                                    <span>{p.nombre}</span>
-                                                    <b className="text-purple-400 ml-4">${p.precio.toLocaleString()}</b>
-                                                </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-
-                                <div className="space-y-2">
-                                    {formData.productos.map(p => (
-                                        <div key={p.nombre} className="flex items-center justify-between p-3 bg-dark-card/40 rounded-lg border border-dark-color/50 text-xs animate-in zoom-in-95">
-                                            <div className="flex-1">
-                                                <p className="text-dark-primary font-bold">{p.nombre}</p>
-                                                <p className="text-[10px] text-dark-secondary italic">${p.precio.toLocaleString()}</p>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Button size="icon" variant="ghost" onClick={() => updateQuantity('productos', p.nombre, -1)} className="w-7 h-7 bg-dark-hover border border-dark-color">-</Button>
-                                                <span className="w-6 text-center font-bold">{p.cantidad}</span>
-                                                <Button size="icon" variant="ghost" onClick={() => updateQuantity('productos', p.nombre, 1)} className="w-7 h-7 bg-dark-hover border border-dark-color">+</Button>
-                                                <Button size="icon" variant="ghost" onClick={() => removeProducto(p.nombre)} className="w-7 h-7 text-red-400 hover:bg-red-500/10 ml-1"><X className="w-4 h-4" /></Button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-                        </div>
                     </div>
 
-                    {/* Right Column: Order Summary */}
+                    <div className="lg:col-span-5 space-y-4">
+                        <section className="bg-dark-hover/10 rounded-xl border border-dark-color border-opacity-20 p-4 space-y-4">
+                            <div className="flex items-center gap-3 text-dark-primary border-b border-dark-color border-opacity-10 pb-4">
+                                <Stethoscope className="w-5 h-5 text-blue-400" />
+                                <h2 className="text-lg font-semibold">Servicios</h2>
+                            </div>
+                            <Select onValueChange={addServicio}>
+                                <SelectTrigger className="bg-dark-card border-dark-color text-dark-primary h-10">
+                                    <SelectValue placeholder="Agregar servicio..." />
+                                </SelectTrigger>
+                                <SelectContent className="bg-dark-card border-dark-color">
+                                    {dbServicios.map(s => (
+                                        <SelectItem key={s.id_servicio} value={s.id_servicio.toString()}>
+                                            <div className="flex justify-between items-center w-full min-w-[200px] text-xs">
+                                                <span>{s.nombre_servicio}</span>
+                                                <b className="text-blue-400 ml-4">${s.precio.toLocaleString()}</b>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+
+                            <div className="space-y-2">
+                                {formData.servicios.map(s => (
+                                    <div key={s.id_servicio} className="flex items-center justify-between p-3 bg-dark-card/40 rounded-lg border border-dark-color/50 text-xs animate-in zoom-in-95">
+                                        <div className="flex-1">
+                                            <p className="text-dark-primary font-bold">{s.nombre}</p>
+                                            <p className="text-[10px] text-dark-secondary italic">${s.precio.toLocaleString()}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Button size="icon" variant="ghost" onClick={(e) => { e.preventDefault(); updateQuantity('servicios', s.id_servicio, -1); }} className="w-7 h-7 bg-dark-hover border border-dark-color">-</Button>
+                                            <span className="w-6 text-center font-bold">{s.cantidad}</span>
+                                            <Button size="icon" variant="ghost" onClick={(e) => { e.preventDefault(); updateQuantity('servicios', s.id_servicio, 1); }} className="w-7 h-7 bg-dark-hover border border-dark-color">+</Button>
+                                            <Button size="icon" variant="ghost" onClick={(e) => { e.preventDefault(); removeServicio(s.id_servicio); }} className="w-7 h-7 text-red-400 hover:bg-red-500/10 ml-1"><X className="w-4 h-4" /></Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                        <section className="bg-dark-hover/10 rounded-xl border border-dark-color border-opacity-20 p-4 space-y-4">
+                            <div className="flex items-center gap-3 text-dark-primary border-b border-dark-color border-opacity-10 pb-4">
+                                <Package className="w-5 h-5 text-purple-400" />
+                                <h2 className="text-lg font-semibold">Productos del Catálogo</h2>
+                            </div>
+                            <p className="text-xs text-dark-secondary italic px-2">Selecciona productos disponibles en el catálogo de servicios.</p>
+                            <Select onValueChange={(val) => {
+                                const idNum = parseInt(val);
+                                const prod = dbServicios.find(s => s.id_servicio === idNum);
+                                if (prod && !formData.productos.find(p => p.id_servicio === idNum)) {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        productos: [...prev.productos, {
+                                            id_servicio: prod.id_servicio,
+                                            nombre: prod.nombre_servicio || (prod as any).nombre || 'Producto',
+                                            precio: prod.precio,
+                                            cantidad: 1
+                                        }]
+                                    }));
+                                }
+                            }}>
+                                <SelectTrigger className="bg-dark-card border-dark-color text-dark-primary h-10">
+                                    <SelectValue placeholder="Agregar producto..." />
+                                </SelectTrigger>
+                                <SelectContent className="bg-dark-card border-dark-color">
+                                    {dbServicios.map(s => (
+                                        <SelectItem key={`prod-${s.id_servicio}`} value={s.id_servicio.toString()}>
+                                            <div className="flex justify-between items-center w-full min-w-[200px] text-xs">
+                                                <span>{s.nombre_servicio}</span>
+                                                <b className="text-purple-400 ml-4">${s.precio.toLocaleString()}</b>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+
+                            <div className="space-y-2">
+                                {formData.productos.map(p => (
+                                    <div key={p.id_servicio} className="flex items-center justify-between p-3 bg-dark-card/40 rounded-lg border border-dark-color/50 text-xs animate-in zoom-in-95">
+                                        <div className="flex-1">
+                                            <p className="text-dark-primary font-bold">{p.nombre}</p>
+                                            <p className="text-[10px] text-dark-secondary italic">${p.precio.toLocaleString()}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Button size="icon" variant="ghost" onClick={(e) => { e.preventDefault(); updateQuantity('productos', p.id_servicio, -1); }} className="w-7 h-7 bg-dark-hover border border-dark-color">-</Button>
+                                            <span className="w-6 text-center font-bold">{p.cantidad}</span>
+                                            <Button size="icon" variant="ghost" onClick={(e) => { e.preventDefault(); updateQuantity('productos', p.id_servicio, 1); }} className="w-7 h-7 bg-dark-hover border border-dark-color">+</Button>
+                                            <Button size="icon" variant="ghost" onClick={(e) => { e.preventDefault(); removeProducto(p.id_servicio); }} className="w-7 h-7 text-red-300 hover:bg-red-500/10 ml-1"><X className="w-4 h-4" /></Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    </div>
+
                     <div className="lg:col-span-3">
                         <section className="bg-dark-hover/20 rounded-xl border border-blue-500/20 p-6 space-y-6 sticky top-4 shadow-xl shadow-black/20">
                             <div className="flex items-center gap-3 text-dark-primary border-b border-dark-color border-opacity-10 pb-4">
@@ -464,3 +455,4 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
         </div>
     );
 }
+

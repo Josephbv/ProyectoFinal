@@ -46,11 +46,27 @@ export function useEmpleados() {
     const crearEmpleado = useCallback(async (empleadoData: Partial<Empleado>) => {
         setLoading(true);
         try {
-            const nuevo = await apiFetch(`${API_URL}/empleados`, {
+            const payload: any = {
+                Nombre: empleadoData.nombre,
+                Cargo: empleadoData.cargo,
+                Cedula: empleadoData.cedula,
+                TipoDocumento: empleadoData.tipo_documento,
+                Correo: empleadoData.correo,
+                Telefono: empleadoData.telefono,
+                Direccion: empleadoData.direccion,
+            };
+            const response = await apiFetch(`${API_URL}/empleados`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(empleadoData),
+                body: JSON.stringify(payload),
             });
+
+            // Mapear el ID correctamente antes de agregarlo al estado local
+            const nuevo = {
+                ...response,
+                id_empleado: response.idEmpleado || response.IdEmpleado || response.id_empleado
+            };
+
             setEmpleados(prev => [nuevo, ...prev]);
             return { success: true, data: nuevo };
         } catch (error: any) {
@@ -63,13 +79,23 @@ export function useEmpleados() {
     const actualizarEmpleado = useCallback(async (id: number, empleadoData: Partial<Empleado>) => {
         setLoading(true);
         try {
-            const actualizado = await apiFetch(`${API_URL}/empleados/${id}`, {
+            const payload: any = {
+                IdEmpleado: id,
+                Nombre: empleadoData.nombre,
+                Cargo: empleadoData.cargo,
+                Cedula: empleadoData.cedula,
+                TipoDocumento: empleadoData.tipo_documento,
+                Correo: empleadoData.correo,
+                Telefono: empleadoData.telefono,
+                Direccion: empleadoData.direccion,
+            };
+            await apiFetch(`${API_URL}/empleados/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(empleadoData),
+                body: JSON.stringify(payload),
             });
-            setEmpleados(prev => prev.map(e => e.id_empleado === id ? actualizado : e));
-            return { success: true, data: actualizado };
+            setEmpleados(prev => prev.map(e => e.id_empleado === id ? { ...e, ...empleadoData } : e));
+            return { success: true };
         } catch (error: any) {
             return { success: false, error: error.message };
         } finally {

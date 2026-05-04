@@ -247,7 +247,7 @@ export function RolesPage() {
                           onClick={() => setDetallesDialog({ isOpen: true, rol })}
                           variant="outline"
                           size="sm"
-                          className="p-2 h-9 w-9 border-dark-color text-blue-400 hover:bg-blue-900/20 hover:border-blue-400"
+                          className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
                           disabled={loading}
                           title="Ver detalles"
                         >
@@ -257,7 +257,7 @@ export function RolesPage() {
                           onClick={() => abrirRolModal(rol)}
                           variant="outline"
                           size="sm"
-                          className="p-2 h-9 w-9 border-dark-color text-yellow-400 hover:bg-yellow-900/20 hover:border-yellow-400"
+                          className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
                           disabled={loading || (rol.nombre || '').toLowerCase() === 'administrador'}
                           title={(rol.nombre || '').toLowerCase() === 'administrador' ? 'No se puede editar el rol base Administrador' : 'Editar rol'}
                         >
@@ -267,7 +267,7 @@ export function RolesPage() {
                           onClick={() => setDeleteDialog({ isOpen: true, rol })}
                           variant="outline"
                           size="sm"
-                          className="p-2 h-9 w-9 border-dark-color text-red-400 hover:bg-red-600/10 hover:border-red-400"
+                          className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
                           disabled={loading || ['administrador', 'cliente', 'veterinario'].includes((rol.nombre || '').toLowerCase())}
                           title={['administrador', 'cliente', 'veterinario'].includes((rol.nombre || '').toLowerCase()) ? 'No se puede eliminar los roles base del sistema' : 'Eliminar rol'}
                         >

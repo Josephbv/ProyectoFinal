@@ -63,11 +63,15 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
     // Si es veterinario, solo ve su propio horario
     if (isVetRole) {
       const myId = user?.id_empleado;
-      const isMine = empleado.horarios.some(h => h.id_empleado === myId);
+      const myCedula = user?.cedula;
+      const isMine = empleado.horarios.some(h =>
+        (myId && h.id_empleado === myId) ||
+        (myCedula && h.empleado?.cedula === myCedula)
+      );
       if (!isMine) return false;
     }
 
-    // Excluir únicamente al Administrador Maestro (usando su cédula o nombre identificador)
+    // Excluir al Administrador Maestro de la vista si es necesario
     if (empleado.cc === '1001780874' || empleado.nombre.toLowerCase().includes('joseph ballestas')) return false;
 
     const searchLower = busqueda.toLowerCase();

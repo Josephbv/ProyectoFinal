@@ -7,9 +7,11 @@ import { User, Plus, Search, Edit, Trash2, Briefcase, ChevronLeft, ChevronRight,
 import { useEmpleados, Empleado } from "../hooks/useEmpleados";
 import { EmpleadoModal } from "../components/EmpleadoModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
+import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 
 export function EmpleadosPage() {
     const { empleados, loading, crearEmpleado, actualizarEmpleado, eliminarEmpleado, buscarEmpleados } = useEmpleados();
+    const { user } = useEmailAuth();
     const [busqueda, setBusqueda] = useState("");
     const [empleadoModal, setEmpleadoModal] = useState({ isOpen: false, empleado: null as Empleado | null, readOnly: false });
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, empleado: null as Empleado | null });
@@ -114,11 +116,10 @@ export function EmpleadosPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
-
                                     <TableHead className="text-dark-primary font-semibold w-36">
                                         <div className="flex items-center gap-2"><Fingerprint className="w-4 h-4 text-blue-400" />Cédula</div>
                                     </TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[250px]">
+                                    <TableHead className="text-dark-primary font-semibold min-w-[200px]">
                                         <div className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400" />Nombre</div>
                                     </TableHead>
                                     <TableHead className="text-dark-primary font-semibold min-w-[150px]">
@@ -127,27 +128,24 @@ export function EmpleadosPage() {
                                     <TableHead className="text-dark-primary font-semibold min-w-[150px]">
                                         <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-blue-400" />Teléfono</div>
                                     </TableHead>
-                                    <TableHead className="text-dark-primary font-semibold min-w-[200px]">
+                                    <TableHead className="text-dark-primary font-semibold min-w-[150px]">
                                         <div className="flex items-center gap-2"><Briefcase className="w-4 h-4 text-blue-400" />Cargo</div>
                                     </TableHead>
-                                    <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
+                                    <TableHead className="text-dark-primary font-semibold text-center min-w-[160px]">Acciones</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {empleadosPaginados.map((empleado, index) => (
                                     <TableRow key={`${empleado.id_empleado || index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors">
-
                                         <TableCell className="text-dark-primary font-mono text-sm">
                                             {empleado.cedula || 'N/A'}
                                         </TableCell>
                                         <TableCell className="font-medium text-dark-primary">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow">
-                                                    {empleado.nombre.substring(0, 2).toUpperCase()}
+                                                    {(empleado.nombre || '??').substring(0, 2).toUpperCase()}
                                                 </div>
-                                                <div>
-                                                    <div className="font-semibold">{empleado.nombre}</div>
-                                                </div>
+                                                <div className="font-semibold">{empleado.nombre}</div>
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-dark-secondary">
@@ -166,12 +164,12 @@ export function EmpleadosPage() {
                                                     variant="outline"
                                                     size="sm"
                                                     className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
-                                                    title="Ver detalle"
+                                                    disabled={loading}
+                                                    title="Ver detalles"
                                                 >
                                                     <Eye className="w-4 h-4" />
                                                 </Button>
 
-                                                {/* No permitir editar ni borrar al Administrador Maestro desde la lista general */}
                                                 {(empleado.correo === 'josephballestas10@gmail.com' || empleado.cedula === '1001780874') ? (
                                                     <div className="flex items-center gap-1 px-2 py-1 bg-dark-table-hover rounded border border-dark-color opacity-60">
                                                         <Shield className="w-3 h-3 text-blue-400" />
@@ -184,6 +182,7 @@ export function EmpleadosPage() {
                                                             variant="outline"
                                                             size="sm"
                                                             className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
+                                                            disabled={loading}
                                                             title="Editar empleado"
                                                         >
                                                             <Edit className="w-4 h-4" />
@@ -193,7 +192,8 @@ export function EmpleadosPage() {
                                                             variant="outline"
                                                             size="sm"
                                                             className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                                                            title="Eliminar empleado"
+                                                            disabled={loading}
+                                                            title="Eliminar"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                         </Button>
@@ -205,7 +205,7 @@ export function EmpleadosPage() {
                                 ))}
                                 {empleadosPaginados.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="h-32 text-center text-dark-secondary">
+                                        <TableCell colSpan={6} className="h-32 text-center text-dark-secondary">
                                             <User className="w-12 h-12 mx-auto mb-2 opacity-20" />
                                             {busqueda ? 'No se encontraron empleados.' : 'No hay empleados registrados.'}
                                         </TableCell>

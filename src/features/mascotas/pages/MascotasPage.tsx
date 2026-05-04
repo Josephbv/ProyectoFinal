@@ -103,20 +103,18 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
             <p className="text-sm text-dark-secondary mt-1">Registro y control de pacientes</p>
           </div>
           <div className="flex items-center space-x-3">
-            {!isClienteRole && (
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
-                <input
-                  type="text"
-                  placeholder="Buscar por ID de mascota..."
-                  value={busqueda}
-                  onChange={(e) => setBusqueda(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
-                />
-              </div>
-            )}
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
+              <input
+                type="text"
+                placeholder="Buscar mascota..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
+              />
+            </div>
 
-            {!isClienteRole && !isVetRole && (
+            {!isVetRole && (
               <button
                 onClick={onNewMascota}
                 className="dark-button-primary gap-2 flex items-center"
@@ -225,7 +223,7 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
                               <Edit className="w-4 h-4" />
                             </Button>
                           )}
-                          {!isClienteRole && !isVetRole && (
+                          {!isVetRole && (
                             <Button
                               onClick={() => setDeleteDialog({ isOpen: true, mascota })}
                               variant="outline"

@@ -32,6 +32,9 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
   const [itemsPerPage] = useState(10);
 
   const citasFiltradas = citas.filter(cita => {
+    // No mostrar citas canceladas (eliminación lógica)
+    if (cita.estado === 'cancelada') return false;
+
     // Si es cliente, solo ve sus citas
     if (isClienteRole) {
       if (cita.id_cliente !== user?.id_cliente) return false;
@@ -87,9 +90,15 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
   const handleEliminarCita = async () => {
     if (!deleteDialog.cita) return;
 
-    const result = await eliminarCita(deleteDialog.cita.id_agendamiento);
+    // Cambiamos a eliminación lógica (cancelar) para evitar el Error 500 de la base de datos
+    // que ocurre por restricciones de integridad referencial deshabilitadas para el borrado físico.
+    const result = await actualizarCita(deleteDialog.cita.id_agendamiento, {
+      ...deleteDialog.cita,
+      estado: 'cancelada'
+    });
+
     if (result.success) {
-      toast.success("Cita eliminada exitosamente");
+      toast.success("Cita removida exitosamente");
       setDeleteDialog({ isOpen: false, cita: null });
     } else {
       toast.error(result.error || "Error al eliminar cita");
@@ -118,27 +127,23 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
             <p className="text-sm text-dark-secondary mt-1">Programa citas y asigna empleados a los pacientes</p>
           </div>
           <div className="flex items-center space-x-3">
-            {!isVetRole && (
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
-                <input
-                  type="text"
-                  placeholder="Buscar por cliente, empleado o fecha..."
-                  value={busqueda}
-                  onChange={(e) => setBusqueda(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
-                />
-              </div>
-            )}
-            {!isVetRole && (
-              <button
-                onClick={() => abrirCitaModal()}
-                className="dark-button-primary gap-2 flex items-center"
-              >
-                <Plus className="w-4 h-4" />
-                {isClienteRole ? "Solicitar Cita" : "Agendar Cita"}
-              </button>
-            )}
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
+              <input
+                type="text"
+                placeholder="Buscar por cliente, empleado o fecha..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
+              />
+            </div>
+            <button
+              onClick={() => abrirCitaModal()}
+              className="dark-button-primary gap-2 flex items-center"
+            >
+              <Plus className="w-4 h-4" />
+              {isClienteRole ? "Solicitar Cita" : "Agendar Cita"}
+            </button>
           </div>
         </div>
       </header>

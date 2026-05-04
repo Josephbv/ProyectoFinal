@@ -17,13 +17,14 @@ interface VentasPageProps {
 }
 
 export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPageProps) {
-  const { ventas, loading, crearVenta, anularVenta } = useVentas();
+  const { ventas, loading, crearVenta, anularVenta, eliminarVenta } = useVentas();
   const { actualizarCita } = useAgendamiento();
   const { user } = useEmailAuth();
 
   const [busqueda, setBusqueda] = useState("");
   const [ventaModal, setVentaModal] = useState({ isOpen: false, venta: null as Venta | null, readOnly: false });
   const [anularDialog, setAnularDialog] = useState({ isOpen: false, venta: null as Venta | null, motivo: '' });
+  const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, venta: null as Venta | null });
 
   const roleName = typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '';
   const isClienteRole = roleName.toLowerCase().includes('cliente');
@@ -98,6 +99,18 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
       setAnularDialog({ isOpen: false, venta: null, motivo: '' });
     } else {
       toast.error(result.error || "Error al anular venta");
+    }
+  };
+
+  const handleEliminarVenta = async () => {
+    if (!deleteDialog.venta) return;
+
+    const result = await eliminarVenta(deleteDialog.venta.id_venta);
+    if (result.success) {
+      toast.success("Venta eliminada exitosamente");
+      setDeleteDialog({ isOpen: false, venta: null });
+    } else {
+      toast.error(result.error || "Error al eliminar venta");
     }
   };
 
@@ -199,7 +212,9 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                       <div className="font-medium text-dark-primary">{venta.cliente?.nombre || 'Desconocido'}</div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm text-dark-secondary">{venta.cliente?.cedula || '---'}</div>
+                      <div className="text-sm font-medium text-dark-secondary">
+                        {venta.cliente?.cedula || venta.cliente?.documento || (venta as any).cedulaCliente || 'S/D'}
+                      </div>
                     </TableCell>
                     <TableCell className="text-center">
                       <span className="inline-flex items-center justify-center bg-dark-hover text-dark-primary rounded-full w-8 h-8 text-xs font-bold">
@@ -309,7 +324,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
             </div>
 
             <p className="text-sm text-dark-secondary">
-              Esta acción <span className="text-red-400 font-semibold">no se puede deshacer</span>. Por favor indica el motivo de la anulación.
+              Esta action <span className="text-red-400 font-semibold">no se puede deshacer</span>. Por favor indica el motivo de la anulación.
             </p>
 
             <div className="space-y-2">

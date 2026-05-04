@@ -127,8 +127,25 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
             return;
         }
 
+        // Validación común: No permitir guardar si no hay días o si hay horas inválidas
+        if (diasSeleccionados.length === 0) {
+            toast.error("No puedes registrar porque no has seleccionado ni un solo día");
+            return;
+        }
+
+        const hayHorariosInvalidos = diasSeleccionados.some(dia => {
+            const horarioDia = horariosPorDia[dia];
+            return !horarioDia || !horarioDia.horaInicio || !horarioDia.horaFin || (horarioDia.disponible !== false && horarioDia.horaInicio >= horarioDia.horaFin);
+        });
+
+        if (hayHorariosInvalidos) {
+            toast.error("Por favor revisa que todos los días activos tengan horas válidas (Inicio debe ser menor a Fin)");
+            return;
+        }
+
+        let todosExitosos = true;
+
         if (horarioAEditar) {
-            let todosExitosos = true;
             // Procesar los días seleccionados para actualizar o crear
             for (const dia of diasSeleccionados) {
                 const horarioDia = horariosPorDia[dia];
@@ -147,7 +164,7 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
                 if (horarioDia.id_horario) {
                     const resultado = await actualizarHorario(horarioDia.id_horario, dataToSubmit as any);
                     if (!resultado.success) {
-                        toast.error(`Error al actualizar lunes: ${resultado.error}`);
+                        toast.error(`Error al actualizar ${dia}: ${resultado.error}`);
                         todosExitosos = false;
                         break;
                     }
@@ -166,7 +183,6 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
                 onSuccess();
             }
         } else {
-            let todosExitosos = true;
             for (const dia of diasSeleccionados) {
                 const horarioDia = horariosPorDia[dia];
                 if (!horarioDia || !horarioDia.horaInicio || !horarioDia.horaFin) continue;
@@ -186,7 +202,7 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
                     break;
                 }
             }
-            if (todosExitosos && diasSeleccionados.length > 0) {
+            if (todosExitosos) {
                 toast.success("Horario(s) registrado(s) exitosamente");
                 onSuccess();
             }
@@ -292,12 +308,7 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
     );
 
     const formInvalid = loadingHorario ||
-        !empleadoSeleccionado ||
-        diasSeleccionados.length === 0 ||
-        diasSeleccionados.some(dia => {
-            const horarioDia = horariosPorDia[dia];
-            return !horarioDia || !horarioDia.horaInicio || !horarioDia.horaFin || horarioDia.horaInicio >= horarioDia.horaFin;
-        });
+        !empleadoSeleccionado;
 
     return (
         <div className="flex flex-col h-full bg-dark-bg pb-10" onClick={() => { setMostrarListaEmpleados(false); setMostrarListaHorarios(false); }}>

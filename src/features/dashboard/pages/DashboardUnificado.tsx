@@ -104,7 +104,10 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
 
   // Métricas principales
   const metrics = useMemo(() => {
-    const totalVentas = ventas.reduce((sum, v) => sum + Number(v.total), 0);
+    const totalVentas = ventas.reduce((sum, v) => {
+      const val = Number(v.total || 0);
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0);
     const totalClientes = clientes.length;
     // Fecha local del usuario garantizada en formato YYYY-MM-DD sin depender del locale del navegador
     const now = new Date();

@@ -54,10 +54,25 @@ export function useMascotas() {
   const crearMascota = useCallback(async (mascotaData: Partial<Mascota>) => {
     setLoading(true);
     try {
+      const payload: any = {
+        Nombre: mascotaData.nombre,
+        Especie: mascotaData.especie,
+        Raza: mascotaData.raza,
+        Edad: mascotaData.edad ? Number(mascotaData.edad) : null,
+        Peso: mascotaData.peso ? Number(mascotaData.peso) : null,
+        Observaciones: mascotaData.observaciones,
+        Vacunas: mascotaData.vacunas,
+        Foto: mascotaData.foto,
+        IdCliente: Number(mascotaData.id_cliente),
+        FechaNacimiento: mascotaData.fecha_nacimiento ? mascotaData.fecha_nacimiento.split('T')[0] : null,
+        FechaDesparasitacion: mascotaData.fecha_desparasitacion ? mascotaData.fecha_desparasitacion.split('T')[0] : null,
+        FechaUltimaVacuna: mascotaData.fecha_ultima_vacuna ? mascotaData.fecha_ultima_vacuna.split('T')[0] : null,
+        IdClienteNavigation: null,
+      };
       const nueva = await apiFetch(`${API_URL}/mascotas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(mascotaData),
+        body: JSON.stringify(payload),
       });
       setMascotas(prev => [nueva, ...prev]);
       return { success: true, data: nueva };
@@ -71,13 +86,29 @@ export function useMascotas() {
   const actualizarMascota = useCallback(async (id: number, mascotaData: Partial<Mascota>) => {
     setLoading(true);
     try {
-      const actualizada = await apiFetch(`${API_URL}/mascotas/${id}`, {
+      const payload: any = {
+        IdMascota: Number(id),
+        Nombre: mascotaData.nombre,
+        Especie: mascotaData.especie,
+        Raza: mascotaData.raza,
+        Edad: mascotaData.edad ? Number(mascotaData.edad) : null,
+        Peso: mascotaData.peso ? Number(mascotaData.peso) : null,
+        Observaciones: mascotaData.observaciones,
+        Vacunas: mascotaData.vacunas,
+        Foto: mascotaData.foto,
+        IdCliente: Number(mascotaData.id_cliente),
+        FechaNacimiento: mascotaData.fecha_nacimiento ? mascotaData.fecha_nacimiento.split('T')[0] : null,
+        FechaDesparasitacion: mascotaData.fecha_desparasitacion ? mascotaData.fecha_desparasitacion.split('T')[0] : null,
+        FechaUltimaVacuna: mascotaData.fecha_ultima_vacuna ? mascotaData.fecha_ultima_vacuna.split('T')[0] : null,
+        IdClienteNavigation: null,
+      };
+      await apiFetch(`${API_URL}/mascotas/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(mascotaData),
+        body: JSON.stringify(payload),
       });
-      setMascotas(prev => prev.map(m => m.id_mascota === id ? actualizada : m));
-      return { success: true, data: actualizada };
+      setMascotas(prev => prev.map(m => m.id_mascota === id ? { ...m, ...mascotaData } : m));
+      return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message };
     } finally {

@@ -66,15 +66,23 @@ export function useUsuarios() {
 
     useEffect(() => { cargarUsuarios(); }, [cargarUsuarios]);
 
-    const crearUsuario = useCallback(async (usuarioData: Partial<Usuario>) => {
+    const crearUsuario = useCallback(async (usuarioData: Partial<Usuario> & { nombre_rol?: string }) => {
         setLoading(true);
         try {
+            const payload: any = {
+                NombreUsuario: usuarioData.nombre_usuario,
+                NombreCompleto: usuarioData.nombre_completo || usuarioData.nombre_usuario,
+                Correo: usuarioData.correo,
+                Cedula: usuarioData.cedula,
+                TipoDocumento: usuarioData.tipo_documento,
+                NombreRol: (usuarioData as any).nombre_rol || 'Administrador',
+            };
             const nuevo = await apiFetch(`${API_URL}/auth/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(usuarioData),
+                body: JSON.stringify(payload),
             });
-            await cargarUsuarios(); // Recargar para traer los joins del rol
+            await cargarUsuarios();
             return { success: true, data: nuevo };
         } catch (error: any) {
             return { success: false, error: error.message };
@@ -86,13 +94,27 @@ export function useUsuarios() {
     const actualizarUsuario = useCallback(async (id: number, usuarioData: Partial<Usuario>) => {
         setLoading(true);
         try {
-            const actualizado = await apiFetch(`${API_URL}/auth/users/${id}`, {
+            const payload: any = {
+                IdUsuario: id,
+                NombreUsuario: usuarioData.nombre_usuario,
+                NombreCompleto: usuarioData.nombre_completo || usuarioData.nombre_usuario,
+                Contrasena: usuarioData.contrasena,
+                Correo: usuarioData.correo,
+                Cedula: usuarioData.cedula,
+                TipoDocumento: usuarioData.tipo_documento,
+                IdRol: usuarioData.id_rol,
+                IdCliente: usuarioData.id_cliente,
+                IdEmpleado: usuarioData.id_empleado,
+                Estado: usuarioData.estado || 'activo',
+                Activo: usuarioData.activo ?? true,
+            };
+            await apiFetch(`${API_URL}/auth/users/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(usuarioData),
+                body: JSON.stringify(payload),
             });
-            await cargarUsuarios(); // Recargar para traer los joins del rol
-            return { success: true, data: actualizado };
+            await cargarUsuarios();
+            return { success: true };
         } catch (error: any) {
             return { success: false, error: error.message };
         } finally {

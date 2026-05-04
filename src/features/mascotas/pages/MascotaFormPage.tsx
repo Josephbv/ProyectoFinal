@@ -74,6 +74,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
     const [tieneVacunas, setTieneVacunas] = useState(false);
     const [listaVacunas, setListaVacunas] = useState<Array<{ nombre: string, fecha: string }>>([]);
     const [currentVacuna, setCurrentVacuna] = useState({ nombre: '', fecha: new Date().toISOString().split('T')[0] });
+    const [vacunaError, setVacunaError] = useState('');
 
     useEffect(() => {
         const formatDateForInput = (date: any) => {
@@ -161,14 +162,23 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
 
     const selectedCliente = clientes.find(c => c.id_cliente === formData.id_cliente);
 
+    const soloLetras = (valor: string) => /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s'-]+$/.test(valor.trim());
+
     const handleSubmit = async (e: React.FormEvent, keepEditing = false) => {
         e.preventDefault();
-        if (!formData.nombre || !formData.id_cliente) {
-            setErrors({
-                nombre: !formData.nombre ? 'El nombre es requerido' : '',
-                id_cliente: !formData.id_cliente ? 'El cliente es requerido' : ''
-            });
-            toast.error("Por favor completa los campos obligatorios");
+        const newErrors: Record<string, string> = {};
+        if (!formData.nombre) newErrors.nombre = 'El nombre es requerido';
+        else if (!soloLetras(formData.nombre)) newErrors.nombre = 'El nombre no puede contener números';
+        if (!formData.id_cliente) newErrors.id_cliente = 'El dueño / cliente es requerido';
+        if (!formData.especie || !formData.especie.trim()) newErrors.especie = 'La especie es requerida';
+        else if (!soloLetras(formData.especie)) newErrors.especie = 'La especie no puede contener números';
+        if (formData.raza && !soloLetras(formData.raza)) newErrors.raza = 'La raza no puede contener números';
+        if (formData.edad === null || formData.edad === undefined || formData.edad === ('' as any)) newErrors.edad = 'La edad es requerida';
+        if (formData.peso === null || formData.peso === undefined || formData.peso === ('' as any)) newErrors.peso = 'El peso es requerido';
+        if (!formData.fecha_nacimiento) newErrors.fecha_nacimiento = 'La fecha de nacimiento es requerida';
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            toast.error('Por favor corrige los campos con errores');
             return;
         }
 
@@ -192,12 +202,19 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
 
     const handleAddAnother = async (e: React.MouseEvent) => {
         e.preventDefault();
-        if (!formData.nombre || !formData.id_cliente) {
-            setErrors({
-                nombre: !formData.nombre ? 'El nombre es requerido' : '',
-                id_cliente: !formData.id_cliente ? 'El cliente es requerido' : ''
-            });
-            toast.error("Por favor completa los campos obligatorios");
+        const newErrors: Record<string, string> = {};
+        if (!formData.nombre) newErrors.nombre = 'El nombre es requerido';
+        else if (!soloLetras(formData.nombre)) newErrors.nombre = 'El nombre no puede contener números';
+        if (!formData.id_cliente) newErrors.id_cliente = 'El dueño / cliente es requerido';
+        if (!formData.especie || !formData.especie.trim()) newErrors.especie = 'La especie es requerida';
+        else if (!soloLetras(formData.especie)) newErrors.especie = 'La especie no puede contener números';
+        if (formData.raza && !soloLetras(formData.raza)) newErrors.raza = 'La raza no puede contener números';
+        if (formData.edad === null || formData.edad === undefined || formData.edad === ('' as any)) newErrors.edad = 'La edad es requerida';
+        if (formData.peso === null || formData.peso === undefined || formData.peso === ('' as any)) newErrors.peso = 'El peso es requerido';
+        if (!formData.fecha_nacimiento) newErrors.fecha_nacimiento = 'La fecha de nacimiento es requerida';
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            toast.error('Por favor corrige los campos con errores');
             return;
         }
         setLoading(true);
@@ -329,8 +346,13 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                                 placeholder="Buscar por cédula o nombre..."
                                                 value={searchTerm}
                                                 onChange={(e) => {
-                                                    setSearchTerm(e.target.value);
+                                                    const val = e.target.value;
+                                                    setSearchTerm(val);
                                                     setShowResults(true);
+                                                    // Si borra el texto, limpiar el cliente seleccionado
+                                                    if (!val.trim()) {
+                                                        handleChange('id_cliente', 0);
+                                                    }
                                                 }}
                                                 onFocus={() => setShowResults(true)}
                                                 className="bg-dark-hover border-dark-color text-dark-primary h-11"
@@ -369,10 +391,11 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         <Input
                                             value={formData.especie ?? ''}
                                             onChange={(e) => handleChange('especie', e.target.value)}
-                                            className="bg-dark-hover border-dark-color text-dark-primary h-11"
+                                            className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.especie ? 'border-red-500' : ''}`}
                                             placeholder="Ej: Perro, Gato, Ave..."
                                             readOnly={readOnly}
                                         />
+                                        {errors.especie && <p className="text-red-400 text-xs mt-1">{errors.especie}</p>}
                                     </div>
 
                                     <div className="space-y-2">
@@ -381,9 +404,10 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             placeholder="Ej: Criollo, Labrador..."
                                             value={formData.raza ?? ''}
                                             onChange={(e) => handleChange('raza', e.target.value)}
-                                            className="bg-dark-hover border-dark-color text-dark-primary h-11"
+                                            className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.raza ? 'border-red-500' : ''}`}
                                             readOnly={readOnly}
                                         />
+                                        {errors.raza && <p className="text-red-400 text-xs mt-1">{errors.raza}</p>}
                                     </div>
                                 </div>
                             </div>
@@ -399,38 +423,45 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div className="space-y-2">
-                                        <Label className="text-dark-primary font-medium">Edad (años)</Label>
+                                        <Label className="text-dark-primary font-medium">Edad (meses) *</Label>
                                         <Input
                                             type="number"
+                                            min={0}
                                             value={formData.edad ?? ''}
                                             onChange={(e) => handleChange('edad', e.target.value ? parseInt(e.target.value) : null)}
-                                            className="bg-dark-hover border-dark-color text-dark-primary h-11"
+                                            className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.edad ? 'border-red-500' : ''}`}
+                                            placeholder="Ej: 6, 18, 36..."
                                             readOnly={readOnly}
                                         />
+                                        {errors.edad && <p className="text-red-400 text-xs mt-1">{errors.edad}</p>}
                                     </div>
                                     <div className="space-y-2 text-center md:text-left">
-                                        <Label className="text-dark-primary font-medium">Peso (kg)</Label>
+                                        <Label className="text-dark-primary font-medium">Peso (kg) *</Label>
                                         <Input
                                             type="number"
                                             step="0.1"
+                                            min={0}
                                             value={formData.peso ?? ''}
                                             onChange={(e) => handleChange('peso', e.target.value ? parseFloat(e.target.value) : null)}
-                                            className="bg-dark-hover border-dark-color text-dark-primary h-11"
+                                            className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.peso ? 'border-red-500' : ''}`}
                                             readOnly={readOnly}
                                         />
+                                        {errors.peso && <p className="text-red-400 text-xs mt-1">{errors.peso}</p>}
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-dark-primary font-medium">Fecha de Nacimiento</Label>
+                                        <Label className="text-dark-primary font-medium">Fecha de Nacimiento *</Label>
                                         <div className="relative">
                                             <Input
                                                 type="date"
+                                                max={new Date().toISOString().split('T')[0]}
                                                 value={formData.fecha_nacimiento ?? ''}
                                                 onChange={(e) => handleChange('fecha_nacimiento', e.target.value)}
-                                                className="bg-dark-hover border-dark-color text-dark-primary h-11 pr-10"
+                                                className={`bg-dark-hover border-dark-color text-dark-primary h-11 pr-10 ${errors.fecha_nacimiento ? 'border-red-500' : ''}`}
                                                 readOnly={readOnly}
                                             />
                                             <Calendar className="w-4 h-4 text-dark-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                                         </div>
+                                        {errors.fecha_nacimiento && <p className="text-red-400 text-xs mt-1">{errors.fecha_nacimiento}</p>}
                                     </div>
                                 </div>
 
@@ -440,6 +471,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         <div className="relative">
                                             <Input
                                                 type="date"
+                                                max={new Date().toISOString().split('T')[0]}
                                                 value={formData.fecha_desparasitacion ?? ''}
                                                 onChange={(e) => handleChange('fecha_desparasitacion', e.target.value)}
                                                 className="bg-dark-hover border-dark-color text-dark-primary h-11 pr-10"
@@ -557,9 +589,13 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                                     <Input
                                                         placeholder="Triple Felina..."
                                                         value={currentVacuna.nombre}
-                                                        onChange={(e) => setCurrentVacuna(prev => ({ ...prev, nombre: e.target.value }))}
-                                                        className="bg-dark-hover border-dark-color text-dark-primary h-10 text-xs"
+                                                        onChange={(e) => {
+                                                            setCurrentVacuna(prev => ({ ...prev, nombre: e.target.value }));
+                                                            if (vacunaError) setVacunaError('');
+                                                        }}
+                                                        className={`bg-dark-hover border-dark-color text-dark-primary h-10 text-xs ${vacunaError ? 'border-red-500' : ''}`}
                                                     />
+                                                    {vacunaError && <p className="text-red-400 text-[10px] mt-1">{vacunaError}</p>}
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="text-[10px] uppercase font-bold text-dark-secondary ml-1">Fecha</Label>
@@ -573,10 +609,14 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             </div>
                                             <Button
                                                 onClick={() => {
-                                                    if (currentVacuna.nombre.trim()) {
-                                                        setListaVacunas(prev => [...prev, currentVacuna]);
-                                                        setCurrentVacuna({ nombre: '', fecha: new Date().toISOString().split('T')[0] });
+                                                    if (!currentVacuna.nombre.trim()) return;
+                                                    if (/\d/.test(currentVacuna.nombre)) {
+                                                        setVacunaError('El nombre no puede contener números');
+                                                        return;
                                                     }
+                                                    setListaVacunas(prev => [...prev, currentVacuna]);
+                                                    setCurrentVacuna({ nombre: '', fecha: new Date().toISOString().split('T')[0] });
+                                                    setVacunaError('');
                                                 }}
                                                 className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 font-bold text-xs"
                                             >

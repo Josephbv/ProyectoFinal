@@ -75,10 +75,13 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
       // Si las listas no están listas, esperamos (no marcamos como initialized)
       if (!listready) return;
 
-      const serviciosCargar = (citaPrevia.agendamiento_servicios || []).map(as => {
-        const sInfo = servicios.find(s => s.id_servicio === as.id_servicio);
+      const serviciosCargaBase = citaPrevia.agendamiento_servicios || (citaPrevia as any).agendamientoServicios || (citaPrevia as any).idServicios || [];
+
+      const serviciosCargar = serviciosCargaBase.map((as: any) => {
+        const idServ = as.id_servicio || as.idServicio || as.IdServicio;
+        const sInfo = servicios.find(s => s.id_servicio === idServ);
         return {
-          id_servicio: as.id_servicio,
+          id_servicio: idServ,
           cantidad: 1,
           precio_unitario: sInfo?.precio || 0
         };
@@ -90,7 +93,7 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
       setFormData({
         fecha: new Date().toISOString().split('T')[0],
         id_cliente: clientID,
-        total: serviciosCargar.reduce((acc, s) => acc + s.precio_unitario, 0),
+        total: serviciosCargar.reduce((acc: number, s: any) => acc + s.precio_unitario, 0),
         venta_servicios: serviciosCargar
       });
       setInitialized(true);
@@ -134,7 +137,20 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.fecha) newErrors.fecha = 'La fecha es requerida';
+
+    if (!formData.fecha) {
+      newErrors.fecha = 'La fecha es requerida';
+    } else if (!venta) {
+      // Solo validar fechas pasadas para ventas NUEVAS
+      const selectedDate = new Date(formData.fecha + 'T12:00:00');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (selectedDate < today) {
+        newErrors.fecha = 'No se pueden registrar ventas con fechas anteriores al día de hoy';
+      }
+    }
+
     if (!formData.id_cliente) newErrors.id_cliente = 'Debes seleccionar un cliente';
     if (formData.venta_servicios.length === 0) newErrors.servicios = 'Debe agregar al menos un servicio a la venta';
 
@@ -150,7 +166,7 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
       fecha: formData.fecha,
       id_cliente: parseInt(formData.id_cliente),
       total: formData.total,
-      servicios: formData.venta_servicios.map(vs => ({
+      venta_servicios: formData.venta_servicios.map(vs => ({
         id_servicio: vs.id_servicio,
         cantidad: vs.cantidad
       }))

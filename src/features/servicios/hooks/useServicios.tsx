@@ -9,12 +9,7 @@ export interface Servicio {
   // Campos mapeados para el frontend
   id?: number;
   nombre?: string;
-  categoria?: string;
-  costo?: number;
   estado?: string;
-  equipoNecesario?: string[];
-  materialesIncluidos?: string[];
-
 }
 
 const API_URL = '/api';
@@ -47,12 +42,22 @@ export function useServicios() {
   const agregarServicio = useCallback(async (servicioData: Partial<Servicio>) => {
     setLoading(true);
     try {
+      const payload: any = {
+        NombreServicio: servicioData.nombre_servicio || servicioData.nombre,
+        Precio: servicioData.precio,
+        Descripcion: servicioData.descripcion,
+        Estado: servicioData.estado || 'activo',
+      };
       const nuevo = await apiFetch(`${API_URL}/servicios`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(servicioData),
+        body: JSON.stringify(payload),
       });
-      const mapped = { ...nuevo, id: nuevo.id_servicio, nombre: nuevo.nombre_servicio };
+      const mapped = {
+        ...nuevo,
+        id_servicio: nuevo.idServicio || nuevo.IdServicio || nuevo.id_servicio,
+        nombre_servicio: nuevo.nombreServicio || nuevo.NombreServicio || nuevo.nombre_servicio || nuevo.nombre
+      };
       setServicios(prev => [mapped, ...prev]);
       return { success: true, data: mapped };
     } catch (error: any) {
@@ -65,14 +70,20 @@ export function useServicios() {
   const actualizarServicio = useCallback(async (id: number, servicioData: Partial<Servicio>) => {
     setLoading(true);
     try {
-      const actualizado = await apiFetch(`${API_URL}/servicios/${id}`, {
+      const payload: any = {
+        IdServicio: id,
+        NombreServicio: (servicioData as any).NombreServicio || servicioData.nombre_servicio || servicioData.nombre,
+        Precio: (servicioData as any).Precio ?? servicioData.precio,
+        Descripcion: (servicioData as any).Descripcion ?? servicioData.descripcion,
+        Estado: (servicioData as any).Estado ?? servicioData.estado,
+      };
+      await apiFetch(`${API_URL}/servicios/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(servicioData),
+        body: JSON.stringify(payload),
       });
-      const mapped = { ...actualizado, id: actualizado.id_servicio, nombre: actualizado.nombre_servicio };
-      setServicios(prev => prev.map(s => s.id_servicio === id ? mapped : s));
-      return { success: true, data: mapped };
+      setServicios(prev => prev.map(s => s.id_servicio === id ? { ...s, nombre_servicio: payload.NombreServicio, precio: payload.Precio, descripcion: payload.Descripcion, estado: payload.Estado } : s));
+      return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message };
     } finally {

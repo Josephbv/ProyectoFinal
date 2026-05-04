@@ -83,9 +83,7 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
 
         if (!formData.nombre_usuario.trim()) newErrors.nombre_usuario = 'El username es obligatorio';
         if (!formData.nombre_rol) newErrors.nombre_rol = 'El rol es obligatorio';
-        if (!usuario && !formData.contrasena.trim()) {
-            newErrors.contrasena = 'La contraseña es obligatoria para nuevos usuarios';
-        }
+
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -99,15 +97,19 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
 
         const isMaestro = usuario?.correo === 'josephballestas10@gmail.com' || usuario?.cedula === '1001780874';
 
+        // Buscar el ID del rol seleccionado para enviarlo al backend
+        const rolSeleccionado = roles.find(r => r.nombre === formData.nombre_rol);
+
         let data: any = {
             ...formData,
+            id_rol: rolSeleccionado?.id,
             activo: formData.estado === 'activo' || formData.estado === 'bloqueado' ? true : false,
             estado: formData.estado
         };
 
-        // Si es el Maestro, omitimos nombre_rol para evitar validaciones de cambio de rol en el server
+        // Si es el Maestro, omitimos nombre_rol e id_rol para evitar validaciones de cambio de rol en el server
         if (usuario && isMaestro) {
-            const { nombre_rol, ...rest } = data;
+            const { nombre_rol, id_rol, ...rest } = data;
             data = rest;
         }
 
@@ -237,30 +239,7 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                     </div>
 
 
-                    {/* Seguridad */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-dark-primary flex items-center gap-2 border-b border-dark-color pb-2">
-                            <Lock className="w-5 h-5 text-emerald-400" />
-                            Seguridad
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs">Contraseña {usuario && '(Dejar en blanco para no cambiar)'} <span className="text-red-500">*</span></Label>
-                                <Input
-                                    type="password"
-                                    value={formData.contrasena}
-                                    onChange={(e) => handleChange('contrasena', e.target.value)}
-                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.contrasena ? 'border-red-500' : ''}`}
-                                    placeholder="••••••••"
-                                    readOnly={readOnly}
-                                />
-                                {isSubmitted && !usuario && !formData.contrasena.trim() && <p className="text-[10px] text-red-400 italic mt-0.5">Este campo es obligatorio</p>}
-                                {errors.contrasena && <p className="text-red-400 text-xs">{errors.contrasena}</p>}
 
-
-                            </div>
-                        </div>
-                    </div>
 
 
 

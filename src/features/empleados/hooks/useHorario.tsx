@@ -50,10 +50,17 @@ export function useHorario() {
   const crearHorario = useCallback(async (horarioData: Partial<Horario>) => {
     setLoading(true);
     try {
+      const payload: any = {
+        IdEmpleado: horarioData.id_empleado,
+        DiaSemana: horarioData.dia_semana,
+        HoraInicio: horarioData.hora_inicio?.length === 5 ? `${horarioData.hora_inicio}:00` : horarioData.hora_inicio,
+        HoraFin: horarioData.hora_fin?.length === 5 ? `${horarioData.hora_fin}:00` : horarioData.hora_fin,
+        Disponible: horarioData.disponible,
+      };
       const nuevo = await apiFetch(`${API_URL}/horarios`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(horarioData),
+        body: JSON.stringify(payload),
       });
       setHorarios(prev => [nuevo, ...prev]);
       return { success: true, data: nuevo };
@@ -67,13 +74,21 @@ export function useHorario() {
   const actualizarHorario = useCallback(async (id: number, horarioData: Partial<Horario>) => {
     setLoading(true);
     try {
-      const actualizado = await apiFetch(`${API_URL}/horarios/${id}`, {
+      const payload: any = {
+        IdHorario: id,
+        IdEmpleado: horarioData.id_empleado,
+        DiaSemana: horarioData.dia_semana,
+        HoraInicio: horarioData.hora_inicio?.length === 5 ? `${horarioData.hora_inicio}:00` : horarioData.hora_inicio,
+        HoraFin: horarioData.hora_fin?.length === 5 ? `${horarioData.hora_fin}:00` : horarioData.hora_fin,
+        Disponible: horarioData.disponible,
+      };
+      await apiFetch(`${API_URL}/horarios/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(horarioData),
+        body: JSON.stringify(payload),
       });
-      setHorarios(prev => prev.map(h => h.id_horario === id ? actualizado : h));
-      return { success: true, data: actualizado };
+      setHorarios(prev => prev.map(h => h.id_horario === id ? { ...h, ...horarioData } : h));
+      return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message };
     } finally {

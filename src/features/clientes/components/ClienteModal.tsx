@@ -55,11 +55,15 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
     setErrors({});
   }, [cliente, isOpen]);
 
+  const soloLetras = (valor: string) => /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s'-]+$/.test(valor.trim());
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.nombre.trim()) {
       newErrors.nombre = 'El nombre es obligatorio';
+    } else if (!soloLetras(formData.nombre)) {
+      newErrors.nombre = 'El nombre no puede contener números';
     } else {
       // Verificar nombre duplicado (ignorar el cliente actual en edición)
       const nombreDuplicado = clientes.some(
