@@ -10,7 +10,7 @@ import { useHistorialMascotas, HistorialMascota } from "../hooks/useHistorialMas
 import { useClientes } from "../../clientes/hooks/useClientes";
 import { formatTo12h } from '../../../shared/utils/formatTime';
 import { useMascotas } from "../../mascotas/hooks/useMascotas";
-import { useUsuario } from "../../configuracion/hooks/useUsuario";
+import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
 import { useEmpleados } from "../../empleados/hooks/useEmpleados";
 import { useServicios } from "../../servicios/hooks/useServicios";
 import { Input } from "../../../shared/components/input";
@@ -53,7 +53,7 @@ export function HistorialMascotasPage() {
   // Hooks para el formulario
   const { clientes } = useClientes();
   const { mascotas } = useMascotas();
-  const { usuarios } = useUsuario();
+  const { usuarios } = useUsuarios();
   const { empleados } = useEmpleados();
   const { servicios } = useServicios();
 
@@ -344,7 +344,7 @@ export function HistorialMascotasPage() {
         const doctoresList = [
           ...usuarios
             .filter(u => {
-              const roleName = u.roles?.nombre_rol?.toLowerCase();
+              const roleName = u.rol?.nombre_rol?.toLowerCase();
               return roleName === 'veterinario' || roleName === 'administrador' || roleName === 'admin';
             })
             .map(u => ({ id: `user-${u.id_usuario}`, nombre: `Dr. ${u.nombre_usuario}`, cedula: (u as any).cedula })),
@@ -571,7 +571,7 @@ export function HistorialMascotasPage() {
     const doctores = [
       ...usuarios
         .filter(u => {
-          const roleName = u.roles?.nombre_rol?.toLowerCase();
+          const roleName = u.rol?.nombre_rol?.toLowerCase();
           return roleName === 'veterinario' || roleName === 'administrador' || roleName === 'admin';
         })
         .map(u => ({ id: `user-${u.id_usuario}`, nombre: `Dr. ${u.nombre_usuario}`, cedula: (u as any).cedula })),

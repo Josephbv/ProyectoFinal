@@ -22,7 +22,12 @@ export function useHorario() {
     setLoading(true);
     try {
       const data: any[] = await apiFetch(`${API_URL}/horarios`);
-      const mapped = (data || []).map((h: any) => ({
+      if (!data) {
+        setHorarios([]);
+        setLoading(false);
+        return;
+      }
+      const mapped = data.map((h: any) => ({
         ...h,
         id_horario: h.idHorario || h.IdHorario || h.id_horario,
         dia_semana: h.diaSemana || h.DiaSemana || h.dia_semana,
@@ -40,6 +45,7 @@ export function useHorario() {
       setHorarios(mapped);
     } catch (error) {
       console.error('Error al cargar horarios:', error);
+      setHorarios([]);
     } finally {
       setLoading(false);
     }

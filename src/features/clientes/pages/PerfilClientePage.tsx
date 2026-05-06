@@ -91,11 +91,15 @@ export function PerfilClientePage() {
                                 <Button
                                     onClick={handleSave}
                                     disabled={updating}
-                                    className="bg-emerald-500 hover:bg-emerald-600 text-white border-2 border-emerald-400/20 font-black text-sm px-10 py-6 rounded-[2rem] shadow-xl shadow-emerald-500/40 transition-all hover:scale-105 active:scale-95"
+                                    className="bg-white text-blue-600 hover:bg-blue-50 font-black text-xs px-8 py-3 rounded-2xl shadow-xl shadow-blue-900/20 transition-all hover:scale-105 active:scale-95"
                                 >
-                                    {updating ? 'Guardando...' : 'GUARDAR CAMBIOS'}
+                                    {updating ? 'Guardando...' : 'Guardar cambios'}
                                 </Button>
-                                <Button onClick={() => setIsEditing(false)} variant="ghost" className="bg-white/10 text-white hover:bg-white/20 font-bold text-xs px-6 rounded-2xl border border-white/20">
+                                <Button
+                                    onClick={() => setIsEditing(false)}
+                                    variant="ghost"
+                                    className="text-white hover:bg-white/10 font-bold text-xs px-6 rounded-2xl border border-white/20"
+                                >
                                     Cancelar
                                 </Button>
                             </div>

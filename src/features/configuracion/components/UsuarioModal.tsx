@@ -102,9 +102,10 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
 
         let data: any = {
             ...formData,
-            id_rol: rolSeleccionado?.id,
+            id_rol: rolSeleccionado?.id_rol || (rolSeleccionado?.id ? Number(rolSeleccionado.id) : undefined),
             activo: formData.estado === 'activo' || formData.estado === 'bloqueado' ? true : false,
-            estado: formData.estado
+            estado: formData.estado,
+            nombre_rol: formData.nombre_rol // Asegurar que enviamos el nombre también
         };
 
         // Si es el Maestro, omitimos nombre_rol e id_rol para evitar validaciones de cambio de rol en el server

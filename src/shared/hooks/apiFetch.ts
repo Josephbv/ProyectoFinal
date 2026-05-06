@@ -8,8 +8,9 @@ export async function safeJson(resp: Response): Promise<any> {
     try {
         return JSON.parse(text);
     } catch (e: any) {
-        console.error('[safeJson] Error de parseo:', text.substring(0, 100));
-        throw new Error(`Error de formato JSON: ${text.substring(0, 40)}...`);
+        // Si no es JSON, devolvemos el texto original para que pueda ser mostrado
+        // especialmente si es un error del servidor (400, 500)
+        return text;
     }
 }
 
@@ -28,19 +29,23 @@ export async function apiFetch(url: string, options?: RequestInit): Promise<any>
     let lastError: Error = new Error('Error desconocido');
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos máximo
+
         try {
-            const resp = await fetch(url, options);
+            const resp = await fetch(url, { ...options, signal: controller.signal });
+            clearTimeout(timeoutId);
             const data = await safeJson(resp);
 
             // Errores 4xx: no reintentar, son errores del cliente
             if (resp.status >= 400 && resp.status < 500) {
-                const msg = data?.error || data?.message || `Error HTTP ${resp.status}`;
+                const msg = typeof data === 'string' ? data : (data?.error || data?.message || `Error HTTP ${resp.status}`);
                 throw new Error(msg);
             }
 
             // Errores 5xx: reintentar si hay intentos restantes
             if (!resp.ok) {
-                const msg = data?.error || data?.message || `Error HTTP ${resp.status}`;
+                const msg = typeof data === 'string' ? data : (data?.error || data?.message || `Error HTTP ${resp.status}`);
                 lastError = new Error(msg);
                 if (attempt < maxRetries) {
                     const delay = baseDelay * attempt;
@@ -53,17 +58,19 @@ export async function apiFetch(url: string, options?: RequestInit): Promise<any>
 
             return data;
         } catch (err: any) {
-            // Error de red (sin conexión, timeout, etc.)
-            if (err.name === 'TypeError' || err.message?.includes('fetch')) {
-                lastError = new Error('Sin conexión con el servidor. Verifica tu internet.');
+            clearTimeout(timeoutId);
+            const isTimeout = err.name === 'AbortError';
+
+            // Error de red o Timeout
+            if (isTimeout || err.name === 'TypeError' || err.message?.includes('fetch')) {
+                lastError = new Error(isTimeout ? 'El servidor tardó demasiado en responder.' : 'Sin conexión con el servidor.');
                 if (attempt < maxRetries) {
                     const delay = baseDelay * attempt;
-                    console.warn(`[apiFetch] Error de red intento ${attempt}/${maxRetries}. Reintentando en ${delay}ms...`);
+                    console.warn(`[apiFetch] ${isTimeout ? 'Timeout' : 'Red'} intento ${attempt}/${maxRetries}. Reintentando en ${delay}ms...`);
                     await new Promise(resolve => setTimeout(resolve, delay));
                     continue;
                 }
             }
-            // Cualquier otro error (4xx, JSON parse, etc.): lanzar inmediatamente
             throw err;
         }
     }

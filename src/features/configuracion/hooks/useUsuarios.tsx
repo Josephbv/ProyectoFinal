@@ -23,6 +23,7 @@ export interface Usuario {
     pregunta_seguridad?: string;
     respuesta_seguridad?: string;
     token_recuperacion?: string;
+    nombre_rol?: string; // Nombre del rol para el payload
 
     // Relaciones
     id_rol: number;
@@ -103,6 +104,7 @@ export function useUsuarios() {
                 Cedula: usuarioData.cedula,
                 TipoDocumento: usuarioData.tipo_documento,
                 IdRol: usuarioData.id_rol,
+                NombreRol: usuarioData.nombre_rol,
                 IdCliente: usuarioData.id_cliente,
                 IdEmpleado: usuarioData.id_empleado,
                 Estado: usuarioData.estado || 'activo',

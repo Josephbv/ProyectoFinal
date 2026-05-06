@@ -110,7 +110,6 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
     // Para veterinarios, aplicamos sus restricciones
     if (isVet) {
       return items.filter(item =>
-        item.label !== "Dashboard" &&
         item.label !== "Clientes" &&
         modulos.includes(item.label)
       );

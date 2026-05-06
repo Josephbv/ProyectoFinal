@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
 import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText, DollarSign, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useAgendamiento, Agendamiento, AgendamientoServicio } from "../hooks/useAgendamiento";
@@ -9,6 +8,8 @@ import { CitaModal } from "../components/CitaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 import { formatTo12h } from '../../../shared/utils/formatTime';
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
+import { MailService } from "../../../shared/services/MailService";
+import { useClientes } from "../../clientes/hooks/useClientes";
 
 interface AgendamientoPageProps {
   onNavigate?: (page: string) => void;
@@ -18,6 +19,7 @@ interface AgendamientoPageProps {
 export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps) {
   const { citas, loading, agendarCita, actualizarCita, eliminarCita } = useAgendamiento();
   const { user } = useEmailAuth();
+  const { clientes } = useClientes();
 
   const [busqueda, setBusqueda] = useState("");
   const [citaModal, setCitaModal] = useState({ isOpen: false, cita: null as Agendamiento | null, readOnly: false });
@@ -27,24 +29,17 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
   const isClienteRole = roleName.toLowerCase().includes('cliente');
   const isVetRole = roleName.toLowerCase().includes('veterinario');
 
-  // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
   const citasFiltradas = citas.filter(cita => {
-    // No mostrar citas canceladas (eliminación lógica)
     if (cita.estado === 'cancelada') return false;
-
-    // Si es cliente, solo ve sus citas
     if (isClienteRole) {
       if (cita.id_cliente !== user?.id_cliente) return false;
     }
-
-    // Si es veterinario, solo ve las citas asignadas a él
     if (isVetRole) {
       if (cita.id_empleado !== user?.id_empleado) return false;
     }
-
     const matchBusqueda = (cita.cliente?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cita.cliente?.cedula || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cita.empleado?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -52,13 +47,11 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
     return matchBusqueda;
   });
 
-  // Cálculos de paginación
   const totalPages = Math.ceil(citasFiltradas.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const citasPaginadas = citasFiltradas.slice(startIndex, endIndex);
 
-  // Resetear página cuando cambia la búsqueda
   useEffect(() => {
     setCurrentPage(1);
   }, [busqueda]);
@@ -67,6 +60,23 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
     const result = await agendarCita(citaData);
     if (result.success) {
       toast.success("Cita agendada exitosamente");
+
+      // Enviar correo de confirmación
+      try {
+        const cliente = clientes.find(c => c.id_cliente === citaData.id_cliente);
+        if (cliente && cliente.correo) {
+          await MailService.sendAppointmentConfirmation(
+            cliente.correo,
+            cliente.nombre,
+            "tu mascota",
+            citaData.fecha || '',
+            citaData.hora || ''
+          );
+        }
+      } catch (e) {
+        console.error("Error enviando correo de cita:", e);
+      }
+
       return { success: true };
     } else {
       toast.error(result.error || "Error al crear cita");
@@ -76,7 +86,6 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
 
   const handleActualizarCita = async (citaData: Partial<Agendamiento>) => {
     if (!citaModal.cita) return { success: false };
-
     const result = await actualizarCita(citaModal.cita.id_agendamiento, { ...citaModal.cita, ...citaData });
     if (result.success) {
       toast.success("Cita actualizada exitosamente");
@@ -89,9 +98,6 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
 
   const handleEliminarCita = async () => {
     if (!deleteDialog.cita) return;
-
-    // Cambiamos a eliminación lógica (cancelar) para evitar el Error 500 de la base de datos
-    // que ocurre por restricciones de integridad referencial deshabilitadas para el borrado físico.
     const result = await actualizarCita(deleteDialog.cita.id_agendamiento, {
       ...deleteDialog.cita,
       estado: 'cancelada'
@@ -113,11 +119,6 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
     setCitaModal({ isOpen: false, cita: null, readOnly: false });
   };
 
-  const formatearServicios = (agendamiento_servicios?: AgendamientoServicio[]) => {
-    if (!agendamiento_servicios || agendamiento_servicios.length === 0) return 'Sin servicios';
-    return agendamiento_servicios.map(s => s.servicio?.nombre_servicio).join(', ');
-  };
-
   return (
     <>
       <header className="bg-dark-bg border-b border-dark-color px-8 py-6">
@@ -131,15 +132,15 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
               <input
                 type="text"
-                placeholder="Buscar por cliente, empleado o fecha..."
+                placeholder="Buscar..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
+                className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary focus:outline-none"
               />
             </div>
             <button
               onClick={() => abrirCitaModal()}
-              className="dark-button-primary gap-2 flex items-center"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               {isClienteRole ? "Solicitar Cita" : "Agendar Cita"}
@@ -149,166 +150,55 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
       </header>
 
       <main className="p-8">
-        <div className="dark-card">
+        <div className="bg-dark-card border border-dark-color rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
-                  <TableHead className="text-dark-primary font-semibold min-w-[120px]">
-                    <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-indigo-400" />Fecha</div>
-                  </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[100px]">
-                    <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-indigo-400" />Hora</div>
-                  </TableHead>
-                  <TableHead className="text-dark-primary font-semibold w-[200px]">
-                    <div className="flex items-center gap-2"><User className="w-4 h-4 text-indigo-400" />Cliente</div>
-                  </TableHead>
-                  <TableHead className="text-dark-primary font-semibold min-w-[150px]">
-                    <div className="flex items-center gap-2"><FileText className="w-4 h-4 text-indigo-400" />Doc. Cliente</div>
-                  </TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center min-w-[150px]">
-                    <div className="flex items-center justify-center gap-2"><Ticket className="w-4 h-4 text-indigo-400" />Servicios</div>
-                  </TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center min-w-[120px]">
-                    <div className="flex items-center justify-center gap-2"><Clock className="w-4 h-4 text-indigo-400" />Estado</div>
-                  </TableHead>
-                  {!isClienteRole && (
-                    <TableHead className="text-dark-primary font-semibold text-center min-w-[100px]">
-                      <div className="flex items-center justify-center gap-2"><DollarSign className="w-4 h-4 text-indigo-400" />Pago</div>
-                    </TableHead>
-                  )}
-                  <TableHead className="text-dark-primary font-semibold text-center w-32">Acciones</TableHead>
+                <TableRow className="bg-blue-500/10 border-dark-color">
+                  <TableHead className="text-dark-primary font-semibold">Fecha</TableHead>
+                  <TableHead className="text-dark-primary font-semibold">Hora</TableHead>
+                  <TableHead className="text-dark-primary font-semibold">Cliente</TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center">Servicios</TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center">Estado</TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {citasPaginadas.map((cita: Agendamiento, index: number) => {
-                  // Verificar si está marcado como pagado en localStorage (failsafe)
+                {citasPaginadas.map((cita: Agendamiento) => {
                   const isPagadoLocal = localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true';
                   const estadoFinal = isPagadoLocal ? 'completada' : cita.estado;
 
                   return (
-                    <TableRow key={`${cita.id_agendamiento}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors">
-                      <TableCell className="font-medium text-dark-primary">
-                        {cita.fecha ? new Date(cita.fecha.includes('T') ? cita.fecha.split('T')[0] + 'T12:00:00' : cita.fecha + 'T12:00:00').toLocaleDateString() : 'Sin fecha'}
+                    <TableRow key={cita.id_agendamiento} className="border-dark-color hover:bg-dark-hover transition-colors">
+                      <TableCell className="text-dark-primary">
+                        {cita.fecha ? new Date(cita.fecha).toLocaleDateString() : 'Sin fecha'}
                       </TableCell>
                       <TableCell className="text-dark-primary">
                         {cita.hora ? formatTo12h(cita.hora) : 'Sin hora'}
                       </TableCell>
-                      <TableCell>
-                        <span className="font-medium text-dark-primary">{cita.cliente?.nombre || 'Desconocido'}</span>
+                      <TableCell className="text-dark-primary">
+                        {cita.cliente?.nombre || 'Desconocido'}
                       </TableCell>
-                      <TableCell className="text-dark-secondary font-mono text-xs">
-                        {cita.cliente?.cedula || 'N/A'}
+                      <TableCell className="text-center text-dark-primary">
+                        {cita.agendamiento_servicios?.length || 0}
                       </TableCell>
                       <TableCell className="text-center">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/25 text-blue-400 text-xs font-bold">
-                          {cita.agendamiento_servicios?.length ?? 0} servicio{(cita.agendamiento_servicios?.length ?? 0) !== 1 ? 's' : ''}
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${estadoFinal === 'completada' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
+                          }`}>
+                          {estadoFinal === 'completada' ? 'Completada' : 'Activa'}
                         </span>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center justify-center">
-                          {estadoFinal === 'completada' ? (
-                            <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-green-500/20 text-green-400 border border-green-500/30 flex items-center gap-1">
-                              <CheckCircle2 className="w-3" />
-                              Completada
-                            </span>
-                          ) : (
-                            <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">
-                              <Clock className="w-3" />
-                              Activa
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      {!isClienteRole && !isVetRole && (
-                        <TableCell>
-                          <div className="flex items-center justify-center">
-                            {estadoFinal === 'completada' ? (
-                              <div className="flex flex-col items-center">
-                                <div className="p-1 bg-green-500/10 rounded-full mb-0.5">
-                                  <CheckCircle2 className="w-4 h-4 text-green-500" />
-                                </div>
-                                <span className="text-[9px] font-black text-green-500 tracking-tighter">PAGADO</span>
-                              </div>
-                            ) : (() => {
-                              // Lógica de "Puedo Pagar": Robusta ante formatos ISO o locales
-                              if (!cita.fecha || !cita.hora) return null;
-
-                              try {
-                                const fechaBase = cita.fecha.split('T')[0];
-                                let horaBase = cita.hora.includes('T') ? cita.hora.split('T')[1].substring(0, 5) : cita.hora.substring(0, 5);
-
-                                const [year, month, day] = fechaBase.split('-').map(Number);
-                                const [hours, minutes] = horaBase.split(':').map(Number);
-
-                                const fechaCita = new Date(year, month - 1, day, hours, minutes);
-                                const ahora = new Date();
-                                const puedoPagar = ahora >= fechaCita;
-
-                                return (
-                                  <Button
-                                    onClick={() => puedoPagar && onPagar?.(cita)}
-                                    variant="outline"
-                                    size="sm"
-                                    className={`gap-1.5 transition-all duration-200 ${puedoPagar
-                                      ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/25 shadow-lg shadow-emerald-500/10'
-                                      : 'bg-dark-hover border-dark-color text-dark-secondary opacity-50 grayscale cursor-not-allowed'
-                                      }`}
-                                    title={puedoPagar ? "Ir a Ventas" : `Disponible el ${new Date(fechaCita).toLocaleDateString()} a las ${formatTo12h(horaBase)}`}
-                                    disabled={!puedoPagar}
-                                  >
-                                    {puedoPagar ? (
-                                      <>
-                                        <DollarSign className="w-4 h-4 animate-pulse" />
-                                        <span className="text-xs font-bold">Pagar</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Clock className="w-3.5 h-3.5" />
-                                        <span className="text-[10px] font-medium">Espera</span>
-                                      </>
-                                    )}
-                                  </Button>
-                                );
-                              } catch (e) {
-                                return <span className="text-[9px] text-red-400">Error fecha</span>;
-                              }
-                            })()}
-                          </div>
-                        </TableCell>
-                      )}
-                      <TableCell>
                         <div className="flex items-center justify-center gap-2">
-                          <Button
-                            onClick={() => abrirCitaModal(cita, true)}
-                            variant="outline"
-                            size="sm"
-                            className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
-                            disabled={loading}
-                            title="Ver detalle"
-                          >
+                          <Button onClick={() => abrirCitaModal(cita, true)} variant="outline" size="sm" className="p-2 bg-blue-500/20 border-blue-500 text-blue-400">
                             <Eye className="w-4 h-4" />
                           </Button>
-                          {!isClienteRole && !isVetRole && (
+                          {!isClienteRole && (
                             <>
-                              <Button
-                                onClick={() => abrirCitaModal(cita)}
-                                variant="outline"
-                                size="sm"
-                                className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
-                                disabled={loading}
-                                title="Editar cita"
-                              >
+                              <Button onClick={() => abrirCitaModal(cita)} variant="outline" size="sm" className="p-2 bg-amber-500/20 border-amber-500 text-amber-400">
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button
-                                onClick={() => setDeleteDialog({ isOpen: true, cita })}
-                                variant="outline"
-                                size="sm"
-                                className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30 disabled:opacity-30 disabled:cursor-not-allowed"
-                                disabled={loading || estadoFinal === 'completada'}
-                                title={estadoFinal === 'completada' ? "No se puede eliminar una cita pagada" : "Eliminar cita"}
-                              >
+                              <Button onClick={() => setDeleteDialog({ isOpen: true, cita })} variant="outline" size="sm" className="p-2 bg-red-500/20 border-red-500 text-red-400" disabled={estadoFinal === 'completada'}>
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </>
@@ -316,51 +206,17 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                         </div>
                       </TableCell>
                     </TableRow>
-                  )
+                  );
                 })}
               </TableBody>
             </Table>
-
-            {citasFiltradas.length === 0 && (
-              <div className="text-center py-12">
-                <Calendar className="w-16 h-16 text-dark-secondary mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-semibold text-dark-primary mb-2">
-                  {busqueda ? 'No se encontraron citas' : 'No hay citas programadas'}
-                </h3>
-                <p className="text-dark-secondary mb-6">
-                  {busqueda
-                    ? 'Intenta con otras fechas o términos'
-                    : 'Comienza agendando tu primera cita'
-                  }
-                </p>
-                {!busqueda && (
-                  <Button
-                    onClick={() => abrirCitaModal()}
-                    className="dark-button-primary"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Agendar Cita
-                  </Button>
-                )}
-              </div>
-            )}
           </div>
 
-          {/* Paginación */}
-          <div className="flex items-center justify-between pt-4 mt-4 border-t border-dark-color">
-            <div className="text-sm text-dark-secondary">
-              Mostrando {startIndex + 1}-{Math.min(endIndex, citasFiltradas.length)} de {citasFiltradas.length} citas
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-dark-secondary">Página {currentPage} de {totalPages || 1}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Button onClick={() => setCurrentPage(1)} disabled={currentPage === 1 || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
-                <Button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1 || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
-                <Button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
-                <Button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
-              </div>
+          <div className="flex items-center justify-between p-4 border-t border-dark-color">
+            <span className="text-sm text-dark-secondary">Página {currentPage} de {totalPages || 1}</span>
+            <div className="flex gap-2">
+              <Button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} variant="outline" size="sm">Anterior</Button>
+              <Button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} variant="outline" size="sm">Siguiente</Button>
             </div>
           </div>
         </div>
@@ -380,7 +236,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
         onClose={() => setDeleteDialog({ isOpen: false, cita: null })}
         onConfirm={handleEliminarCita}
         title="¿Eliminar Cita?"
-        description={`¿Estás seguro de eliminar la cita del día ${deleteDialog.cita?.fecha}? Esta acción no se puede deshacer.`}
+        description="¿Estás seguro de eliminar esta cita? Esta acción no se puede deshacer."
         loading={loading}
       />
     </>

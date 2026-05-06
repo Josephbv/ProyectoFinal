@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
+import { MailService } from '../../../shared/services/MailService';
 
 interface User {
   id_usuario: number;
@@ -60,10 +61,10 @@ export function useEmailAuth() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          correo: email,
-          contrasena: password,
-          email: email,      // Compatibilidad con otros backends
-          password: password  // Compatibilidad con otros backends
+          Correo: email,
+          Contrasena: password,
+          Email: email, // Fallback
+          Password: password // Fallback
         }),
       });
 
@@ -113,15 +114,26 @@ export function useEmailAuth() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          correo: registerData.email,
-          contrasena: registerData.password,
-          nombre_usuario: registerData.nombre,
-          tipo_documento: registerData.tipoDocumento,
-          cedula: registerData.cedula,
-          telefono: registerData.telefono,
-          direccion: registerData.direccion,
+          NombreUsuario: registerData.nombre,
+          NombreCompleto: registerData.nombre,
+          Correo: registerData.email,
+          Email: registerData.email,
+          Contrasena: registerData.password,
+          Password: registerData.password,
+          TipoDocumento: registerData.tipoDocumento,
+          Cedula: registerData.cedula,
+          Telefono: registerData.telefono,
+          Direccion: registerData.direccion,
+          IdRol: 4,
+          NombreRol: 'Cliente'
         }),
       });
+
+      // Si el registro fue exitoso en el backend, disparamos el correo de bienvenida
+      if (data) {
+        await MailService.sendWelcomeEmail(registerData.email, registerData.nombre);
+      }
+
       return { success: true, data };
     } catch (error: any) {
       return { success: false, error: error.message };
@@ -136,7 +148,7 @@ export function useEmailAuth() {
       const data = await apiFetch(`${API_URL}/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: email }),
+        body: JSON.stringify({ Correo: email, Email: email }),
       });
       return { success: true, data };
     } catch (error: any) {
@@ -152,7 +164,12 @@ export function useEmailAuth() {
       const data = await apiFetch(`${API_URL}/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: email, token, nueva_contrasena: newPassword }),
+        body: JSON.stringify({
+          Correo: email,
+          Token: token,
+          NuevaContrasena: newPassword,
+          Password: newPassword
+        }),
       });
       return { success: true, data };
     } catch (error: any) {

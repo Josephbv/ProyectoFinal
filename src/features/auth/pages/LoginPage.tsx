@@ -104,7 +104,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     });
 
     if (result.success) {
-      toast.success("¡Bienvenido!", { description: "Registro completado con éxito." });
+      toast.success("¡Bienvenido!", { description: "Registro completado con éxito. Ahora puedes iniciar sesión." });
+      setAuthMode('login');
+      setIsSubmitted(false);
     } else {
       toast.error("Error", { description: result.error || "No se pudo realizar el registro." });
     }

@@ -48,7 +48,11 @@ export const useRoles = () => {
       const data = await apiFetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevoRol)
+        body: JSON.stringify({
+          NombreRol: nuevoRol.nombre,
+          Activo: nuevoRol.activo,
+          Modulos: nuevoRol.modulos
+        })
       });
       setRoles(prev => [...prev, data]);
       return { success: true, data };
@@ -61,18 +65,21 @@ export const useRoles = () => {
 
   const actualizarRol = async (id: string, datosActualizados: Partial<Rol>) => {
     setLoading(true);
-    // Actualización optimista: actualizar UI inmediatamente con los datos enviados
-    setRoles(prev => prev.map(rol => rol.id === id ? { ...rol, ...datosActualizados } : rol));
     try {
       await apiFetch(`${API_URL}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datosActualizados)
+        body: JSON.stringify({
+          IdRol: Number(id),
+          NombreRol: datosActualizados.nombre,
+          Activo: datosActualizados.activo,
+          Modulos: datosActualizados.modulos
+        })
       });
+      setRoles(prev => prev.map(rol => rol.id === id ? { ...rol, ...datosActualizados } : rol));
       return { success: true };
     } catch (error) {
-      // Si falla la API, igual dejamos el estado local actualizado (funcionalidad local)
-      return { success: true };
+      return { success: false, error: 'Error al actualizar rol' };
     } finally {
       setLoading(false);
     }

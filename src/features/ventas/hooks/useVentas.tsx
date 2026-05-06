@@ -121,14 +121,14 @@ export function useVentas() {
   const anularVenta = useCallback(async (id: number, motivo: string) => {
     setLoading(true);
     try {
-      const anulada = await apiFetch(`${API_URL}/ventas/anular/${id}`, {
+      await apiFetch(`${API_URL}/ventas/anular/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ motivo }) // Enviamos el motivo al servidor
+        body: JSON.stringify({ Motivo: motivo }) // Enviamos el motivo al servidor en Mayúscula
       });
 
       setVentas(prev => prev.map(v => v.id_venta === id ? { ...v, estado: 'anulada', motivo_anulacion: motivo } : v));
-      return { success: true, data: anulada };
+      return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message || 'Error al anular venta' };
     } finally {
