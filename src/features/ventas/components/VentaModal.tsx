@@ -58,11 +58,20 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
 
     if (venta) {
       // Cargando venta existente para vista de detalles/reporte
-      const serviciosCargados = (venta.venta_servicios || []).map(vs => ({
-        id_servicio: vs.id_servicio,
-        cantidad: vs.cantidad || 1,
-        precio_unitario: vs.servicio?.precio || 0
-      }));
+      const serviciosCargados = (venta.venta_servicios || []).map(vs => {
+        // Backend puede devolver precio en PascalCase (Precio) o camelCase (precio)
+        const precioServicio =
+          vs.servicio?.Precio ??
+          vs.servicio?.precio ??
+          servicios.find(s => s.id_servicio === vs.id_servicio)?.precio ??
+          (servicios.find(s => s.id_servicio === vs.id_servicio) as any)?.Precio ??
+          0;
+        return {
+          id_servicio: vs.id_servicio,
+          cantidad: vs.cantidad || 1,
+          precio_unitario: precioServicio
+        };
+      });
 
       setFormData({
         fecha: venta.fecha ? new Date(venta.fecha).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -112,7 +121,7 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
 
   // Si a pesar de todo los servicios llegaron después de inicializar
   useEffect(() => {
-    if (isOpen && citaPrevia && initialized && servicios.length > 0) {
+    if (isOpen && initialized && servicios.length > 0) {
       const necesitaPrecios = formData.venta_servicios.some(s => s.precio_unitario === 0);
       if (necesitaPrecios) {
         setFormData(prev => ({
@@ -120,12 +129,13 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
           venta_servicios: prev.venta_servicios.map(ps => {
             if (ps.precio_unitario > 0) return ps;
             const sInfo = servicios.find(s => s.id_servicio === ps.id_servicio);
-            return { ...ps, precio_unitario: sInfo?.precio || 0 };
+            const precio = sInfo?.precio ?? (sInfo as any)?.Precio ?? 0;
+            return { ...ps, precio_unitario: precio };
           })
         }));
       }
     }
-  }, [servicios, isOpen, initialized, citaPrevia]);
+  }, [servicios, isOpen, initialized]);
 
 
 
