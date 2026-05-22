@@ -144,6 +144,9 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
                   <TableHead className="text-dark-primary font-semibold min-w-[120px]">
                     <div className="flex items-center gap-2"><Info className="w-4 h-4 text-blue-400" />Especie / Raza</div>
                   </TableHead>
+                  <TableHead className="text-dark-primary font-semibold min-w-[80px]">
+                    <div className="flex items-center gap-2"><Info className="w-4 h-4 text-blue-400" />Sexo</div>
+                  </TableHead>
                   <TableHead className="text-dark-primary font-semibold min-w-[140px]">
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4 text-blue-400" />
@@ -186,6 +189,26 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
                       </TableCell>
 
                       <TableCell>
+                        {mascota.sexo && mascota.sexo !== '---' ? (
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold ${mascota.sexo === 'Macho'
+                            ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
+                            : 'bg-pink-500/15 text-pink-400 border border-pink-500/20'
+                            }`}>
+                            {mascota.sexo === 'Macho' ? '♂' : '♀'}
+                            {mascota.sexo}
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => onEditMascota(mascota)}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors cursor-pointer"
+                            title="Haz clic para asignar sexo"
+                          >
+                            ⚠ Sin asignar
+                          </button>
+                        )}
+                      </TableCell>
+
+                      <TableCell>
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-dark-primary font-medium">
                             {getClienteNombre(mascota.id_cliente)}
@@ -194,7 +217,7 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
                       </TableCell>
 
                       <TableCell>
-                        <div className="text-sm text-dark-secondary">
+                        <div className="text-sm text-dark-primary font-mono">
                           {getClienteCedula(mascota.id_cliente)}
                         </div>
                       </TableCell>

@@ -1,9 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
+import { useEmailAuth } from '../../auth/hooks/useEmailAuth';
 
 export interface AgendamientoServicio {
   id_agendamiento: number;
   id_servicio: number;
+  realizado?: boolean;
   servicio?: any;
 }
 
@@ -12,9 +14,11 @@ export interface Agendamiento {
   fecha: string | null;
   hora: string | null;
   id_cliente: number;
+  id_mascota?: number;
   id_empleado: number;
   cliente?: any;
   empleado?: any;
+  mascota?: any;
   agendamiento_servicios?: AgendamientoServicio[];
   estado?: 'activa' | 'completada' | 'cancelada';
 }
@@ -24,42 +28,58 @@ const API_URL = '/api';
 export function useAgendamiento() {
   const [citas, setCitas] = useState<Agendamiento[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useEmailAuth();
 
   const cargarCitas = useCallback(async () => {
     setLoading(true);
     try {
       const data: any[] = await apiFetch(`${API_URL}/agendamiento`);
-      const mapped = (data || []).map((a: any) => ({
-        ...a,
-        id_agendamiento: a.idAgendamiento || a.IdAgendamiento || a.id_agendamiento,
-        id_cliente: a.idCliente || a.IdCliente || a.id_cliente,
-        id_empleado: a.idEmpleado || a.IdEmpleado || a.id_empleado,
-        fecha: a.fecha || a.Fecha,
-        hora: a.hora || a.Hora,
-        estado: a.estado || a.Estado,
-        cliente: a.cliente || (a.idClienteNavigation || a.IdClienteNavigation ? {
-          id_cliente: (a.idClienteNavigation || a.IdClienteNavigation).idCliente || (a.idClienteNavigation || a.IdClienteNavigation).IdCliente,
-          nombre: (a.idClienteNavigation || a.IdClienteNavigation).nombre || (a.idClienteNavigation || a.IdClienteNavigation).Nombre,
-          cedula: (a.idClienteNavigation || a.IdClienteNavigation).cedula || (a.idClienteNavigation || a.IdClienteNavigation).Cedula
-        } : undefined),
-        empleado: a.empleado || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation ? {
-          id_empleado: (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).idEmpleado || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).IdEmpleado,
-          nombre: (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).nombre || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).Nombre
-        } : undefined),
-        agendamiento_servicios: a.agendamiento_servicios || (a.idServicios || a.IdServicios ? (a.idServicios || a.IdServicios)
-          .filter((s: any) => s !== null)
-          .map((s: any) => ({
-            id_servicio: s.idServicio || s.IdServicio,
-            nombre: s.nombreServicio || s.NombreServicio
-          })) : [])
-      }));
+      let mapped = (data || []).map((a: any) => {
+        const id = a.idAgendamiento || a.IdAgendamiento || a.id_agendamiento;
+        const storedMascota = localStorage.getItem(`cita_mascota_${id}`);
+        return {
+          ...a,
+          id_agendamiento: id,
+          id_cliente: a.idCliente || a.IdCliente || a.id_cliente,
+          id_mascota: storedMascota ? Number(storedMascota) : (a.idMascota || a.IdMascota || a.id_mascota),
+          id_empleado: a.idEmpleado || a.IdEmpleado || a.id_empleado,
+          fecha: a.fecha || a.Fecha,
+          hora: a.hora || a.Hora,
+          estado: a.estado || a.Estado,
+          cliente: a.cliente || (a.idClienteNavigation || a.IdClienteNavigation ? {
+            id_cliente: (a.idClienteNavigation || a.IdClienteNavigation).idCliente || (a.idClienteNavigation || a.IdClienteNavigation).IdCliente,
+            nombre: (a.idClienteNavigation || a.IdClienteNavigation).nombre || (a.idClienteNavigation || a.IdClienteNavigation).Nombre,
+            cedula: (a.idClienteNavigation || a.IdClienteNavigation).cedula || (a.idClienteNavigation || a.IdClienteNavigation).Cedula
+          } : undefined),
+          empleado: a.empleado || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation ? {
+            id_empleado: (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).idEmpleado || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).IdEmpleado,
+            nombre: (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).nombre || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).Nombre
+          } : undefined),
+          mascota: a.mascota || (a.idMascotaNavigation || a.IdMascotaNavigation ? {
+            id_mascota: (a.idMascotaNavigation || a.IdMascotaNavigation).idMascota || (a.idMascotaNavigation || a.IdMascotaNavigation).IdMascota,
+            nombre_mascota: (a.idMascotaNavigation || a.IdMascotaNavigation).nombreMascota || (a.idMascotaNavigation || a.IdMascotaNavigation).NombreMascota
+          } : undefined),
+          agendamiento_servicios: a.agendamiento_servicios || (a.idServicios || a.IdServicios ? (a.idServicios || a.IdServicios)
+            .filter((s: any) => s !== null)
+            .map((s: any) => ({
+              id_servicio: s.idServicio || s.IdServicio,
+              nombre: s.nombreServicio || s.NombreServicio
+            })) : [])
+        };
+      });
+
+      // Filtrar por cliente si el rol es Cliente
+      if (user?.rol?.toLowerCase().includes('cliente') && user?.id_cliente) {
+        mapped = mapped.filter(c => c.id_cliente === user.id_cliente);
+      }
+
       setCitas(mapped);
     } catch (error) {
       console.error('Error al cargar citas:', error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => { cargarCitas(); }, [cargarCitas]);
 
@@ -96,11 +116,29 @@ export function useAgendamiento() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      setCitas(prev => [...prev, nuevaCita].sort((a, b) => {
+
+      const id = nuevaCita.idAgendamiento || nuevaCita.IdAgendamiento || nuevaCita.id_agendamiento;
+      if (id && citaData.id_mascota) {
+        localStorage.setItem(`cita_mascota_${id}`, citaData.id_mascota.toString());
+      }
+
+      const mappedNueva = {
+        ...nuevaCita,
+        id_agendamiento: id,
+        id_cliente: nuevaCita.idCliente || nuevaCita.IdCliente || nuevaCita.id_cliente || Number(citaData.id_cliente),
+        id_mascota: Number(citaData.id_mascota),
+        id_empleado: nuevaCita.idEmpleado || nuevaCita.IdEmpleado || nuevaCita.id_empleado || Number(citaData.id_empleado),
+        fecha: nuevaCita.fecha || nuevaCita.Fecha || citaData.fecha,
+        hora: nuevaCita.hora || nuevaCita.Hora || citaData.hora,
+        estado: nuevaCita.estado || nuevaCita.Estado || 'activa',
+        agendamiento_servicios: citaData.agendamiento_servicios || []
+      };
+
+      setCitas(prev => [...prev, mappedNueva].sort((a, b) => {
         if (!a.fecha || !b.fecha) return 0;
         return new Date(a.fecha).getTime() - new Date(b.fecha).getTime();
       }));
-      return { success: true, data: nuevaCita };
+      return { success: true, data: mappedNueva };
     } catch (error: any) {
       return { success: false, error: error.message || 'Error al crear cita' };
     } finally {
@@ -125,6 +163,11 @@ export function useAgendamiento() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+
+      if (datosActualizados.id_mascota) {
+        localStorage.setItem(`cita_mascota_${id}`, datosActualizados.id_mascota.toString());
+      }
+
       setCitas(prev => prev.map(c => c.id_agendamiento === id ? { ...c, ...datosActualizados } : c));
       return { success: true, data: citaActualizada };
     } catch (error: any) {
@@ -138,6 +181,7 @@ export function useAgendamiento() {
     setLoading(true);
     try {
       await apiFetch(`${API_URL}/agendamiento/${id}`, { method: 'DELETE' });
+      localStorage.removeItem(`cita_mascota_${id}`);
       setCitas(prev => prev.filter(c => c.id_agendamiento !== id));
       return { success: true };
     } catch (error: any) {

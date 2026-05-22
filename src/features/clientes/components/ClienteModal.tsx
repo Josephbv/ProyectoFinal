@@ -6,6 +6,7 @@ import { Label } from '../../../shared/components/label';
 import { Cliente, useClientes } from '../hooks/useClientes';
 import { User, Phone, Mail, Dog, MapPin, FileText } from 'lucide-react';
 import { useMascotas } from '../../mascotas/hooks/useMascotas';
+import { esEmailValido, soloLetras, esTelefonoValido, esCedulaValida } from '../../../shared/utils/validators';
 
 interface ClienteModalProps {
   isOpen: boolean;
@@ -55,33 +56,43 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
     setErrors({});
   }, [cliente, isOpen]);
 
-  const soloLetras = (valor: string) => /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s'-]+$/.test(valor.trim());
-
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.nombre.trim()) {
-      newErrors.nombre = 'El nombre es obligatorio';
+      newErrors.nombre = 'El nombre es obligatorio.';
     } else if (!soloLetras(formData.nombre)) {
-      newErrors.nombre = 'El nombre no puede contener números';
+      newErrors.nombre = 'Solo se permiten letras. Por favor, retira números o símbolos.';
     } else {
-      // Verificar nombre duplicado (ignorar el cliente actual en edición)
       const nombreDuplicado = clientes.some(
         c => c.nombre.toLowerCase().trim() === formData.nombre.toLowerCase().trim()
           && c.id_cliente !== cliente?.id_cliente
       );
-      if (nombreDuplicado) newErrors.nombre = 'Ya existe un cliente con ese nombre.';
+      if (nombreDuplicado) newErrors.nombre = 'Ya existe un cliente con este nombre exacto.';
     }
 
-    if (!formData.tipo_documento) newErrors.tipo_documento = 'El tipo de documento es obligatorio';
-    if (!formData.cedula.trim()) newErrors.cedula = 'El documento es obligatorio';
-    if (!formData.telefono.trim()) newErrors.telefono = 'El teléfono es obligatorio';
-    if (!formData.direccion.trim()) newErrors.direccion = 'La dirección es obligatoria';
+    if (!formData.tipo_documento) newErrors.tipo_documento = 'Selecciona un tipo de documento.';
+
+    if (!formData.cedula.trim()) {
+      newErrors.cedula = 'La identificación es obligatoria.';
+    } else if (!esCedulaValida(formData.cedula)) {
+      newErrors.cedula = 'Identificación no válida (Debe tener entre 6 y 15 dígitos numéricos).';
+    }
+
+    if (!formData.telefono.trim()) {
+      newErrors.telefono = 'El teléfono es obligatorio.';
+    } else if (!esTelefonoValido(formData.telefono)) {
+      newErrors.telefono = 'Teléfono inválido (debe tener exactamente 10 dígitos numéricos).';
+    }
+
+    if (!formData.direccion.trim()) {
+      newErrors.direccion = 'La dirección es obligatoria.';
+    }
 
     if (!formData.correo.trim()) {
-      newErrors.correo = 'El email es obligatorio';
-    } else if (!/\S+@\S+\.\S+/.test(formData.correo)) {
-      newErrors.correo = 'El email no es válido';
+      newErrors.correo = 'El correo electrónico es obligatorio.';
+    } else if (!esEmailValido(formData.correo)) {
+      newErrors.correo = 'El correo no tiene un formato válido (ej: usuario@correo.com).';
     }
 
     setErrors(newErrors);
@@ -232,6 +243,65 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
               </div>
               {errors.direccion && <p className="text-red-400 text-xs">{errors.direccion}</p>}
             </div>
+
+            {/* Sección Espejo: Pacientes Vinculados */}
+            {cliente && (
+              <div className="space-y-4 pt-6 mt-2 border-t border-dark-color/50 animate-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                      <h3 className="text-xs font-black text-dark-primary uppercase tracking-[0.2em]">Pacientes Vinculados</h3>
+                    </div>
+                    <p className="text-[10px] text-dark-secondary opacity-60">Sincronización automática con base de datos clínica</p>
+                  </div>
+                  <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full text-[10px] font-black text-blue-400 uppercase">
+                    {clienteMascotas.length} {clienteMascotas.length === 1 ? 'Mascota' : 'Mascotas'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                  {clienteMascotas.length > 0 ? (
+                    clienteMascotas.map((m, index) => (
+                      <div
+                        key={m.id_mascota}
+                        className="group relative flex items-center justify-between p-4 bg-dark-hover/30 border border-dark-color/40 rounded-2xl hover:bg-dark-hover/60 hover:border-blue-500/40 transition-all duration-300 hover:scale-[1.02] cursor-default"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 flex items-center justify-center text-2xl group-hover:from-blue-500/20 group-hover:to-indigo-500/20 transition-all">
+                            {m.especie?.toLowerCase().includes('perro') ? '🐕' : m.especie?.toLowerCase().includes('gato') ? '🐈' : '🐾'}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-black text-dark-primary group-hover:text-blue-400 transition-colors uppercase tracking-tight">{m.nombre}</span>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] font-bold text-dark-secondary bg-dark-bg px-2 py-0.5 rounded-md border border-dark-color/50">{m.especie}</span>
+                              <span className="text-[10px] text-dark-secondary italic">{m.raza || 'Raza no definida'}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="text-[9px] font-black text-dark-secondary opacity-40 group-hover:opacity-100 transition-opacity uppercase tracking-tighter">ID: #{m.id_mascota.toString().padStart(4, '0')}</span>
+                          <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-500">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                            Activo
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-10 flex flex-col items-center justify-center border-2 border-dashed border-dark-color/30 rounded-[2rem] bg-dark-hover/10">
+                      <div className="p-3 bg-dark-hover rounded-full mb-3">
+                        <Dog className="w-6 h-6 text-dark-secondary opacity-20" />
+                      </div>
+                      <p className="text-[11px] font-bold text-dark-secondary uppercase tracking-widest opacity-40">Sin mascotas registradas</p>
+                      <p className="text-[9px] text-dark-secondary/60 mt-1">El historial clínico aparecerá aquí automáticamente</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
           </div>
 

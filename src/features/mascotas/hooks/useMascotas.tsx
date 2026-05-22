@@ -1,11 +1,15 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
+import { useEmailAuth } from '../../auth/hooks/useEmailAuth';
 
 export interface Mascota {
   id_mascota: number;
   nombre: string;
   especie: string | null;
   raza: string | null;
+  sexo: string | null; // Nuevo campo
+  color: string | null;
+  rasgos_particulares: string | null;
   edad: number | null;
   fecha_nacimiento: string | null;
   peso: number | null;
@@ -23,31 +27,55 @@ const API_URL = '/api';
 export function useMascotas() {
   const [mascotas, setMascotas] = useState<Mascota[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useEmailAuth();
 
   const cargarMascotas = useCallback(async () => {
     setLoading(true);
     try {
       const data: any[] = await apiFetch(`${API_URL}/mascotas`);
-      const mapped = (data || []).map((m: any) => ({
-        ...m,
-        id_mascota: m.idMascota || m.IdMascota || m.id_mascota,
-        id_cliente: m.idCliente || m.IdCliente || m.id_cliente,
-        nombre: m.nombre || m.Nombre,
-        especie: m.especie || m.Especie,
-        raza: m.raza || m.Raza,
-        cliente: m.cliente || (m.idClienteNavigation || m.IdClienteNavigation ? {
-          id_cliente: (m.idClienteNavigation || m.IdClienteNavigation).idCliente || (m.idClienteNavigation || m.IdClienteNavigation).IdCliente,
-          nombre: (m.idClienteNavigation || m.IdClienteNavigation).nombre || (m.idClienteNavigation || m.IdClienteNavigation).Nombre,
-          cedula: (m.idClienteNavigation || m.IdClienteNavigation).cedula || (m.idClienteNavigation || m.IdClienteNavigation).Cedula
-        } : undefined)
-      }));
+      let mapped = (data || []).map((m: any) => {
+        const id = m.idMascota || m.IdMascota || m.id_mascota;
+        // El backend no devuelve sexo/color/rasgos en GET, restaurar desde localStorage
+        const stored = localStorage.getItem(`mascota_extra_${id}`);
+        const extra = stored ? JSON.parse(stored) : {};
+        return {
+          ...m,
+          id_mascota: id,
+          id_cliente: m.idCliente || m.IdCliente || m.id_cliente,
+          nombre: m.nombre || m.Nombre,
+          especie: m.especie || m.Especie,
+          raza: m.raza || m.Raza,
+          sexo: m.sexo || m.Sexo || m.sex || m.Sex || extra.sexo || null,
+          color: m.color || m.Color || extra.color || null,
+          rasgos_particulares: m.rasgos_particulares || m.RasgosParticulares || extra.rasgos_particulares || null,
+          edad: m.edad ?? m.Edad ?? null,
+          peso: m.peso ?? m.Peso ?? null,
+          vacunas: m.vacunas || m.Vacunas || null,
+          observaciones: m.observaciones || m.Observaciones || null,
+          foto: m.foto || m.Foto || null,
+          fecha_nacimiento: m.fecha_nacimiento || m.fechaNacimiento || m.FechaNacimiento || null,
+          fecha_desparasitacion: m.fecha_desparasitacion || m.fechaDesparasitacion || m.FechaDesparasitacion || null,
+          fecha_ultima_vacuna: m.fecha_ultima_vacuna || m.fechaUltimaVacuna || m.FechaUltimaVacuna || null,
+          cliente: m.cliente || (m.idClienteNavigation || m.IdClienteNavigation ? {
+            id_cliente: (m.idClienteNavigation || m.IdClienteNavigation).idCliente || (m.idClienteNavigation || m.IdClienteNavigation).IdCliente,
+            nombre: (m.idClienteNavigation || m.IdClienteNavigation).nombre || (m.idClienteNavigation || m.IdClienteNavigation).Nombre,
+            cedula: (m.idClienteNavigation || m.IdClienteNavigation).cedula || (m.idClienteNavigation || m.IdClienteNavigation).Cedula
+          } : undefined)
+        };
+      });
+
+      // Filtrar por cliente si el rol es Cliente
+      if (user?.rol?.toLowerCase().includes('cliente') && user?.id_cliente) {
+        mapped = mapped.filter(m => m.id_cliente === user.id_cliente);
+      }
+
       setMascotas(mapped);
     } catch (error) {
       console.error('Error al cargar mascotas:', error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => { cargarMascotas(); }, [cargarMascotas]);
 
@@ -58,6 +86,9 @@ export function useMascotas() {
         Nombre: mascotaData.nombre,
         Especie: mascotaData.especie,
         Raza: mascotaData.raza,
+        Sexo: mascotaData.sexo,
+        Color: (mascotaData as any).color || null,
+        RasgosParticulares: (mascotaData as any).rasgos_particulares || null,
         Edad: mascotaData.edad ? Number(mascotaData.edad) : null,
         Peso: mascotaData.peso ? Number(mascotaData.peso) : null,
         Observaciones: mascotaData.observaciones,
@@ -74,8 +105,24 @@ export function useMascotas() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      setMascotas(prev => [nueva, ...prev]);
-      return { success: true, data: nueva };
+      const id = nueva.idMascota || nueva.IdMascota || nueva.id_mascota;
+      // Persistir campos que el backend no devuelve en GET
+      if (mascotaData.sexo || (mascotaData as any).color || (mascotaData as any).rasgos_particulares) {
+        localStorage.setItem(`mascota_extra_${id}`, JSON.stringify({
+          sexo: mascotaData.sexo || null,
+          color: (mascotaData as any).color || null,
+          rasgos_particulares: (mascotaData as any).rasgos_particulares || null
+        }));
+      }
+      const mappedNueva = {
+        ...nueva,
+        id_mascota: id,
+        sexo: mascotaData.sexo || null,
+        color: (mascotaData as any).color || null,
+        rasgos_particulares: (mascotaData as any).rasgos_particulares || null
+      };
+      setMascotas(prev => [mappedNueva, ...prev]);
+      return { success: true, data: mappedNueva };
     } catch (error: any) {
       return { success: false, error: error.message };
     } finally {
@@ -91,6 +138,9 @@ export function useMascotas() {
         Nombre: mascotaData.nombre,
         Especie: mascotaData.especie,
         Raza: mascotaData.raza,
+        Sexo: mascotaData.sexo,
+        Color: (mascotaData as any).color || null,
+        RasgosParticulares: (mascotaData as any).rasgos_particulares || null,
         Edad: mascotaData.edad ? Number(mascotaData.edad) : null,
         Peso: mascotaData.peso ? Number(mascotaData.peso) : null,
         Observaciones: mascotaData.observaciones,
@@ -107,6 +157,12 @@ export function useMascotas() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+      // Persistir campos que el backend no devuelve en GET
+      localStorage.setItem(`mascota_extra_${id}`, JSON.stringify({
+        sexo: mascotaData.sexo || null,
+        color: (mascotaData as any).color || null,
+        rasgos_particulares: (mascotaData as any).rasgos_particulares || null
+      }));
       setMascotas(prev => prev.map(m => m.id_mascota === id ? { ...m, ...mascotaData } : m));
       return { success: true };
     } catch (error: any) {

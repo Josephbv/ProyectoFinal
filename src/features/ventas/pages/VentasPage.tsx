@@ -3,12 +3,15 @@ import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
-import { Plus, Search, ShoppingCart, Calendar, Trash2, User, DollarSign, Stethoscope, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Tag, Fingerprint, AlertTriangle } from "lucide-react";
+import { Plus, Search, ShoppingCart, Calendar, Trash2, User, DollarSign, Stethoscope, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Tag, Fingerprint, AlertTriangle, X } from "lucide-react";
 import { useVentas, Venta, VentaServicio } from "../hooks/useVentas";
 import { VentaModal } from "../components/VentaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 import { useAgendamiento, Agendamiento } from "../../agendamiento/hooks/useAgendamiento";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
+import { useMascotas } from "../../mascotas/hooks/useMascotas";
+import { useServicios } from "../../servicios/hooks/useServicios";
+import { Dog, Briefcase } from "lucide-react";
 
 interface VentasPageProps {
   onNewSale?: () => void;
@@ -18,7 +21,9 @@ interface VentasPageProps {
 
 export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPageProps) {
   const { ventas, loading, crearVenta, anularVenta, eliminarVenta } = useVentas();
-  const { actualizarCita } = useAgendamiento();
+  const { actualizarCita, citas } = useAgendamiento();
+  const { mascotas } = useMascotas();
+  const { servicios } = useServicios();
   const { user } = useEmailAuth();
 
   const [busqueda, setBusqueda] = useState("");
@@ -187,13 +192,13 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                     <div className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400" />Cliente</div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold min-w-[120px]">
-                    <div className="flex items-center gap-2"><Fingerprint className="w-4 h-4 text-blue-400" />Doc.</div>
+                    <div className="flex items-center gap-2"><Dog className="w-4 h-4 text-emerald-400" />Mascota</div>
                   </TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center w-24">
-                    <div className="flex items-center justify-center gap-2"><Stethoscope className="w-4 h-4 text-blue-400" />Serv.</div>
+                  <TableHead className="text-dark-primary font-semibold min-w-[180px]">
+                    <div className="flex items-center gap-2"><Briefcase className="w-4 h-4 text-blue-400" />Procedimientos</div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-right min-w-[100px]">
-                    <div className="flex items-center justify-end gap-2"><DollarSign className="w-4 h-4 text-blue-400" />Total</div>
+                    <div className="flex items-center justify-end gap-2"><DollarSign className="w-4 h-4 text-blue-400" />Total Cobrado</div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-center w-24">
                     <div className="flex items-center justify-center gap-2"><Tag className="w-3.5 h-3.5 text-blue-400" />Estado</div>
@@ -209,20 +214,64 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                       {venta.fecha ? venta.fecha.split('T')[0] : ''}
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium text-dark-primary">{venta.cliente?.nombre || 'Desconocido'}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm font-medium text-dark-secondary">
-                        {venta.cliente?.cedula || venta.cliente?.documento || (venta as any).cedulaCliente || 'S/D'}
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                          {(venta.cliente?.nombre || '?').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-dark-primary text-sm">{venta.cliente?.nombre || 'Cliente desconocido'}</div>
+                          <div className="text-[10px] text-dark-primary font-mono">{venta.cliente?.cedula || '—'}</div>
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-center">
-                      <span className="inline-flex items-center justify-center bg-dark-hover text-dark-primary rounded-full w-8 h-8 text-xs font-bold">
-                        {contarServicios(venta.venta_servicios)}
-                      </span>
+                    <TableCell>
+                      {(() => {
+                        const idMascota = venta.id_mascota || (venta as any).IdMascota ||
+                          citas.find(c => c.id_agendamiento === (venta as any).id_agendamiento)?.id_mascota;
+                        let mascota = idMascota ? mascotas.find(m => m.id_mascota === idMascota) : null;
+                        
+                        // Fallback: Si la venta no tiene mascota asignada directamente, busca la del cliente
+                        if (!mascota && venta.id_cliente) {
+                          mascota = mascotas.find(m => Number(m.id_cliente) === Number(venta.id_cliente));
+                        }
+
+                        return mascota ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{mascota.especie?.toLowerCase().includes('perro') || mascota.especie?.toLowerCase().includes('canino') ? '🐕' : mascota.especie?.toLowerCase().includes('gato') || mascota.especie?.toLowerCase().includes('felino') ? '🐈' : '🐾'}</span>
+                            <div>
+                              <span className="text-sm font-bold text-emerald-400 block">{mascota.nombre}</span>
+                              <span className="text-[10px] text-dark-secondary">{mascota.especie}{mascota.raza ? ` · ${mascota.raza}` : ''}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-dark-secondary italic opacity-60">Sin mascota</span>
+                        );
+                      })()}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1.5 max-w-[280px]">
+                        {venta.venta_servicios && venta.venta_servicios.length > 0 ? (
+                          venta.venta_servicios.map((vs, idx) => {
+                            const sInfo = servicios.find(s => s.id_servicio === vs.id_servicio);
+                            const nombre = vs.servicio?.nombre_servicio || sInfo?.nombre_servicio || 'Servicio';
+                            return (
+                              <div key={idx} className="flex items-center gap-2 p-1.5 rounded-lg bg-dark-hover/50 border border-dark-color/50 hover:border-blue-500/20 transition-colors group">
+                                <div className="w-7 h-7 rounded-md bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition-colors">
+                                  <Stethoscope className="w-3.5 h-3.5 text-blue-400" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-[11px] font-bold text-dark-primary truncate leading-tight">{nombre}</p>
+                                </div>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <span className="text-[10px] text-dark-secondary italic opacity-60">Consumo general</span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className="font-bold text-emerald-400">${(venta.total || 0).toLocaleString()}</span>
+                      <span className="font-black text-dark-primary text-base">${(venta.total || 0).toLocaleString()}</span>
                     </TableCell>
                     <TableCell className="text-center">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${venta.estado === 'anulada' ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'
@@ -310,52 +359,86 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
 
       {/* Diálogo de Anulación con Motivo */}
       {anularDialog.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setAnularDialog({ isOpen: false, venta: null, motivo: '' })} />
-          <div className="relative z-10 w-full max-w-md bg-dark-card border border-red-500/30 rounded-2xl shadow-2xl shadow-red-500/10 p-6 space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-red-500/15 rounded-xl">
-                <AlertTriangle className="w-5 h-5 text-red-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setAnularDialog({ isOpen: false, venta: null, motivo: '' })} />
+          <div className="relative z-10 w-full max-w-md animate-in zoom-in-95 duration-200">
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+
+              {/* Header */}
+              <div className="bg-gradient-to-br from-orange-500 to-red-600 p-6 relative">
+                <button
+                  onClick={() => setAnularDialog({ isOpen: false, venta: null, motivo: '' })}
+                  className="absolute top-3 right-3 text-white/70 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-white/20 rounded-full animate-ping" />
+                    <div className="relative w-12 h-12 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/30">
+                      <AlertTriangle className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-white">Anular Factura</h3>
+                    <p className="text-orange-100 text-xs font-medium">
+                      Factura #{anularDialog.venta?.id_venta?.toString().padStart(5, '0')} · Esta acción no se puede deshacer
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-dark-primary">¿Anular Factura?</h3>
-                <p className="text-xs text-dark-secondary">Factura #{anularDialog.venta?.id_venta?.toString().padStart(5, '0')}</p>
+
+              {/* Body */}
+              <div className="p-6 space-y-4">
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                  <p className="text-xs text-amber-700 leading-relaxed">
+                    La factura quedará marcada como <strong>ANULADA</strong> y no podrá ser modificada. El motivo quedará registrado en el sistema.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wide">
+                      Motivo de anulación <span className="text-red-500">*</span>
+                    </label>
+                    <span className={`text-xs font-semibold ${anularDialog.motivo.trim().length >= 10 ? 'text-green-500' : 'text-gray-400'}`}>
+                      {anularDialog.motivo.trim().length}/10 mín.
+                    </span>
+                  </div>
+                  <textarea
+                    value={anularDialog.motivo}
+                    onChange={e => setAnularDialog(prev => ({ ...prev, motivo: e.target.value }))}
+                    placeholder="Ej: Error en el precio, cliente solicitó cancelación..."
+                    rows={3}
+                    autoFocus
+                    className="w-full bg-gray-50 border-2 border-gray-200 focus:border-orange-400 rounded-2xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none resize-none transition-all"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setAnularDialog({ isOpen: false, venta: null, motivo: '' })}
+                    disabled={loading}
+                    className="flex-1 h-11 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-semibold transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAnularVenta}
+                    disabled={loading || anularDialog.motivo.trim().length < 10}
+                    className="flex-1 h-11 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-red-200 flex items-center justify-center gap-2"
+                  >
+                    {loading
+                      ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Anulando...</>
+                      : <><AlertTriangle className="w-4 h-4" />Anular Factura</>
+                    }
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <p className="text-sm text-dark-secondary">
-              Esta action <span className="text-red-400 font-semibold">no se puede deshacer</span>. Por favor indica el motivo de la anulación.
-            </p>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-dark-primary uppercase tracking-wide">Motivo de Anulación *</label>
-              <textarea
-                value={anularDialog.motivo}
-                onChange={e => setAnularDialog(prev => ({ ...prev, motivo: e.target.value }))}
-                placeholder="Ej: Error en el precio, cliente solicitó cancelación..."
-                rows={3}
-                className="w-full bg-dark-hover border border-dark-color rounded-xl px-4 py-3 text-sm text-dark-primary placeholder-dark-secondary focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500/50 resize-none transition-all"
-                autoFocus
-              />
-            </div>
-
-            <div className="flex gap-3 pt-1">
-              <button
-                type="button"
-                onClick={() => setAnularDialog({ isOpen: false, venta: null, motivo: '' })}
-                className="flex-1 dark-button-secondary"
-                disabled={loading}
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleAnularVenta}
-                disabled={loading || !anularDialog.motivo.trim()}
-                className="flex-1 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition-all shadow-lg shadow-red-500/20"
-              >
-                {loading ? 'Anulando...' : 'Sí, Anular Ahora'}
-              </button>
             </div>
           </div>
         </div>

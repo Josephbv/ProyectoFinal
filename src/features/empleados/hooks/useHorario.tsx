@@ -10,6 +10,10 @@ export interface Horario {
   disponible?: boolean;
   observaciones?: string;
   empleado?: any;
+  // Propiedades Virtuales para Gestión Avanzada
+  es_rotativo?: boolean;
+  tipo_turno?: 'mañana' | 'tarde' | 'integral' | 'nocturno';
+  horas_laboradas?: number;
 }
 
 const API_URL = '/api';
@@ -27,21 +31,38 @@ export function useHorario() {
         setLoading(false);
         return;
       }
-      const mapped = data.map((h: any) => ({
-        ...h,
-        id_horario: h.idHorario || h.IdHorario || h.id_horario,
-        dia_semana: h.diaSemana || h.DiaSemana || h.dia_semana,
-        hora_inicio: h.horaInicio || h.HoraInicio || h.hora_inicio,
-        hora_fin: h.horaFin || h.HoraFin || h.hora_fin,
-        id_empleado: h.idEmpleado || h.IdEmpleado || h.id_empleado,
-        disponible: h.disponible !== undefined ? h.disponible : h.Disponible,
-        empleado: h.empleado || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation ? {
-          id_empleado: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).idEmpleado || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).IdEmpleado,
-          nombre: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).nombre || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).Nombre,
-          cedula: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).cedula || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).Cedula,
-          cargo: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).cargo || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).Cargo
-        } : undefined)
-      }));
+      const mapped = data.map((h: any) => {
+        const start = h.horaInicio || h.HoraInicio || h.hora_inicio;
+        const end = h.horaFin || h.HoraFin || h.hora_fin;
+
+        // Cálculo de horas laboradas
+        let horas = 0;
+        if (start && end) {
+          const [h1, m1] = start.split(':').map(Number);
+          const [h2, m2] = end.split(':').map(Number);
+          horas = (h2 + m2 / 60) - (h1 + m1 / 60);
+          if (horas < 0) horas += 24; // Cruce de medianoche
+        }
+
+        return {
+          ...h,
+          id_horario: h.idHorario || h.IdHorario || h.id_horario,
+          dia_semana: h.diaSemana || h.DiaSemana || h.dia_semana,
+          hora_inicio: start,
+          hora_fin: end,
+          id_empleado: h.idEmpleado || h.IdEmpleado || h.id_empleado,
+          disponible: h.disponible !== undefined ? h.disponible : h.Disponible,
+          horas_laboradas: Number(horas.toFixed(2)),
+          tipo_turno: horas > 8 ? 'integral' : (parseInt(start) < 12 ? 'mañana' : 'tarde'),
+          es_rotativo: horas > 0 && horas < 6, // Un turno corto se considera rotativo/refuerzo
+          empleado: h.empleado || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation ? {
+            id_empleado: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).idEmpleado || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).IdEmpleado,
+            nombre: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).nombre || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).Nombre,
+            cedula: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).cedula || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).Cedula,
+            cargo: (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).cargo || (h.idEmpleadoNavigation || h.IdEmpleadoNavigation).Cargo
+          } : undefined)
+        };
+      });
       setHorarios(mapped);
     } catch (error) {
       console.error('Error al cargar horarios:', error);

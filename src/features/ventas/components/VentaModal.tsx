@@ -8,6 +8,7 @@ import { ShoppingCart, Calendar, User, DollarSign, Stethoscope, Trash2, AlertTri
 import { Venta, VentaServicio } from '../hooks/useVentas';
 import { useClientes } from '../../clientes/hooks/useClientes';
 import { useServicios } from '../../servicios/hooks/useServicios';
+import { useMascotas } from '../../mascotas/hooks/useMascotas';
 import { Agendamiento } from '../../agendamiento/hooks/useAgendamiento';
 
 interface VentaModalProps {
@@ -23,10 +24,12 @@ interface VentaModalProps {
 export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loading, readOnly = false }: VentaModalProps) {
   const { clientes } = useClientes();
   const { servicios } = useServicios();
+  const { mascotas } = useMascotas();
 
   const [formData, setFormData] = useState({
     fecha: new Date().toISOString().split('T')[0],
     id_cliente: '',
+    id_mascota: '',
     total: 0,
     venta_servicios: [] as { id_servicio: number; cantidad: number; precio_unitario: number }[]
   });
@@ -43,6 +46,7 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
       setFormData({
         fecha: new Date().toISOString().split('T')[0],
         id_cliente: '',
+        id_mascota: '',
         total: 0,
         venta_servicios: []
       });
@@ -76,6 +80,9 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
       setFormData({
         fecha: venta.fecha ? new Date(venta.fecha).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         id_cliente: venta.id_cliente ? venta.id_cliente.toString() : '',
+        id_mascota: venta.id_mascota ? venta.id_mascota.toString() : (
+          mascotas.find(m => Number(m.id_cliente) === Number(venta.id_cliente))?.id_mascota?.toString() || ''
+        ),
         total: venta.total || 0,
         venta_servicios: serviciosCargados
       });
@@ -102,6 +109,7 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
       setFormData({
         fecha: new Date().toISOString().split('T')[0],
         id_cliente: clientID,
+        id_mascota: citaPrevia.id_mascota?.toString() || '',
         total: serviciosCargar.reduce((acc: number, s: any) => acc + s.precio_unitario, 0),
         venta_servicios: serviciosCargar
       });
@@ -111,6 +119,7 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
       setFormData({
         fecha: new Date().toISOString().split('T')[0],
         id_cliente: '',
+        id_mascota: '',
         total: 0,
         venta_servicios: []
       });
@@ -148,21 +157,13 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.fecha) {
-      newErrors.fecha = 'La fecha es requerida';
-    } else if (!venta) {
-      // Solo validar fechas pasadas para ventas NUEVAS
-      const selectedDate = new Date(formData.fecha + 'T12:00:00');
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (selectedDate < today) {
-        newErrors.fecha = 'No se pueden registrar ventas con fechas anteriores al día de hoy';
-      }
+    if (!formData.id_cliente) {
+      newErrors.id_cliente = 'Debes seleccionar un cliente para el cobro.';
     }
 
-    if (!formData.id_cliente) newErrors.id_cliente = 'Debes seleccionar un cliente';
-    if (formData.venta_servicios.length === 0) newErrors.servicios = 'Debe agregar al menos un servicio a la venta';
+    if (formData.venta_servicios.length === 0) {
+      newErrors.servicios = 'El carrito está vacío. Añade al menos un servicio.';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -172,10 +173,14 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
     e.preventDefault();
     if (!validateForm()) return;
 
+    const selectedClient = clientes.find(c => c.id_cliente === parseInt(formData.id_cliente));
+
     const apiData: any = {
       fecha: formData.fecha,
       id_cliente: parseInt(formData.id_cliente),
+      id_mascota: formData.id_mascota ? parseInt(formData.id_mascota) : null,
       total: formData.total,
+      cliente: selectedClient ? { id_cliente: selectedClient.id_cliente, nombre: selectedClient.nombre, cedula: selectedClient.cedula } : undefined,
       venta_servicios: formData.venta_servicios.map(vs => ({
         id_servicio: vs.id_servicio,
         cantidad: vs.cantidad
@@ -191,7 +196,12 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
   };
 
   const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    // Al cambiar de cliente, limpiar la mascota seleccionada
+    if (field === 'id_cliente') {
+      setFormData(prev => ({ ...prev, id_cliente: value, id_mascota: '' }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
   };
 
@@ -264,6 +274,40 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
                 {errors.id_cliente && <p className="text-red-400 text-xs">{errors.id_cliente}</p>}
               </div>
 
+              <div className="space-y-2">
+                <Label className="text-dark-primary flex items-center gap-1.5">
+                  <span className="text-base">🐾</span> Mascota del Cliente
+                </Label>
+                <Select
+                  value={formData.id_mascota || ''}
+                  onValueChange={(val: string) => handleChange('id_mascota', val)}
+                  disabled={readOnly || !!citaPrevia || !formData.id_cliente}
+                >
+                  <SelectTrigger className={`bg-dark-hover border-dark-color text-dark-primary h-10 ${!formData.id_cliente ? 'opacity-50' : ''}`}>
+                    <SelectValue placeholder={formData.id_cliente ? 'Seleccionar mascota...' : 'Primero selecciona un cliente'} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-dark-card border-dark-color">
+                    <SelectItem value="none">Sin mascota / No aplica</SelectItem>
+                    {mascotas
+                      .filter(m => m.id_cliente === parseInt(formData.id_cliente))
+                      .map((m, idx) => (
+                        <SelectItem key={`${m.id_mascota || idx}`} value={String(m.id_mascota || '')}>
+                          <div className="flex items-center gap-2">
+                            <span>{m.especie?.toLowerCase().includes('perro') || m.especie?.toLowerCase().includes('canino') ? '🐕' : m.especie?.toLowerCase().includes('gato') || m.especie?.toLowerCase().includes('felino') ? '🐈' : '🐾'}</span>
+                            <span className="font-semibold">{m.nombre}</span>
+                            {(m.especie || m.raza) && (
+                              <span className="text-dark-secondary text-xs italic">{[m.especie, m.raza].filter(Boolean).join(' · ')}</span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    {formData.id_cliente && mascotas.filter(m => m.id_cliente === parseInt(formData.id_cliente)).length === 0 && (
+                      <div className="px-3 py-2 text-xs text-dark-secondary italic">Este cliente no tiene mascotas registradas</div>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Fecha */}
               <div className="space-y-2">
                 <Label className="text-dark-primary flex items-center gap-1.5"><Calendar className="w-4 h-4 text-pink-400" />Fecha *</Label>
@@ -314,7 +358,14 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
                       <div key={`${item.id_servicio}-${idx}`} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-dark-hover/50 border border-dark-color gap-3">
                         <div className="flex-1">
                           <span className="text-sm font-medium text-dark-primary">{s_info?.nombre_servicio || 'Servicio Desconocido'}</span>
-                          <div className="text-xs text-dark-secondary">${item.precio_unitario.toLocaleString()} c/u</div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-xs text-dark-secondary">${item.precio_unitario.toLocaleString()} c/u</span>
+                            {s_info?.duracion && (
+                              <span className="text-[10px] bg-dark-bg px-1.5 py-0.5 rounded border border-dark-color text-dark-secondary">
+                                {s_info.duracion} min
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         <div className="flex items-center gap-4">

@@ -10,6 +10,7 @@ import { formatTo12h } from '../../../shared/utils/formatTime';
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { MailService } from "../../../shared/services/MailService";
 import { useClientes } from "../../clientes/hooks/useClientes";
+import { useHistorialMascotas } from "../../historial/hooks/useHistorialMascotas";
 
 interface AgendamientoPageProps {
   onNavigate?: (page: string) => void;
@@ -20,6 +21,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
   const { citas, loading, agendarCita, actualizarCita, eliminarCita } = useAgendamiento();
   const { user } = useEmailAuth();
   const { clientes } = useClientes();
+  const { crearEntradaHistorial } = useHistorialMascotas();
 
   const [busqueda, setBusqueda] = useState("");
   const [citaModal, setCitaModal] = useState({ isOpen: false, cita: null as Agendamiento | null, readOnly: false });
@@ -86,9 +88,37 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
 
   const handleActualizarCita = async (citaData: Partial<Agendamiento>) => {
     if (!citaModal.cita) return { success: false };
+
+    const intentandoCompletar = citaData.estado === 'completada' && citaModal.cita.estado !== 'completada';
+
     const result = await actualizarCita(citaModal.cita.id_agendamiento, { ...citaModal.cita, ...citaData });
+
     if (result.success) {
       toast.success("Cita actualizada exitosamente");
+
+      // AUTO-GENERAR HISTORIAL CLÍNICO SI SE COMPLETA
+      if (intentandoCompletar && citaModal.cita.id_mascota) {
+        try {
+          const serviciosNombres = citaModal.cita.agendamiento_servicios?.map(as => as.servicio?.nombre_servicio).filter(Boolean).join(', ') || 'Consulta General';
+
+          await crearEntradaHistorial({
+            id_mascota: citaModal.cita.id_mascota,
+            fecha: new Date().toISOString().split('T')[0],
+            motivoConsulta: `Atención programada: ${serviciosNombres}`,
+            descripcion: `Registro automático generado desde módulo de agendamiento. Servicios realizados: ${serviciosNombres}`,
+            veterinario: citaModal.cita.empleado?.nombre || 'Personal KaiVet',
+            tipoVisita: ['Cita Programada'],
+            diagnostico: 'Pendiente de valoración detallada',
+            tratamiento: 'Pendiente',
+            estado: 'normal'
+          });
+          toast.success("🩺 Historial clínico actualizado automáticamente");
+        } catch (hErr) {
+          console.error("Error al auto-generar historial:", hErr);
+          toast.error("Cita guardada, pero hubo un error actualizando el historial clínico.");
+        }
+      }
+
       return { success: true };
     } else {
       toast.error(result.error || "Error al actualizar cita");
@@ -198,6 +228,18 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                               <Button onClick={() => abrirCitaModal(cita)} variant="outline" size="sm" className="p-2 bg-amber-500/20 border-amber-500 text-amber-400">
                                 <Edit className="w-4 h-4" />
                               </Button>
+                              {/* Botón Pagar — solo para citas ACTIVAS (no completadas) */}
+                              {estadoFinal !== 'completada' && onPagar && !isVetRole && (
+                                <Button
+                                  onClick={() => onPagar(cita)}
+                                  variant="outline"
+                                  size="sm"
+                                  className="p-2 bg-green-500/20 border-green-500 text-green-400 hover:bg-green-500/30"
+                                  title="Registrar pago"
+                                >
+                                  <DollarSign className="w-4 h-4" />
+                                </Button>
+                              )}
                               <Button onClick={() => setDeleteDialog({ isOpen: true, cita })} variant="outline" size="sm" className="p-2 bg-red-500/20 border-red-500 text-red-400" disabled={estadoFinal === 'completada'}>
                                 <Trash2 className="w-4 h-4" />
                               </Button>

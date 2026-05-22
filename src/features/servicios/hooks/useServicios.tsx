@@ -6,6 +6,7 @@ export interface Servicio {
   nombre_servicio: string;
   precio: number;
   descripcion: string | null;
+  duracion: number; // Duración en minutos
   // Campos mapeados para el frontend
   id?: number;
   nombre?: string;
@@ -22,13 +23,25 @@ export function useServicios() {
     setLoading(true);
     try {
       const data: any[] = await apiFetch(`${API_URL}/servicios`);
-      const mapped = (data || []).map((s: any) => ({
-        ...s,
-        id_servicio: s.idServicio || s.IdServicio || s.id_servicio,
-        nombre_servicio: s.nombreServicio || s.NombreServicio || s.nombre_servicio || s.nombre || s.Nombre,
-        precio: s.precio || s.Precio,
-        estado: s.estado || s.Estado || 'activo'
-      }));
+      const mapped = (data || []).map((s: any) => {
+        const nombre = (s.nombreServicio || s.NombreServicio || s.nombre_servicio || s.nombre || s.Nombre || '').toLowerCase();
+        let duracion = 30; // Default
+
+        if (nombre.includes('cirugia') || nombre.includes('cirugía')) duracion = 120;
+        else if (nombre.includes('baño') || nombre.includes('peluqueria') || nombre.includes('grooming')) duracion = 60;
+        else if (nombre.includes('vacuna') || nombre.includes('inyeccion')) duracion = 15;
+        else if (nombre.includes('consulta') || nombre.includes('control')) duracion = 30;
+        else if (nombre.includes('limpieza')) duracion = 45;
+
+        return {
+          ...s,
+          id_servicio: s.idServicio || s.IdServicio || s.id_servicio,
+          nombre_servicio: s.nombreServicio || s.NombreServicio || s.nombre_servicio || s.nombre || s.Nombre,
+          precio: s.precio || s.Precio,
+          duracion: s.duracion || s.Duracion || duracion,
+          estado: s.estado || s.Estado || 'activo'
+        };
+      });
       setServicios(mapped);
     } catch (error) {
       console.error('Error al cargar servicios:', error);
@@ -46,6 +59,7 @@ export function useServicios() {
         NombreServicio: servicioData.nombre_servicio || servicioData.nombre,
         Precio: servicioData.precio,
         Descripcion: servicioData.descripcion,
+        Duracion: servicioData.duracion || 30,
         Estado: servicioData.estado || 'activo',
       };
       const nuevo = await apiFetch(`${API_URL}/servicios`, {
@@ -75,6 +89,7 @@ export function useServicios() {
         NombreServicio: (servicioData as any).NombreServicio || servicioData.nombre_servicio || servicioData.nombre,
         Precio: (servicioData as any).Precio ?? servicioData.precio,
         Descripcion: (servicioData as any).Descripcion ?? servicioData.descripcion,
+        Duracion: (servicioData as any).Duracion ?? servicioData.duracion,
         Estado: (servicioData as any).Estado ?? servicioData.estado,
       };
       await apiFetch(`${API_URL}/servicios/${id}`, {
@@ -82,7 +97,7 @@ export function useServicios() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      setServicios(prev => prev.map(s => s.id_servicio === id ? { ...s, nombre_servicio: payload.NombreServicio, precio: payload.Precio, descripcion: payload.Descripcion, estado: payload.Estado } : s));
+      setServicios(prev => prev.map(s => s.id_servicio === id ? { ...s, nombre_servicio: payload.NombreServicio, precio: payload.Precio, descripcion: payload.Descripcion, duracion: payload.Duracion, estado: payload.Estado } : s));
       return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message };

@@ -24,7 +24,8 @@ import {
     MapPin
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Mascota } from '../hooks/useMascotas';
+import { useMascotas, Mascota } from "../hooks/useMascotas";
+import { esEmailValido, soloLetras } from '../../../shared/utils/validators';
 import { useClientes } from '../../clientes/hooks/useClientes';
 import { useEmailAuth } from '../../auth/hooks/useEmailAuth';
 
@@ -52,10 +53,11 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
     const roleName = typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '';
     const isClienteRole = roleName.toLowerCase().includes('cliente');
     const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState<Partial<Mascota>>({
+    const [formData, setFormData] = useState<Partial<Mascota & { sexo?: string; color?: string; rasgos_particulares?: string }>>({
         nombre: '',
         especie: '',
         raza: '',
+        sexo: '',
         id_cliente: isClienteRole && user?.id_cliente ? user.id_cliente : 0,
         edad: null,
         fecha_nacimiento: '',
@@ -64,7 +66,9 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
         fecha_ultima_vacuna: '',
         fecha_desparasitacion: '',
         observaciones: '',
-        foto: ''
+        foto: '',
+        color: '',
+        rasgos_particulares: ''
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -76,12 +80,11 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
     const [currentVacuna, setCurrentVacuna] = useState({ nombre: '', fecha: new Date().toISOString().split('T')[0] });
     const [vacunaError, setVacunaError] = useState('');
 
+    const mascotaId = mascota?.id_mascota;
     useEffect(() => {
         const formatDateForInput = (date: any) => {
             if (!date) return '';
-            // Si ya es un string YYYY-MM-DD, no hacer nada
             if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
-            // Si es un objeto Date o un string ISO
             try {
                 const d = new Date(date);
                 if (isNaN(d.getTime())) return '';
@@ -94,13 +97,15 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
         if (mascota) {
             setFormData({
                 ...mascota,
+                sexo: mascota.sexo || '',
+                color: mascota.color || '',
+                rasgos_particulares: mascota.rasgos_particulares || '',
                 fecha_nacimiento: formatDateForInput(mascota.fecha_nacimiento),
                 fecha_desparasitacion: formatDateForInput(mascota.fecha_desparasitacion),
                 fecha_ultima_vacuna: formatDateForInput(mascota.fecha_ultima_vacuna)
             });
             setSearchTerm(mascota.cliente?.nombre || '');
 
-            // Parsear vacunas JSON
             if (mascota.vacunas) {
                 try {
                     const parsed = JSON.parse(mascota.vacunas);
@@ -137,16 +142,24 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                 if (c) defaultSearchTerm = c.nombre;
             }
 
-            setFormData({
-                nombre: '', especie: '', raza: '', id_cliente: defaultClientId,
-                edad: null, fecha_nacimiento: '', peso: null, vacunas: '',
-                fecha_ultima_vacuna: '', fecha_desparasitacion: '', observaciones: '', foto: ''
+            setFormData(prev => {
+                // Si ya tenemos datos y no hay mascota, no resetear si solo cambiaron los clientes
+                if (prev.nombre && !mascotaId) return prev;
+
+                return {
+                    nombre: '', especie: '', raza: '', sexo: '', id_cliente: defaultClientId,
+                    edad: null, fecha_nacimiento: '', peso: null, vacunas: '',
+                    fecha_ultima_vacuna: '', fecha_desparasitacion: '', observaciones: '', foto: '',
+                    color: '', rasgos_particulares: ''
+                };
             });
-            setSearchTerm(defaultSearchTerm);
-            setListaVacunas([]);
-            setTieneVacunas(false);
+
+            if (!mascotaId) {
+                // Solo actualizar término de búsqueda si está vacío
+                setSearchTerm(prev => prev || defaultSearchTerm);
+            }
         }
-    }, [mascota, initialClientId, clientes, isClienteRole, user?.id_cliente]);
+    }, [mascotaId, initialClientId, clientes.length, isClienteRole, user?.id_cliente]);
 
     const isLoading = externalLoading || loading;
 
@@ -162,20 +175,65 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
 
     const selectedCliente = clientes.find(c => c.id_cliente === formData.id_cliente);
 
-    const soloLetras = (valor: string) => /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s'-]+$/.test(valor.trim());
-
     const handleSubmit = async (e: React.FormEvent, keepEditing = false) => {
         e.preventDefault();
         const newErrors: Record<string, string> = {};
-        if (!formData.nombre) newErrors.nombre = 'El nombre es requerido';
-        else if (!soloLetras(formData.nombre)) newErrors.nombre = 'El nombre no puede contener números';
-        if (!formData.id_cliente) newErrors.id_cliente = 'El dueño / cliente es requerido';
-        if (!formData.especie || !formData.especie.trim()) newErrors.especie = 'La especie es requerida';
-        else if (!soloLetras(formData.especie)) newErrors.especie = 'La especie no puede contener números';
-        if (formData.raza && !soloLetras(formData.raza)) newErrors.raza = 'La raza no puede contener números';
-        if (formData.edad === null || formData.edad === undefined || formData.edad === ('' as any)) newErrors.edad = 'La edad es requerida';
-        if (formData.peso === null || formData.peso === undefined || formData.peso === ('' as any)) newErrors.peso = 'El peso es requerido';
-        if (!formData.fecha_nacimiento) newErrors.fecha_nacimiento = 'La fecha de nacimiento es requerida';
+
+        if (!formData.nombre || !formData.nombre.trim()) {
+            newErrors.nombre = 'El nombre del paciente es obligatorio.';
+        } else if (!soloLetras(formData.nombre || '')) {
+            newErrors.nombre = 'El nombre solo debe contener letras.';
+        }
+
+        if (!formData.id_cliente) newErrors.id_cliente = 'Debes seleccionar un dueño/cliente.';
+
+        if (!formData.especie || !formData.especie.trim()) {
+            newErrors.especie = 'La especie es obligatoria (ej: Canino, Felino).';
+        } else if (!soloLetras(formData.especie)) {
+            newErrors.especie = 'La especie no debe contener números.';
+        }
+
+        if (formData.raza && !soloLetras(formData.raza)) {
+            newErrors.raza = 'La raza no debe contener números.';
+        }
+
+        if (formData.edad === null || formData.edad === undefined || formData.edad === ('' as any)) {
+            newErrors.edad = 'La edad es obligatoria (en meses).';
+        } else if (Number(formData.edad) < 0) {
+            newErrors.edad = 'La edad no puede ser un valor negativo.';
+        }
+
+        if (formData.peso === null || formData.peso === undefined || formData.peso === ('' as any)) {
+            newErrors.peso = 'El peso es obligatorio (en kg).';
+        } else if (Number(formData.peso) < 0) {
+            newErrors.peso = 'El peso no puede ser un valor negativo.';
+        }
+
+        if (!formData.fecha_nacimiento) {
+            newErrors.fecha_nacimiento = 'La fecha de nacimiento es obligatoria.';
+        } else {
+            const birthDate = new Date(formData.fecha_nacimiento);
+            const today = new Date();
+            birthDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+
+            if (birthDate > today) {
+                newErrors.fecha_nacimiento = 'La fecha de nacimiento no puede ser una fecha futura.';
+            }
+
+            if (listaVacunas.length > 0) {
+                const tieneVacunaInvalida = listaVacunas.some(v => {
+                    const vDate = new Date(v.fecha);
+                    vDate.setHours(0, 0, 0, 0);
+                    return vDate < birthDate;
+                });
+                if (tieneVacunaInvalida) {
+                    toast.error('⚠️ Inconsistencia: Hay vacunas registradas con fecha anterior al nacimiento del paciente.');
+                    return;
+                }
+            }
+        }
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             toast.error('Por favor corrige los campos con errores');
@@ -212,6 +270,22 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
         if (formData.edad === null || formData.edad === undefined || formData.edad === ('' as any)) newErrors.edad = 'La edad es requerida';
         if (formData.peso === null || formData.peso === undefined || formData.peso === ('' as any)) newErrors.peso = 'El peso es requerido';
         if (!formData.fecha_nacimiento) newErrors.fecha_nacimiento = 'La fecha de nacimiento es requerida';
+        else {
+            const birthDate = new Date(formData.fecha_nacimiento);
+            const today = new Date();
+            birthDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            if (birthDate > today) newErrors.fecha_nacimiento = 'La fecha de nacimiento no puede ser futura';
+
+            if (listaVacunas.length > 0) {
+                const tieneVacunaInvalida = listaVacunas.some(v => new Date(v.fecha) < birthDate);
+                if (tieneVacunaInvalida) {
+                    toast.error('⚠️ Inconsistencia: Hay vacunas anteriores al nacimiento.');
+                    return;
+                }
+            }
+        }
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             toast.error('Por favor corrige los campos con errores');
@@ -229,9 +303,10 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
             const savedClientId = formData.id_cliente;
             const savedClienteName = searchTerm;
             setFormData({
-                nombre: '', especie: '', raza: '', id_cliente: savedClientId,
+                nombre: '', especie: '', raza: '', sexo: '', id_cliente: savedClientId,
                 edad: null, fecha_nacimiento: '', peso: null, vacunas: '',
-                fecha_ultima_vacuna: '', fecha_desparasitacion: '', observaciones: '', foto: ''
+                fecha_ultima_vacuna: '', fecha_desparasitacion: '', observaciones: '', foto: '',
+                color: '', rasgos_particulares: ''
             });
             setSearchTerm(savedClienteName);
             setListaVacunas([]);
@@ -244,9 +319,20 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
         }
     };
 
-    const handleChange = (field: keyof Mascota, value: any) => {
+    const handleChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
         if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
+    };
+
+    // Presets de Especies y Razas para evitar errores de digitación
+    const especiesComunes = [
+        { id: 'Canino', label: '🐶 Canino (Perro)' },
+        { id: 'Felino', label: '🐱 Felino (Gato)' }
+    ];
+
+    const razasPorEspecie: Record<string, string[]> = {
+        Canino: ['Labrador Retriever', 'Pastor Alemán', 'Golden Retriever', 'Poodle', 'Bulldog', 'Beagle', 'Chihuahua', 'Dachshund', 'Yorkshire Terrier', 'Boxer', 'Siberian Husky', 'Pinscher', 'Pitbull', 'Criollo / Mestizo'],
+        Felino: ['Persa', 'Siamés', 'Maine Coon', 'Bengalí', 'Sphynx', 'Ragdoll', 'British Shorthair', 'Abisinio', 'Angora', 'Común Europeo', 'Criollo / Mestizo']
     };
 
     return (
@@ -261,331 +347,422 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                         >
                             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                         </button>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-blue-500/10 rounded-2xl border border-blue-500/20">
-                                <Dog className="w-6 h-6 text-blue-400" />
+                        <div>
+                            <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-1 block">Gestión Clínica</span>
+                            <h1 className="text-2xl font-black text-dark-primary tracking-tighter">
+                                {readOnly ? 'Detalles del Paciente' : (mascota ? 'Editar Paciente' : 'Nuevo Registro Animal')}
+                            </h1>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            onClick={onBack}
+                            className="hidden md:flex text-dark-secondary hover:text-dark-primary hover:bg-dark-hover"
+                        >
+                            {readOnly ? 'Volver' : 'Cancelar'}
+                        </Button>
+
+                        {!readOnly && (
+                            <>
+                                {!mascota && !isClienteRole && (
+                                    <Button
+                                        onClick={handleAddAnother}
+                                        disabled={isLoading}
+                                        className="bg-emerald-600/10 text-emerald-500 hover:bg-emerald-600/20 border border-emerald-500/20 font-bold"
+                                    >
+                                        <Plus className="w-4 h-4 mr-2" />
+                                        Guardar y Otro
+                                    </Button>
+                                )}
+
+                                <Button
+                                    onClick={handleSubmit}
+                                    disabled={isLoading}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-black shadow-lg shadow-blue-900/20"
+                                >
+                                    <Save className="w-4 h-4 mr-2" />
+                                    {isLoading ? 'Procesando...' : (mascota ? 'Actualizar Ficha' : 'Guardar Paciente')}
+                                </Button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </header>
+
+            <main className="flex-1 p-4 md:p-8">
+                <form className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8" onSubmit={handleSubmit}>
+                    {/* Columna Izquierda: Identidad y Dueño */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-blue-500/10 transition-all duration-700"></div>
+
+                            <h2 className="text-lg font-black text-dark-primary mb-8 flex items-center gap-3">
+                                <div className="p-2 bg-blue-500/10 rounded-xl">
+                                    <Fingerprint className="w-5 h-5 text-blue-400" />
+                                </div>
+                                Identificación del Paciente
+                            </h2>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-3">
+                                    <Label className="text-[10px] font-black text-dark-secondary tracking-widest ml-1 opacity-50">Nombre de la Mascota</Label>
+                                    <div className="relative">
+                                        <Dog className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary" />
+                                        <Input
+                                            disabled={readOnly}
+                                            value={formData.nombre}
+                                            onChange={(e) => handleChange('nombre', e.target.value)}
+                                            className={`h-14 pl-12 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 ${errors.nombre ? 'border-red-500/50' : 'border-dark-color hover:border-blue-500/30'} ${readOnly ? 'opacity-100 cursor-default' : ''}`}
+                                            placeholder="Ej: Max, Luna..."
+                                        />
+                                    </div>
+                                    {errors.nombre && <p className="text-[10px] text-red-500 font-bold ml-2 uppercase items-center flex gap-1"><Info className="w-3 h-3" /> {errors.nombre}</p>}
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label className="text-[10px] font-black text-dark-secondary tracking-widest ml-1 opacity-50">Especie</Label>
+                                    <div className="relative">
+                                        <select
+                                            disabled={readOnly}
+                                            value={formData.especie || ''}
+                                            onChange={(e) => {
+                                                handleChange('especie', e.target.value);
+                                                handleChange('raza', '');
+                                            }}
+                                            className={`w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 ${errors.especie ? 'border-red-500/50' : 'border-dark-color hover:border-blue-500/30'} ${readOnly ? 'opacity-100 cursor-default appearance-none' : ''}`}
+                                        >
+                                            <option value="">Seleccionar especie...</option>
+                                            {especiesComunes.map(esp => (
+                                                <option key={esp.id} value={esp.id}>{esp.label}</option>
+                                            ))}
+                                            {formData.especie && !especiesComunes.some(e => e.id === formData.especie) && (
+                                                <option value={formData.especie}>{formData.especie}</option>
+                                            )}
+                                        </select>
+                                    </div>
+                                    {errors.especie && <p className="text-[10px] text-red-500 font-bold ml-2 uppercase items-center flex gap-1"><Info className="w-3 h-3" /> {errors.especie}</p>}
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label className="text-[10px] font-black text-dark-secondary tracking-widest ml-1 opacity-50">Raza</Label>
+                                    <div className="relative">
+                                        <select
+                                            disabled={readOnly || !formData.especie}
+                                            value={formData.raza || ''}
+                                            onChange={(e) => handleChange('raza', e.target.value)}
+                                            className={`w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 ${errors.raza ? 'border-red-500/50' : 'border-dark-color hover:border-blue-500/30'} ${readOnly ? 'opacity-100 cursor-default appearance-none' : ''}`}
+                                        >
+                                            <option value="">Seleccionar raza...</option>
+                                            {formData.especie && razasPorEspecie[formData.especie] && razasPorEspecie[formData.especie].map((raza: string) => (
+                                                <option key={raza} value={raza}>{raza}</option>
+                                            ))}
+                                            {formData.raza && (!formData.especie || !razasPorEspecie[formData.especie] || !razasPorEspecie[formData.especie].includes(formData.raza)) && (
+                                                <option value={formData.raza}>{formData.raza}</option>
+                                            )}
+                                            <option value="Otro">Otra raza...</option>
+                                        </select>
+                                    </div>
+                                    {errors.raza && <p className="text-[10px] text-red-500 font-bold ml-2 uppercase items-center flex gap-1"><Info className="w-3 h-3" /> {errors.raza}</p>}
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label className="text-[10px] font-black text-dark-secondary tracking-widest ml-1 opacity-50">Sexo</Label>
+                                    <div className="relative">
+                                        {readOnly ? (
+                                            <div className={`w-full h-14 px-4 bg-dark-hover border-2 border-dark-color rounded-2xl flex items-center text-base font-bold transition-all ${formData.sexo === 'Macho' ? 'text-blue-400' :
+                                                formData.sexo === 'Hembra' ? 'text-pink-400' :
+                                                    'text-dark-primary'
+                                                }`}>
+                                                {formData.sexo === 'Macho' ? '♂️ Macho' : formData.sexo === 'Hembra' ? '♀️ Hembra' : formData.sexo || 'Desconocido'}
+                                            </div>
+                                        ) : (
+                                            <select
+                                                value={formData.sexo || ''}
+                                                onChange={(e) => handleChange('sexo', e.target.value)}
+                                                className={`w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30`}
+                                            >
+                                                <option value="">Seleccionar...</option>
+                                                <option value="Macho">♂️ Macho</option>
+                                                <option value="Hembra">♀️ Hembra</option>
+                                                <option value="Desconocido">❓ Desconocido</option>
+                                            </select>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label className="text-[10px] font-black text-dark-secondary tracking-widest ml-1 opacity-50">Color</Label>
+                                    <Input
+                                        disabled={readOnly}
+                                        value={formData.color || ''}
+                                        onChange={(e) => handleChange('color', e.target.value)}
+                                        className={`h-14 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30 ${readOnly ? 'opacity-100 cursor-default' : ''}`}
+                                        placeholder="Ej: Blanco con manchas negras..."
+                                    />
+                                </div>
+
+                                <div className="space-y-3 md:col-span-2">
+                                    <Label className="text-[10px] font-black text-dark-secondary tracking-widest ml-1 opacity-50">Rasgos Particulares</Label>
+                                    <Input
+                                        disabled={readOnly}
+                                        value={formData.rasgos_particulares || ''}
+                                        onChange={(e) => handleChange('rasgos_particulares', e.target.value)}
+                                        className={`h-14 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30 ${readOnly ? 'opacity-100 cursor-default' : ''}`}
+                                        placeholder="Ej: Cicatriz en la oreja derecha, ojos de diferente color..."
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <h1 className="text-xl font-bold text-dark-primary tracking-tight">
-                                    {readOnly ? 'Detalles de Mascota' : mascota ? 'Editar Mascota' : 'Nueva Mascota'}
-                                </h1>
-                                <p className="text-xs text-dark-secondary">Registro y control clínico del paciente</p>
+                        </div>
+
+                        {/* Card: Información Clínica */}
+                        <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-red-500/10 transition-all duration-700"></div>
+
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="p-2 bg-red-500/10 rounded-lg">
+                                    <HeartPulse className="w-4 h-4 text-red-400" />
+                                </div>
+                                <h3 className="text-sm font-bold text-dark-primary tracking-wider">Información Clínica</h3>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="space-y-2">
+                                    <Label className="text-dark-primary font-medium">Edad (meses) *</Label>
+                                    <Input
+                                        type="number"
+                                        min={0}
+                                        value={formData.edad ?? ''}
+                                        onChange={(e) => handleChange('edad', e.target.value ? parseInt(e.target.value) : null)}
+                                        className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.edad ? 'border-red-500' : ''}`}
+                                        placeholder="Ej: 6, 18, 36..."
+                                        disabled={readOnly}
+                                    />
+                                    {errors.edad && <p className="text-red-400 text-xs mt-1">{errors.edad}</p>}
+                                </div>
+                                <div className="space-y-2 text-center md:text-left">
+                                    <Label className="text-dark-primary font-medium">Peso (kg) *</Label>
+                                    <Input
+                                        type="number"
+                                        step="0.1"
+                                        min={0}
+                                        value={formData.peso ?? ''}
+                                        onChange={(e) => handleChange('peso', e.target.value ? parseFloat(e.target.value) : null)}
+                                        className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.peso ? 'border-red-500' : ''}`}
+                                        disabled={readOnly}
+                                    />
+                                    {errors.peso && <p className="text-red-400 text-xs mt-1">{errors.peso}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-dark-primary font-medium">Fecha de Nacimiento *</Label>
+                                    <div className="relative">
+                                        <Input
+                                            type="date"
+                                            max={new Date().toISOString().split('T')[0]}
+                                            value={formData.fecha_nacimiento ?? ''}
+                                            onChange={(e) => handleChange('fecha_nacimiento', e.target.value)}
+                                            className={`bg-dark-hover border-dark-color text-dark-primary h-11 pr-10 ${errors.fecha_nacimiento ? 'border-red-500' : ''}`}
+                                            disabled={readOnly}
+                                        />
+                                        <Calendar className="w-4 h-4 text-dark-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                    </div>
+                                    {errors.fecha_nacimiento && <p className="text-red-400 text-xs mt-1">{errors.fecha_nacimiento}</p>}
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-6 pt-2">
+                                <div className="space-y-2">
+                                    <Label className="text-dark-primary font-medium">Última Desparasitación</Label>
+                                    <div className="relative">
+                                        <Input
+                                            type="date"
+                                            max={new Date().toISOString().split('T')[0]}
+                                            value={formData.fecha_desparasitacion ?? ''}
+                                            onChange={(e) => handleChange('fecha_desparasitacion', e.target.value)}
+                                            className="bg-dark-hover border-dark-color text-dark-primary h-11 pr-10"
+                                            disabled={readOnly}
+                                        />
+                                        <Calendar className="w-4 h-4 text-dark-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-dark-primary font-medium">Observaciones / Alergias</Label>
+                                    <textarea
+                                        value={formData.observaciones ?? ''}
+                                        onChange={(e) => handleChange('observaciones', e.target.value)}
+                                        className="w-full min-h-[120px] p-4 bg-dark-hover border border-dark-color rounded-2xl text-sm text-dark-primary focus:border-blue-500/50 outline-none resize-none transition-all placeholder:text-dark-secondary/50 shadow-inner disabled:opacity-70 disabled:cursor-default"
+                                        disabled={readOnly}
+                                        placeholder="Escribe aquí cualquier dato médico importante, alergias o comportamientos notables..."
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {!readOnly && (
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                onClick={onBack}
-                                className="border-dark-color text-dark-secondary hover:bg-dark-hover h-10 px-4"
-                            >
-                                Cancelar
-                            </Button>
-                            {!mascota && (
-                                <Button
-                                    variant="outline"
-                                    onClick={handleAddAnother}
-                                    disabled={isLoading}
-                                    className="border-blue-500/40 text-blue-400 hover:bg-blue-500/10 h-10 px-4 font-bold"
-                                >
-                                    <Plus className="w-4 h-4 mr-1" />
-                                    Añadir otra
-                                </Button>
-                            )}
-                            <Button
-                                onClick={(e) => handleSubmit(e)}
-                                disabled={isLoading}
-                                className="bg-blue-600 text-white hover:bg-blue-700 h-10 px-6 font-bold shadow-lg shadow-blue-500/20"
-                            >
-                                {isLoading ? 'Guardando...' : (
-                                    <div className="flex items-center gap-2">
-                                        <Save className="w-4 h-4" />
-                                        <span>{mascota ? 'Actualizar' : 'Registrar'}</span>
-                                    </div>
-                                )}
-                            </Button>
-                        </div>
-                    )}
-                </div>
-            </header>
+                    {/* Columna Derecha: Clientes y Vacunas */}
+                    <div className="lg:col-span-1 space-y-6">
+                        {/* Buscador de Clientes (Solo visible en modo edición y si no es cliente) */}
+                        {!readOnly && !isClienteRole && (
+                            <div className="dark-card p-6 space-y-4 relative z-30">
+                                <Label className="text-[10px] font-black text-blue-500 tracking-widest ml-1">Cambiar / Buscar Dueño</Label>
+                                <div className="relative z-50">
+                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary" />
+                                    <Input
+                                        placeholder="Nombre o Cédula..."
+                                        value={searchTerm}
+                                        onChange={(e) => {
+                                            setSearchTerm(e.target.value);
+                                            setShowResults(true);
+                                        }}
+                                        onFocus={() => setShowResults(true)}
+                                        className="pl-10 h-11 bg-dark-hover border-dark-color focus:border-blue-500/50"
+                                    />
 
-            {/* Contenido Principal */}
-            <main className="flex-1 p-4 md:p-8">
-                <div className="max-w-5xl mx-auto space-y-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        {/* Columna Izquierda: Formulario */}
-                        <div className="lg:col-span-8 space-y-6">
-                            {/* Card: Información Básica */}
-                            <div className="dark-card p-6 space-y-6 relative z-[200] overflow-visible">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className="p-2 bg-blue-500/10 rounded-lg">
-                                        <ClipboardList className="w-4 h-4 text-blue-400" />
-                                    </div>
-                                    <h3 className="text-sm font-bold text-dark-primary uppercase tracking-wider">Identificación Básica</h3>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Label className="text-dark-primary font-medium">Nombre de la Mascota *</Label>
-                                        <Input
-                                            placeholder="Ej: Max, Luna, Toby..."
-                                            value={formData.nombre ?? ''}
-                                            onChange={(e) => handleChange('nombre', e.target.value)}
-                                            className="bg-dark-hover border-dark-color text-dark-primary h-11"
-                                            readOnly={readOnly}
-                                        />
-                                        {errors.nombre && <p className="text-red-400 text-xs mt-1">{errors.nombre}</p>}
-                                    </div>
-
-                                    <div className="space-y-2 relative z-[210]">
-                                        <Label className="text-dark-primary font-medium">Dueño / Cliente *</Label>
-                                        <div className="relative">
-                                            <Input
-                                                placeholder="Buscar por cédula o nombre..."
-                                                value={searchTerm}
-                                                onChange={(e) => {
-                                                    const val = e.target.value;
-                                                    setSearchTerm(val);
-                                                    setShowResults(true);
-                                                    // Si borra el texto, limpiar el cliente seleccionado
-                                                    if (!val.trim()) {
-                                                        handleChange('id_cliente', 0);
-                                                    }
-                                                }}
-                                                onFocus={() => setShowResults(true)}
-                                                className="bg-dark-hover border-dark-color text-dark-primary h-11"
-                                                readOnly={readOnly || isClienteRole}
-                                            />
-                                            {showResults && searchTerm.length > 0 && !readOnly && !isClienteRole && (
-                                                <div className="absolute z-50 w-full mt-2 bg-dark-card border border-dark-color rounded-xl shadow-2xl max-h-60 overflow-y-auto overflow-x-hidden">
-                                                    {filteredClientes.length > 0 ? (
-                                                        filteredClientes.map((c: any) => (
-                                                            <div
-                                                                key={c.id_cliente}
-                                                                className="px-5 py-3 hover:bg-dark-hover cursor-pointer text-sm text-dark-primary border-b border-dark-color/30 last:border-0 transition-colors"
-                                                                onClick={() => {
-                                                                    handleChange('id_cliente', c.id_cliente);
-                                                                    setSearchTerm(c.nombre);
-                                                                    setShowResults(false);
-                                                                }}
-                                                            >
-                                                                <div className="font-bold">{c.nombre}</div>
-                                                                <div className="text-[10px] text-dark-secondary flex items-center gap-1.5 mt-1">
-                                                                    <Fingerprint className="w-3 h-3" /> {c.cedula}
-                                                                </div>
+                                    {showResults && searchTerm.length > 0 && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-dark-card border border-dark-color rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                                            <div className="max-h-60 overflow-y-auto p-2">
+                                                {filteredClientes.length > 0 ? (
+                                                    filteredClientes.map(c => (
+                                                        <button
+                                                            key={c.id_cliente}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                handleChange('id_cliente', c.id_cliente);
+                                                                setSearchTerm(c.nombre);
+                                                                setShowResults(false);
+                                                            }}
+                                                            className="w-full flex items-center gap-3 p-3 hover:bg-blue-500/10 rounded-xl transition-colors text-left group"
+                                                        >
+                                                            <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                                                {c.nombre.substring(0, 1).toUpperCase()}
                                                             </div>
-                                                        ))
-                                                    ) : (
-                                                        <div className="px-5 py-4 text-xs text-dark-secondary italic text-center">No se encontraron clientes</div>
-                                                    )}
-                                                </div>
-                                            )}
+                                                            <div>
+                                                                <div className="text-xs font-bold text-dark-primary">{c.nombre}</div>
+                                                                <div className="text-[10px] text-dark-secondary">{c.cedula}</div>
+                                                            </div>
+                                                        </button>
+                                                    ))
+                                                ) : (
+                                                    <div className="p-4 text-center text-xs text-dark-secondary italic font-medium">
+                                                        No se encontraron resultados
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                        {errors.id_cliente && <p className="text-red-400 text-xs mt-1">{errors.id_cliente}</p>}
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label className="text-dark-primary font-medium">Especie *</Label>
-                                        <Input
-                                            value={formData.especie ?? ''}
-                                            onChange={(e) => handleChange('especie', e.target.value)}
-                                            className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.especie ? 'border-red-500' : ''}`}
-                                            placeholder="Ej: Perro, Gato, Ave..."
-                                            readOnly={readOnly}
-                                        />
-                                        {errors.especie && <p className="text-red-400 text-xs mt-1">{errors.especie}</p>}
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label className="text-dark-primary font-medium">Raza</Label>
-                                        <Input
-                                            placeholder="Ej: Criollo, Labrador..."
-                                            value={formData.raza ?? ''}
-                                            onChange={(e) => handleChange('raza', e.target.value)}
-                                            className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.raza ? 'border-red-500' : ''}`}
-                                            readOnly={readOnly}
-                                        />
-                                        {errors.raza && <p className="text-red-400 text-xs mt-1">{errors.raza}</p>}
-                                    </div>
+                                    )}
                                 </div>
                             </div>
+                        )}
 
-                            {/* Card: Información Clínica */}
-                            <div className="dark-card p-6 space-y-6">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className="p-2 bg-red-500/10 rounded-lg">
-                                        <HeartPulse className="w-4 h-4 text-red-400" />
-                                    </div>
-                                    <h3 className="text-sm font-bold text-dark-primary uppercase tracking-wider">Información Clínica</h3>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="space-y-2">
-                                        <Label className="text-dark-primary font-medium">Edad (meses) *</Label>
-                                        <Input
-                                            type="number"
-                                            min={0}
-                                            value={formData.edad ?? ''}
-                                            onChange={(e) => handleChange('edad', e.target.value ? parseInt(e.target.value) : null)}
-                                            className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.edad ? 'border-red-500' : ''}`}
-                                            placeholder="Ej: 6, 18, 36..."
-                                            readOnly={readOnly}
-                                        />
-                                        {errors.edad && <p className="text-red-400 text-xs mt-1">{errors.edad}</p>}
-                                    </div>
-                                    <div className="space-y-2 text-center md:text-left">
-                                        <Label className="text-dark-primary font-medium">Peso (kg) *</Label>
-                                        <Input
-                                            type="number"
-                                            step="0.1"
-                                            min={0}
-                                            value={formData.peso ?? ''}
-                                            onChange={(e) => handleChange('peso', e.target.value ? parseFloat(e.target.value) : null)}
-                                            className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.peso ? 'border-red-500' : ''}`}
-                                            readOnly={readOnly}
-                                        />
-                                        {errors.peso && <p className="text-red-400 text-xs mt-1">{errors.peso}</p>}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-dark-primary font-medium">Fecha de Nacimiento *</Label>
-                                        <div className="relative">
-                                            <Input
-                                                type="date"
-                                                max={new Date().toISOString().split('T')[0]}
-                                                value={formData.fecha_nacimiento ?? ''}
-                                                onChange={(e) => handleChange('fecha_nacimiento', e.target.value)}
-                                                className={`bg-dark-hover border-dark-color text-dark-primary h-11 pr-10 ${errors.fecha_nacimiento ? 'border-red-500' : ''}`}
-                                                readOnly={readOnly}
-                                            />
-                                            <Calendar className="w-4 h-4 text-dark-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                                        </div>
-                                        {errors.fecha_nacimiento && <p className="text-red-400 text-xs mt-1">{errors.fecha_nacimiento}</p>}
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 gap-6 pt-2">
-                                    <div className="space-y-2">
-                                        <Label className="text-dark-primary font-medium">Última Desparasitación</Label>
-                                        <div className="relative">
-                                            <Input
-                                                type="date"
-                                                max={new Date().toISOString().split('T')[0]}
-                                                value={formData.fecha_desparasitacion ?? ''}
-                                                onChange={(e) => handleChange('fecha_desparasitacion', e.target.value)}
-                                                className="bg-dark-hover border-dark-color text-dark-primary h-11 pr-10"
-                                                readOnly={readOnly}
-                                            />
-                                            <Calendar className="w-4 h-4 text-dark-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label className="text-dark-primary font-medium">Observaciones / Alergias</Label>
-                                        <textarea
-                                            value={formData.observaciones ?? ''}
-                                            onChange={(e) => handleChange('observaciones', e.target.value)}
-                                            className="w-full min-h-[120px] p-4 bg-dark-hover border border-dark-color rounded-2xl text-sm text-dark-primary focus:border-blue-500/50 outline-none resize-none transition-all placeholder:text-dark-secondary/50 shadow-inner"
-                                            readOnly={readOnly}
-                                            placeholder="Escribe aquí cualquier dato médico importante, alergias o comportamientos notables..."
-                                        />
-                                    </div>
-                                </div>
+                        {/* Card Cliente Seleccionado */}
+                        <div className="dark-card overflow-hidden relative z-10">
+                            <div className="p-4 bg-blue-500/10 border-b border-dark-color/30 flex items-center gap-2">
+                                <User className="w-4 h-4 text-blue-400" />
+                                <span className="text-xs font-bold text-dark-primary tracking-wider">Cliente Responsable</span>
                             </div>
+                            {selectedCliente ? (
+                                <div className="p-6 space-y-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-lg">
+                                            {selectedCliente.nombre.substring(0, 1).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-dark-primary">{selectedCliente.nombre}</div>
+                                            <div className="text-xs text-dark-secondary">{selectedCliente.cedula}</div>
+                                        </div>
+                                    </div>
+                                    <Separator className="bg-dark-color/30" />
+                                    <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+                                        <div className="flex items-center gap-3 text-[11px]">
+                                            <div className="w-9 h-9 shrink-0 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                                                <Fingerprint className="w-4 h-4 text-blue-400" />
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-dark-secondary font-medium tracking-tighter opacity-70">Documento</span>
+                                                <span className="text-dark-primary font-bold truncate">{selectedCliente.cedula}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 text-[11px]">
+                                            <div className="w-9 h-9 shrink-0 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                                <Phone className="w-4 h-4 text-emerald-400" />
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-dark-secondary font-medium tracking-tighter opacity-70">Teléfono</span>
+                                                <span className="text-dark-primary font-bold truncate">{selectedCliente.telefono || 'Sin registrar'}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 text-[11px]">
+                                            <div className="w-9 h-9 shrink-0 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                                                <Mail className="w-4 h-4 text-amber-400" />
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-dark-secondary font-medium tracking-tighter opacity-70">Correo</span>
+                                                <span className="text-dark-primary font-bold truncate" title={selectedCliente.correo || undefined}>
+                                                    {selectedCliente.correo || 'Sin registrar'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 text-[11px]">
+                                            <div className="w-9 h-9 shrink-0 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                                                <MapPin className="w-4 h-4 text-indigo-400" />
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-dark-secondary font-medium tracking-tighter opacity-70">Dirección</span>
+                                                <span className="text-dark-primary font-bold truncate" title={selectedCliente.direccion || undefined}>
+                                                    {selectedCliente.direccion || 'Sin registrar'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="p-10 text-center flex flex-col items-center justify-center space-y-3">
+                                    <div className="w-12 h-12 rounded-full bg-dark-hover flex items-center justify-center opacity-50">
+                                        <User className="w-6 h-6 text-dark-secondary" />
+                                    </div>
+                                    <p className="text-xs text-dark-secondary italic">No se ha seleccionado un cliente responsable aún.</p>
+                                </div>
+                            )}
                         </div>
 
-                        {/* Columna Derecha: Clientes y Vacunas */}
-                        <div className="lg:col-span-4 space-y-6">
-                            {/* Card Cliente Seleccionado */}
-                            <div className="dark-card overflow-hidden">
-                                <div className="p-4 bg-blue-500/10 border-b border-dark-color/30 flex items-center gap-2">
-                                    <User className="w-4 h-4 text-blue-400" />
-                                    <span className="text-xs font-bold text-dark-primary uppercase tracking-wider">Cliente Responsable</span>
-                                </div>
-                                {selectedCliente ? (
-                                    <div className="p-6 space-y-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-lg">
-                                                {selectedCliente.nombre.substring(0, 1).toUpperCase()}
-                                            </div>
-                                            <div>
-                                                <div className="text-sm font-bold text-dark-primary">{selectedCliente.nombre}</div>
-                                                <div className="text-xs text-dark-secondary">{selectedCliente.cedula}</div>
-                                            </div>
-                                        </div>
-                                        <Separator className="bg-dark-color/30" />
-                                        <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-                                            <div className="flex items-center gap-3 text-[11px]">
-                                                <div className="w-9 h-9 shrink-0 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                                                    <Fingerprint className="w-4 h-4 text-blue-400" />
-                                                </div>
-                                                <div className="flex flex-col min-w-0">
-                                                    <span className="text-dark-secondary font-medium uppercase tracking-tighter opacity-70">Documento</span>
-                                                    <span className="text-dark-primary font-bold truncate">{selectedCliente.cedula}</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3 text-[11px]">
-                                                <div className="w-9 h-9 shrink-0 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                                    <Phone className="w-4 h-4 text-emerald-400" />
-                                                </div>
-                                                <div className="flex flex-col min-w-0">
-                                                    <span className="text-dark-secondary font-medium uppercase tracking-tighter opacity-70">Teléfono</span>
-                                                    <span className="text-dark-primary font-bold truncate">{selectedCliente.telefono || 'Sin registrar'}</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3 text-[11px]">
-                                                <div className="w-9 h-9 shrink-0 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                                                    <Mail className="w-4 h-4 text-amber-400" />
-                                                </div>
-                                                <div className="flex flex-col min-w-0">
-                                                    <span className="text-dark-secondary font-medium uppercase tracking-tighter opacity-70">Correo</span>
-                                                    <span className="text-dark-primary font-bold truncate" title={selectedCliente.correo || undefined}>
-                                                        {selectedCliente.correo || 'Sin registrar'}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3 text-[11px]">
-                                                <div className="w-9 h-9 shrink-0 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                                                    <MapPin className="w-4 h-4 text-indigo-400" />
-                                                </div>
-                                                <div className="flex flex-col min-w-0">
-                                                    <span className="text-dark-secondary font-medium uppercase tracking-tighter opacity-70">Dirección</span>
-                                                    <span className="text-dark-primary font-bold truncate" title={selectedCliente.direccion || undefined}>
-                                                        {selectedCliente.direccion || 'Sin registrar'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="p-10 text-center flex flex-col items-center justify-center space-y-3">
-                                        <div className="w-12 h-12 rounded-full bg-dark-hover flex items-center justify-center opacity-50">
-                                            <User className="w-6 h-6 text-dark-secondary" />
-                                        </div>
-                                        <p className="text-xs text-dark-secondary italic">No se ha seleccionado un cliente responsable aún.</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Card de Vacunas */}
-                            <div className="dark-card p-6 space-y-6">
+                        {/* Card de Vacunas */}
+                        <div className="dark-card p-6 space-y-6">
+                            <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-blue-500/10 rounded-lg">
                                         <Syringe className="w-4 h-4 text-blue-400" />
                                     </div>
-                                    <h3 className="text-sm font-bold text-dark-primary uppercase tracking-wider">Historial de Vacunación</h3>
+                                    <div>
+                                        <h3 className="text-sm font-bold text-dark-primary tracking-wider">Vacunación</h3>
+                                        <p className="text-[10px] text-dark-secondary italic leading-none">Opcional en registro inicial</p>
+                                    </div>
                                 </div>
+                                {!readOnly && (
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-bold text-dark-secondary">{tieneVacunas ? 'ACTIVA' : 'Omitir'}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setTieneVacunas(!tieneVacunas)}
+                                            className={`w-10 h-5 rounded-full transition-all duration-300 relative ${tieneVacunas ? 'bg-blue-600' : 'bg-dark-color'}`}
+                                        >
+                                            <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all duration-300 ${tieneVacunas ? 'left-6' : 'left-1'}`} />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
 
-                                <div className="space-y-6">
+                            {tieneVacunas ? (
+                                <div className="space-y-6 animate-in slide-in-from-top-2 duration-300">
                                     {!readOnly && (
                                         <div className="p-4 bg-dark-hover/40 rounded-2xl border border-dark-color/50 space-y-4 shadow-inner">
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="space-y-2">
-                                                    <Label className="text-[10px] uppercase font-bold text-dark-secondary ml-1">Nombre Vacuna</Label>
+                                                    <Label className="text-[10px] font-bold text-dark-secondary ml-1">Nombre Vacuna</Label>
                                                     <Input
                                                         placeholder="Triple Felina..."
                                                         value={currentVacuna.nombre}
@@ -598,7 +775,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                                     {vacunaError && <p className="text-red-400 text-[10px] mt-1">{vacunaError}</p>}
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <Label className="text-[10px] uppercase font-bold text-dark-secondary ml-1">Fecha</Label>
+                                                    <Label className="text-[10px] font-bold text-dark-secondary ml-1">Fecha</Label>
                                                     <Input
                                                         type="date"
                                                         value={currentVacuna.fecha}
@@ -648,15 +825,24 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         ) : (
                                             <div className="py-8 text-center border-2 border-dashed border-dark-color/30 rounded-2xl flex flex-col items-center justify-center opacity-50">
                                                 <Info className="w-6 h-6 text-dark-secondary mb-2" />
-                                                <p className="text-[10px] text-dark-secondary italic px-4">Completa para registrar vacunas (opcional).</p>
+                                                <p className="text-[10px] text-dark-secondary italic px-4">No hay vacunas registradas aún.</p>
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="p-8 border-2 border-dashed border-dark-color/20 rounded-3xl flex flex-col items-center justify-center text-center space-y-3 bg-dark-hover/10">
+                                    <div className="w-12 h-12 rounded-full bg-dark-hover flex items-center justify-center opacity-30">
+                                        <Syringe className="w-6 h-6 text-dark-secondary" />
+                                    </div>
+                                    <p className="text-[11px] text-dark-secondary font-medium px-6">
+                                        El historial de vacunación está actualmente desactivado para este registro. Puedes activarlo arriba o completarlo más tarde.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
-                </div>
+                </form>
             </main>
         </div>
     );

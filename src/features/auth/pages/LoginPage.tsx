@@ -4,15 +4,19 @@ import { Input } from "../../../shared/components/input";
 import { Label } from "../../../shared/components/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../shared/components/card";
 import { toast } from "sonner";
-import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, CreditCard, ChevronRight, ArrowLeft, Shield } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, CreditCard, ChevronRight, ArrowLeft, Shield, AlertCircle, CheckCircle2 } from "lucide-react";
 import { PawIcon } from "../../../shared/components/PawIcon";
 import { useEmailAuth } from "../hooks/useEmailAuth";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const ONLY_DIGITS = /^\d+$/;
+
 interface LoginPageProps {
   onLogin: (user?: any) => void;
+  onBackToLanding?: () => void;
 }
 
-export function LoginPage({ onLogin }: LoginPageProps) {
+export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
   const {
     isAuthenticated,
     user,
@@ -38,6 +42,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -61,56 +66,111 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     }
   }, []);
 
+  const clearFieldError = (field: string) => {
+    if (fieldErrors[field]) setFieldErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    clearFieldError(field);
+    // Validación en tiempo real de confirmPassword
+    if (field === 'confirmPassword') {
+      if (value && value !== formData.password)
+        setFieldErrors(prev => ({ ...prev, confirmPassword: 'Las contraseñas no coinciden.' }));
+      else
+        setFieldErrors(prev => { const n = { ...prev }; delete n['confirmPassword']; return n; });
+    }
+    if (field === 'password' && formData.confirmPassword) {
+      if (value !== formData.confirmPassword)
+        setFieldErrors(prev => ({ ...prev, confirmPassword: 'Las contraseñas no coinciden.' }));
+      else
+        setFieldErrors(prev => { const n = { ...prev }; delete n['confirmPassword']; return n; });
+    }
+  };
+
+  const validateRegisterForm = (): boolean => {
+    const errs: Record<string, string> = {};
+    if (!formData.nombre.trim())
+      errs.nombre = 'El nombre completo es obligatorio.';
+    if (!formData.telefono.trim())
+      errs.telefono = 'El teléfono es obligatorio.';
+    else if (!ONLY_DIGITS.test(formData.telefono.trim()) || formData.telefono.trim().length < 7)
+      errs.telefono = 'Ingresa un teléfono válido (solo números, mín. 7 dígitos).';
+    if (!formData.numeroDocumento.trim())
+      errs.numeroDocumento = 'El número de documento es obligatorio.';
+    else if (!ONLY_DIGITS.test(formData.numeroDocumento.trim()))
+      errs.numeroDocumento = 'El documento debe contener solo números.';
+    if (!formData.direccion.trim())
+      errs.direccion = 'La dirección es obligatoria.';
+    if (!formData.email.trim())
+      errs.email = 'El correo electrónico es obligatorio.';
+    else if (!EMAIL_REGEX.test(formData.email.trim()))
+      errs.email = 'Ingresa un correo electrónico válido (ej. usuario@correo.com).';
+    if (!formData.password)
+      errs.password = 'La contraseña es obligatoria.';
+    else if (formData.password.length < 8)
+      errs.password = 'La contraseña debe tener al menos 8 caracteres.';
+    if (!formData.confirmPassword)
+      errs.confirmPassword = 'Debes confirmar tu contraseña.';
+    else if (formData.password !== formData.confirmPassword)
+      errs.confirmPassword = 'Las contraseñas no coinciden.';
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitted(true);
-    if (!formData.email || !formData.password) {
-      toast.error("Error", { description: "Complete todos los campos." });
-      return;
-    }
+    const errs: Record<string, string> = {};
+    if (!formData.email.trim()) errs.email = 'El correo es obligatorio.';
+    else if (!EMAIL_REGEX.test(formData.email.trim())) errs.email = 'Ingresa un correo válido.';
+    if (!formData.password) errs.password = 'La contraseña es obligatoria.';
+    if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
     const result = await login(formData.email, formData.password);
-    if (!result.success) toast.error("Error", { description: result.error || "Credenciales incorrectas." });
+    if (!result.success) toast.error("Acceso denegado", { description: result.error || "Credenciales incorrectas." });
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitted(true);
-
-    const requiredFields = ['email', 'password', 'nombre', 'telefono', 'numeroDocumento', 'direccion'];
-    const missingFields = requiredFields.filter(f => !formData[f as keyof typeof formData]);
-
-    if (missingFields.length > 0) {
-      toast.error("Error", { description: "Complete los campos obligatorios." });
+    if (!validateRegisterForm()) {
+      toast.error("Formulario incompleto", { description: "Revisa los campos marcados en rojo." });
       return;
     }
-
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Error", { description: "Las contraseñas no coinciden." });
-      return;
-    }
-
     const result = await register({
-      email: formData.email,
+      email: formData.email.trim(),
       password: formData.password,
-      nombre: formData.nombre,
+      nombre: formData.nombre.trim(),
       tipoDocumento: formData.tipoDocumento,
-      cedula: formData.numeroDocumento,
-      telefono: formData.telefono,
-      direccion: formData.direccion
+      cedula: formData.numeroDocumento.trim(),
+      telefono: formData.telefono.trim(),
+      direccion: formData.direccion.trim(),
     });
-
     if (result.success) {
-      toast.success("¡Bienvenido!", { description: "Registro completado con éxito. Ahora puedes iniciar sesión." });
+      toast.success("¡Cuenta creada!", { description: "Registro exitoso. Ya puedes iniciar sesión." });
       setAuthMode('login');
       setIsSubmitted(false);
+      setFieldErrors({});
     } else {
-      toast.error("Error", { description: result.error || "No se pudo realizar el registro." });
+      if (result.error === 'duplicate_email') {
+        setFieldErrors(prev => ({ ...prev, email: 'Este correo ya está registrado. ¿Ya tienes una cuenta?' }));
+        toast.error("Correo ya registrado", { description: "El correo ingresado pertenece a una cuenta existente." });
+      } else if (result.error === 'duplicate_cedula') {
+        setFieldErrors(prev => ({ ...prev, numeroDocumento: 'Este número de documento ya está registrado.' }));
+        toast.error("Documento duplicado", { description: "Ya existe una cuenta con ese número de documento." });
+      } else if (result.error === 'duplicate_generic') {
+        setFieldErrors(prev => ({
+          ...prev,
+          email: 'El correo o documento ya está en uso.',
+          numeroDocumento: 'El correo o documento ya está en uso.',
+        }));
+        toast.error("Datos duplicados", { description: "El correo o documento ya están asociados a una cuenta." });
+      } else {
+        toast.error("Error al registrar", { description: result.error || "No se pudo completar el registro." });
+      }
     }
   };
+
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,12 +261,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               {authMode === 'register' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormInput
-                    label="Nombre Completo"
+                    label="Nombre completo"
                     icon={<User className="w-4 h-4" />}
                     placeholder="Ej. Mauricio Rossi"
                     value={formData.nombre}
                     onChange={(v) => handleInputChange('nombre', v)}
-                    error={isSubmitted && !formData.nombre}
+                    error={!!fieldErrors.nombre}
+                    errorMessage={fieldErrors.nombre}
                   />
                   <FormInput
                     label="Teléfono"
@@ -214,10 +275,11 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     placeholder="300 000 0000"
                     value={formData.telefono}
                     onChange={(v) => handleInputChange('telefono', v)}
-                    error={isSubmitted && !formData.telefono}
+                    error={!!fieldErrors.telefono}
+                    errorMessage={fieldErrors.telefono}
                   />
                   <div className="space-y-2">
-                    <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 uppercase tracking-wide ${blackText}`} style={{ color: '#000000' }}>
+                    <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 ${blackText}`} style={{ color: '#000000' }}>
                       <CreditCard className="w-4 h-4 text-blue-600" />
                       Identificación <span className="text-red-600">*</span>
                     </Label>
@@ -233,14 +295,18 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                         <option value="NIT" className="text-black">NIT</option>
                       </select>
                       <Input
-                        className="bg-slate-50 border-slate-200 !text-black placeholder:text-slate-500 rounded-xl h-12 focus:ring-2 focus:ring-blue-500/50"
+                        className={`bg-slate-50 !text-black placeholder:text-slate-500 rounded-xl h-12 focus:ring-2 focus:ring-blue-500/50 ${fieldErrors.numeroDocumento ? 'border-red-500 ring-1 ring-red-500/20' : 'border-slate-200'}`}
                         placeholder="Número"
                         value={formData.numeroDocumento}
                         onChange={e => handleInputChange('numeroDocumento', e.target.value)}
                         style={{ color: '#000000' }}
                       />
                     </div>
-                    {isSubmitted && !formData.numeroDocumento && <p className="text-[10px] text-red-600 font-bold italic ml-2">Este campo es obligatorio</p>}
+                    {fieldErrors.numeroDocumento && (
+                      <p className="font-bold italic ml-2 flex items-center gap-1" style={{ color: '#ef4444', fontSize: '11px' }}>
+                        <AlertCircle className="w-3 h-3" style={{ color: '#ef4444' }} />{fieldErrors.numeroDocumento}
+                      </p>
+                    )}
                   </div>
                   <FormInput
                     label="Dirección"
@@ -248,20 +314,22 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     placeholder="Calle 10 # 20"
                     value={formData.direccion}
                     onChange={(v) => handleInputChange('direccion', v)}
-                    error={isSubmitted && !formData.direccion}
+                    error={!!fieldErrors.direccion}
+                    errorMessage={fieldErrors.direccion}
                   />
                 </div>
               )}
 
               <FormInput
-                label="Correo Electrónico"
+                label="Correo electrónico"
                 icon={<Mail className="w-4 h-4" />}
                 type="email"
                 placeholder="ejemplo@correo.com"
                 value={formData.email}
                 onChange={(v) => handleInputChange('email', v)}
                 disabled={authMode === 'reset-password' || authMode === 'activate-account'}
-                error={isSubmitted && !formData.email}
+                error={!!fieldErrors.email}
+                errorMessage={fieldErrors.email}
               />
 
               {authMode === 'reset-password' && (
@@ -279,14 +347,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               {(authMode === 'login' || authMode === 'register' || authMode === 'reset-password' || authMode === 'activate-account') && (
                 <div className={`grid grid-cols-1 ${authMode === 'register' || authMode === 'activate-account' ? 'md:grid-cols-2 gap-6' : ''}`}>
                   <div className="space-y-2 text-black">
-                    <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 uppercase tracking-wide ${blackText}`} style={{ color: '#000000' }}>
+                    <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 ${blackText}`} style={{ color: '#000000' }}>
                       <Lock className="w-4 h-4 text-blue-600" />
                       Contraseña <span className="text-red-600">*</span>
                     </Label>
                     <div className="relative">
                       <Input
                         type={showPassword ? "text" : "password"}
-                        className="bg-slate-50 border-slate-200 !text-black placeholder:text-slate-500 rounded-xl pr-12 h-12 focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm"
+                        className={`bg-slate-50 !text-black placeholder:text-slate-500 rounded-xl pr-12 h-12 focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm ${fieldErrors.password ? 'border-red-500 ring-1 ring-red-500/20' : 'border-slate-200'}`}
                         placeholder="••••••••"
                         value={formData.password}
                         onChange={e => handleInputChange('password', e.target.value)}
@@ -300,7 +368,11 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
-                    {isSubmitted && !formData.password && <p className="text-[10px] text-red-600 font-bold italic ml-2">Este campo es obligatorio</p>}
+                    {fieldErrors.password && (
+                      <p className="font-bold italic ml-2 flex items-center gap-1" style={{ color: '#ef4444', fontSize: '11px' }}>
+                        <AlertCircle className="w-3 h-3" style={{ color: '#ef4444' }} />{fieldErrors.password}
+                      </p>
+                    )}
 
                     {authMode === 'login' && (
                       <div className="flex justify-end pt-1">
@@ -317,15 +389,23 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   </div>
 
                   {(authMode === 'register' || authMode === 'activate-account') && (
-                    <FormInput
-                      label="Confirmar Clave"
-                      icon={<Lock className="w-4 h-4" />}
-                      type="password"
-                      placeholder="••••••••"
-                      value={formData.confirmPassword}
-                      onChange={(v) => handleInputChange('confirmPassword', v)}
-                      error={isSubmitted && !formData.confirmPassword}
-                    />
+                    <div className="space-y-2">
+                      <FormInput
+                        label="Confirmar clave"
+                        icon={<Lock className="w-4 h-4" />}
+                        type="password"
+                        placeholder="••••••••"
+                        value={formData.confirmPassword}
+                        onChange={(v) => handleInputChange('confirmPassword', v)}
+                        error={!!fieldErrors.confirmPassword}
+                        errorMessage={fieldErrors.confirmPassword}
+                      />
+                      {authMode === 'register' && formData.confirmPassword && formData.password === formData.confirmPassword && (
+                        <p className="text-[10px] text-green-600 font-bold ml-2 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Las contraseñas coinciden.
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
@@ -360,12 +440,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               )}
             </form>
 
+
             <div className="mt-4 pt-4 border-t border-slate-100 text-center">
               <button
                 onClick={() => {
                   setAuthMode(authMode === 'login' ? 'register' : 'login');
                   setIsSubmitted(false);
                   setShowPassword(false);
+                  setFieldErrors({});
                 }}
                 className="text-[12px] transition-all text-black hover:opacity-70"
                 style={{ color: '#000000' }}
@@ -377,9 +459,20 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 )}
               </button>
 
-              <div className="mt-8 flex items-center justify-center gap-2">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <span className={`text-[10px] uppercase tracking-widest !text-black dark:text-black font-bold opacity-40`} style={{ color: '#000000' }}>Protocolo Seguro</span>
+              <div className="mt-8 flex items-center justify-between">
+                {onBackToLanding ? (
+                  <button
+                    onClick={onBackToLanding}
+                    className="flex items-center gap-1.5 text-xs text-black font-bold hover:opacity-70 transition-opacity"
+                    style={{ color: '#000000' }}
+                  >
+                    <ArrowLeft size={12} /> Volver al inicio
+                  </button>
+                ) : <div />}
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                  <span className={`text-[10px] !text-black dark:text-black font-bold opacity-40`} style={{ color: '#000000' }}>PROTOCOLO SEGURO</span>
+                </div>
               </div>
             </div>
           </div>
@@ -399,19 +492,20 @@ interface FormInputProps {
   className?: string;
   disabled?: boolean;
   error?: boolean;
+  errorMessage?: string;
   maxLength?: number;
 }
 
-function FormInput({ label, icon, value, onChange, placeholder, type = "text", className = "", disabled, error, maxLength }: FormInputProps) {
+function FormInput({ label, icon, value, onChange, placeholder, type = "text", className = "", disabled, error, errorMessage, maxLength }: FormInputProps) {
   return (
     <div className={`space-y-2 ${className}`}>
-      <Label className={`text-xs font-bold flex items-center gap-2 mb-1.5 ml-1 uppercase tracking-wide text-black dark:text-black !text-black`} style={{ color: '#000000' }}>
+      <Label className={`text-xs font-bold flex items-center gap-2 mb-1.5 ml-1 text-black dark:text-black !text-black`} style={{ color: '#000000' }}>
         <span className="text-blue-600">{icon}</span>
         {label} <span className="text-red-600">*</span>
       </Label>
       <Input
         type={type}
-        className={`bg-slate-50 border border-slate-200 !text-black placeholder:text-slate-500 rounded-xl h-12 focus:ring-2 focus:ring-blue-500/50 transition-all ${error ? 'border-red-600 ring-1 ring-red-600/20' : ''}`}
+        className={`bg-slate-50 border !text-black placeholder:text-slate-500 rounded-xl h-12 focus:ring-2 focus:ring-blue-500/50 transition-all ${error ? 'border-red-500 ring-1 ring-red-500/20' : 'border-slate-200'}`}
         placeholder={placeholder}
         value={value}
         onChange={e => onChange(e.target.value)}
@@ -419,7 +513,12 @@ function FormInput({ label, icon, value, onChange, placeholder, type = "text", c
         maxLength={maxLength}
         style={{ color: '#000000' }}
       />
-      {error && <p className="text-[10px] text-red-600 font-bold italic ml-2 mt-1">Este campo es obligatorio</p>}
+      {error && (
+        <p className="font-bold italic ml-2 mt-1 flex items-center gap-1" style={{ color: '#ef4444', fontSize: '11px' }}>
+          <AlertCircle className="w-3 h-3 flex-shrink-0" style={{ color: '#ef4444' }} />
+          {errorMessage || 'Este campo es obligatorio'}
+        </p>
+      )}
     </div>
   );
 }

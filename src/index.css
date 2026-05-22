@@ -205,6 +205,22 @@
     --default-mono-font-family: var(--font-mono);
     --default-mono-font-feature-settings: var(--font-mono--font-feature-settings);
     --default-mono-font-variation-settings: var(--font-mono--font-variation-settings);
+    /* --- KAI VET CLINICAL DESIGN SYSTEM --- */
+    --clinical-primary: #3b82f6;
+    /* Azul: Información / Acción */
+    --clinical-success: #10b981;
+    /* Verde: Completado / Sano / Disponible */
+    --clinical-warning: #f59e0b;
+    /* Amarillo: Pendiente / Alerta / Proceso */
+    --clinical-danger: #ef4444;
+    /* Rojo: Emergencia / Deuda / Cancelado */
+
+    /* Backgrounds glassmorphism pre-calculados */
+    --glass-blue: rgba(59, 130, 246, 0.1);
+    --glass-green: rgba(16, 185, 129, 0.1);
+    --glass-yellow: rgba(245, 158, 11, 0.1);
+    --glass-red: rgba(239, 68, 68, 0.1);
+
     --color-dark-bg: var(--dark-bg);
     --color-dark-card: var(--dark-card);
     --color-dark-primary-text: var(--dark-primary-text);
@@ -250,8 +266,8 @@
     font-feature-settings: var(--default-font-feature-settings, normal);
     font-variation-settings: var(--default-font-variation-settings, normal);
     -webkit-tap-highlight-color: transparent;
-    font-size: 75%;
-    /* Escala general reducida para entorno administrativo denso */
+    font-size: 82%;
+    /* Escala operativa compacta para vistas de alta densidad */
   }
 
   body {
@@ -5234,6 +5250,47 @@
 
 html {
   font-size: var(--font-size);
+}
+
+/* ── Light Mode: All numbers in tables, forms & actions → black ── */
+.light table td .font-mono,
+.light table td .text-dark-secondary.font-mono,
+.light table td [class*="text-emerald"],
+.light table td [class*="text-green"],
+.light table td [class*="text-blue-4"],
+.light table td .font-black[class*="text-emerald"],
+.light table td .font-black[class*="text-base"],
+.light table td .text-sm.font-bold,
+.light .dark-card .font-mono {
+  color: #1e1b4b !important;
+}
+
+/* Prices & totals in light mode */
+.light table td .font-black.text-emerald-400,
+.light table td .font-bold.text-emerald-400,
+.light table td span[class*="emerald"][class*="font-black"],
+.light table td span[class*="emerald"][class*="font-bold"] {
+  color: #1e1b4b !important;
+}
+
+/* Service card numbers (duration & price in Procedimientos column) */
+.light table td .text-\\[9px\\].font-semibold.text-blue-400,
+.light table td .text-\\[9px\\].font-semibold.text-emerald-400 {
+  color: #1e1b4b !important;
+}
+
+/* Form number inputs in light mode */
+.light form input[type="number"],
+.light form .font-mono,
+.light [class*="Dialog"] .font-mono,
+.light [class*="Dialog"] input[type="number"] {
+  color: #1e1b4b !important;
+}
+
+/* Cedula & ID numbers in all card/detail views */
+.light .dark-card .text-sm.font-bold.text-dark-primary,
+.light .dark-card .text-sm.font-bold.uppercase {
+  color: #1e1b4b !important;
 }
 
 @layer components {

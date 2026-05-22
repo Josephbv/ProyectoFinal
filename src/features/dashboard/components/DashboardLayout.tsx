@@ -47,6 +47,7 @@ import { MascotaFormPageWrapper as MascotaFormPage } from "../../mascotas/pages/
 import { Mascota } from "../../mascotas/hooks/useMascotas";
 import { PerfilClientePage } from "../../clientes/pages/PerfilClientePage";
 import { PerfilEmpleadoPage } from "../../empleados/pages/PerfilEmpleadoPage";
+import { PerfilGeneralPage } from "../../auth/pages/PerfilGeneralPage";
 
 const mainNavItems = [
   { icon: BarChart3, label: "Dashboard", active: true, shortcut: "⌘D" },
@@ -137,7 +138,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
     // Si el usuario ya cargó y el módulo actual no está en la lista permitida
     if (user && allNavItems.length > 0) {
       // Páginas internas que no están en el menú lateral pero deben ser accesibles
-      const paginasInternas = ["NuevoHorario", "MascotaForm", "NuevaVenta", "MiPerfil", "MiPerfilEmpleado"];
+      const paginasInternas = ["NuevoHorario", "MascotaForm", "NuevaVenta", "MiPerfil", "MiPerfilEmpleado", "MiPerfilGeneral"];
 
       const isAllowed = paginasInternas.includes(activePage) || allNavItems.some((item: any) => item.label === activePage);
 
@@ -219,6 +220,8 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
         return <PerfilClientePage />;
       case "MiPerfilEmpleado":
         return <PerfilEmpleadoPage />;
+      case "MiPerfilGeneral":
+        return <PerfilGeneralPage />;
       case "Agendamiento":
         return (
           <AgendamientoPage
@@ -331,7 +334,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
           <div className="space-y-1">
             {!sidebarCollapsed && (
               <div className="px-3 mb-3">
-                <h3 className="text-xs font-semibold text-dark-secondary uppercase tracking-wider flex items-center gap-2">
+                <h3 className="text-xs font-semibold text-dark-secondary tracking-wider flex items-center gap-2">
                   <Home className="w-3 h-3" />
                   Principal
                 </h3>
@@ -347,7 +350,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
             <div className="space-y-1">
               {!sidebarCollapsed && (
                 <div className="px-3 mb-3">
-                  <h3 className="text-xs font-semibold text-dark-secondary uppercase tracking-wider flex items-center gap-2">
+                  <h3 className="text-xs font-semibold text-dark-secondary tracking-wider flex items-center gap-2">
                     <Heart className="w-3 h-3" />
                     Mascotas
                   </h3>
@@ -364,7 +367,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
             <div className="space-y-1">
               {!sidebarCollapsed && (
                 <div className="px-3 mb-3">
-                  <h3 className="text-xs font-semibold text-dark-secondary uppercase tracking-wider flex items-center gap-2">
+                  <h3 className="text-xs font-semibold text-dark-secondary tracking-wider flex items-center gap-2">
                     <Settings className="w-3 h-3" />
                     Operaciones
                   </h3>
@@ -381,7 +384,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
             <div className="space-y-1">
               {!sidebarCollapsed && (
                 <div className="px-3 mb-3">
-                  <h3 className="text-xs font-semibold text-dark-secondary uppercase tracking-wider flex items-center gap-2">
+                  <h3 className="text-xs font-semibold text-dark-secondary tracking-wider flex items-center gap-2">
                     <Command className="w-3 h-3" />
                     Sistema
                   </h3>
@@ -422,28 +425,21 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
                   </p>
                   <p className="text-xs text-blue-400 truncate">{user?.rol || 'Sin Rol'}</p>
                 </div>
-                {isCliente && (
-                  <Button
-                    onClick={() => setActivePage("MiPerfil")}
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-full"
-                    title="Ver mi perfil"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                )}
-                {isVet && (
-                  <Button
-                    onClick={() => setActivePage("MiPerfilEmpleado")}
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-full"
-                    title="Ver mi perfil"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                )}
+
+                {/* Profile Button for everyone */}
+                <Button
+                  onClick={() => {
+                    if (isCliente) setActivePage("MiPerfil");
+                    else if (isVet) setActivePage("MiPerfilEmpleado");
+                    else setActivePage("MiPerfilGeneral");
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className={`h-8 w-8 p-0 hover:bg-blue-500/10 rounded-full ${isCliente ? 'text-blue-400' : isVet ? 'text-emerald-400' : 'text-indigo-400'}`}
+                  title="Ver mi perfil"
+                >
+                  <Eye className="w-4 h-4" />
+                </Button>
               </div>
 
               {/* Theme Switcher */}

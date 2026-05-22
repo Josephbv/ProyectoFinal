@@ -33,8 +33,8 @@ export function useClientes() {
       const mapped = (data || []).map((c: any) => ({
         ...c,
         id_cliente: c.idCliente || c.IdCliente || c.id_cliente,
-        tipo_documento: c.tipoDocumento || c.TipoDocumento || c.tipo_documento,
-        nombre: c.nombre || c.Nombre,
+        tipo_documento: c.tipoDocumento || c.TipoDocumento || c.tipo_documento || 'Cédula de Ciudadanía',
+        nombre: c.nombre || c.Nombre || c.nombreCompleto || c.NombreCompleto || c.name || c.Name || c.fullName || (c.correo || c.Correo || '').split('@')[0] || '',
         cedula: c.cedula || c.Cedula,
         correo: c.correo || c.Correo,
         telefono: c.telefono || c.Telefono,
@@ -75,10 +75,19 @@ export function useClientes() {
         body: JSON.stringify(payload),
       });
 
-      // Mapear el ID correctamente antes de agregarlo al estado local
-      const nuevo = {
+      // Mapear el cliente completo con los mismos fallbacks que cargarClientes
+      const nuevo: Cliente = {
         ...response,
-        id_cliente: response.idCliente || response.IdCliente || response.id_cliente
+        id_cliente: response.idCliente || response.IdCliente || response.id_cliente,
+        nombre: response.nombre || response.Nombre || response.nombreCompleto || response.NombreCompleto ||
+                clienteData.nombre ||
+                (response.correo || response.Correo || clienteData.correo || '').split('@')[0] || '',
+        tipo_documento: response.tipoDocumento || response.TipoDocumento || response.tipo_documento || clienteData.tipo_documento || 'Cédula de Ciudadanía',
+        cedula: response.cedula || response.Cedula || clienteData.cedula || null,
+        correo: response.correo || response.Correo || clienteData.correo || null,
+        telefono: response.telefono || response.Telefono || clienteData.telefono || null,
+        direccion: response.direccion || response.Direccion || clienteData.direccion || null,
+        mascotas: []
       };
 
       setClientes(prev => [nuevo, ...prev]);

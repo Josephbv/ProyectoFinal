@@ -7,6 +7,7 @@ import { Textarea } from '../../../shared/components/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../shared/components/select';
 import { Servicio } from '../hooks/useServicios';
 import { Wrench, Clock, DollarSign } from 'lucide-react';
+import { soloLetras } from '../../../shared/utils/validators';
 
 interface ServicioModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
     nombre: '',
     descripcion: '',
     precio: 0,
+    duracion: 30,
     estado: 'activo' as 'activo' | 'inactivo' | 'mantenimiento',
   });
 
@@ -33,6 +35,7 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
         nombre: servicio.nombre_servicio || servicio.nombre || '',
         descripcion: servicio.descripcion || '',
         precio: servicio.precio || 0,
+        duracion: servicio.duracion || 30,
         estado: (servicio.estado as any) || 'activo',
       });
     } else {
@@ -40,6 +43,7 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
         nombre: '',
         descripcion: '',
         precio: 0,
+        duracion: 30,
         estado: 'activo',
       });
     }
@@ -48,34 +52,35 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    const tieneNumeros = (valor: string) => /\d/.test(valor);
 
     if (!formData.nombre.trim()) {
-      newErrors.nombre = 'El nombre es requerido';
-    } else if (tieneNumeros(formData.nombre)) {
-      newErrors.nombre = 'El nombre no puede contener números';
+      newErrors.nombre = 'El nombre del servicio es obligatorio para el catálogo.';
+    } else if (!soloLetras(formData.nombre)) {
+      newErrors.nombre = 'El nombre no debe contener números ni símbolos especiales.';
     } else {
-      // Validar nombre duplicado (ignorando mayúsculas/minúsculas y espacios extra)
       const nombreIngresado = formData.nombre.trim().toLowerCase();
       const esDuplicado = servicios.some(s => {
         const nombreExistente = (s.nombre_servicio || s.nombre || '').trim().toLowerCase();
-        // Si estamos editando, ignoramos el servicio actual
         if (servicio && s.id === servicio.id) return false;
         return nombreExistente === nombreIngresado;
       });
 
       if (esDuplicado) {
-        newErrors.nombre = 'Ya existe un servicio con este nombre';
+        newErrors.nombre = 'Ya existe un servicio con este nombre registrado.';
       }
     }
 
     if (!formData.descripcion.trim()) {
-      newErrors.descripcion = 'La descripción es requerida';
-    } else if (tieneNumeros(formData.descripcion)) {
-      newErrors.descripcion = 'La descripción no puede contener números';
+      newErrors.descripcion = 'La descripción es obligatoria para informar al cliente.';
     }
 
-    if (formData.precio <= 0) newErrors.precio = 'El precio debe ser mayor a 0';
+    if (formData.precio <= 0) {
+      newErrors.precio = 'El precio debe ser un valor mayor a 0.';
+    }
+
+    if (formData.duracion <= 0) {
+      newErrors.duracion = 'La duración debe ser mayor a 0 minutos.';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -172,9 +177,25 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="duracion" className="text-dark-primary flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-400" />
+                  Duración (Minutos) *
+                </Label>
+                <Input
+                  id="duracion"
+                  type="number"
+                  value={formData.duracion}
+                  onChange={(e) => handleChange('duracion', Number(e.target.value))}
+                  className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta h-11"
+                  placeholder="30"
+                />
+                {errors.duracion && <p className="text-red-400 text-sm">{errors.duracion}</p>}
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="estado" className="text-dark-primary">Estado</Label>
                 <Select value={formData.estado} onValueChange={(value) => handleChange('estado', value)}>
-                  <SelectTrigger className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta h-11">
+                  <SelectTrigger className="bg-dark-hover border-dark-color text-dark-primary h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-dark-card border-dark-color">

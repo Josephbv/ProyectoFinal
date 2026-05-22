@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
 import { MailService } from '../../../shared/services/MailService';
 
@@ -54,6 +54,29 @@ export function useEmailAuth() {
 
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const handleAuthUpdate = () => {
+      const saved = localStorage.getItem('kaivet_auth_data');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          setAuthState({
+            user: data.usuario,
+            token: data.token,
+            isAuthenticated: !!data.token,
+          });
+        } catch (err) {
+          console.error("Error al sincronizar auth state:", err);
+        }
+      } else {
+        setAuthState({ user: null, token: null, isAuthenticated: false });
+      }
+    };
+
+    window.addEventListener('kaivet-auth-update', handleAuthUpdate);
+    return () => window.removeEventListener('kaivet-auth-update', handleAuthUpdate);
+  }, []);
+
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     try {
@@ -107,26 +130,41 @@ export function useEmailAuth() {
     }
   }, []);
 
+  /**
+   * Registro público desde la web.
+   * IMPORTANTE: El rol siempre se fuerza a Cliente (IdRol=4).
+   * La creación de administradores sólo está disponible desde el
+   * panel interno de administración (módulo Configuración > Usuarios).
+   */
   const register = useCallback(async (registerData: RegisterData) => {
     setLoading(true);
     try {
+      // ⚠️ SEGURIDAD: IdRol e IdNombreRol están HARDCODEADOS a Cliente.
+      // Nunca tomar estos valores del formulario ni de parámetros externos.
+      const ROL_CLIENTE_ID = 4;
+      const ROL_CLIENTE_NOMBRE = 'Cliente';
+
+      const payload = {
+        Nombre: registerData.nombre,           // ← campo que usa el backend para la tabla Clientes
+        NombreUsuario: registerData.nombre,
+        NombreCompleto: registerData.nombre,
+        Correo: registerData.email,
+        Email: registerData.email,
+        Contrasena: registerData.password,
+        Password: registerData.password,
+        TipoDocumento: registerData.tipoDocumento,
+        Cedula: registerData.cedula,
+        Telefono: registerData.telefono,
+        Direccion: registerData.direccion,
+        // Rol forzado: SIEMPRE Cliente — no se puede cambiar desde el registro web
+        IdRol: ROL_CLIENTE_ID,
+        NombreRol: ROL_CLIENTE_NOMBRE,
+      };
+
       const data = await apiFetch(`${API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          NombreUsuario: registerData.nombre,
-          NombreCompleto: registerData.nombre,
-          Correo: registerData.email,
-          Email: registerData.email,
-          Contrasena: registerData.password,
-          Password: registerData.password,
-          TipoDocumento: registerData.tipoDocumento,
-          Cedula: registerData.cedula,
-          Telefono: registerData.telefono,
-          Direccion: registerData.direccion,
-          IdRol: 4,
-          NombreRol: 'Cliente'
-        }),
+        body: JSON.stringify(payload),
       });
 
       // Si el registro fue exitoso en el backend, disparamos el correo de bienvenida
@@ -136,7 +174,19 @@ export function useEmailAuth() {
 
       return { success: true, data };
     } catch (error: any) {
-      return { success: false, error: error.message };
+      const raw: string = (error.message || '').toLowerCase();
+      let friendlyError = error.message;
+
+      if ((raw.includes('correo') || raw.includes('email') || raw.includes('mail')) &&
+        (raw.includes('exist') || raw.includes('duplica') || raw.includes('registrado') || raw.includes('unique') || raw.includes('already')))
+        friendlyError = 'duplicate_email';
+      else if ((raw.includes('cedula') || raw.includes('documento') || raw.includes('identificaci')) &&
+        (raw.includes('exist') || raw.includes('duplica') || raw.includes('registrado') || raw.includes('unique') || raw.includes('already')))
+        friendlyError = 'duplicate_cedula';
+      else if (raw.includes('unique') || raw.includes('duplica') || raw.includes('already exist'))
+        friendlyError = 'duplicate_generic';
+
+      return { success: false, error: friendlyError };
     } finally {
       setLoading(false);
     }
@@ -190,6 +240,10 @@ export function useEmailAuth() {
       if (!prev.user) return prev;
       const updatedUser = { ...prev.user, ...newData };
       localStorage.setItem('kaivet_auth_data', JSON.stringify({ token: prev.token, usuario: updatedUser }));
+
+      // Emitir evento global para que otros componentes se sincronicen
+      window.dispatchEvent(new CustomEvent('kaivet-auth-update'));
+
       return { ...prev, user: updatedUser };
     });
   }, []);

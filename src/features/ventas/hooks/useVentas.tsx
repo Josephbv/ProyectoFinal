@@ -14,18 +14,24 @@ export interface Venta {
   total: number | null;
   estado: 'aprobada' | 'anulada';
   id_cliente: number;
+  id_mascota?: number;
   cliente?: any;
+  mascota?: any;
   venta_servicios?: VentaServicio[];
   motivo_anulacion?: string;
 }
 
 const API_URL = '/api';
 
-export function useVentas() {
+export function useVentas(enabled: boolean = true) {
   const [ventas, setVentas] = useState<Venta[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
 
   const cargarVentas = useCallback(async () => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const data: any[] = await apiFetch(`${API_URL}/ventas`);
@@ -36,6 +42,10 @@ export function useVentas() {
         total: v.total || v.Total,
         estado: v.estado || v.Estado,
         id_cliente: v.idCliente || v.IdCliente || v.id_cliente,
+        id_mascota: v.idMascota || v.IdMascota || v.id_mascota || (() => {
+          const storedStr = localStorage.getItem(`mascota_venta_${v.idVenta || v.IdVenta || v.id_venta}`);
+          return storedStr ? parseInt(storedStr) : undefined;
+        })(),
         cliente: v.cliente || (v.idClienteNavigation || v.IdClienteNavigation ? {
           id_cliente: (v.idClienteNavigation || v.IdClienteNavigation).idCliente || (v.idClienteNavigation || v.IdClienteNavigation).IdCliente,
           nombre: (v.idClienteNavigation || v.IdClienteNavigation).nombre || (v.idClienteNavigation || v.IdClienteNavigation).Nombre || (v.idClienteNavigation || v.IdClienteNavigation).nombreCompleto,
@@ -56,15 +66,18 @@ export function useVentas() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [enabled]);
 
-  useEffect(() => { cargarVentas(); }, [cargarVentas]);
+  useEffect(() => {
+    if (enabled) cargarVentas();
+  }, [cargarVentas, enabled]);
 
   // Recarga automática cada 30 segundos para mantener el Dashboard actualizado
   useEffect(() => {
+    if (!enabled) return;
     const interval = setInterval(cargarVentas, 30000);
     return () => clearInterval(interval);
-  }, [cargarVentas]);
+  }, [cargarVentas, enabled]);
 
   // Recarga al volver a la pestaña (ej: después de crear una venta)
   useEffect(() => {
@@ -82,6 +95,7 @@ export function useVentas() {
         Fecha: ventaData.fecha ? (typeof ventaData.fecha === 'string' ? ventaData.fecha.split('T')[0] : new Date(ventaData.fecha).toISOString().split('T')[0]) : new Date().toISOString().split('T')[0],
         Total: Number(ventaData.total),
         IdCliente: Number(ventaData.id_cliente),
+        IdMascota: ventaData.id_mascota ? Number(ventaData.id_mascota) : null,
         Estado: ventaData.estado || 'aprobada',
         VentaServicios: (ventaData.venta_servicios || []).map((vs: any) => ({
           IdServicio: Number(vs.id_servicio),
@@ -90,6 +104,7 @@ export function useVentas() {
           IdVentaNavigation: null,
         })),
         IdClienteNavigation: null,
+        IdMascotaNavigation: null,
       };
       const nuevaVenta = await apiFetch(`${API_URL}/ventas`, {
         method: 'POST',
@@ -100,10 +115,31 @@ export function useVentas() {
       const mapped = {
         ...nuevaVenta,
         id_venta: nuevaVenta.idVenta || nuevaVenta.IdVenta || nuevaVenta.id_venta,
-        fecha: nuevaVenta.fecha || payload.Fecha,
-        total: nuevaVenta.total || payload.Total,
-        id_cliente: nuevaVenta.idCliente || nuevaVenta.IdCliente || payload.IdCliente
+        fecha: nuevaVenta.fecha || nuevaVenta.Fecha || payload.Fecha,
+        total: nuevaVenta.total || nuevaVenta.Total || payload.Total,
+        id_cliente: nuevaVenta.idCliente || nuevaVenta.IdCliente || payload.IdCliente,
+        id_mascota: nuevaVenta.idMascota || nuevaVenta.IdMascota || payload.IdMascota || ventaData.id_mascota || null,
+        cliente: nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation
+          ? {
+            id_cliente: (nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).idCliente,
+            nombre: (nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).nombre || (nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).Nombre,
+            cedula: (nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).cedula || (nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).Cedula,
+          }
+          : ventaData.cliente || undefined,
+        venta_servicios: (nuevaVenta.ventaServicios || nuevaVenta.VentaServicios || [])
+          .filter((vs: any) => vs !== null)
+          .map((vs: any) => ({
+            id_venta: vs.idVenta || vs.IdVenta,
+            id_servicio: vs.idServicio || vs.IdServicio || vs.id_servicio,
+            cantidad: vs.cantidad || vs.Cantidad || 1,
+            servicio: vs.idServicioNavigation || vs.IdServicioNavigation || vs.servicio
+          })) || ventaData.venta_servicios || [],
+        estado: nuevaVenta.estado || nuevaVenta.Estado || 'aprobada',
       };
+
+      if (mapped.id_mascota) {
+        localStorage.setItem(`mascota_venta_${mapped.id_venta}`, mapped.id_mascota.toString());
+      }
 
       setVentas(prev => [mapped, ...prev].sort((a, b) => {
         const dateA = new Date(a.fecha || '').getTime();

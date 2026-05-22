@@ -1,14 +1,21 @@
-import { User, Phone, MapPin, Mail, CreditCard, Star, ShieldCheck, Clock } from "lucide-react";
+import { User, Phone, MapPin, Mail, CreditCard, Star, ShieldCheck, Clock, Calendar, Stethoscope, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { useClientes } from "../hooks/useClientes";
 import { Button } from "../../../shared/components/button";
 import { useMascotas } from "../../mascotas/hooks/useMascotas";
+import { useAgendamiento } from "../../agendamiento/hooks/useAgendamiento";
+import { useHorario } from "../../empleados/hooks/useHorario";
 import { toast } from "sonner";
+import { Badge } from "../../../shared/components/badge";
 
 export function PerfilClientePage() {
     const { user, updateUser } = useEmailAuth();
     const { mascotas } = useMascotas();
+    const { clientes, actualizarCliente, loading: updating } = useClientes();
+    const { citas } = useAgendamiento();
+    const { horarios } = useHorario();
+
     const [isEditing, setIsEditing] = useState(false);
     const [editFormData, setEditFormData] = useState({
         nombre: '',
@@ -17,9 +24,25 @@ export function PerfilClientePage() {
         cedula: ''
     });
 
-    const { clientes, actualizarCliente, loading: updating } = useClientes();
     const clienteData = clientes.find(c => c.id_cliente === user?.id_cliente);
     const misMascotas = mascotas.filter(m => m.id_cliente === user?.id_cliente);
+
+    // Filtrar citas del cliente con manejo seguro de fechas
+    const misCitas = (citas || [])
+        .filter(c => c.id_cliente === user?.id_cliente)
+        .sort((a, b) => {
+            const fechaA = a.fecha ? new Date(a.fecha).getTime() : 0;
+            const fechaB = b.fecha ? new Date(b.fecha).getTime() : 0;
+            return fechaB - fechaA;
+        });
+
+    // Agrupar horarios de la clínica
+    const horariosClinica = (horarios || []).reduce((acc, h) => {
+        if (h.dia_semana && !acc[h.dia_semana]) acc[h.dia_semana] = h;
+        return acc;
+    }, {} as Record<string, any>);
+
+    const diasOrdenados = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
     useEffect(() => {
         if (clienteData) {
@@ -41,11 +64,11 @@ export function PerfilClientePage() {
                     nombre_completo: editFormData.nombre,
                     nombre_usuario: editFormData.nombre
                 });
-                toast.success("Perfil actualizado");
+                toast.success("Perfil actualizado correctamente");
                 setIsEditing(false);
             }
         } catch (err) {
-            toast.error("Error de conexión");
+            toast.error("Error al guardar cambios");
         }
     };
 
@@ -53,13 +76,13 @@ export function PerfilClientePage() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-dark-secondary">
                 <User className="w-16 h-16 opacity-20 mb-4 animate-pulse" />
-                <p className="font-bold tracking-widest uppercase text-sm">Cargando...</p>
+                <p className="font-bold tracking-widest uppercase text-sm">Sincronizando información...</p>
             </div>
         );
     }
 
     return (
-        <div className="p-8 max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <header className="relative rounded-[4rem] p-10 shadow-2xl overflow-hidden group" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)' }}>
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl opacity-50"></div>
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-400/10 rounded-full -ml-10 -mb-10 blur-2xl"></div>
@@ -112,103 +135,184 @@ export function PerfilClientePage() {
                 </div>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-2 space-y-6">
-                    <section className="bg-dark-card border border-dark-color rounded-[3.5rem] p-8 shadow-xl relative overflow-hidden h-full flex flex-col justify-center">
-                        <h2 className="text-xl font-black text-dark-primary tracking-tight flex items-center gap-3 mb-8">
-                            <div className="p-2 bg-indigo-500/10 rounded-xl">
-                                <User className="w-5 h-5 text-indigo-400" />
-                            </div>
-                            Datos de la cuenta
-                        </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Datos de la cuenta */}
+                <section className="bg-dark-card border border-dark-color rounded-[3.5rem] p-8 shadow-xl relative overflow-hidden flex flex-col">
+                    <h2 className="text-xl font-black text-dark-primary tracking-tight flex items-center gap-3 mb-8">
+                        <div className="p-2 bg-indigo-500/10 rounded-xl">
+                            <User className="w-5 h-5 text-indigo-400" />
+                        </div>
+                        Datos de contacto
+                    </h2>
 
-                        <div className="grid grid-cols-1 gap-6">
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="group">
-                                    <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Documento de identidad</p>
-                                    <div className="flex items-center gap-3 bg-dark-hover/50 p-3 rounded-2xl border border-dark-color opacity-70">
-                                        <CreditCard className="w-4 h-4 text-blue-400" />
-                                        <span className="text-sm font-bold text-dark-primary uppercase">{clienteData.cedula || 'No registrada'}</span>
-                                    </div>
-                                </div>
-
-                                <div className="group">
-                                    <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Teléfono móvil</p>
-                                    {isEditing ? (
-                                        <input
-                                            className="w-full bg-dark-hover p-3 rounded-2xl border border-blue-500/30 text-sm font-bold text-dark-primary focus:outline-none"
-                                            value={editFormData.telefono}
-                                            onChange={(e) => setEditFormData({ ...editFormData, telefono: e.target.value })}
-                                        />
-                                    ) : (
-                                        <div className="flex items-center gap-3 bg-dark-hover p-3 rounded-2xl border border-dark-color transition-all">
-                                            <Phone className="w-4 h-4 text-emerald-400" />
-                                            <span className="text-sm font-bold text-dark-primary">{clienteData.telefono || 'Sin teléfono'}</span>
-                                        </div>
-                                    )}
+                    <div className="grid grid-cols-1 gap-6">
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="group">
+                                <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Documento de identidad</p>
+                                <div className="flex items-center gap-3 bg-dark-hover/50 p-3 rounded-2xl border border-dark-color opacity-70">
+                                    <CreditCard className="w-4 h-4 text-blue-400" />
+                                    <span className="text-sm font-bold text-dark-primary uppercase">{clienteData.cedula || 'No registrada'}</span>
                                 </div>
                             </div>
 
                             <div className="group">
-                                <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Dirección residencial</p>
+                                <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Teléfono móvil</p>
                                 {isEditing ? (
                                     <input
                                         className="w-full bg-dark-hover p-3 rounded-2xl border border-blue-500/30 text-sm font-bold text-dark-primary focus:outline-none"
-                                        value={editFormData.direccion}
-                                        onChange={(e) => setEditFormData({ ...editFormData, direccion: e.target.value })}
+                                        value={editFormData.telefono}
+                                        onChange={(e) => setEditFormData({ ...editFormData, telefono: e.target.value })}
                                     />
                                 ) : (
                                     <div className="flex items-center gap-3 bg-dark-hover p-3 rounded-2xl border border-dark-color transition-all">
-                                        <MapPin className="w-4 h-4 text-rose-400" />
-                                        <span className="text-sm font-bold text-dark-primary">{clienteData.direccion || 'Sin dirección registrada'}</span>
+                                        <Phone className="w-4 h-4 text-emerald-400" />
+                                        <span className="text-sm font-bold text-dark-primary">{clienteData.telefono || 'Sin teléfono'}</span>
                                     </div>
                                 )}
                             </div>
-
-                            <div className="group">
-                                <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Correo electrónico</p>
-                                <div className="flex items-center gap-3 bg-dark-hover/50 p-3 rounded-2xl border border-dark-color opacity-70">
-                                    <Mail className="w-4 h-4 text-purple-400" />
-                                    <span className="text-sm font-bold text-dark-primary truncate">{user?.correo || 'No disponible'}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                <div className="lg:col-span-2">
-                    <section className="h-full bg-dark-card border border-dark-color rounded-[3.5rem] p-8 shadow-xl overflow-hidden relative group flex flex-col justify-center">
-                        <div className="absolute top-0 right-0 p-6">
-                            <Star className="w-20 h-20 text-blue-500/5 rotate-12 group-hover:scale-110 transition-transform" />
                         </div>
 
-                        <h3 className="text-2xl font-black text-dark-primary mb-10 tracking-tight text-center lg:text-left">Actividad Reciente</h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="bg-dark-hover/50 p-6 rounded-[2.5rem] border border-dark-color flex flex-col items-center text-center">
-                                <div className="w-14 h-14 rounded-2xl bg-pink-500/10 flex items-center justify-center mb-4">
-                                    <Star className="w-7 h-7 text-pink-400" />
+                        <div className="group">
+                            <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Dirección residencial</p>
+                            {isEditing ? (
+                                <input
+                                    className="w-full bg-dark-hover p-3 rounded-2xl border border-blue-500/30 text-sm font-bold text-dark-primary focus:outline-none"
+                                    value={editFormData.direccion}
+                                    onChange={(e) => setEditFormData({ ...editFormData, direccion: e.target.value })}
+                                />
+                            ) : (
+                                <div className="flex items-center gap-3 bg-dark-hover p-3 rounded-2xl border border-dark-color transition-all">
+                                    <MapPin className="w-4 h-4 text-rose-400" />
+                                    <span className="text-sm font-bold text-dark-primary">{clienteData.direccion || 'Sin dirección registrada'}</span>
                                 </div>
-                                <p className="text-sm font-bold text-dark-secondary mb-1">Mascotas en Sistema</p>
-                                <span className="text-4xl font-black text-dark-primary">{misMascotas.length}</span>
-                            </div>
+                            )}
+                        </div>
 
-                            <div className="bg-dark-hover/50 p-6 rounded-[2.5rem] border border-dark-color flex flex-col items-center text-center">
-                                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-4">
-                                    <Clock className="w-7 h-7 text-amber-400" />
-                                </div>
-                                <p className="text-sm font-bold text-dark-secondary mb-1">Último acceso</p>
-                                <span className="text-lg font-black text-dark-primary uppercase">
-                                    {user?.ultimo_acceso
-                                        ? new Date(user.ultimo_acceso).toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })
-                                        : `Hoy, ${new Date().toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}`
-                                    }
-                                </span>
+                        <div className="group">
+                            <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Correo electrónico</p>
+                            <div className="flex items-center gap-3 bg-dark-hover/50 p-3 rounded-2xl border border-dark-color opacity-70">
+                                <Mail className="w-4 h-4 text-purple-400" />
+                                <span className="text-sm font-bold text-dark-primary truncate">{user?.correo || 'No disponible'}</span>
                             </div>
                         </div>
-                    </section>
-                </div>
+                    </div>
+                </section>
+
+                {/* Resumen y Horarios */}
+                <section className="bg-dark-card border border-dark-color rounded-[3.5rem] p-8 shadow-xl flex flex-col">
+                    <h3 className="text-xl font-black text-dark-primary mb-8 tracking-tight flex items-center gap-3">
+                        <div className="p-2 bg-amber-500/10 rounded-xl">
+                            <Clock className="w-5 h-5 text-amber-400" />
+                        </div>
+                        Horarios de Atención
+                    </h3>
+
+                    <div className="flex-1 space-y-3">
+                        {diasOrdenados.map(dia => {
+                            const horario = horariosClinica[dia];
+                            return (
+                                <div key={dia} className="flex items-center justify-between p-3 bg-dark-hover/40 rounded-2xl border border-dark-color/50">
+                                    <span className="text-xs font-bold text-dark-primary">{dia}</span>
+                                    {horario ? (
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-0 font-mono text-[10px]">
+                                                {horario.hora_inicio.substring(0, 5)} - {horario.hora_fin.substring(0, 5)}
+                                            </Badge>
+                                        </div>
+                                    ) : (
+                                        <Badge variant="outline" className="bg-rose-500/10 text-rose-400 border-0 font-bold text-[10px] uppercase">Cerrado</Badge>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </section>
             </div>
+
+            {/* Historial de Citas y Seguimiento */}
+            <section className="bg-dark-card border border-dark-color rounded-[3.5rem] p-8 shadow-xl">
+                <h3 className="text-2xl font-black text-dark-primary mb-10 tracking-tight flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/10 rounded-xl">
+                        <Calendar className="w-6 h-6 text-blue-400" />
+                    </div>
+                    Historial de Citas y Seguimiento Médico
+                </h3>
+
+                <div className="space-y-6">
+                    {misCitas.length > 0 ? (
+                        misCitas.map((cita: any, idx: number) => {
+                            const fechaCita = cita.fecha ? new Date(cita.fecha) : new Date();
+                            const idCita = cita.id_agendamiento || cita.idAgendamiento || cita.id_cita || idx;
+
+                            return (
+                                <div key={idCita} className="relative group p-6 bg-dark-hover/30 border border-dark-color rounded-[2.5rem] hover:border-blue-500/30 transition-all duration-500">
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-16 h-16 rounded-2xl bg-blue-600 flex flex-col items-center justify-center text-white shadow-lg overflow-hidden shrink-0">
+                                                <span className="text-[10px] font-black uppercase opacity-60 bg-black/20 w-full text-center py-0.5">
+                                                    {fechaCita.toLocaleString('es-ES', { month: 'short' })}
+                                                </span>
+                                                <span className="text-2xl font-black">
+                                                    {fechaCita.getDate()}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-lg font-black text-dark-primary uppercase tracking-tight flex items-center gap-2">
+                                                    {cita.mascota?.nombre || cita.idMascotaNavigation?.nombre || 'Paciente'}
+                                                    <Badge className="bg-blue-500/10 text-blue-400 border-0 text-[10px]">
+                                                        {cita.motivo || cita.motivoCita || 'Consulta'}
+                                                    </Badge>
+                                                </h4>
+                                                <p className="text-sm text-dark-secondary italic">
+                                                    {cita.especialista?.nombre || cita.idEmpleadoNavigation?.nombre || 'Médico Veterinario'}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3 flex-1 max-w-md">
+                                            <div className="flex items-center gap-2 px-3 py-1.5 bg-dark-bg rounded-xl border border-dark-color">
+                                                <Stethoscope className="w-4 h-4 text-indigo-400" />
+                                                <span className="text-xs font-bold text-dark-secondary uppercase tracking-wider">Servicios Realizados:</span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {cita.servicios && Array.isArray(cita.servicios) ? (
+                                                    cita.servicios
+                                                        .filter((s: any) => s.realizado)
+                                                        .map((s: any, sIdx: number) => (
+                                                            <Badge key={sIdx} className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 py-1 px-3 flex items-center gap-2">
+                                                                <CheckCircle2 className="w-3 h-3" />
+                                                                {s.nombre || s.nombre_servicio || 'Servicio'}
+                                                            </Badge>
+                                                        ))
+                                                ) : (
+                                                    <span className="text-[10px] text-dark-secondary opacity-60 italic">Consulta general registrada</span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col items-end gap-2 shrink-0">
+                                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${cita.estado?.toLowerCase() === 'completada' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
+                                                cita.estado?.toLowerCase() === 'pendiente' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' :
+                                                    'bg-dark-hover text-dark-secondary border-dark-color'
+                                                }`}>
+                                                {cita.estado || 'Agendada'}
+                                            </span>
+                                            <span className="text-xs font-mono text-dark-secondary opacity-40">Ref: #{idCita}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div className="py-20 text-center border-2 border-dashed border-dark-color/30 rounded-[3.5rem] bg-dark-hover/10">
+                            <Calendar className="w-16 h-16 text-dark-secondary opacity-10 mx-auto mb-4" />
+                            <p className="text-sm font-bold text-dark-secondary uppercase tracking-widest opacity-40">No tienes citas registradas aún</p>
+                        </div>
+                    )}
+                </div>
+            </section>
         </div>
     );
 }
+
+// Keep the rest of the file...

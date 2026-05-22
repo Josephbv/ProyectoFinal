@@ -6,7 +6,7 @@ import { Textarea } from "../../../shared/components/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/components/select";
 import { Badge } from "../../../shared/components/badge";
 import { toast } from "sonner";
-import { ShoppingCart, Calendar, User, DollarSign, Stethoscope, Package, Calculator, CheckCircle2, X, Plus, ChevronLeft, Search, Heart } from 'lucide-react';
+import { ShoppingCart, Calendar, User, DollarSign, Stethoscope, Package, Calculator, CheckCircle2, X, Plus, ChevronLeft, Search, Heart, Clock } from 'lucide-react';
 import { useVentas } from "../hooks/useVentas";
 import { useClientes, Cliente, Mascota } from "../../clientes/hooks/useClientes";
 import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
@@ -34,7 +34,7 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
         fecha: new Date().toISOString().split('T')[0],
         hora: new Date().toTimeString().slice(0, 5),
         cliente: '',
-        mascota: '',
+        id_mascota: '',
         veterinario: '',
         servicios: [] as { id_servicio: number; nombre: string; precio: number; cantidad: number }[],
         productos: [] as { id_servicio: number; nombre: string; precio: number; cantidad: number }[],
@@ -93,7 +93,7 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
         setFormData(prev => ({
             ...prev,
             cliente: cliente.nombre,
-            mascota: (cliente.mascotas && cliente.mascotas.length > 0) ? cliente.mascotas[0].nombre : ''
+            id_mascota: (cliente.mascotas && cliente.mascotas.length > 0) ? cliente.mascotas[0].id_mascota?.toString() || (cliente.mascotas[0] as any).id?.toString() || '' : ''
         }));
         setBusquedaCedula(cliente.cedula || '');
         setMostrarResultados(false);
@@ -139,21 +139,46 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
         }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        if (e) e.preventDefault();
-
+    const validateForm = () => {
         if (!clienteSeleccionado) {
-            toast.error("Debe seleccionar un cliente");
-            return;
+            toast.error("Identificación requerida", {
+                description: "Por favor, busca y selecciona un cliente para continuar con la venta."
+            });
+            return false;
+        }
+
+        if (!formData.id_mascota) {
+            toast.error("Mascota requerida", {
+                description: "Debes seleccionar el paciente asociado a este cobro."
+            });
+            return false;
         }
 
         if (formData.servicios.length === 0 && formData.productos.length === 0) {
-            toast.error("Debe agregar al menos un servicio o producto");
-            return;
+            toast.error("Carrito vacío", {
+                description: "Añade al menos un servicio o producto para registrar la venta."
+            });
+            return false;
         }
+
+        if (!formData.veterinario) {
+            toast.error("Responsable requerido", {
+                description: "Selecciona el profesional que atendió la cita."
+            });
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        if (e) e.preventDefault();
+
+        if (!validateForm()) return;
 
         const result = await crearVenta({
             id_cliente: clienteSeleccionado?.id_cliente || (clienteSeleccionado as any)?.id,
+            id_mascota: formData.id_mascota ? parseInt(formData.id_mascota) : null,
             fecha: formData.fecha,
             hora: formData.hora,
             venta_servicios: [
@@ -166,10 +191,14 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
         });
 
         if (result.success) {
-            toast.success("Venta registrada exitosamente");
+            toast.success("Venta exitosa", {
+                description: `Se registró el cobro por un total de $${formData.total.toLocaleString()}.`
+            });
             onSuccess();
         } else {
-            toast.error(result.error || "Error al registrar venta");
+            toast.error("Error de Registro", {
+                description: result.error || "No se pudo conectar con el servidor para guardar la venta."
+            });
         }
     };
 
@@ -269,23 +298,30 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
                             {clienteSeleccionado && (
                                 <div className="mt-6 space-y-5 animate-in slide-in-from-left-2">
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] text-dark-secondary uppercase font-bold ml-1">Mascota Principal</Label>
+                                        <Label className="text-[10px] text-dark-secondary uppercase font-bold ml-1">Mascota del Paciente</Label>
                                         <Select
-                                            value={formData.mascota}
-                                            onValueChange={(val: string) => setFormData(prev => ({ ...prev, mascota: val }))}
+                                            value={formData.id_mascota}
+                                            onValueChange={(val: string) => setFormData(prev => ({ ...prev, id_mascota: val }))}
                                         >
                                             <SelectTrigger className="bg-dark-card border-dark-color text-dark-primary h-10 rounded-lg">
-                                                <SelectValue placeholder="Seleccione mascota" />
+                                                <SelectValue placeholder={mascotasCliente.length === 0 ? "Sin mascotas registradas" : "Seleccione mascota"} />
                                             </SelectTrigger>
                                             <SelectContent className="bg-dark-card border-dark-color">
-                                                {mascotasCliente.map(m => (
-                                                    <SelectItem key={m.id_mascota || (m as any).id} value={m.nombre}>
-                                                        <div className="flex items-center gap-2">
-                                                            <Heart className="w-3.5 h-3.5 text-pink-400" />
-                                                            <span className="text-xs">{m.nombre} <span className="text-[10px] opacity-60">({m.raza})</span></span>
-                                                        </div>
-                                                    </SelectItem>
-                                                ))}
+                                                {mascotasCliente.length === 0 ? (
+                                                    <div className="px-3 py-3 text-xs text-dark-secondary italic text-center">
+                                                        Este cliente no tiene mascotas registradas
+                                                    </div>
+                                                ) : (
+                                                    mascotasCliente.map(m => (
+                                                        <SelectItem key={m.id_mascota || (m as any).id} value={String(m.id_mascota || (m as any).id)}>
+                                                            <div className="flex items-center gap-2">
+                                                                <span>{m.especie?.toLowerCase().includes('perro') || m.especie?.toLowerCase().includes('canino') ? '🐕' : m.especie?.toLowerCase().includes('gato') || m.especie?.toLowerCase().includes('felino') ? '🐈' : '🐾'}</span>
+                                                                <span className="font-semibold">{m.nombre}</span>
+                                                                {m.raza && <span className="text-dark-secondary text-xs italic">{m.especie} · {m.raza}</span>}
+                                                            </div>
+                                                        </SelectItem>
+                                                    ))
+                                                )}
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -340,7 +376,15 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
                                     <div key={s.id_servicio} className="flex items-center justify-between p-3 bg-dark-card/40 rounded-lg border border-dark-color/50 text-xs animate-in zoom-in-95">
                                         <div className="flex-1">
                                             <p className="text-dark-primary font-bold">{s.nombre}</p>
-                                            <p className="text-[10px] text-dark-secondary italic">${s.precio.toLocaleString()}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-[10px] text-dark-secondary italic">${s.precio.toLocaleString()}</p>
+                                                {dbServicios.find(ds => ds.id_servicio === s.id_servicio)?.duracion && (
+                                                    <span className="text-[9px] text-blue-400/70 flex items-center gap-0.5">
+                                                        <Clock className="w-2.5 h-2.5" />
+                                                        {dbServicios.find(ds => ds.id_servicio === s.id_servicio)?.duracion} min
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Button size="icon" variant="ghost" onClick={(e) => { e.preventDefault(); updateQuantity('servicios', s.id_servicio, -1); }} className="w-7 h-7 bg-dark-hover border border-dark-color">-</Button>

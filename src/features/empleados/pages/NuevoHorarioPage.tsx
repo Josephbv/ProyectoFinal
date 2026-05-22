@@ -409,10 +409,32 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
                         <div className="p-6 space-y-6">
                             {/* Titulo y Seleccción de Días */}
                             <div className="space-y-4">
-                                <h3 className="text-sm font-bold text-dark-primary flex items-center gap-2">
-                                    <Calendar className="w-4 h-4 text-blue-400" />
-                                    Horarios Semanales
-                                </h3>
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-sm font-bold text-dark-primary flex items-center gap-2">
+                                        <Calendar className="w-4 h-4 text-blue-400" />
+                                        Horarios Semanales
+                                    </h3>
+                                    {diasSeleccionados.length > 1 && (
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => {
+                                                const primerDia = diasSeleccionados[0];
+                                                const horarioBase = horariosPorDia[primerDia];
+                                                if (horarioBase) {
+                                                    const nuevosHorarios = { ...horariosPorDia };
+                                                    diasSeleccionados.forEach(dia => {
+                                                        nuevosHorarios[dia] = { ...horarioBase };
+                                                    });
+                                                    setHorariosPorDia(nuevosHorarios);
+                                                    toast.success("Horario replicado en todos los días");
+                                                }
+                                            }}
+                                            className="h-7 text-[10px] text-blue-400 hover:text-blue-300 font-black uppercase tracking-widest px-3 border border-blue-500/20 rounded-lg"
+                                        >
+                                            Aplicar a todos
+                                        </Button>
+                                    )}
+                                </div>
 
                                 <div className="grid grid-cols-7 gap-2">
                                     {diasSemana.map((dia) => {
@@ -432,6 +454,67 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
                                             </button>
                                         );
                                     })}
+                                </div>
+
+                                {/* Automatización Rápida */}
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const nuevosHorarios = { ...horariosPorDia };
+                                            diasSeleccionados.forEach(dia => {
+                                                nuevosHorarios[dia] = { horaInicio: '08:00', horaFin: '14:00', disponible: true };
+                                            });
+                                            setHorariosPorDia(nuevosHorarios);
+                                            toast.info("Preset Mañana aplicado");
+                                        }}
+                                        className="px-3 py-1.5 bg-dark-hover border border-dark-color rounded-lg text-[9px] font-bold text-dark-secondary hover:text-blue-400 transition-all uppercase tracking-wider"
+                                    >
+                                        Mañana
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const nuevosHorarios = { ...horariosPorDia };
+                                            diasSeleccionados.forEach(dia => {
+                                                nuevosHorarios[dia] = { horaInicio: '14:00', horaFin: '20:00', disponible: true };
+                                            });
+                                            setHorariosPorDia(nuevosHorarios);
+                                            toast.info("Preset Tarde aplicado");
+                                        }}
+                                        className="px-3 py-1.5 bg-dark-hover border border-dark-color rounded-lg text-[9px] font-bold text-dark-secondary hover:text-orange-400 transition-all uppercase tracking-wider"
+                                    >
+                                        Tarde
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const nuevosHorarios = { ...horariosPorDia };
+                                            diasSeleccionados.forEach(dia => {
+                                                nuevosHorarios[dia] = { horaInicio: '08:00', horaFin: '17:00', disponible: true };
+                                            });
+                                            setHorariosPorDia(nuevosHorarios);
+                                            toast.info("Día Completo aplicado");
+                                        }}
+                                        className="px-3 py-1.5 bg-dark-hover border border-dark-color rounded-lg text-[9px] font-bold text-dark-secondary hover:text-emerald-400 transition-all uppercase tracking-wider"
+                                    >
+                                        Todo el día
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const diasHabiles = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+                                            setDiasSeleccionados(diasHabiles);
+                                            const nuevosHorarios = { ...horariosPorDia };
+                                            diasHabiles.forEach(dia => {
+                                                if (!nuevosHorarios[dia]) nuevosHorarios[dia] = { horaInicio: '08:00', horaFin: '17:00', disponible: true };
+                                            });
+                                            setHorariosPorDia(nuevosHorarios);
+                                        }}
+                                        className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-[9px] font-black text-blue-400 transition-all uppercase tracking-widest ml-auto"
+                                    >
+                                        L-V Estándar
+                                    </button>
                                 </div>
                             </div>
 

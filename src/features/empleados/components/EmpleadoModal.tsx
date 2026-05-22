@@ -62,17 +62,37 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
 
-        if (!formData.tipo_documento) newErrors.tipo_documento = 'El tipo de documento es obligatorio';
-        if (!formData.cedula.trim()) newErrors.cedula = 'La cédula/documento es obligatoria';
-        if (!formData.nombre.trim()) newErrors.nombre = 'El nombre es obligatorio';
-        if (!formData.correo.trim()) {
-            newErrors.correo = 'El email es obligatorio';
-        } else if (!/\S+@\S+\.\S+/.test(formData.correo)) {
-            newErrors.correo = 'El email no es válido';
+        if (!formData.nombre.trim()) {
+            newErrors.nombre = 'Nombre: El nombre completo es obligatorio para el registro legal del empleado.';
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s'-]+$/.test(formData.nombre.trim())) {
+            newErrors.nombre = 'Nombre: Solo se permiten letras. Retira números o símbolos especiales para continuar.';
         }
-        if (!formData.cargo.trim()) newErrors.cargo = 'El cargo es obligatorio';
-        if (!formData.telefono.trim()) newErrors.telefono = 'El teléfono es obligatorio';
-        if (!formData.direccion.trim()) newErrors.direccion = 'La dirección es obligatoria';
+
+        if (!formData.tipo_documento) newErrors.tipo_documento = 'Tipo de Documento: Debes elegir una opción de la lista (ej: C.C, C.E).';
+
+        if (!formData.cedula.trim()) {
+            newErrors.cedula = 'Documento: El número de identificación es obligatorio para el contrato/sistema.';
+        } else if (!/^\d+$/.test(formData.cedula.trim())) {
+            newErrors.cedula = 'Documento: Solo se permiten números. Por favor, no uses puntos, comas ni letras.';
+        } else if (formData.cedula.trim().length < 6) {
+            newErrors.cedula = 'Documento: Debe ser un número de identificación válido de al menos 6 dígitos.';
+        }
+
+        if (!formData.correo.trim()) {
+            newErrors.correo = 'Email: El correo corporativo/personal es obligatorio para el acceso al sistema.';
+        } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.correo)) {
+            newErrors.correo = 'Email: El formato no es válido. Debe ser como usuario@empresa.com.';
+        }
+
+        if (!formData.cargo.trim()) newErrors.cargo = 'Cargo: Debes asignar un rol (ej: Veterinario) para otorgar los permisos de acceso correctos.';
+
+        if (!formData.telefono.trim()) {
+            newErrors.telefono = 'Teléfono: El número de celular es obligatorio para la comunicación interna.';
+        } else if (!/^\d{10}$/.test(formData.telefono.trim().replace(/\D/g, ''))) {
+            newErrors.telefono = 'Teléfono: Debe tener exactamente 10 dígitos numéricos (ej: 3101234567). Sin espacios ni guiones.';
+        }
+
+        if (!formData.direccion.trim()) newErrors.direccion = 'Dirección: Debes registrar el domicilio actual del empleado.';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;

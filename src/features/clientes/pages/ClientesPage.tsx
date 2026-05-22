@@ -224,11 +224,18 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
                   <TableRow key={`${cliente.id_cliente}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 ${getAvatarColor(cliente.nombre || '')} rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg`}>
-                          {getInitials(cliente.nombre || '')}
+                        <div className={`w-10 h-10 ${getAvatarColor(cliente.nombre || cliente.correo || '')} rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg`}>
+                          {getInitials(cliente.nombre || cliente.correo || '')}
                         </div>
                         <div>
-                          <div className="font-semibold text-dark-primary">{cliente.nombre}</div>
+                          {cliente.nombre ? (
+                            <div className="font-semibold text-dark-primary">{cliente.nombre}</div>
+                          ) : (
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm text-dark-secondary italic">{(cliente.correo || '').split('@')[0] || 'Sin nombre'}</span>
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30 font-semibold">Sin nombre</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </TableCell>
@@ -236,7 +243,7 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="text-sm font-medium text-dark-primary">{cliente.cedula || '---'}</span>
-                        <span className="text-[10px] text-dark-secondary italic">{cliente.tipo_documento}</span>
+                        <span className="text-[10px] text-dark-secondary italic">{cliente.tipo_documento || 'Cédula de Ciudadanía'}</span>
                       </div>
                     </TableCell>
 

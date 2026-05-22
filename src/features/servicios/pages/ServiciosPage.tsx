@@ -182,6 +182,12 @@ export function ServiciosPage() {
                       Precio
                     </div>
                   </TableHead>
+                  <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-blue-400" />
+                      Duración
+                    </div>
+                  </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-center min-w-[120px]">
                     <div className="flex items-center justify-center gap-2">
                       <ListFilter className="w-4 h-4 text-blue-400" />
@@ -211,6 +217,13 @@ export function ServiciosPage() {
                     <TableCell className="text-dark-primary">
                       <div>
                         <div className="font-semibold">${(servicio.precio || 0).toLocaleString()}</div>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-dark-primary">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-dark-secondary" />
+                        <span className="font-medium">{servicio.duracion || 30} min</span>
                       </div>
                     </TableCell>
 
@@ -367,7 +380,14 @@ export function ServiciosPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-dark-secondary mb-1">Precio</label>
-                    <p className="text-dark-primary font-semibold">${verDetallesDialog.servicio.precio?.toLocaleString()}</p>
+                    <p className="text-dark-primary font-semibold">${verDetallesDialog.servicio.precio?.toLocaleString() || 0}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-dark-secondary mb-1">Duración Aproximada</label>
+                    <p className="text-dark-primary font-semibold flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-blue-400" />
+                      {verDetallesDialog.servicio.duracion || 30} minutos
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-dark-secondary mb-1">Estado</label>
@@ -394,7 +414,7 @@ export function ServiciosPage() {
             </div>
           )}
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       <ConfirmDeleteDialog
         isOpen={deleteDialog.isOpen}

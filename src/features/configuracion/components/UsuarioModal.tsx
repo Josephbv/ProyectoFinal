@@ -5,6 +5,7 @@ import { Input } from '../../../shared/components/input';
 import { Label } from '../../../shared/components/label';
 import { useRoles } from '../hooks/useRoles';
 import { User, Lock, Users, Eye } from 'lucide-react';
+import { esEmailValido, esCedulaValida } from '../../../shared/utils/validators';
 
 
 
@@ -36,7 +37,6 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [isSubmitted, setIsSubmitted] = useState(false);
 
 
     useEffect(() => {
@@ -74,16 +74,41 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
             });
         }
         setErrors({});
-        setIsSubmitted(false);
     }, [usuario, isOpen, roles]);
 
 
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
 
-        if (!formData.nombre_usuario.trim()) newErrors.nombre_usuario = 'El username es obligatorio';
-        if (!formData.nombre_rol) newErrors.nombre_rol = 'El rol es obligatorio';
+        if (!formData.nombre_usuario.trim()) {
+            newErrors.nombre_usuario = 'El nombre de usuario (login) es obligatorio.';
+        } else if (formData.nombre_usuario.length < 4) {
+            newErrors.nombre_usuario = 'El nombre de usuario debe tener al menos 4 caracteres.';
+        }
 
+        if (!formData.nombre_completo.trim()) {
+            newErrors.nombre_completo = 'El nombre completo es obligatorio para la identificación.';
+        }
+
+        if (!formData.correo.trim()) {
+            newErrors.correo = 'El correo electrónico es obligatorio para el acceso.';
+        } else if (!esEmailValido(formData.correo)) {
+            newErrors.correo = 'El formato del correo no es válido (ej: usuario@correo.com).';
+        }
+
+        if (!formData.nombre_rol) {
+            newErrors.nombre_rol = 'Debes asignar un rol de acceso al usuario.';
+        }
+
+        if (!formData.cedula.trim()) {
+            newErrors.cedula = 'El número de identificación es obligatorio.';
+        } else if (!esCedulaValida(formData.cedula)) {
+            newErrors.cedula = 'La identificación no es válida (6-15 dígitos numéricos).';
+        }
+
+        if (!usuario && (!formData.contrasena || formData.contrasena.length < 6)) {
+            newErrors.contrasena = 'La contraseña es obligatoria y debe tener al menos 6 caracteres.';
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -91,7 +116,6 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitted(true);
         if (!validateForm()) return;
 
 
@@ -118,7 +142,13 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
         if (result.success) {
             onClose();
         } else {
-            setErrors({ submit: result.error || 'Error al guardar el usuario' });
+            if (result.error === 'duplicate_email') {
+                setErrors({ correo: 'Este correo ya pertenece a otro usuario registrado.' });
+            } else if (result.error === 'duplicate_cedula') {
+                setErrors({ cedula: 'Este número de documento ya está registrado en el sistema.' });
+            } else {
+                setErrors({ submit: result.error || 'Error al guardar el usuario' });
+            }
         }
     };
 
@@ -165,7 +195,6 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                     placeholder="ej: admin.sistema"
                                     readOnly={readOnly}
                                 />
-                                {isSubmitted && !formData.nombre_usuario.trim() && <p className="text-[10px] text-red-400 italic mt-0.5">Este campo es obligatorio</p>}
                                 {errors.nombre_usuario && <p className="text-red-400 text-xs">{errors.nombre_usuario}</p>}
 
 
@@ -186,10 +215,11 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                     type="email"
                                     value={formData.correo}
                                     onChange={(e) => handleChange('correo', e.target.value)}
-                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${usuario ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${usuario ? 'opacity-60 cursor-not-allowed' : ''} ${errors.correo ? 'border-red-500' : ''}`}
                                     placeholder="correo@ejemplo.com"
                                     readOnly={readOnly || !!usuario}
                                 />
+                                {errors.correo && <p className="text-red-400 text-[10px] italic mt-0.5">{errors.correo}</p>}
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-dark-secondary text-xs">Rol Base <span className="text-red-500">*</span></Label>
@@ -206,7 +236,6 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                         </option>
                                     ))}
                                 </select>
-                                {isSubmitted && !formData.nombre_rol && <p className="text-[10px] text-red-400 italic mt-0.5">Este campo es obligatorio</p>}
                                 {errors.nombre_rol && <p className="text-red-400 text-xs">{errors.nombre_rol}</p>}
 
 
@@ -231,13 +260,36 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                 <Input
                                     value={formData.cedula}
                                     onChange={(e) => handleChange('cedula', e.target.value)}
-                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${usuario ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${usuario ? 'opacity-60 cursor-not-allowed' : ''} ${errors.cedula ? 'border-red-500' : ''}`}
                                     placeholder="1001780XXX"
                                     readOnly={readOnly || !!usuario}
                                 />
+                                {errors.cedula && <p className="text-red-400 text-[10px] italic mt-0.5">{errors.cedula}</p>}
                             </div>
                         </div>
                     </div>
+
+                    {!usuario && !readOnly && (
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-bold text-dark-primary flex items-center gap-2 border-b border-dark-color pb-2">
+                                <Lock className="w-5 h-5 text-red-400" />
+                                Seguridad
+                            </h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-dark-secondary text-xs">Contraseña <span className="text-red-500">*</span></Label>
+                                    <Input
+                                        type="password"
+                                        value={formData.contrasena}
+                                        onChange={(e) => handleChange('contrasena', e.target.value)}
+                                        className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.contrasena ? 'border-red-500' : ''}`}
+                                        placeholder="Mínimo 6 caracteres"
+                                    />
+                                    {errors.contrasena && <p className="text-red-400 text-xs">{errors.contrasena}</p>}
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
 
 

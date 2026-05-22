@@ -86,6 +86,11 @@ export function useUsuarios() {
             await cargarUsuarios();
             return { success: true, data: nuevo };
         } catch (error: any) {
+            const raw = (error.message || '').toLowerCase();
+            if ((raw.includes('correo') || raw.includes('email')) && (raw.includes('exist') || raw.includes('duplicado')))
+                return { success: false, error: 'duplicate_email' };
+            if ((raw.includes('cedula') || raw.includes('documento')) && (raw.includes('exist') || raw.includes('duplicado')))
+                return { success: false, error: 'duplicate_cedula' };
             return { success: false, error: error.message };
         } finally {
             setLoading(false);
@@ -118,6 +123,11 @@ export function useUsuarios() {
             await cargarUsuarios();
             return { success: true };
         } catch (error: any) {
+            const raw = (error.message || '').toLowerCase();
+            if ((raw.includes('correo') || raw.includes('email')) && (raw.includes('exist') || raw.includes('duplicado')))
+                return { success: false, error: 'duplicate_email' };
+            if ((raw.includes('cedula') || raw.includes('documento')) && (raw.includes('exist') || raw.includes('duplicado')))
+                return { success: false, error: 'duplicate_cedula' };
             return { success: false, error: error.message };
         } finally {
             setLoading(false);
