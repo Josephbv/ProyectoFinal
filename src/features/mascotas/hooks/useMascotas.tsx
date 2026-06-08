@@ -35,9 +35,6 @@ export function useMascotas() {
       const data: any[] = await apiFetch(`${API_URL}/mascotas`);
       let mapped = (data || []).map((m: any) => {
         const id = m.idMascota || m.IdMascota || m.id_mascota;
-        // El backend no devuelve sexo/color/rasgos en GET, restaurar desde localStorage
-        const stored = localStorage.getItem(`mascota_extra_${id}`);
-        const extra = stored ? JSON.parse(stored) : {};
         return {
           ...m,
           id_mascota: id,
@@ -45,9 +42,9 @@ export function useMascotas() {
           nombre: m.nombre || m.Nombre,
           especie: m.especie || m.Especie,
           raza: m.raza || m.Raza,
-          sexo: m.sexo || m.Sexo || m.sex || m.Sex || extra.sexo || null,
-          color: m.color || m.Color || extra.color || null,
-          rasgos_particulares: m.rasgos_particulares || m.RasgosParticulares || extra.rasgos_particulares || null,
+          sexo: m.sexo || m.Sexo || null,
+          color: m.color || m.Color || null,
+          rasgos_particulares: m.rasgosParticulares || m.RasgosParticulares || m.rasgos_particulares || null,
           edad: m.edad ?? m.Edad ?? null,
           peso: m.peso ?? m.Peso ?? null,
           vacunas: m.vacunas || m.Vacunas || null,
@@ -106,14 +103,6 @@ export function useMascotas() {
         body: JSON.stringify(payload),
       });
       const id = nueva.idMascota || nueva.IdMascota || nueva.id_mascota;
-      // Persistir campos que el backend no devuelve en GET
-      if (mascotaData.sexo || (mascotaData as any).color || (mascotaData as any).rasgos_particulares) {
-        localStorage.setItem(`mascota_extra_${id}`, JSON.stringify({
-          sexo: mascotaData.sexo || null,
-          color: (mascotaData as any).color || null,
-          rasgos_particulares: (mascotaData as any).rasgos_particulares || null
-        }));
-      }
       const mappedNueva = {
         ...nueva,
         id_mascota: id,
@@ -157,12 +146,6 @@ export function useMascotas() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      // Persistir campos que el backend no devuelve en GET
-      localStorage.setItem(`mascota_extra_${id}`, JSON.stringify({
-        sexo: mascotaData.sexo || null,
-        color: (mascotaData as any).color || null,
-        rasgos_particulares: (mascotaData as any).rasgos_particulares || null
-      }));
       setMascotas(prev => prev.map(m => m.id_mascota === id ? { ...m, ...mascotaData } : m));
       return { success: true };
     } catch (error: any) {
