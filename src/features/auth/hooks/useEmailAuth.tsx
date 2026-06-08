@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
-import { MailService } from '../../../shared/services/MailService';
+
 
 interface User {
   id_usuario: number;
@@ -43,7 +43,7 @@ export function useEmailAuth() {
         return {
           user: data.usuario,
           token: data.token,
-          isAuthenticated: !!data.token,
+          isAuthenticated: !!data.token && !data.mustChangePassword,
         };
       } catch {
         return { user: null, token: null, isAuthenticated: false };
@@ -63,7 +63,7 @@ export function useEmailAuth() {
           setAuthState({
             user: data.usuario,
             token: data.token,
-            isAuthenticated: !!data.token,
+            isAuthenticated: !!data.token && !data.mustChangePassword,
           });
         } catch (err) {
           console.error("Error al sincronizar auth state:", err);
@@ -92,35 +92,58 @@ export function useEmailAuth() {
       });
 
       if (data && data.usuario) {
+        // Normalizar rol a string (el backend puede devolver objeto o string)
+        const rolRaw = data.usuario.rol;
+        const rolStr: string = typeof rolRaw === 'string'
+          ? rolRaw
+          : (rolRaw as any)?.nombre_rol || (rolRaw as any)?.nombreRol || '';
+
+        const rolLower = rolStr.toLowerCase();
+        const isAdminRol = rolLower.includes('administrador') || rolLower.includes('admin') || data.usuario.id_rol === 2;
+        const isVetRol = rolLower.includes('veterinario') || rolLower.includes('vet') || data.usuario.id_rol === 3;
+        const isClienteRol = rolLower.includes('cliente') || data.usuario.id_rol === 4;
+
+        // Módulos desde el objeto rol (si el backend los anida ahí)
+        const modulosDesdeRol = typeof rolRaw === 'object' && rolRaw !== null
+          ? ((rolRaw as any).modulos || (rolRaw as any).permisos || null)
+          : null;
+
         const user: User = {
           id_usuario: data.usuario.id_usuario,
           correo: data.usuario.correo,
           nombre_usuario: data.usuario.nombre_usuario,
-          nombre_completo: data.usuario.nombre_usuario,
+          nombre_completo: data.usuario.nombre_completo || data.usuario.nombreCompleto || data.usuario.nombre_usuario,
           id_rol: data.usuario.id_rol,
-          rol: data.usuario.rol,
+          rol: rolStr, // Siempre string normalizado
           cedula: data.usuario.cedula,
           id_cliente: data.usuario.id_cliente,
           id_empleado: data.usuario.id_empleado,
-          // Detector robusto de módulos (busca en varios campos y provee fallbacks por rol)
+          // Detector robusto de módulos: API > objeto rol > fallback por nombre de rol
           modulos:
             data.usuario.modulos ||
             data.usuario.permisos ||
-            data.usuario.rol?.modulos ||
-            data.usuario.rol?.permisos ||
-            (data.usuario.id_rol === 2 ? // Admin
-              ['Dashboard', 'Ventas', 'Agendamiento', 'Mascotas', 'Clientes', 'Servicios', 'Roles', 'Usuarios', 'Empleados', 'Horario', 'Historial Mascotas'] :
-              (data.usuario.id_rol === 3 ? // Veterinario / Empleado
-                ['Dashboard', 'Agendamiento', 'Mascotas', 'Historial Mascotas', 'Horario'] :
-                (data.usuario.id_rol === 4 ? // Cliente
-                  ['Dashboard', 'Agendamiento', 'Mascotas'] : []))),
+            modulosDesdeRol ||
+            (isAdminRol
+              ? ['Dashboard', 'Ventas', 'Agendamiento', 'Mascotas', 'Clientes', 'Servicios', 'Roles', 'Usuarios', 'Empleados', 'Horario', 'Historial Mascotas']
+              : isVetRol
+                ? ['Dashboard', 'Agendamiento', 'Mascotas', 'Historial Mascotas', 'Horario']
+                : isClienteRol
+                  ? ['Mascotas', 'Agendamiento', 'Historial Mascotas', 'Ventas']
+                  : []),
           ultimo_acceso: new Date().toISOString()
         };
 
-        localStorage.setItem('kaivet_auth_data', JSON.stringify({ token: data.token || 'ok', usuario: user }));
-        setAuthState({ user, token: data.token || 'ok', isAuthenticated: true });
+        const isTemp = password.startsWith('Temp-');
+        const authPayload = {
+          token: data.token || 'ok',
+          usuario: user,
+          mustChangePassword: isTemp ? true : undefined
+        };
+
+        localStorage.setItem('kaivet_auth_data', JSON.stringify(authPayload));
+        setAuthState({ user, token: data.token || 'ok', isAuthenticated: !isTemp });
         window.dispatchEvent(new CustomEvent('kaivet-auth-update'));
-        return { success: true };
+        return { success: true, mustChangePassword: isTemp };
       }
       return { success: false, error: 'Respuesta inválida del servidor.' };
     } catch (error: any) {
@@ -167,10 +190,7 @@ export function useEmailAuth() {
         body: JSON.stringify(payload),
       });
 
-      // Si el registro fue exitoso en el backend, disparamos el correo de bienvenida
-      if (data) {
-        await MailService.sendWelcomeEmail(registerData.email, registerData.nombre);
-      }
+
 
       return { success: true, data };
     } catch (error: any) {

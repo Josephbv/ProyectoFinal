@@ -3,9 +3,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '../../../shared/components/button';
 import { Input } from '../../../shared/components/input';
 import { Label } from '../../../shared/components/label';
-import { Empleado } from '../hooks/useEmpleados';
+import { Empleado, useEmpleados } from '../hooks/useEmpleados';
 import { User, Briefcase, Mail, Phone, MapPin } from 'lucide-react';
 import { useRoles } from '../../configuracion/hooks/useRoles';
+import { esCedulaValida, esTelefonoValido } from '../../../shared/utils/validators';
 
 interface EmpleadoModalProps {
     isOpen: boolean;
@@ -29,6 +30,7 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
     });
 
     const { roles } = useRoles();
+    const { empleados } = useEmpleados();
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -74,25 +76,49 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
             newErrors.cedula = 'Documento: El número de identificación es obligatorio para el contrato/sistema.';
         } else if (!/^\d+$/.test(formData.cedula.trim())) {
             newErrors.cedula = 'Documento: Solo se permiten números. Por favor, no uses puntos, comas ni letras.';
-        } else if (formData.cedula.trim().length < 6) {
-            newErrors.cedula = 'Documento: Debe ser un número de identificación válido de al menos 6 dígitos.';
+        } else if (!esCedulaValida(formData.cedula)) {
+            newErrors.cedula = 'Documento: Debe ser válido (entre 6 y 15 dígitos y sin más de 3 números repetidos continuamente).';
+        } else {
+            const cedulaDuplicada = empleados.some(
+                e => e.cedula === formData.cedula.trim() && e.id_empleado !== empleado?.id_empleado
+            );
+            if (cedulaDuplicada) newErrors.cedula = 'Este documento ya está registrado en otro empleado.';
         }
 
         if (!formData.correo.trim()) {
             newErrors.correo = 'Email: El correo corporativo/personal es obligatorio para el acceso al sistema.';
         } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.correo)) {
             newErrors.correo = 'Email: El formato no es válido. Debe ser como usuario@empresa.com.';
+        } else {
+            const correoDuplicado = empleados.some(
+                e => e.correo?.toLowerCase().trim() === formData.correo.toLowerCase().trim() && e.id_empleado !== empleado?.id_empleado
+            );
+            if (correoDuplicado) newErrors.correo = 'Este correo ya está en uso por otro empleado.';
         }
 
         if (!formData.cargo.trim()) newErrors.cargo = 'Cargo: Debes asignar un rol (ej: Veterinario) para otorgar los permisos de acceso correctos.';
 
         if (!formData.telefono.trim()) {
             newErrors.telefono = 'Teléfono: El número de celular es obligatorio para la comunicación interna.';
-        } else if (!/^\d{10}$/.test(formData.telefono.trim().replace(/\D/g, ''))) {
-            newErrors.telefono = 'Teléfono: Debe tener exactamente 10 dígitos numéricos (ej: 3101234567). Sin espacios ni guiones.';
+        } else if (!esTelefonoValido(formData.telefono)) {
+            newErrors.telefono = 'Teléfono: Debe empezar con 3 y tener exactamente 10 dígitos (ej: 3001234567). Sin espacios ni guiones.';
         }
 
         if (!formData.direccion.trim()) newErrors.direccion = 'Dirección: Debes registrar el domicilio actual del empleado.';
+
+        const expStr = String(formData.experiencia || '').trim();
+        if (!expStr) {
+            newErrors.experiencia = 'Experiencia: Este campo es obligatorio.';
+        } else {
+            const expNum = Number(expStr);
+            if (isNaN(expNum)) {
+                newErrors.experiencia = 'Experiencia: Debe ser un número válido.';
+            } else if (expNum < 0) {
+                newErrors.experiencia = 'Experiencia: No se permiten valores negativos.';
+            } else if (!Number.isInteger(expNum) || expStr.includes('.') || expStr.includes(',')) {
+                newErrors.experiencia = 'Experiencia: No se permiten decimales, ingresa un número entero de años (ej: 5).';
+            }
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -158,8 +184,6 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                                 >
                                     <option value="Cédula de Ciudadanía">C.C.</option>
                                     <option value="Cédula de Extranjería">C.E.</option>
-                                    <option value="Pasaporte">Pasaporte</option>
-                                    <option value="NIT">NIT</option>
                                 </select>
                                 {errors.tipo_documento && <p className="text-red-400 text-sm">{errors.tipo_documento}</p>}
                             </div>
@@ -169,9 +193,9 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                                 <Input
                                     value={formData.cedula}
                                     onChange={(e) => handleChange('cedula', e.target.value)}
-                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.cedula ? 'border-red-500' : ''} ${empleado ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.cedula ? 'border-red-500' : ''}`}
                                     placeholder="Número de documento"
-                                    readOnly={readOnly || !!empleado}
+                                    readOnly={readOnly}
                                 />
                                 {errors.cedula && <p className="text-red-400 text-sm">{errors.cedula}</p>}
                             </div>
@@ -199,9 +223,9 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                                 <Input
                                     value={formData.correo}
                                     onChange={(e) => handleChange('correo', e.target.value)}
-                                    className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.correo ? 'border-red-500' : ''} ${empleado ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                    className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.correo ? 'border-red-500' : ''}`}
                                     placeholder="ejemplo@correo.com"
-                                    readOnly={readOnly || !!empleado}
+                                    readOnly={readOnly}
                                 />
                             </div>
                             {errors.correo && <p className="text-red-400 text-sm">{errors.correo}</p>}
@@ -247,15 +271,29 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
 
                             <div className="space-y-2">
                                 <Label className="text-dark-secondary text-xs flex items-center gap-1">
-                                    Experiencia Laboral
+                                    Experiencia Laboral (Años) *
                                 </Label>
                                 <Input
+                                    type="number"
+                                    min="0"
+                                    step="1"
                                     value={formData.experiencia}
-                                    onChange={(e) => handleChange('experiencia', e.target.value)}
-                                    className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
-                                    placeholder="Ej: 5 años en clínica de pequeños animales"
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (val === '' || /^\d*$/.test(val)) {
+                                            handleChange('experiencia', val);
+                                        }
+                                    }}
+                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.experiencia ? 'border-red-500' : ''}`}
+                                    placeholder="Ej: 5"
                                     readOnly={readOnly}
+                                    onKeyDown={(e) => {
+                                        if (e.key === '.' || e.key === ',' || e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E') {
+                                            e.preventDefault();
+                                        }
+                                    }}
                                 />
+                                {errors.experiencia && <p className="text-red-400 text-sm">{errors.experiencia}</p>}
                             </div>
                         </div>
                     </div>

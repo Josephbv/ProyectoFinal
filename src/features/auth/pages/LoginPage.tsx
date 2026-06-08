@@ -41,8 +41,18 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const email = localStorage.getItem('pending_email_verification');
+    if (email) {
+      setPendingEmail(email);
+      setFormData(prev => ({ ...prev, email: "", password: "" }));
+    }
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -55,6 +65,15 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
     const mode = params.get("mode");
     const emailParam = params.get("email");
     const tokenParam = params.get("token");
+    const confirmedParam = params.get("confirmed");
+
+    if (confirmedParam === "true") {
+      toast.success("¡Correo confirmado!", {
+        description: "Tu cuenta ha sido activada con éxito. Ya puedes iniciar sesión.",
+      });
+      // Limpiar URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
 
     if (mode === "activate" && emailParam && tokenParam) {
       setAuthMode("activate-account");
@@ -90,30 +109,59 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
 
   const validateRegisterForm = (): boolean => {
     const errs: Record<string, string> = {};
-    if (!formData.nombre.trim())
+    if (!formData.nombre.trim()) {
       errs.nombre = 'El nombre completo es obligatorio.';
-    if (!formData.telefono.trim())
+    } else if (formData.nombre.trim().length < 5) {
+      errs.nombre = 'El nombre debe tener al menos 5 caracteres.';
+    } else if (formData.nombre.trim().length > 30) {
+      errs.nombre = 'El nombre no puede exceder los 30 caracteres.';
+    }
+
+    if (!formData.telefono.trim()) {
       errs.telefono = 'El teléfono es obligatorio.';
-    else if (!ONLY_DIGITS.test(formData.telefono.trim()) || formData.telefono.trim().length < 7)
-      errs.telefono = 'Ingresa un teléfono válido (solo números, mín. 7 dígitos).';
-    if (!formData.numeroDocumento.trim())
+    } else if (!/^3\d{9}$/.test(formData.telefono.trim())) {
+      errs.telefono = 'El teléfono debe empezar con 3 y tener exactamente 10 dígitos.';
+    }
+
+    if (!formData.numeroDocumento.trim()) {
       errs.numeroDocumento = 'El número de documento es obligatorio.';
-    else if (!ONLY_DIGITS.test(formData.numeroDocumento.trim()))
+    } else if (!ONLY_DIGITS.test(formData.numeroDocumento.trim())) {
       errs.numeroDocumento = 'El documento debe contener solo números.';
-    if (!formData.direccion.trim())
+    } else if (formData.numeroDocumento.trim().length < 8) {
+      errs.numeroDocumento = 'El documento debe tener al menos 8 dígitos.';
+    } else if (formData.numeroDocumento.trim().length > 15) {
+      errs.numeroDocumento = 'El documento no puede tener más de 15 dígitos.';
+    } else if (/(\d)\1{3}/.test(formData.numeroDocumento.trim())) {
+      errs.numeroDocumento = 'El documento no puede tener más de 3 números repetidos continuamente (ej. no "1111").';
+    }
+
+    const addressPrefixRegex = /^(calle|carrera|cra|cl|avenida|av|diagonal|dg|transversal|transv|tv|intersección|interseccion|autopista|circular|via|vía)\b/i;
+    if (!formData.direccion.trim()) {
       errs.direccion = 'La dirección es obligatoria.';
-    if (!formData.email.trim())
+    } else if (!addressPrefixRegex.test(formData.direccion.trim())) {
+      errs.direccion = 'La dirección debe comenzar con una vía válida (Ej: Calle, Carrera, Avenida, Diagonal, Transversal, etc.).';
+    }
+
+    if (!formData.email.trim()) {
       errs.email = 'El correo electrónico es obligatorio.';
-    else if (!EMAIL_REGEX.test(formData.email.trim()))
+    } else if (!EMAIL_REGEX.test(formData.email.trim())) {
       errs.email = 'Ingresa un correo electrónico válido (ej. usuario@correo.com).';
-    if (!formData.password)
+    }
+
+    if (!formData.password) {
       errs.password = 'La contraseña es obligatoria.';
-    else if (formData.password.length < 8)
+    } else if (formData.password.length < 8) {
       errs.password = 'La contraseña debe tener al menos 8 caracteres.';
-    if (!formData.confirmPassword)
+    } else if (formData.password.startsWith('Temp-')) {
+      errs.password = 'Por seguridad, la contraseña no puede comenzar con "Temp-".';
+    }
+
+    if (!formData.confirmPassword) {
       errs.confirmPassword = 'Debes confirmar tu contraseña.';
-    else if (formData.password !== formData.confirmPassword)
+    } else if (formData.password !== formData.confirmPassword) {
       errs.confirmPassword = 'Las contraseñas no coinciden.';
+    }
+
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -213,7 +261,7 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
   };
 
   // Common black text class with dark mode override to ensure it stays black
-  const blackText = "text-black dark:text-black !text-black font-semibold";
+  const blackText = "text-black dark:text-black !text-black font-bold";
   const titleText = "text-black dark:text-black !text-black font-black";
 
   return (
@@ -258,26 +306,9 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
               }}
               className="space-y-6"
             >
-              {authMode === 'register' && (
+              {authMode === 'register' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormInput
-                    label="Nombre completo"
-                    icon={<User className="w-4 h-4" />}
-                    placeholder="Ej. Mauricio Rossi"
-                    value={formData.nombre}
-                    onChange={(v) => handleInputChange('nombre', v)}
-                    error={!!fieldErrors.nombre}
-                    errorMessage={fieldErrors.nombre}
-                  />
-                  <FormInput
-                    label="Teléfono"
-                    icon={<Phone className="w-4 h-4" />}
-                    placeholder="300 000 0000"
-                    value={formData.telefono}
-                    onChange={(v) => handleInputChange('telefono', v)}
-                    error={!!fieldErrors.telefono}
-                    errorMessage={fieldErrors.telefono}
-                  />
+                  {/* Row 1: Identificación (Left), Nombre completo (Right) */}
                   <div className="space-y-2">
                     <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 ${blackText}`} style={{ color: '#000000' }}>
                       <CreditCard className="w-4 h-4 text-blue-600" />
@@ -292,7 +323,6 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
                       >
                         <option value="CC" className="text-black">CC</option>
                         <option value="CE" className="text-black">CE</option>
-                        <option value="NIT" className="text-black">NIT</option>
                       </select>
                       <Input
                         className={`bg-slate-50 !text-black placeholder:text-slate-500 rounded-xl h-12 focus:ring-2 focus:ring-blue-500/50 ${fieldErrors.numeroDocumento ? 'border-red-500 ring-1 ring-red-500/20' : 'border-slate-200'}`}
@@ -300,6 +330,7 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
                         value={formData.numeroDocumento}
                         onChange={e => handleInputChange('numeroDocumento', e.target.value)}
                         style={{ color: '#000000' }}
+                        maxLength={15}
                       />
                     </div>
                     {fieldErrors.numeroDocumento && (
@@ -308,6 +339,42 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
                       </p>
                     )}
                   </div>
+
+                  <FormInput
+                    label="Nombre completo"
+                    icon={<User className="w-4 h-4" />}
+                    placeholder="Ej. Mauricio Rossi"
+                    value={formData.nombre}
+                    onChange={(v) => handleInputChange('nombre', v)}
+                    error={!!fieldErrors.nombre}
+                    errorMessage={fieldErrors.nombre}
+                    maxLength={30}
+                  />
+
+                  {/* Row 2: Correo electrónico (Left), Teléfono (Right) */}
+                  <FormInput
+                    label="Correo electrónico"
+                    icon={<Mail className="w-4 h-4" />}
+                    type="email"
+                    placeholder="ejemplo@correo.com"
+                    value={formData.email}
+                    onChange={(v) => handleInputChange('email', v)}
+                    error={!!fieldErrors.email}
+                    errorMessage={fieldErrors.email}
+                  />
+
+                  <FormInput
+                    label="Teléfono"
+                    icon={<Phone className="w-4 h-4" />}
+                    placeholder="300 000 0000"
+                    value={formData.telefono}
+                    onChange={(v) => handleInputChange('telefono', v)}
+                    error={!!fieldErrors.telefono}
+                    errorMessage={fieldErrors.telefono}
+                    maxLength={10}
+                  />
+
+                  {/* Row 3: Dirección (Full width / col-span-2) */}
                   <FormInput
                     label="Dirección"
                     icon={<MapPin className="w-4 h-4" />}
@@ -316,36 +383,10 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
                     onChange={(v) => handleInputChange('direccion', v)}
                     error={!!fieldErrors.direccion}
                     errorMessage={fieldErrors.direccion}
+                    className="col-span-1 md:col-span-2"
                   />
-                </div>
-              )}
 
-              <FormInput
-                label="Correo electrónico"
-                icon={<Mail className="w-4 h-4" />}
-                type="email"
-                placeholder="ejemplo@correo.com"
-                value={formData.email}
-                onChange={(v) => handleInputChange('email', v)}
-                disabled={authMode === 'reset-password' || authMode === 'activate-account'}
-                error={!!fieldErrors.email}
-                errorMessage={fieldErrors.email}
-              />
-
-              {authMode === 'reset-password' && (
-                <FormInput
-                  label="Código"
-                  icon={<Shield className="w-4 h-4" />}
-                  placeholder="000000"
-                  maxLength={6}
-                  value={formData.token}
-                  onChange={(v) => handleInputChange('token', v)}
-                  className="text-center font-mono text-xl tracking-widest"
-                />
-              )}
-
-              {(authMode === 'login' || authMode === 'register' || authMode === 'reset-password' || authMode === 'activate-account') && (
-                <div className={`grid grid-cols-1 ${authMode === 'register' || authMode === 'activate-account' ? 'md:grid-cols-2 gap-6' : ''}`}>
+                  {/* Row 4: Contraseña (Left), Confirmar contraseña (Right) */}
                   <div className="space-y-2 text-black">
                     <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 ${blackText}`} style={{ color: '#000000' }}>
                       <Lock className="w-4 h-4 text-blue-600" />
@@ -373,41 +414,145 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
                         <AlertCircle className="w-3 h-3" style={{ color: '#ef4444' }} />{fieldErrors.password}
                       </p>
                     )}
-
-                    {authMode === 'login' && (
-                      <div className="flex justify-end pt-1">
-                        <button
-                          type="button"
-                          onClick={() => setAuthMode('forgot-password')}
-                          className={`text-xs hover:underline transition-colors !text-black dark:text-black font-bold`}
-                          style={{ color: '#000000' }}
-                        >
-                          ¿Olvidaste tu contraseña?
-                        </button>
-                      </div>
-                    )}
                   </div>
 
-                  {(authMode === 'register' || authMode === 'activate-account') && (
-                    <div className="space-y-2">
-                      <FormInput
-                        label="Confirmar clave"
-                        icon={<Lock className="w-4 h-4" />}
-                        type="password"
+                  <div className="space-y-2 text-black">
+                    <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 ${blackText}`} style={{ color: '#000000' }}>
+                      <Lock className="w-4 h-4 text-blue-600" />
+                      Confirmar contraseña <span className="text-red-600">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        className={`bg-slate-50 !text-black placeholder:text-slate-500 rounded-xl pr-12 h-12 focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm ${fieldErrors.confirmPassword ? 'border-red-500 ring-1 ring-red-500/20' : 'border-slate-200'}`}
                         placeholder="••••••••"
                         value={formData.confirmPassword}
-                        onChange={(v) => handleInputChange('confirmPassword', v)}
-                        error={!!fieldErrors.confirmPassword}
-                        errorMessage={fieldErrors.confirmPassword}
+                        onChange={e => handleInputChange('confirmPassword', e.target.value)}
+                        style={{ color: '#000000' }}
                       />
-                      {authMode === 'register' && formData.confirmPassword && formData.password === formData.confirmPassword && (
-                        <p className="text-[10px] text-green-600 font-bold ml-2 flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> Las contraseñas coinciden.
-                        </p>
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                      >
+                        {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                    {fieldErrors.confirmPassword && (
+                      <p className="font-bold italic ml-2 flex items-center gap-1" style={{ color: '#ef4444', fontSize: '11px' }}>
+                        <AlertCircle className="w-3 h-3" style={{ color: '#ef4444' }} />{fieldErrors.confirmPassword}
+                      </p>
+                    )}
+                    {formData.confirmPassword && formData.password === formData.confirmPassword && (
+                      <p className="text-[10px] text-green-600 font-bold ml-2 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> Las contraseñas coinciden.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <FormInput
+                    label="Correo electrónico"
+                    icon={<Mail className="w-4 h-4" />}
+                    type="email"
+                    placeholder="ejemplo@correo.com"
+                    value={formData.email}
+                    onChange={(v) => handleInputChange('email', v)}
+                    disabled={authMode === 'reset-password' || authMode === 'activate-account'}
+                    error={!!fieldErrors.email}
+                    errorMessage={fieldErrors.email}
+                  />
+
+                  {authMode === 'reset-password' && (
+                    <FormInput
+                      label="Código"
+                      icon={<Shield className="w-4 h-4" />}
+                      placeholder="000000"
+                      maxLength={6}
+                      value={formData.token}
+                      onChange={(v) => handleInputChange('token', v)}
+                      className="text-center font-mono text-xl tracking-widest"
+                    />
+                  )}
+
+                  {(authMode === 'login' || authMode === 'reset-password' || authMode === 'activate-account') && (
+                    <div className={`grid grid-cols-1 ${authMode === 'activate-account' ? 'md:grid-cols-2 gap-6' : ''}`}>
+                      <div className="space-y-2 text-black">
+                        <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 ${blackText}`} style={{ color: '#000000' }}>
+                          <Lock className="w-4 h-4 text-blue-600" />
+                          Contraseña <span className="text-red-600">*</span>
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            className={`bg-slate-50 !text-black placeholder:text-slate-500 rounded-xl pr-12 h-12 focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm ${fieldErrors.password ? 'border-red-500 ring-1 ring-red-500/20' : 'border-slate-200'}`}
+                            placeholder="••••••••"
+                            value={formData.password}
+                            onChange={e => handleInputChange('password', e.target.value)}
+                            style={{ color: '#000000' }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                          >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
+                        {fieldErrors.password && (
+                          <p className="font-bold italic ml-2 flex items-center gap-1" style={{ color: '#ef4444', fontSize: '11px' }}>
+                            <AlertCircle className="w-3 h-3" style={{ color: '#ef4444' }} />{fieldErrors.password}
+                          </p>
+                        )}
+
+                        {authMode === 'login' && (
+                          <div className="flex justify-end pt-1">
+                            <button
+                              type="button"
+                              onClick={() => setAuthMode('forgot-password')}
+                              className={`text-xs hover:underline transition-colors !text-black dark:text-black font-bold`}
+                              style={{ color: '#000000' }}
+                            >
+                              ¿Olvidaste tu contraseña?
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {authMode === 'activate-account' && (
+                        <div className="space-y-2 text-black">
+                          <Label className={`text-xs flex items-center gap-2 mb-1.5 ml-1 ${blackText}`} style={{ color: '#000000' }}>
+                            <Lock className="w-4 h-4 text-blue-600" />
+                            Confirmar contraseña <span className="text-red-600">*</span>
+                          </Label>
+                          <div className="relative">
+                            <Input
+                              type={showConfirmPassword ? "text" : "password"}
+                              className={`bg-slate-50 !text-black placeholder:text-slate-500 rounded-xl pr-12 h-12 focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm ${fieldErrors.confirmPassword ? 'border-red-500 ring-1 ring-red-500/20' : 'border-slate-200'}`}
+                              placeholder="••••••••"
+                              value={formData.confirmPassword}
+                              onChange={e => handleInputChange('confirmPassword', e.target.value)}
+                              style={{ color: '#000000' }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                            >
+                              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                          </div>
+                          {fieldErrors.confirmPassword && (
+                            <p className="font-bold italic ml-2 flex items-center gap-1" style={{ color: '#ef4444', fontSize: '11px' }}>
+                              <AlertCircle className="w-3 h-3" style={{ color: '#ef4444' }} />{fieldErrors.confirmPassword}
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
                   )}
-                </div>
+                </>
               )}
 
               <Button
@@ -447,6 +592,7 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
                   setAuthMode(authMode === 'login' ? 'register' : 'login');
                   setIsSubmitted(false);
                   setShowPassword(false);
+                  setShowConfirmPassword(false);
                   setFieldErrors({});
                 }}
                 className="text-[12px] transition-all text-black hover:opacity-70"
@@ -469,15 +615,69 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
                     <ArrowLeft size={12} /> Volver al inicio
                   </button>
                 ) : <div />}
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                  <span className={`text-[10px] !text-black dark:text-black font-bold opacity-40`} style={{ color: '#000000' }}>PROTOCOLO SEGURO</span>
-                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+    </div>
+      {pendingEmail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-dark-card border border-dark-color p-6 md:p-8 rounded-[2.5rem] max-w-md w-full shadow-2xl text-center space-y-6">
+            <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto text-blue-400">
+              <Mail className="w-8 h-8 animate-bounce" />
+            </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-xl font-black text-dark-primary tracking-tight">Confirmación de Correo Requerida</h2>
+              <p className="text-sm text-dark-secondary">
+                Hemos enviado un correo de confirmación a: <br />
+                <span className="text-blue-400 font-black break-all">{pendingEmail}</span>
+              </p>
+              <p className="text-xs text-dark-secondary/60">
+                Por seguridad, tu sesión ha sido cerrada. Debes confirmar tu correo antes de poder ingresar.
+              </p>
+            </div>
+
+            <div className="p-5 bg-blue-500/5 rounded-3xl border border-blue-500/10 text-left space-y-3">
+              <span className="text-[10px] font-black tracking-widest text-blue-400 uppercase">
+                [Entorno de Pruebas / Simulación]
+              </span>
+              <p className="text-xs text-dark-secondary">
+                Haz clic en el botón de abajo para simular que abriste el enlace de confirmación de tu correo electrónico.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem('pending_email_verification');
+                  setPendingEmail(null);
+                  toast.success("¡Correo confirmado!", {
+                    description: "Tu cuenta ha sido activada con éxito. Ya puedes iniciar sesión.",
+                  });
+                  setFormData(prev => ({
+                    ...prev,
+                    email: "",
+                    password: ""
+                  }));
+                }}
+                className="w-full py-3 px-4 bg-blue-500 hover:bg-blue-600 active:scale-95 text-white font-bold text-xs rounded-2xl shadow-lg shadow-blue-500/20 transition-all uppercase tracking-wider cursor-pointer"
+              >
+                Simular Confirmación de Correo
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.removeItem('pending_email_verification');
+                setPendingEmail(null);
+              }}
+              className="text-xs text-dark-secondary hover:text-dark-primary transition-colors underline cursor-pointer"
+            >
+              Cancelar y omitir
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

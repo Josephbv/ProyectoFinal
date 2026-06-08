@@ -23,7 +23,7 @@ export default defineConfig({
     port: 3000,
     host: true,
     open: true,
-    strictPort: true,
+    strictPort: false,
     proxy: {
       '/api': {
         target: 'http://kaivetapi.somee.com',

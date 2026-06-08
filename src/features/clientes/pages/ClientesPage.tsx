@@ -78,6 +78,16 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
 
   const handleActualizarCliente = async (clienteData: any) => {
     if (!clienteModal.cliente) return { success: false };
+    const cliente = clienteModal.cliente;
+    const usuarioVinculado = usuarios.find(u => 
+      (u.id_cliente && u.id_cliente === cliente.id_cliente) ||
+      (u.correo && cliente.correo && u.correo.toLowerCase().trim() === cliente.correo.toLowerCase().trim()) ||
+      (u.cedula && cliente.cedula && u.cedula.trim() === cliente.cedula.trim())
+    );
+    if (usuarioVinculado && usuarioVinculado.estado && usuarioVinculado.estado !== 'activo') {
+      toast.error("No se puede editar: el usuario asociado está inactivo.");
+      return { success: false };
+    }
     const resultado = await actualizarCliente(clienteModal.cliente.id_cliente, {
       nombre: clienteData.nombre,
       tipo_documento: clienteData.tipo_documento,
@@ -115,6 +125,17 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
   };
 
   const abrirClienteModal = (cliente?: Cliente, readOnly: boolean = false) => {
+    if (cliente && !readOnly) {
+      const usuarioVinculado = usuarios.find(u => 
+        (u.id_cliente && u.id_cliente === cliente.id_cliente) ||
+        (u.correo && cliente.correo && u.correo.toLowerCase().trim() === cliente.correo.toLowerCase().trim()) ||
+        (u.cedula && cliente.cedula && u.cedula.trim() === cliente.cedula.trim())
+      );
+      if (usuarioVinculado && usuarioVinculado.estado && usuarioVinculado.estado !== 'activo') {
+        toast.error("El usuario correspondiente a este cliente está inactivo y no se puede editar.");
+        return;
+      }
+    }
     setClienteModal({ isOpen: true, cliente: cliente || null, readOnly });
   };
 
@@ -128,6 +149,18 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
 
   const getInitials = (nombre: string) => {
     return nombre?.substring(0, 2).toUpperCase() || 'CL';
+  };
+
+  const normalizarTipoDoc = (tipo?: string | null): string => {
+    if (!tipo) return 'Cédula de Ciudadanía';
+    const mapa: Record<string, string> = {
+      'CC':  'Cédula de Ciudadanía',
+      'TI':  'Tarjeta de Identidad',
+      'CE':  'Cédula de Extranjería',
+      'PP':  'Pasaporte',
+      'NIT': 'NIT',
+    };
+    return mapa[tipo.trim().toUpperCase()] || tipo;
   };
 
   const getAvatarColor = (nombre: string) => {
@@ -243,7 +276,7 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="text-sm font-medium text-dark-primary">{cliente.cedula || '---'}</span>
-                        <span className="text-[10px] text-dark-secondary italic">{cliente.tipo_documento || 'Cédula de Ciudadanía'}</span>
+                        <span className="text-[10px] text-dark-secondary italic">{normalizarTipoDoc(cliente.tipo_documento)}</span>
                       </div>
                     </TableCell>
 
@@ -271,26 +304,28 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button
-                          onClick={() => abrirClienteModal(cliente)}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
-                          disabled={loading}
-                          title="Editar cliente"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={() => setDeleteDialog({ isOpen: true, cliente })}
-                          variant="outline"
-                          size="sm"
-                          className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                          disabled={loading}
-                          title="Eliminar"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+
+                            <Button
+                              onClick={() => abrirClienteModal(cliente)}
+                              variant="outline"
+                              size="sm"
+                              className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
+                              disabled={loading}
+                              title="Editar cliente"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              onClick={() => setDeleteDialog({ isOpen: true, cliente })}
+                              variant="outline"
+                              size="sm"
+                              className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
+                              disabled={loading}
+                              title="Eliminar"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+
                       </div>
                     </TableCell>
                   </TableRow>

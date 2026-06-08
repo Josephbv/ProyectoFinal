@@ -278,34 +278,90 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
                 <Label className="text-dark-primary flex items-center gap-1.5">
                   <span className="text-base">🐾</span> Mascota del Cliente
                 </Label>
-                <Select
-                  value={formData.id_mascota || ''}
-                  onValueChange={(val: string) => handleChange('id_mascota', val)}
-                  disabled={readOnly || !!citaPrevia || !formData.id_cliente}
-                >
-                  <SelectTrigger className={`bg-dark-hover border-dark-color text-dark-primary h-10 ${!formData.id_cliente ? 'opacity-50' : ''}`}>
-                    <SelectValue placeholder={formData.id_cliente ? 'Seleccionar mascota...' : 'Primero selecciona un cliente'} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-dark-card border-dark-color">
-                    <SelectItem value="none">Sin mascota / No aplica</SelectItem>
-                    {mascotas
-                      .filter(m => m.id_cliente === parseInt(formData.id_cliente))
-                      .map((m, idx) => (
-                        <SelectItem key={`${m.id_mascota || idx}`} value={String(m.id_mascota || '')}>
-                          <div className="flex items-center gap-2">
-                            <span>{m.especie?.toLowerCase().includes('perro') || m.especie?.toLowerCase().includes('canino') ? '🐕' : m.especie?.toLowerCase().includes('gato') || m.especie?.toLowerCase().includes('felino') ? '🐈' : '🐾'}</span>
-                            <span className="font-semibold">{m.nombre}</span>
-                            {(m.especie || m.raza) && (
-                              <span className="text-dark-secondary text-xs italic">{[m.especie, m.raza].filter(Boolean).join(' · ')}</span>
-                            )}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    {formData.id_cliente && mascotas.filter(m => m.id_cliente === parseInt(formData.id_cliente)).length === 0 && (
-                      <div className="px-3 py-2 text-xs text-dark-secondary italic">Este cliente no tiene mascotas registradas</div>
-                    )}
-                  </SelectContent>
-                </Select>
+                {readOnly ? (() => {
+                  const mascotaId = formData.id_mascota;
+                  const clienteId = formData.id_cliente ? parseInt(formData.id_cliente) : null;
+
+                  // Nivel 1: buscar por id_mascota exacto en la lista local
+                  const mascotaLocal = mascotaId && mascotaId !== 'none'
+                    ? mascotas.find(m => m.id_mascota?.toString() === mascotaId)
+                    : null;
+
+                  // Nivel 2: objeto mascota anidado que devuelve el backend
+                  const mascotaVenta = (venta as any)?.mascota;
+
+                  // Nivel 3: si no hay id_mascota pero el cliente tiene exactamente 1 mascota, inferirla
+                  const mascotasPorCliente = clienteId
+                    ? mascotas.filter(m => Number(m.id_cliente) === clienteId)
+                    : [];
+                  const mascotaInferida = !mascotaLocal && !mascotaVenta?.nombre && mascotasPorCliente.length === 1
+                    ? mascotasPorCliente[0]
+                    : null;
+
+                  const mascota = mascotaLocal || (mascotaVenta?.nombre ? mascotaVenta : null) || mascotaInferida;
+
+                  const emoji = mascota?.especie?.toLowerCase().includes('canino') || mascota?.especie?.toLowerCase().includes('perro') ? '🐕'
+                    : mascota?.especie?.toLowerCase().includes('felino') || mascota?.especie?.toLowerCase().includes('gato') ? '🐈' : '🐾';
+                  return (
+                    <div className="bg-dark-hover border border-dark-color text-dark-primary h-10 px-3 flex items-center rounded-md gap-2">
+                      {mascota ? (
+                        <>
+                          <span>{emoji}</span>
+                          <span className="font-semibold">{mascota.nombre}</span>
+                        </>
+                      ) : (
+                        <span className="text-dark-secondary text-xs italic">Sin mascota registrada</span>
+                      )}
+                    </div>
+                  );
+                })() : citaPrevia && formData.id_mascota ? (() => {
+                  // Cuando viene de cita previa: mostrar la mascota como texto (ya está fijada)
+                  const mascota = mascotas.find(m => m.id_mascota?.toString() === formData.id_mascota);
+                  const emoji = mascota?.especie?.toLowerCase().includes('canino') || mascota?.especie?.toLowerCase().includes('perro') ? '🐕'
+                    : mascota?.especie?.toLowerCase().includes('felino') || mascota?.especie?.toLowerCase().includes('gato') ? '🐈' : '🐾';
+                  return (
+                    <div className="bg-dark-hover border border-dark-color text-dark-primary h-10 px-3 flex items-center rounded-md gap-2">
+                      {mascota ? (
+                        <>
+                          <span>{emoji}</span>
+                          <span className="font-semibold">{mascota.nombre}</span>
+                          <span className="text-dark-secondary text-xs italic ml-1">({mascota.especie})</span>
+                        </>
+                      ) : (
+                        <span className="text-dark-secondary text-xs italic">Cargando mascota...</span>
+                      )}
+                    </div>
+                  );
+                })() : (
+                  <Select
+                    value={formData.id_mascota || ''}
+                    onValueChange={(val: string) => handleChange('id_mascota', val)}
+                    disabled={!formData.id_cliente}
+                  >
+                    <SelectTrigger className={`bg-dark-hover border-dark-color text-dark-primary h-10 ${!formData.id_cliente ? 'opacity-50' : ''}`}>
+                      <SelectValue placeholder={formData.id_cliente ? 'Seleccionar mascota...' : 'Primero selecciona un cliente'} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-dark-card border-dark-color">
+                      <SelectItem value="none">Sin mascota / No aplica</SelectItem>
+                      {mascotas
+                        .filter(m => m.id_cliente === parseInt(formData.id_cliente))
+                        .map((m, idx) => (
+                          <SelectItem key={`${m.id_mascota || idx}`} value={String(m.id_mascota || '')}>
+                            <div className="flex items-center gap-2">
+                              <span>{m.especie?.toLowerCase().includes('perro') || m.especie?.toLowerCase().includes('canino') ? '🐕' : m.especie?.toLowerCase().includes('gato') || m.especie?.toLowerCase().includes('felino') ? '🐈' : '🐾'}</span>
+                              <span className="font-semibold">{m.nombre}</span>
+                              {(m.especie || m.raza) && (
+                                <span className="text-dark-secondary text-xs italic">{[m.especie, m.raza].filter(Boolean).join(' · ')}</span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      {formData.id_cliente && mascotas.filter(m => m.id_cliente === parseInt(formData.id_cliente)).length === 0 && (
+                        <div className="px-3 py-2 text-xs text-dark-secondary italic">Este cliente no tiene mascotas registradas</div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               {/* Fecha */}

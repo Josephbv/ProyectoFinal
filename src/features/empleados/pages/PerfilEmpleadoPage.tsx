@@ -2,17 +2,22 @@ import { User, Phone, MapPin, Mail, CreditCard, Stethoscope, Clock } from "lucid
 import { useState, useEffect } from "react";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { useEmpleados } from "../hooks/useEmpleados";
+import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
 import { Button } from "../../../shared/components/button";
 import { toast } from "sonner";
+import { esCedulaValida, esTelefonoValido } from "../../../shared/utils/validators";
 
 export function PerfilEmpleadoPage() {
-    const { user, updateUser } = useEmailAuth();
+    const { user, updateUser, logout } = useEmailAuth();
     const { empleados, actualizarEmpleado, loading: updating } = useEmpleados();
+    const { actualizarUsuario } = useUsuarios();
     const [isEditing, setIsEditing] = useState(false);
     const [editFormData, setEditFormData] = useState({
         nombre: '',
         telefono: '',
-        direccion: ''
+        direccion: '',
+        cedula: '',
+        correo: ''
     });
 
     const empleadoData = empleados.find(e => e.id_empleado === user?.id_empleado);
@@ -22,27 +27,113 @@ export function PerfilEmpleadoPage() {
             setEditFormData({
                 nombre: empleadoData.nombre || '',
                 telefono: empleadoData.telefono || '',
-                direccion: empleadoData.direccion || ''
+                direccion: empleadoData.direccion || '',
+                cedula: empleadoData.cedula || user?.cedula || '',
+                correo: empleadoData.correo || user?.correo || ''
             });
         }
-    }, [empleadoData, isEditing]);
+    }, [empleadoData, isEditing, user]);
 
     const handleSave = async () => {
-        if (!user?.id_empleado) return;
+        if (!user?.id_empleado || !empleadoData) return;
+
+        // Validaciones previas locales
+        if (!editFormData.correo.trim()) {
+            toast.error("El correo electrónico no puede estar vacío");
+            return;
+        }
+        if (!editFormData.cedula.trim()) {
+            toast.error("El número de identificación no puede estar vacío");
+            return;
+        }
+        if (!esCedulaValida(editFormData.cedula)) {
+            toast.error("Identificación no válida (Debe tener entre 6 y 15 dígitos y no más de 3 números repetidos continuamente)");
+            return;
+        }
+        if (!editFormData.telefono.trim()) {
+            toast.error("El teléfono no puede estar vacío");
+            return;
+        }
+        if (!esTelefonoValido(editFormData.telefono)) {
+            toast.error("El teléfono debe empezar con 3 y tener exactamente 10 dígitos");
+            return;
+        }
+
+        // Validar duplicados locales
+        const dupCorreo = empleados.some(e => 
+            e.id_empleado !== user?.id_empleado && 
+            e.correo?.toLowerCase().trim() === editFormData.correo.toLowerCase().trim()
+        );
+        if (dupCorreo) {
+            toast.error("El correo electrónico ya está registrado por otro usuario.");
+            return;
+        }
+
+        const dupCedula = empleados.some(e => 
+            e.id_empleado !== user?.id_empleado && 
+            e.cedula?.trim() === editFormData.cedula.trim()
+        );
+        if (dupCedula) {
+            toast.error("El número de identificación ya está registrado por otro usuario.");
+            return;
+        }
+
         try {
             const res = await actualizarEmpleado(user.id_empleado, editFormData);
-            if (res.success) {
-                updateUser({
-                    nombre_completo: editFormData.nombre,
-                    nombre_usuario: editFormData.nombre
-                });
-                toast.success("Perfil actualizado correctamente");
-                setIsEditing(false);
-            } else {
-                toast.error("Error al actualizar el perfil");
+            if (!res.success) {
+                const errMsg = res.error || '';
+                if (errMsg.includes('correo') || errMsg.includes('email') || errMsg.includes('Mail')) {
+                    toast.error("El correo electrónico ya está registrado por otro usuario.");
+                } else if (errMsg.includes('cedula') || errMsg.includes('documento') || errMsg.includes('identificacion')) {
+                    toast.error("El número de identificación ya está registrado por otro usuario.");
+                } else {
+                    toast.error(errMsg || "Error al actualizar el perfil");
+                }
+                return;
             }
+
+            const emailChanged = editFormData.correo.toLowerCase().trim() !== (empleadoData.correo || '').toLowerCase().trim();
+
+            if (emailChanged) {
+                localStorage.setItem('pending_email_verification', editFormData.correo);
+                
+                if (user?.id_usuario) {
+                    await actualizarUsuario(user.id_usuario, {
+                        correo: editFormData.correo,
+                        cedula: editFormData.cedula,
+                        nombre_usuario: user.nombre_usuario || editFormData.nombre,
+                        nombre_completo: editFormData.nombre,
+                        id_rol: user.id_rol,
+                        id_empleado: user.id_empleado,
+                        estado: 'activo'
+                    });
+                }
+
+                toast.info("Correo de confirmación enviado a " + editFormData.correo);
+                logout();
+                return;
+            }
+
+            if (user?.id_usuario) {
+                await actualizarUsuario(user.id_usuario, {
+                    cedula: editFormData.cedula,
+                    nombre_usuario: user.nombre_usuario || editFormData.nombre,
+                    nombre_completo: editFormData.nombre,
+                    id_rol: user.id_rol,
+                    id_empleado: user.id_empleado,
+                    estado: 'activo'
+                });
+            }
+
+            updateUser({
+                nombre_completo: editFormData.nombre,
+                nombre_usuario: editFormData.nombre,
+                cedula: editFormData.cedula
+            });
+            toast.success("Perfil actualizado correctamente");
+            setIsEditing(false);
         } catch (err) {
-            toast.error("Error de conexión");
+            toast.error("Error al guardar cambios");
         }
     };
 
@@ -130,13 +221,21 @@ export function PerfilEmpleadoPage() {
 
                         <div className="grid grid-cols-1 gap-6">
                             <div className="grid grid-cols-2 gap-6">
-                                {/* Cédula - solo lectura */}
+                                {/* Cédula - editable */}
                                 <div className="group">
                                     <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Documento de Identidad</p>
-                                    <div className="flex items-center gap-3 bg-dark-hover/50 p-3 rounded-2xl border border-dark-color opacity-70">
-                                        <CreditCard className="w-4 h-4 text-blue-400" />
-                                        <span className="text-sm font-bold text-dark-primary uppercase">{empleadoData.cedula || 'No registrada'}</span>
-                                    </div>
+                                    {isEditing ? (
+                                        <input
+                                            className="w-full bg-dark-hover p-3 rounded-2xl border border-emerald-500/30 text-sm font-bold text-dark-primary focus:outline-none"
+                                            value={editFormData.cedula}
+                                            onChange={(e) => setEditFormData({ ...editFormData, cedula: e.target.value })}
+                                        />
+                                    ) : (
+                                        <div className="flex items-center gap-3 bg-dark-hover p-3 rounded-2xl border border-dark-color transition-all">
+                                            <CreditCard className="w-4 h-4 text-blue-400" />
+                                            <span className="text-sm font-bold text-dark-primary uppercase">{empleadoData.cedula || 'No registrada'}</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Teléfono - editable */}
@@ -176,13 +275,22 @@ export function PerfilEmpleadoPage() {
                                 )}
                             </div>
 
-                            {/* Correo - solo lectura */}
+                            {/* Correo - editable */}
                             <div className="group">
                                 <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Correo Electrónico</p>
-                                <div className="flex items-center gap-3 bg-dark-hover/50 p-3 rounded-2xl border border-dark-color opacity-70">
-                                    <Mail className="w-4 h-4 text-purple-400" />
-                                    <span className="text-sm font-bold text-dark-primary truncate">{user?.correo || 'No disponible'}</span>
-                                </div>
+                                {isEditing ? (
+                                    <input
+                                        type="email"
+                                        className="w-full bg-dark-hover p-3 rounded-2xl border border-emerald-500/30 text-sm font-bold text-dark-primary focus:outline-none"
+                                        value={editFormData.correo}
+                                        onChange={(e) => setEditFormData({ ...editFormData, correo: e.target.value })}
+                                    />
+                                ) : (
+                                    <div className="flex items-center gap-3 bg-dark-hover p-3 rounded-2xl border border-dark-color transition-all">
+                                        <Mail className="w-4 h-4 text-purple-400" />
+                                        <span className="text-sm font-bold text-dark-primary truncate">{empleadoData.correo || user?.correo || 'No disponible'}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </section>

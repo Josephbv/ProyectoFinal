@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   BarChart3,
   Users,
@@ -30,6 +30,7 @@ import { Input } from "../../../shared/components/input";
 import { Switch } from "../../../shared/components/switch";
 import { useTheme } from "../../../shared/hooks/useTheme";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
+import { apiFetch } from "../../../shared/hooks/apiFetch";
 import { VentasPage } from "../../ventas/pages/VentasPage";
 import { ClientesPage } from "../../clientes/pages/ClientesPage";
 import { AgendamientoPage } from "../../agendamiento/pages/AgendamientoPage";
@@ -82,6 +83,32 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const { theme, toggleTheme } = useTheme();
   const { user } = useEmailAuth();
+  // Módulos FRESCOS obtenidos de la API al montar el layout.
+  // Esto asegura que los cambios que el admin haga a un rol se vean
+  // inmediatamente en el siguiente refresh, sin necesidad de re-login.
+  const [liveModulos, setLiveModulos] = useState<string[] | null>(null);
+
+  const cargarModulosLive = useCallback(async () => {
+    const idRol = user?.id_rol;
+    if (!idRol) return;
+    try {
+      const data = await apiFetch(`/api/roles/${idRol}`);
+      const mods: string[] =
+        data?.modulos ||
+        data?.Modulos ||
+        (data?.idPermisos || data?.IdPermisos || [])
+          .filter((p: any) => p !== null)
+          .map((p: any) => p.nombreModulo || p.NombreModulo || p.descripcion || '');
+      setLiveModulos(mods.filter(Boolean));
+    } catch {
+      setLiveModulos(null); // Fallback a los módulos del localStorage si la API falla
+    }
+  }, [user?.id_rol]);
+
+  useEffect(() => {
+    cargarModulosLive();
+  }, [cargarModulosLive]);
+
   const isCliente = user?.rol?.toLowerCase().includes('cliente');
   const isVet = user?.rol?.toLowerCase().includes('veterinario');
 
@@ -89,44 +116,30 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
   const [citaAPagar, setCitaAPagar] = useState<any>(null);
   const [mascotaAEditar, setMascotaAEditar] = useState<any>(null);
 
-  // Filter nav items by user's allowed modules.
-  // Fail-closed: If no modules are specified, only show "Dashboard" (or the first available).
+  // Filtra los ítems de navegación según los módulos asignados AL ROL en el backend.
+  // Sin restricciones hardcodeadas por tipo de rol — el admin tiene control total.
   const filterByModules = (items: typeof mainNavItems) => {
-    const isCliente = user?.rol?.toLowerCase().includes('cliente');
-    const isVet = user?.rol?.toLowerCase().includes('veterinario');
+    const roleLower = (user?.rol || '').toLowerCase();
 
-    // Administrador role always has full access
-    if (user?.rol?.toLowerCase() === 'administrador') return items;
+    // Administrador siempre tiene acceso total (protección del rol maestro)
+    if (roleLower === 'administrador') return items;
 
-    let modulos = user?.modulos || [];
-
-    // Para clientes, nos aseguramos que vean Ventas y Clientes (Mi Perfil)
-    if (isCliente) {
-      if (!modulos.includes("Ventas")) modulos = [...modulos, "Ventas"];
-      // El cliente ya no ve el módulo "Clientes" en el menú lateral conforme al requerimiento del profesor
-      // El cliente no debe ver el Dashboard
-      return items.filter(item => item.label !== "Dashboard" && item.label !== "Clientes" && modulos.includes(item.label));
-    }
-
-    // Para veterinarios, aplicamos sus restricciones
-    if (isVet) {
-      return items.filter(item =>
-        item.label !== "Clientes" &&
-        modulos.includes(item.label)
-      );
-    }
+    // Módulos frescos de la API; si falla, usa caché del localStorage
+    const modulos: string[] = liveModulos ?? user?.modulos ?? [];
 
     if (modulos.length === 0) {
-      // If no modules list, only show Dashboard as a safety measure
+      // Si el rol no tiene módulos asignados, mostrar solo Dashboard como mínimo
       return items.filter(item => item.label === "Dashboard");
     }
+
+    // Mostrar exactamente lo que el admin configuró — sin exclusiones adicionales
     return items.filter(item => modulos.includes(item.label));
   };
 
-  const visibleMainNav = useMemo(() => filterByModules(mainNavItems), [user?.modulos, user?.rol]);
-  const visibleMascotasItems = useMemo(() => filterByModules(mascotasItems), [user?.modulos, user?.rol]);
-  const visibleOperationsItems = useMemo(() => filterByModules(operationsItems), [user?.modulos, user?.rol]);
-  const visibleConfigItems = useMemo(() => filterByModules(configItems), [user?.modulos, user?.rol]);
+  const visibleMainNav = useMemo(() => filterByModules(mainNavItems), [user?.modulos, user?.rol, liveModulos]);
+  const visibleMascotasItems = useMemo(() => filterByModules(mascotasItems), [user?.modulos, user?.rol, liveModulos]);
+  const visibleOperationsItems = useMemo(() => filterByModules(operationsItems), [user?.modulos, user?.rol, liveModulos]);
+  const visibleConfigItems = useMemo(() => filterByModules(configItems), [user?.modulos, user?.rol, liveModulos]);
 
   // Search: only over visible modules
   const allNavItems = useMemo(() =>
@@ -421,7 +434,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold text-dark-primary truncate">
-                    {user?.nombre_usuario || user?.nombre_completo || 'Usuario'}
+                    {user?.nombre_completo || user?.nombre_usuario || 'Usuario'}
                   </p>
                   <p className="text-xs text-blue-400 truncate">{user?.rol || 'Sin Rol'}</p>
                 </div>

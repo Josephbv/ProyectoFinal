@@ -259,7 +259,11 @@ export function RolesPage() {
                           size="sm"
                           className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
                           disabled={loading || (rol.nombre || '').toLowerCase() === 'administrador'}
-                          title={(rol.nombre || '').toLowerCase() === 'administrador' ? 'No se puede editar el rol base Administrador' : 'Editar rol'}
+                          title={(rol.nombre || '').toLowerCase() === 'administrador'
+                            ? 'No se puede editar el rol Administrador'
+                            : ['veterinario', 'cliente'].includes((rol.nombre || '').toLowerCase())
+                              ? 'Editar módulos del rol (nombre protegido)'
+                              : 'Editar rol'}
                         >
                           <Edit className="w-4 h-4" />
                         </Button>

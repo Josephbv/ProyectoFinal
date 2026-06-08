@@ -8,9 +8,10 @@ import { CitaModal } from "../components/CitaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 import { formatTo12h } from '../../../shared/utils/formatTime';
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
-import { MailService } from "../../../shared/services/MailService";
+
 import { useClientes } from "../../clientes/hooks/useClientes";
 import { useHistorialMascotas } from "../../historial/hooks/useHistorialMascotas";
+import { useMascotas } from "../../mascotas/hooks/useMascotas";
 
 interface AgendamientoPageProps {
   onNavigate?: (page: string) => void;
@@ -21,6 +22,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
   const { citas, loading, agendarCita, actualizarCita, eliminarCita } = useAgendamiento();
   const { user } = useEmailAuth();
   const { clientes } = useClientes();
+  const { mascotas } = useMascotas();
   const { crearEntradaHistorial } = useHistorialMascotas();
 
   const [busqueda, setBusqueda] = useState("");
@@ -42,6 +44,9 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
     if (isVetRole) {
       if (cita.id_empleado !== user?.id_empleado) return false;
     }
+    const mascotaAsociada = mascotas.find(m => m.id_mascota === cita.id_mascota);
+    const nombreMascota = mascotaAsociada ? mascotaAsociada.nombre : '';
+
     const matchBusqueda = (cita.cliente?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cita.cliente?.cedula || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cita.empleado?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -62,23 +67,6 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
     const result = await agendarCita(citaData);
     if (result.success) {
       toast.success("Cita agendada exitosamente");
-
-      // Enviar correo de confirmación
-      try {
-        const cliente = clientes.find(c => c.id_cliente === citaData.id_cliente);
-        if (cliente && cliente.correo) {
-          await MailService.sendAppointmentConfirmation(
-            cliente.correo,
-            cliente.nombre,
-            "tu mascota",
-            citaData.fecha || '',
-            citaData.hora || ''
-          );
-        }
-      } catch (e) {
-        console.error("Error enviando correo de cita:", e);
-      }
-
       return { success: true };
     } else {
       toast.error(result.error || "Error al crear cita");
@@ -173,7 +161,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              {isClienteRole ? "Solicitar Cita" : "Agendar Cita"}
+              Agendar Cita
             </button>
           </div>
         </div>
@@ -223,28 +211,24 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                           <Button onClick={() => abrirCitaModal(cita, true)} variant="outline" size="sm" className="p-2 bg-blue-500/20 border-blue-500 text-blue-400">
                             <Eye className="w-4 h-4" />
                           </Button>
-                          {!isClienteRole && (
-                            <>
-                              <Button onClick={() => abrirCitaModal(cita)} variant="outline" size="sm" className="p-2 bg-amber-500/20 border-amber-500 text-amber-400">
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              {/* Botón Pagar — solo para citas ACTIVAS (no completadas) */}
-                              {estadoFinal !== 'completada' && onPagar && !isVetRole && (
-                                <Button
-                                  onClick={() => onPagar(cita)}
-                                  variant="outline"
-                                  size="sm"
-                                  className="p-2 bg-green-500/20 border-green-500 text-green-400 hover:bg-green-500/30"
-                                  title="Registrar pago"
-                                >
-                                  <DollarSign className="w-4 h-4" />
-                                </Button>
-                              )}
-                              <Button onClick={() => setDeleteDialog({ isOpen: true, cita })} variant="outline" size="sm" className="p-2 bg-red-500/20 border-red-500 text-red-400" disabled={estadoFinal === 'completada'}>
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </>
+                          <Button onClick={() => abrirCitaModal(cita)} variant="outline" size="sm" className="p-2 bg-amber-500/20 border-amber-500 text-amber-400">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          {/* Botón Pagar — solo para citas ACTIVAS (no completadas) */}
+                          {estadoFinal !== 'completada' && onPagar && !isVetRole && !isClienteRole && (
+                            <Button
+                              onClick={() => onPagar(cita)}
+                              variant="outline"
+                              size="sm"
+                              className="p-2 bg-green-500/20 border-green-500 text-green-400 hover:bg-green-500/30"
+                              title="Registrar pago"
+                            >
+                              <DollarSign className="w-4 h-4" />
+                            </Button>
                           )}
+                          <Button onClick={() => setDeleteDialog({ isOpen: true, cita })} variant="outline" size="sm" className="p-2 bg-red-500/20 border-red-500 text-red-400" disabled={estadoFinal === 'completada'}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>

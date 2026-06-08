@@ -13,6 +13,7 @@ import { useHorario } from '../../empleados/hooks/useHorario';
 import { formatTo12h } from '../../../shared/utils/formatTime';
 import { toast } from 'sonner';
 import { useEmailAuth } from '../../auth/hooks/useEmailAuth';
+import { useUsuarios } from '../../configuracion/hooks/useUsuarios';
 
 interface CitaModalProps {
   isOpen: boolean;
@@ -60,6 +61,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
   const { horarios } = useHorario();
   const { citas } = useAgendamiento();
   const { user } = useEmailAuth();
+  const { usuarios } = useUsuarios();
 
   const roleName = typeof user?.rol === 'string' ? user.rol : (user?.rol as any)?.nombre_rol || '';
   const isClienteRole = roleName.toLowerCase().includes('cliente');
@@ -197,9 +199,43 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
   // ─── Validación ────────────────────────────────────────────────────────────
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.id_cliente) newErrors.id_cliente = 'Debes seleccionar un cliente responsable.';
+    if (!formData.id_cliente) {
+      newErrors.id_cliente = 'Debes seleccionar un cliente responsable.';
+    } else {
+      const cliId = parseInt(formData.id_cliente);
+      const c = clientes.find(cli => cli.id_cliente === cliId);
+      if (c) {
+        const usuarioVinculado = usuarios.find(u =>
+          (u.id_cliente && u.id_cliente === c.id_cliente) ||
+          (u.correo && c.correo && u.correo.toLowerCase().trim() === c.correo.toLowerCase().trim()) ||
+          (u.cedula && c.cedula && u.cedula.trim() === c.cedula.trim())
+        );
+        const esInactivo = usuarioVinculado && usuarioVinculado.estado && usuarioVinculado.estado !== 'activo';
+        if (esInactivo && (!cita || cita.id_cliente !== cliId)) {
+          newErrors.id_cliente = 'El cliente seleccionado tiene su cuenta inactiva y no se le pueden agendar nuevas citas.';
+        }
+      }
+    }
+
     if (!formData.id_mascota) newErrors.id_mascota = 'Debes seleccionar el paciente (mascota).';
-    if (!formData.id_empleado) newErrors.id_empleado = 'Debes asignar un profesional veterinario.';
+
+    if (!formData.id_empleado) {
+      newErrors.id_empleado = 'Debes asignar un profesional veterinario.';
+    } else {
+      const empId = parseInt(formData.id_empleado);
+      const e = empleados.find(emp => emp.id_empleado === empId);
+      if (e) {
+        const usuarioVinculado = usuarios.find(u =>
+          (u.id_empleado && u.id_empleado === e.id_empleado) ||
+          (u.correo && e.correo && u.correo.toLowerCase().trim() === e.correo.toLowerCase().trim()) ||
+          (u.cedula && e.cedula && u.cedula.trim() === e.cedula.trim())
+        );
+        const esInactivo = usuarioVinculado && usuarioVinculado.estado && usuarioVinculado.estado !== 'activo';
+        if (esInactivo && (!cita || cita.id_empleado !== empId)) {
+          newErrors.id_empleado = 'El empleado seleccionado tiene su cuenta inactiva y no puede recibir nuevas citas.';
+        }
+      }
+    }
 
     if (!formData.fecha) {
       newErrors.fecha = 'La fecha de la cita es obligatoria.';
@@ -411,7 +447,17 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                 </SelectTrigger>
                 <SelectContent className="bg-dark-card border-dark-color">
                   {clientes
-                    .filter(c => !isClienteRole || c.id_cliente === user?.id_cliente)
+                    .filter(c => {
+                      const usuarioVinculado = usuarios.find(u =>
+                        (u.id_cliente && u.id_cliente === c.id_cliente) ||
+                        (u.correo && c.correo && u.correo.toLowerCase().trim() === c.correo.toLowerCase().trim()) ||
+                        (u.cedula && c.cedula && u.cedula.trim() === c.cedula.trim())
+                      );
+                      const esInactivo = usuarioVinculado && usuarioVinculado.estado && usuarioVinculado.estado !== 'activo';
+                      const esSeleccionado = formData.id_cliente === String(c.id_cliente);
+
+                      return (!esInactivo || esSeleccionado) && (!isClienteRole || c.id_cliente === user?.id_cliente);
+                    })
                     .map((c, idx) => (
                       <SelectItem key={c.id_cliente || `client-${idx}`} value={String(c.id_cliente || '')}>{c.nombre}</SelectItem>
                     ))}
@@ -424,29 +470,39 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
             <div className="space-y-2">
               <Label className="text-dark-primary flex items-center gap-1.5">
                 <Dog className="w-4 h-4 text-emerald-400" />
-                Masctota (Paciente) *
+                Mascota (Paciente) *
               </Label>
-              <Select
-                value={formData.id_mascota}
-                onValueChange={(val: string) => handleChange('id_mascota', val)}
-                disabled={readOnly || !formData.id_cliente}
-              >
-                <SelectTrigger className="bg-dark-hover border-dark-color text-dark-primary h-10">
-                  <SelectValue placeholder={formData.id_cliente ? "Seleccionar mascota..." : "Primero elige un cliente"} />
-                </SelectTrigger>
-                <SelectContent className="bg-dark-card border-dark-color">
-                  {mascotas
-                    .filter(m => m.id_cliente === parseInt(formData.id_cliente))
-                    .map((m, idx) => (
-                      <SelectItem key={m.id_mascota || `pet-${idx}`} value={String(m.id_mascota || '')}>
-                        {m.nombre} ({m.especie})
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-              {errors.id_mascota && <p className="text-red-400 text-xs">{errors.id_mascota}</p>}
-              {!formData.id_mascota && formData.id_cliente && mascotas.filter(m => m.id_cliente === parseInt(formData.id_cliente)).length === 0 && (
-                <p className="text-amber-400/80 text-[10px] italic">Este cliente no tiene mascotas registradas.</p>
+              {readOnly ? (
+                <p className="text-sm text-dark-primary font-semibold">
+                  {formData.id_mascota 
+                    ? mascotas.find(m => m.id_mascota === parseInt(formData.id_mascota))?.nombre || 'Desconocida' 
+                    : 'Sin mascota asignada'}
+                </p>
+              ) : (
+                <>
+                  <Select
+                    value={formData.id_mascota}
+                    onValueChange={(val: string) => handleChange('id_mascota', val)}
+                    disabled={!formData.id_cliente}
+                  >
+                    <SelectTrigger className="bg-dark-hover border-dark-color text-dark-primary h-10">
+                      <SelectValue placeholder={formData.id_cliente ? "Seleccionar mascota..." : "Primero elige un cliente"} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-dark-card border-dark-color">
+                      {mascotas
+                        .filter(m => m.id_cliente === parseInt(formData.id_cliente))
+                        .map((m, idx) => (
+                          <SelectItem key={m.id_mascota || `pet-${idx}`} value={String(m.id_mascota || '')}>
+                            {m.nombre} ({m.especie})
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.id_mascota && <p className="text-red-400 text-xs">{errors.id_mascota}</p>}
+                  {!formData.id_mascota && formData.id_cliente && mascotas.filter(m => m.id_cliente === parseInt(formData.id_cliente)).length === 0 && (
+                    <p className="text-amber-400/80 text-[10px] italic">Este cliente no tiene mascotas registradas.</p>
+                  )}
+                </>
               )}
             </div>
 
@@ -459,10 +515,24 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                 </SelectTrigger>
                 <SelectContent className="bg-dark-card border-dark-color">
                   {empleados
-                    .filter(e =>
-                      horarios.some(h => h.id_empleado === e.id_empleado) &&
-                      (e.cargo || '').toLowerCase() !== 'administrador'
-                    )
+                    .filter(e => {
+                      // Verificar si el empleado está inactivo
+                      const usuarioVinculado = usuarios.find(u =>
+                        (u.id_empleado && u.id_empleado === e.id_empleado) ||
+                        (u.correo && e.correo && u.correo.toLowerCase().trim() === e.correo.toLowerCase().trim()) ||
+                        (u.cedula && e.cedula && u.cedula.trim() === e.cedula.trim())
+                      );
+                      const esInactivo = usuarioVinculado && usuarioVinculado.estado && usuarioVinculado.estado !== 'activo';
+                      
+                      // Permitir si no está inactivo, O si es el empleado actualmente seleccionado en la cita
+                      const esSeleccionado = formData.id_empleado === String(e.id_empleado);
+
+                      return (
+                        (!esInactivo || esSeleccionado) &&
+                        horarios.some(h => h.id_empleado === e.id_empleado) &&
+                        (e.cargo || '').toLowerCase() !== 'administrador'
+                      );
+                    })
                     .map((e, idx) => (
                       <SelectItem key={e.id_empleado || `emp-${idx}`} value={String(e.id_empleado || '')}>{e.nombre} ({e.cargo})</SelectItem>
                     ))}

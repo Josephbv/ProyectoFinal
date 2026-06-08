@@ -26,11 +26,16 @@ const modulosDisponibles = [
   'Empleados', 'Roles'
 ];
 
+const SYSTEM_ROLES = ['administrador', 'veterinario', 'cliente'];
+
 export function RolModal({ isOpen, onClose, onSubmit, rol, loading, roles = [] }: RolModalProps) {
   const [nombre, setNombre] = useState('');
   const [modulos, setModulos] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const initialized = useRef(false);
+
+  // Determinar si el rol que se está editando es un rol del sistema
+  const isSystemRole = !!rol && SYSTEM_ROLES.includes((rol.nombre || '').toLowerCase().trim());
 
   // Solo inicializar cuando el modal abre por primera vez
   useEffect(() => {
@@ -60,12 +65,22 @@ export function RolModal({ isOpen, onClose, onSubmit, rol, loading, roles = [] }
     if (!nombre.trim()) {
       newErrors.nombre = 'El nombre del rol es obligatorio';
     } else if (!rol) {
-      // Solo validar nombres reservados al CREAR, no al editar
-      const coreRoles = ['administrador', 'cliente', 'veterinario'];
-      if (coreRoles.includes(nombre.toLowerCase().trim())) {
+      // Crear nuevo rol: validar nombres reservados y duplicados
+      if (SYSTEM_ROLES.includes(nombre.toLowerCase().trim())) {
         newErrors.nombre = 'Este es un nombre reservado para el sistema.';
       } else {
         const existeRole = roles.some(r =>
+          r.nombre.toLowerCase().trim() === nombre.toLowerCase().trim()
+        );
+        if (existeRole) newErrors.nombre = 'Ya existe otro rol con este nombre.';
+      }
+    } else if (!isSystemRole) {
+      // Editar rol personalizado: validar que el nuevo nombre no sea reservado ni duplique otro
+      if (SYSTEM_ROLES.includes(nombre.toLowerCase().trim())) {
+        newErrors.nombre = 'Este es un nombre reservado para el sistema.';
+      } else {
+        const existeRole = roles.some(r =>
+          r.id !== rol.id &&
           r.nombre.toLowerCase().trim() === nombre.toLowerCase().trim()
         );
         if (existeRole) newErrors.nombre = 'Ya existe otro rol con este nombre.';
@@ -94,7 +109,11 @@ export function RolModal({ isOpen, onClose, onSubmit, rol, loading, roles = [] }
             {rol ? 'Editar Rol' : 'Nuevo Rol'}
           </DialogTitle>
           <DialogDescription className="text-dark-secondary">
-            {rol ? 'Actualiza los módulos disponibles para este rol' : 'Define un nuevo rol con sus permisos correspondientes'}
+            {rol
+              ? (isSystemRole
+                  ? 'Los roles del sistema no pueden cambiar de nombre, solo sus módulos'
+                  : 'Puedes editar el nombre y los módulos de este rol')
+              : 'Define un nuevo rol con sus permisos correspondientes'}
           </DialogDescription>
         </DialogHeader>
 
@@ -110,10 +129,17 @@ export function RolModal({ isOpen, onClose, onSubmit, rol, loading, roles = [] }
                 setNombre(e.target.value);
                 if (errors.nombre) setErrors(prev => ({ ...prev, nombre: '' }));
               }}
-              disabled={!!rol}
-              className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
+              disabled={isSystemRole}
+              className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${
+                isSystemRole ? 'opacity-60 cursor-not-allowed' : ''
+              }`}
             />
             {errors.nombre && <p className="text-red-400 text-sm">{errors.nombre}</p>}
+            {isSystemRole && (
+              <p className="text-xs text-amber-400/80 italic flex items-center gap-1">
+                🔒 El nombre de los roles del sistema (Administrador, Veterinario, Cliente) no puede modificarse.
+              </p>
+            )}
             {!rol && <p className="text-xs text-dark-secondary italic">Nota: No se pueden crear roles con los nombres reservados (Administrador, Cliente, Veterinario).</p>}
           </div>
 

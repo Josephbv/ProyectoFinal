@@ -54,6 +54,7 @@ export function useEmpleados() {
                 Correo: empleadoData.correo,
                 Telefono: empleadoData.telefono,
                 Direccion: empleadoData.direccion,
+                Experiencia: (empleadoData as any).experiencia?.toString()
             };
             const response = await apiFetch(`${API_URL}/empleados`, {
                 method: 'POST',
@@ -88,6 +89,7 @@ export function useEmpleados() {
                 Correo: empleadoData.correo,
                 Telefono: empleadoData.telefono,
                 Direccion: empleadoData.direccion,
+                Experiencia: (empleadoData as any).experiencia?.toString()
             };
             await apiFetch(`${API_URL}/empleados/${id}`, {
                 method: 'PUT',

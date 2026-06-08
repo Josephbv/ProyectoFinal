@@ -8,10 +8,12 @@ import { useEmpleados, Empleado } from "../hooks/useEmpleados";
 import { EmpleadoModal } from "../components/EmpleadoModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
+import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
 
 export function EmpleadosPage() {
     const { empleados, loading, crearEmpleado, actualizarEmpleado, eliminarEmpleado, buscarEmpleados } = useEmpleados();
     const { user } = useEmailAuth();
+    const { usuarios } = useUsuarios();
     const [busqueda, setBusqueda] = useState("");
     const [empleadoModal, setEmpleadoModal] = useState({ isOpen: false, empleado: null as Empleado | null, readOnly: false });
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, empleado: null as Empleado | null });
@@ -46,6 +48,16 @@ export function EmpleadosPage() {
 
     const handleActualizarEmpleado = async (empleadoData: Partial<Empleado>) => {
         if (!empleadoModal.empleado) return { success: false };
+        const empleado = empleadoModal.empleado;
+        const usuarioVinculado = usuarios.find(u =>
+            (u.id_empleado && u.id_empleado === empleado.id_empleado) ||
+            (u.correo && empleado.correo && u.correo.toLowerCase().trim() === empleado.correo.toLowerCase().trim()) ||
+            (u.cedula && empleado.cedula && u.cedula.trim() === empleado.cedula.trim())
+        );
+        if (usuarioVinculado && usuarioVinculado.estado && usuarioVinculado.estado !== 'activo') {
+            toast.error("No se puede editar: el usuario asociado está inactivo.");
+            return { success: false };
+        }
 
         const result = await actualizarEmpleado(empleadoModal.empleado.id_empleado, empleadoData);
         if (result.success) {
@@ -71,6 +83,17 @@ export function EmpleadosPage() {
     };
 
     const abrirEmpleadoModal = (empleado?: Empleado, readOnly: boolean = false) => {
+        if (empleado && !readOnly) {
+            const usuarioVinculado = usuarios.find(u =>
+                (u.id_empleado && u.id_empleado === empleado.id_empleado) ||
+                (u.correo && empleado.correo && u.correo.toLowerCase().trim() === empleado.correo.toLowerCase().trim()) ||
+                (u.cedula && empleado.cedula && u.cedula.trim() === empleado.cedula.trim())
+            );
+            if (usuarioVinculado && usuarioVinculado.estado && usuarioVinculado.estado !== 'activo') {
+                toast.error("El usuario correspondiente a este empleado está inactivo y no se puede editar.");
+                return;
+            }
+        }
         setEmpleadoModal({ isOpen: true, empleado: empleado || null, readOnly });
     };
 

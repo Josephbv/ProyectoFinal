@@ -6,13 +6,16 @@ import { Button } from "../../../shared/components/button";
 import { useMascotas } from "../../mascotas/hooks/useMascotas";
 import { useAgendamiento } from "../../agendamiento/hooks/useAgendamiento";
 import { useHorario } from "../../empleados/hooks/useHorario";
+import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
 import { toast } from "sonner";
 import { Badge } from "../../../shared/components/badge";
+import { esCedulaValida, esTelefonoValido } from "../../../shared/utils/validators";
 
 export function PerfilClientePage() {
-    const { user, updateUser } = useEmailAuth();
+    const { user, updateUser, logout } = useEmailAuth();
     const { mascotas } = useMascotas();
     const { clientes, actualizarCliente, loading: updating } = useClientes();
+    const { actualizarUsuario } = useUsuarios();
     const { citas } = useAgendamiento();
     const { horarios } = useHorario();
 
@@ -21,7 +24,8 @@ export function PerfilClientePage() {
         nombre: '',
         telefono: '',
         direccion: '',
-        cedula: ''
+        cedula: '',
+        correo: ''
     });
 
     const clienteData = clientes.find(c => c.id_cliente === user?.id_cliente);
@@ -50,23 +54,114 @@ export function PerfilClientePage() {
                 nombre: clienteData.nombre || '',
                 telefono: clienteData.telefono || '',
                 direccion: clienteData.direccion || '',
-                cedula: clienteData.cedula || user?.cedula || ''
+                cedula: clienteData.cedula || user?.cedula || '',
+                correo: clienteData.correo || user?.correo || ''
             });
         }
     }, [clienteData, isEditing, user]);
 
     const handleSave = async () => {
-        if (!user?.id_cliente) return;
+        if (!user?.id_cliente || !clienteData) return;
+
+        // Validaciones previas locales
+        if (!editFormData.correo.trim()) {
+            toast.error("El correo electrónico no puede estar vacío");
+            return;
+        }
+        if (!editFormData.cedula.trim()) {
+            toast.error("El número de identificación no puede estar vacío");
+            return;
+        }
+        if (!esCedulaValida(editFormData.cedula)) {
+            toast.error("Identificación no válida (Debe tener entre 6 y 15 dígitos y no más de 3 números repetidos continuamente)");
+            return;
+        }
+        if (!editFormData.telefono.trim()) {
+            toast.error("El teléfono no puede estar vacío");
+            return;
+        }
+        if (!esTelefonoValido(editFormData.telefono)) {
+            toast.error("El teléfono debe empezar con 3 y tener exactamente 10 dígitos");
+            return;
+        }
+
+        // Validar duplicados locales
+        const dupCorreo = clientes.some(c => 
+            c.id_cliente !== user?.id_cliente && 
+            c.correo?.toLowerCase().trim() === editFormData.correo.toLowerCase().trim()
+        );
+        if (dupCorreo) {
+            toast.error("El correo electrónico ya está registrado por otro usuario.");
+            return;
+        }
+
+        const dupCedula = clientes.some(c => 
+            c.id_cliente !== user?.id_cliente && 
+            c.cedula?.trim() === editFormData.cedula.trim()
+        );
+        if (dupCedula) {
+            toast.error("El número de identificación ya está registrado por otro usuario.");
+            return;
+        }
+
         try {
-            const res = await actualizarCliente(user.id_cliente, editFormData);
-            if (res.success) {
-                updateUser({
-                    nombre_completo: editFormData.nombre,
-                    nombre_usuario: editFormData.nombre
-                });
-                toast.success("Perfil actualizado correctamente");
-                setIsEditing(false);
+            const payload = {
+                ...clienteData,
+                ...editFormData
+            };
+            const res = await actualizarCliente(user.id_cliente, payload);
+            if (!res.success) {
+                const errMsg = res.error || '';
+                if (errMsg.includes('correo') || errMsg.includes('email') || errMsg.includes('Mail')) {
+                    toast.error("El correo electrónico ya está registrado por otro usuario.");
+                } else if (errMsg.includes('cedula') || errMsg.includes('documento') || errMsg.includes('identificacion')) {
+                    toast.error("El número de identificación ya está registrado por otro usuario.");
+                } else {
+                    toast.error(errMsg || "Error al actualizar el perfil");
+                }
+                return;
             }
+
+            const emailChanged = editFormData.correo.toLowerCase().trim() !== (clienteData.correo || '').toLowerCase().trim();
+
+            if (emailChanged) {
+                localStorage.setItem('pending_email_verification', editFormData.correo);
+                
+                if (user?.id_usuario) {
+                    await actualizarUsuario(user.id_usuario, {
+                        correo: editFormData.correo,
+                        cedula: editFormData.cedula,
+                        nombre_usuario: user.nombre_usuario || editFormData.nombre,
+                        nombre_completo: editFormData.nombre,
+                        id_rol: user.id_rol,
+                        id_cliente: user.id_cliente,
+                        estado: 'activo'
+                    });
+                }
+
+                toast.info("Correo de confirmación enviado a " + editFormData.correo);
+                logout();
+                return;
+            }
+
+            if (user?.id_usuario) {
+                await actualizarUsuario(user.id_usuario, {
+                    cedula: editFormData.cedula,
+                    nombre_usuario: user.nombre_usuario || editFormData.nombre,
+                    nombre_completo: editFormData.nombre,
+                    id_rol: user.id_rol,
+                    id_cliente: user.id_cliente,
+                    estado: 'activo'
+                });
+            }
+
+            updateUser({
+                nombre_completo: editFormData.nombre,
+                nombre_usuario: editFormData.nombre,
+                cedula: editFormData.cedula
+            });
+            toast.success("Perfil actualizado correctamente");
+            setIsEditing(false);
         } catch (err) {
             toast.error("Error al guardar cambios");
         }
@@ -149,10 +244,18 @@ export function PerfilClientePage() {
                         <div className="grid grid-cols-2 gap-6">
                             <div className="group">
                                 <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Documento de identidad</p>
-                                <div className="flex items-center gap-3 bg-dark-hover/50 p-3 rounded-2xl border border-dark-color opacity-70">
-                                    <CreditCard className="w-4 h-4 text-blue-400" />
-                                    <span className="text-sm font-bold text-dark-primary uppercase">{clienteData.cedula || 'No registrada'}</span>
-                                </div>
+                                {isEditing ? (
+                                    <input
+                                        className="w-full bg-dark-hover p-3 rounded-2xl border border-blue-500/30 text-sm font-bold text-dark-primary focus:outline-none"
+                                        value={editFormData.cedula}
+                                        onChange={(e) => setEditFormData({ ...editFormData, cedula: e.target.value })}
+                                    />
+                                ) : (
+                                    <div className="flex items-center gap-3 bg-dark-hover p-3 rounded-2xl border border-dark-color transition-all">
+                                        <CreditCard className="w-4 h-4 text-blue-400" />
+                                        <span className="text-sm font-bold text-dark-primary uppercase">{clienteData.cedula || 'No registrada'}</span>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="group">
@@ -190,10 +293,19 @@ export function PerfilClientePage() {
 
                         <div className="group">
                             <p className="text-[9px] font-black text-dark-secondary tracking-[0.2em] uppercase mb-2 px-1 opacity-40">Correo electrónico</p>
-                            <div className="flex items-center gap-3 bg-dark-hover/50 p-3 rounded-2xl border border-dark-color opacity-70">
-                                <Mail className="w-4 h-4 text-purple-400" />
-                                <span className="text-sm font-bold text-dark-primary truncate">{user?.correo || 'No disponible'}</span>
-                            </div>
+                            {isEditing ? (
+                                <input
+                                    type="email"
+                                    className="w-full bg-dark-hover p-3 rounded-2xl border border-blue-500/30 text-sm font-bold text-dark-primary focus:outline-none"
+                                    value={editFormData.correo}
+                                    onChange={(e) => setEditFormData({ ...editFormData, correo: e.target.value })}
+                                />
+                            ) : (
+                                <div className="flex items-center gap-3 bg-dark-hover p-3 rounded-2xl border border-dark-color transition-all">
+                                    <Mail className="w-4 h-4 text-purple-400" />
+                                    <span className="text-sm font-bold text-dark-primary truncate">{clienteData.correo || user?.correo || 'No disponible'}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </section>

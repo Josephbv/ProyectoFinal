@@ -76,13 +76,18 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
     if (!formData.cedula.trim()) {
       newErrors.cedula = 'La identificación es obligatoria.';
     } else if (!esCedulaValida(formData.cedula)) {
-      newErrors.cedula = 'Identificación no válida (Debe tener entre 6 y 15 dígitos numéricos).';
+      newErrors.cedula = 'Identificación no válida (Debe tener entre 6 y 15 dígitos numéricos sin más de 3 números repetidos continuamente).';
+    } else {
+      const cedulaDuplicada = clientes.some(
+        c => c.cedula === formData.cedula.trim() && c.id_cliente !== cliente?.id_cliente
+      );
+      if (cedulaDuplicada) newErrors.cedula = 'Este documento ya está registrado en otro cliente.';
     }
 
     if (!formData.telefono.trim()) {
       newErrors.telefono = 'El teléfono es obligatorio.';
     } else if (!esTelefonoValido(formData.telefono)) {
-      newErrors.telefono = 'Teléfono inválido (debe tener exactamente 10 dígitos numéricos).';
+      newErrors.telefono = 'Teléfono inválido (Debe empezar con 3 y tener exactamente 10 dígitos).';
     }
 
     if (!formData.direccion.trim()) {
@@ -93,6 +98,11 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
       newErrors.correo = 'El correo electrónico es obligatorio.';
     } else if (!esEmailValido(formData.correo)) {
       newErrors.correo = 'El correo no tiene un formato válido (ej: usuario@correo.com).';
+    } else {
+      const correoDuplicado = clientes.some(
+        c => c.correo?.toLowerCase().trim() === formData.correo.toLowerCase().trim() && c.id_cliente !== cliente?.id_cliente
+      );
+      if (correoDuplicado) newErrors.correo = 'Este correo ya está en uso por otro cliente.';
     }
 
     setErrors(newErrors);
@@ -163,8 +173,6 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
                 >
                   <option value="Cédula de Ciudadanía">C.C.</option>
                   <option value="Cédula de Extranjería">C.E.</option>
-                  <option value="Pasaporte">Pasaporte</option>
-                  <option value="NIT">NIT</option>
                 </select>
                 {errors.tipo_documento && <p className="text-red-400 text-xs">{errors.tipo_documento}</p>}
               </div>
@@ -178,9 +186,9 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
                   id="cedula"
                   value={formData.cedula}
                   onChange={(e) => handleChange('cedula', e.target.value)}
-                  className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.cedula ? 'border-red-500' : ''} ${cliente ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.cedula ? 'border-red-500' : ''}`}
                   placeholder="Número de documento"
-                  readOnly={readOnly || !!cliente}
+                  readOnly={readOnly}
                 />
                 {errors.cedula && <p className="text-red-400 text-xs">{errors.cedula}</p>}
               </div>
@@ -217,9 +225,9 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
                   type="email"
                   value={formData.correo}
                   onChange={(e) => handleChange('correo', e.target.value)}
-                  className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.correo ? 'border-red-500' : ''} ${cliente ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.correo ? 'border-red-500' : ''}`}
                   placeholder="ejemplo@correo.com"
-                  readOnly={readOnly || !!cliente}
+                  readOnly={readOnly}
                 />
               </div>
               {errors.correo && <p className="text-red-400 text-xs">{errors.correo}</p>}

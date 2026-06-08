@@ -533,6 +533,25 @@ export function LandingPage({ onGoToLogin }: LandingPageProps) {
                             </ul>
                         </div>
 
+                        {/* Horario de Atención */}
+                        <div>
+                            <h4 style={{ color: "#fff", fontWeight: 700, marginBottom: 16, fontSize: 15 }}>Horario de Atención</h4>
+                            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+                                <li style={{ color: "#94a3b8", fontSize: 14 }}>
+                                    <strong style={{ color: "#e2e8f0" }}>Lunes a Viernes:</strong><br />
+                                    8:00 AM - 6:00 PM
+                                </li>
+                                <li style={{ color: "#94a3b8", fontSize: 14 }}>
+                                    <strong style={{ color: "#e2e8f0" }}>Sábados:</strong><br />
+                                    9:00 AM - 2:00 PM
+                                </li>
+                                <li style={{ color: "#94a3b8", fontSize: 14 }}>
+                                    <strong style={{ color: "#e2e8f0" }}>Domingos y Festivos:</strong><br />
+                                    Cerrado
+                                </li>
+                            </ul>
+                        </div>
+
                         {/* Location Map */}
                         <div>
                             <h4 style={{ color: "#fff", fontWeight: 700, marginBottom: 16, fontSize: 15 }}>Ubicación</h4>

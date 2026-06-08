@@ -49,13 +49,23 @@ export const useRoles = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          NombreRol: nuevoRol.nombre,
+          Nombre: nuevoRol.nombre,
           Activo: nuevoRol.activo,
           Modulos: nuevoRol.modulos
         })
       });
-      setRoles(prev => [...prev, data]);
-      return { success: true, data };
+      const mappedData = {
+        ...data,
+        id: (data.idRol || data.IdRol || data.id_rol || data.id)?.toString(),
+        id_rol: data.idRol || data.IdRol || data.id_rol,
+        nombre: data.nombreRol || data.NombreRol || data.nombre_rol || data.nombre || 'Sin nombre',
+        activo: data.activo !== undefined ? data.activo : data.Activo,
+        modulos: (data.modulos || (data.idPermisos || data.IdPermisos || [])
+          .filter((p: any) => p !== null)
+          .map((p: any) => p.nombreModulo || p.NombreModulo || p.descripcion || 'Módulo'))
+      };
+      setRoles(prev => [...prev, mappedData]);
+      return { success: true, data: mappedData };
     } catch (error) {
       return { success: false, error: 'Error al crear rol' };
     } finally {
@@ -66,17 +76,20 @@ export const useRoles = () => {
   const actualizarRol = async (id: string, datosActualizados: Partial<Rol>) => {
     setLoading(true);
     try {
+      const rolExistente = roles.find(r => r.id === id);
+      const activo = datosActualizados.activo !== undefined ? datosActualizados.activo : (rolExistente ? rolExistente.activo : true);
+
       await apiFetch(`${API_URL}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           IdRol: Number(id),
-          NombreRol: datosActualizados.nombre,
-          Activo: datosActualizados.activo,
+          Nombre: datosActualizados.nombre,
+          Activo: activo,
           Modulos: datosActualizados.modulos
         })
       });
-      setRoles(prev => prev.map(rol => rol.id === id ? { ...rol, ...datosActualizados } : rol));
+      setRoles(prev => prev.map(rol => rol.id === id ? { ...rol, ...datosActualizados, activo } : rol));
       return { success: true };
     } catch (error) {
       return { success: false, error: 'Error al actualizar rol' };

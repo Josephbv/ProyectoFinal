@@ -200,7 +200,7 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
                         ) : (
                           <button
                             onClick={() => onEditMascota(mascota)}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors cursor-pointer"
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors cursor-pointer`}
                             title="Haz clic para asignar sexo"
                           >
                             ⚠ Sin asignar
@@ -235,28 +235,28 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
                             <Eye className="w-4 h-4" />
                           </Button>
                           {!isVetRole && (
-                            <Button
-                              onClick={() => onEditMascota(mascota)}
-                              variant="outline"
-                              size="sm"
-                              className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
-                              disabled={loading}
-                              title="Editar mascota"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          )}
-                          {!isVetRole && (
-                            <Button
-                              onClick={() => setDeleteDialog({ isOpen: true, mascota })}
-                              variant="outline"
-                              size="sm"
-                              className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                              disabled={loading}
-                              title="Eliminar"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <>
+                              <Button
+                                onClick={() => onEditMascota(mascota)}
+                                variant="outline"
+                                size="sm"
+                                className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
+                                disabled={loading}
+                                title="Editar mascota"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                onClick={() => setDeleteDialog({ isOpen: true, mascota })}
+                                variant="outline"
+                                size="sm"
+                                className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
+                                disabled={loading}
+                                title="Eliminar"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
                           )}
                         </div>
                       </TableCell>

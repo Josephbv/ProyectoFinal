@@ -237,7 +237,6 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
 
                         return mascota ? (
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{mascota.especie?.toLowerCase().includes('perro') || mascota.especie?.toLowerCase().includes('canino') ? '🐕' : mascota.especie?.toLowerCase().includes('gato') || mascota.especie?.toLowerCase().includes('felino') ? '🐈' : '🐾'}</span>
                             <div>
                               <span className="text-sm font-bold text-emerald-400 block">{mascota.nombre}</span>
                               <span className="text-[10px] text-dark-secondary">{mascota.especie}{mascota.raza ? ` · ${mascota.raza}` : ''}</span>
@@ -255,10 +254,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                             const sInfo = servicios.find(s => s.id_servicio === vs.id_servicio);
                             const nombre = vs.servicio?.nombre_servicio || sInfo?.nombre_servicio || 'Servicio';
                             return (
-                              <div key={idx} className="flex items-center gap-2 p-1.5 rounded-lg bg-dark-hover/50 border border-dark-color/50 hover:border-blue-500/20 transition-colors group">
-                                <div className="w-7 h-7 rounded-md bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition-colors">
-                                  <Stethoscope className="w-3.5 h-3.5 text-blue-400" />
-                                </div>
+                              <div key={idx} className="flex items-center gap-2 p-1.5 rounded-lg bg-dark-hover/50 border border-dark-color/50 hover:border-blue-500/20 transition-colors">
                                 <div className="flex-1 min-w-0">
                                   <p className="text-[11px] font-bold text-dark-primary truncate leading-tight">{nombre}</p>
                                 </div>

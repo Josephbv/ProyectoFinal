@@ -1,26 +1,31 @@
-import { User, Mail, CreditCard, Shield, Edit, Activity, Fingerprint, KeyRound, Clock, CheckCircle2, PenLine, X, Save } from "lucide-react";
+import { Mail, CreditCard, Shield, Activity, Fingerprint, KeyRound, Clock, CheckCircle2, PenLine, X, Save, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
 import { Button } from "../../../shared/components/button";
 import { PawIcon } from "../../../shared/components/PawIcon";
 import { toast } from "sonner";
+import { esCedulaValida } from "../../../shared/utils/validators";
 
 export function PerfilGeneralPage() {
-    const { user, updateUser } = useEmailAuth();
-    const { actualizarUsuario, loading: updating } = useUsuarios();
+    const { user, updateUser, logout } = useEmailAuth();
+    const { usuarios, actualizarUsuario, loading: updating } = useUsuarios();
     const [isEditing, setIsEditing] = useState(false);
 
     const [editFormData, setEditFormData] = useState({
         nombre_completo: '',
-        nombre_usuario: ''
+        nombre_usuario: '',
+        correo: '',
+        cedula: ''
     });
 
     useEffect(() => {
         if (user) {
             setEditFormData({
                 nombre_completo: user.nombre_completo || user.nombre_usuario || '',
-                nombre_usuario: user.nombre_usuario || ''
+                nombre_usuario: user.nombre_usuario || '',
+                correo: user.correo || '',
+                cedula: user.cedula || ''
             });
         }
     }, [user, isEditing]);
@@ -31,30 +36,77 @@ export function PerfilGeneralPage() {
             toast.error("Los campos de nombre no pueden estar vacíos");
             return;
         }
+        if (!editFormData.correo.trim()) {
+            toast.error("El correo electrónico no puede estar vacío");
+            return;
+        }
+        if (!editFormData.cedula.trim()) {
+            toast.error("El número de identificación no puede estar vacío");
+            return;
+        }
+        if (!esCedulaValida(editFormData.cedula)) {
+            toast.error("Identificación no válida (Debe tener entre 6 y 15 dígitos y no más de 3 números repetidos continuamente)");
+            return;
+        }
 
-        // Siempre actualizar la sesión local primero
-        updateUser({
-            nombre_completo: editFormData.nombre_completo,
-            nombre_usuario: editFormData.nombre_usuario
-        });
+        // Validar duplicados en lista local de usuarios
+        const dupCorreo = usuarios.some(u =>
+            u.id_usuario !== user?.id_usuario &&
+            u.correo?.toLowerCase().trim() === editFormData.correo.toLowerCase().trim()
+        );
+        if (dupCorreo) {
+            toast.error("El correo electrónico ya está registrado por otro usuario.");
+            return;
+        }
+        const dupCedula = usuarios.some(u =>
+            u.id_usuario !== user?.id_usuario &&
+            u.cedula?.trim() === editFormData.cedula.trim()
+        );
+        if (dupCedula) {
+            toast.error("El número de identificación ya está registrado por otro usuario.");
+            return;
+        }
 
         try {
+            const emailChanged = editFormData.correo.toLowerCase().trim() !== (user.correo || '').toLowerCase().trim();
+
             const result = await actualizarUsuario(user.id_usuario, {
                 nombre_completo: editFormData.nombre_completo,
                 nombre_usuario: editFormData.nombre_usuario,
+                correo: editFormData.correo,
+                cedula: editFormData.cedula,
                 id_rol: (user as any).id_rol || 1,
-                estado: 'activo'
+                estado: 'activo',
+                activo: true
             });
 
-            if (result.success) {
-                toast.success("Información actualizada exitosamente");
-            } else {
-                // Los cambios se guardaron localmente aunque la API falle
-                toast.success("Información actualizada en tu sesión");
+            if (!result.success) {
+                const errMsg = result.error || '';
+                if (errMsg.includes('correo') || errMsg.includes('email') || errMsg.includes('Mail')) {
+                    toast.error("El correo electrónico ya está registrado por otro usuario.");
+                } else if (errMsg.includes('cedula') || errMsg.includes('documento') || errMsg.includes('identificacion')) {
+                    toast.error("El número de identificación ya está registrado por otro usuario.");
+                } else {
+                    toast.error(errMsg || "Error al actualizar el perfil");
+                }
+                return;
             }
+
+            if (emailChanged) {
+                localStorage.setItem('pending_email_verification', editFormData.correo);
+                toast.info("Correo de confirmación enviado a " + editFormData.correo);
+                logout();
+                return;
+            }
+
+            updateUser({
+                nombre_completo: editFormData.nombre_completo,
+                nombre_usuario: editFormData.nombre_usuario,
+                cedula: editFormData.cedula
+            });
+            toast.success("Información actualizada exitosamente");
         } catch (err) {
-            // Aunque falle la conexión, los cambios locales ya se guardaron
-            toast.success("Información actualizada en tu sesión");
+            toast.error("Error al guardar cambios");
         }
 
         setIsEditing(false);
@@ -69,7 +121,6 @@ export function PerfilGeneralPage() {
 
             {/* ─── HERO CARD ───────────────────────────────────── */}
             <div className="relative rounded-3xl overflow-hidden shadow-2xl mb-6" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 40%, #6366f1 100%)' }}>
-                {/* Decorative Shapes */}
                 <div className="absolute top-0 right-0 w-72 h-72 bg-white/5 rounded-full -mr-24 -mt-24"></div>
                 <div className="absolute bottom-0 left-0 w-56 h-56 bg-blue-400/10 rounded-full -ml-16 -mb-16"></div>
                 <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-purple-400/5 rounded-full blur-2xl"></div>
@@ -153,7 +204,7 @@ export function PerfilGeneralPage() {
                                     onClick={() => setIsEditing(true)}
                                     className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white font-bold text-xs tracking-wider uppercase py-2.5 px-6 rounded-xl gap-2 transition-all"
                                 >
-                                    <PenLine className="w-3.5 h-3.5" /> Editar Nombre
+                                    <PenLine className="w-3.5 h-3.5" /> Editar Perfil
                                 </Button>
                             )}
                         </div>
@@ -197,27 +248,55 @@ export function PerfilGeneralPage() {
                             <p className="text-xs text-dark-secondary/50">Acceso principal</p>
                         </div>
                     </div>
-                    <div className="bg-dark-hover/50 rounded-xl p-3 border border-dark-color">
-                        <p className="text-sm font-bold text-dark-primary truncate">{user.correo || 'No disponible'}</p>
-                    </div>
-                    <p className="text-[9px] text-dark-secondary/40 mt-2 italic">Este campo no es editable por seguridad</p>
+                    {isEditing ? (
+                        <>
+                            <input
+                                type="email"
+                                className="w-full bg-dark-hover p-3 rounded-xl border border-blue-500/30 text-sm font-bold text-dark-primary focus:outline-none focus:border-blue-500/60 transition-all"
+                                value={editFormData.correo}
+                                onChange={(e) => setEditFormData({ ...editFormData, correo: e.target.value })}
+                                placeholder="nuevo@correo.com"
+                            />
+                            <p className="text-[9px] text-amber-400/70 mt-2 italic flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" /> Cambiar el correo cerrará tu sesión para confirmación
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <div className="bg-dark-hover/50 rounded-xl p-3 border border-dark-color">
+                                <p className="text-sm font-bold text-dark-primary truncate">{user.correo || 'No disponible'}</p>
+                            </div>
+                            <p className="text-[9px] text-dark-secondary/40 mt-2 italic">Editable desde "Editar Perfil"</p>
+                        </>
+                    )}
                 </div>
 
-                {/* Acceso al Sistema */}
+                {/* Número de Identificación */}
                 <div className="dark-card p-5 border-purple-500/10 hover:border-purple-500/30 transition-colors group">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-10 h-10 bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                             <Fingerprint className="w-5 h-5 text-purple-400" />
                         </div>
                         <div>
-                            <p className="text-[9px] font-black text-dark-secondary tracking-widest">Nombre de Usuario</p>
-                            <p className="text-xs text-dark-secondary/50">Login del sistema</p>
+                            <p className="text-[9px] font-black text-dark-secondary tracking-widest">Número de Identificación</p>
+                            <p className="text-xs text-dark-secondary/50">Documento de identidad</p>
                         </div>
                     </div>
-                    <div className="bg-dark-hover/50 rounded-xl p-3 border border-dark-color">
-                        <p className="text-sm font-bold text-dark-primary">@{user.nombre_usuario}</p>
-                    </div>
-                    <p className="text-[9px] text-dark-secondary/40 mt-2 italic">Editable desde el botón superior</p>
+                    {isEditing ? (
+                        <input
+                            className="w-full bg-dark-hover p-3 rounded-xl border border-purple-500/30 text-sm font-bold text-dark-primary focus:outline-none focus:border-purple-500/60 transition-all"
+                            value={editFormData.cedula}
+                            onChange={(e) => setEditFormData({ ...editFormData, cedula: e.target.value })}
+                            placeholder="Ej: 1234567890"
+                        />
+                    ) : (
+                        <>
+                            <div className="bg-dark-hover/50 rounded-xl p-3 border border-dark-color">
+                                <p className="text-sm font-bold text-dark-primary">{user.cedula || '---'}</p>
+                            </div>
+                            <p className="text-[9px] text-dark-secondary/40 mt-2 italic">Editable desde "Editar Perfil"</p>
+                        </>
+                    )}
                 </div>
 
                 {/* Seguridad */}

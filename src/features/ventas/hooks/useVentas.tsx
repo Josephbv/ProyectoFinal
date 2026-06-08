@@ -158,7 +158,7 @@ export function useVentas(enabled: boolean = true) {
     setLoading(true);
     try {
       await apiFetch(`${API_URL}/ventas/anular/${id}`, {
-        method: 'PATCH',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ Motivo: motivo }) // Enviamos el motivo al servidor en Mayúscula
       });
@@ -166,6 +166,7 @@ export function useVentas(enabled: boolean = true) {
       setVentas(prev => prev.map(v => v.id_venta === id ? { ...v, estado: 'anulada', motivo_anulacion: motivo } : v));
       return { success: true };
     } catch (error: any) {
+      alert("Error detallado al anular: " + error.message);
       return { success: false, error: error.message || 'Error al anular venta' };
     } finally {
       setLoading(false);

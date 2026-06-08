@@ -324,6 +324,35 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
         if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
     };
 
+    const handleEdadChange = (value: number | null) => {
+        handleChange('edad', value);
+        if (value !== null && value >= 0) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - value);
+            const dateString = date.toISOString().split('T')[0];
+            
+            setFormData(prev => ({ ...prev, fecha_nacimiento: dateString }));
+            if (errors['fecha_nacimiento']) setErrors(prev => ({ ...prev, fecha_nacimiento: '' }));
+        }
+    };
+
+    const handleFechaNacimientoChange = (value: string) => {
+        handleChange('fecha_nacimiento', value);
+        if (value && formData.edad !== null && formData.edad !== undefined) {
+            const birthDate = new Date(value);
+            const today = new Date();
+            let months = (today.getFullYear() - birthDate.getFullYear()) * 12 + (today.getMonth() - birthDate.getMonth());
+            if (today.getDate() < birthDate.getDate()) {
+                months--;
+            }
+            if (months < 0) months = 0;
+            
+            if (months !== formData.edad) {
+                toast.warning('La edad no coincide con la fecha de nacimiento');
+            }
+        }
+    };
+
     // Presets de Especies y Razas para evitar errores de digitación
     const especiesComunes = [
         { id: 'Canino', label: '🐶 Canino (Perro)' },
@@ -331,8 +360,8 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
     ];
 
     const razasPorEspecie: Record<string, string[]> = {
-        Canino: ['Labrador Retriever', 'Pastor Alemán', 'Golden Retriever', 'Poodle', 'Bulldog', 'Beagle', 'Chihuahua', 'Dachshund', 'Yorkshire Terrier', 'Boxer', 'Siberian Husky', 'Pinscher', 'Pitbull', 'Criollo / Mestizo'],
-        Felino: ['Persa', 'Siamés', 'Maine Coon', 'Bengalí', 'Sphynx', 'Ragdoll', 'British Shorthair', 'Abisinio', 'Angora', 'Común Europeo', 'Criollo / Mestizo']
+        Canino: ['Labrador Retriever', 'Pastor Alemán', 'Golden Retriever', 'Poodle', 'Bulldog', 'Beagle', 'Chihuahua', 'Dachshund', 'Yorkshire Terrier', 'Boxer', 'Siberian Husky', 'Pinscher', 'Pitbull', 'Mestizo'],
+        Felino: ['Persa', 'Siamés', 'Maine Coon', 'Bengalí', 'Sphynx', 'Ragdoll', 'British Shorthair', 'Abisinio', 'Angora', 'Común Europeo', 'Mestizo']
     };
 
     return (
@@ -534,7 +563,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         type="number"
                                         min={0}
                                         value={formData.edad ?? ''}
-                                        onChange={(e) => handleChange('edad', e.target.value ? parseInt(e.target.value) : null)}
+                                        onChange={(e) => handleEdadChange(e.target.value ? parseInt(e.target.value) : null)}
                                         className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.edad ? 'border-red-500' : ''}`}
                                         placeholder="Ej: 6, 18, 36..."
                                         disabled={readOnly}
@@ -561,7 +590,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             type="date"
                                             max={new Date().toISOString().split('T')[0]}
                                             value={formData.fecha_nacimiento ?? ''}
-                                            onChange={(e) => handleChange('fecha_nacimiento', e.target.value)}
+                                            onChange={(e) => handleFechaNacimientoChange(e.target.value)}
                                             className={`bg-dark-hover border-dark-color text-dark-primary h-11 pr-10 ${errors.fecha_nacimiento ? 'border-red-500' : ''}`}
                                             disabled={readOnly}
                                         />
