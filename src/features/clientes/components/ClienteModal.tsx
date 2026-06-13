@@ -93,6 +93,11 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
 
     if (!formData.direccion.trim()) {
       newErrors.direccion = 'La dirección es obligatoria.';
+    } else {
+      const addressPrefixRegex = /^(calle|carrera|cra|cl|avenida|av|diagonal|dg|transversal|transv|tv|autopista|circular|via|vía)\b/i;
+      if (!addressPrefixRegex.test(formData.direccion.trim())) {
+        newErrors.direccion = 'La dirección debe comenzar con una vía válida (Ej: Calle, Carrera, Avenida, Diagonal, Transversal, etc.).';
+      }
     }
 
     if (!formData.correo.trim()) {
