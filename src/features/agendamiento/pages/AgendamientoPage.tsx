@@ -214,7 +214,9 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                   return (
                     <TableRow key={cita.id_agendamiento} className="border-dark-color hover:bg-dark-table-hover transition-colors">
                       <TableCell className="text-dark-primary font-medium">
-                        {cita.fecha ? new Date(cita.fecha).toLocaleDateString() : 'Sin fecha'}
+                        {cita.fecha
+                          ? new Date(cita.fecha + 'T00:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                          : 'Sin fecha'}
                       </TableCell>
                       <TableCell className="text-dark-primary font-medium">
                         {cita.hora ? formatTo12h(cita.hora) : 'Sin hora'}

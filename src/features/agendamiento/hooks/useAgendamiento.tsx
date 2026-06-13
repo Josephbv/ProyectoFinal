@@ -43,7 +43,15 @@ export function useAgendamiento() {
           id_cliente: a.idCliente || a.IdCliente || a.id_cliente,
           id_mascota: storedMascota ? Number(storedMascota) : (a.idMascota || a.IdMascota || a.id_mascota),
           id_empleado: a.idEmpleado || a.IdEmpleado || a.id_empleado,
-          fecha: a.fecha || a.Fecha,
+          fecha: (() => {
+            const raw = a.fecha || a.Fecha;
+            if (!raw) return null;
+            // If it has a T separator, take only the date part
+            if (typeof raw === 'string' && raw.includes('T')) return raw.split('T')[0];
+            // If it looks like a full date-time with space, take only the date
+            if (typeof raw === 'string' && raw.includes(' ')) return raw.split(' ')[0];
+            return raw;
+          })(),
           hora: a.hora || a.Hora,
           estado: a.estado || a.Estado,
           cliente: a.cliente || (a.idClienteNavigation || a.IdClienteNavigation ? {

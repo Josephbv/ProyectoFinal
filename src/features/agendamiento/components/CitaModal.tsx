@@ -490,7 +490,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                     </SelectTrigger>
                     <SelectContent className="bg-dark-card border-dark-color">
                       {mascotas
-                        .filter(m => m.id_cliente === parseInt(formData.id_cliente))
+                        .filter(m => Number(m.id_cliente) === Number(formData.id_cliente))
                         .map((m, idx) => (
                           <SelectItem key={m.id_mascota || `pet-${idx}`} value={String(m.id_mascota || '')}>
                             {m.nombre} ({m.especie})
@@ -499,7 +499,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                     </SelectContent>
                   </Select>
                   {errors.id_mascota && <p className="text-red-400 text-xs">{errors.id_mascota}</p>}
-                  {!formData.id_mascota && formData.id_cliente && mascotas.filter(m => m.id_cliente === parseInt(formData.id_cliente)).length === 0 && (
+                  {!formData.id_mascota && formData.id_cliente && mascotas.filter(m => Number(m.id_cliente) === Number(formData.id_cliente)).length === 0 && (
                     <p className="text-amber-400/80 text-[10px] italic">Este cliente no tiene mascotas registradas.</p>
                   )}
                 </>
