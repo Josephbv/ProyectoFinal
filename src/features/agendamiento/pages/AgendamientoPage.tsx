@@ -272,8 +272,9 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                               onClick={() => onPagar(cita)}
                               variant="outline"
                               size="sm"
-                              className="p-2 h-9 w-9 bg-green-500/20 border-green-500 text-green-400 hover:bg-green-500/30"
-                              title="Registrar pago"
+                              disabled={cita.fecha ? cita.fecha > new Date().toLocaleDateString('en-CA') : false}
+                              className={`p-2 h-9 w-9 bg-green-500/20 border-green-500 text-green-400 hover:bg-green-500/30 ${cita.fecha && cita.fecha > new Date().toLocaleDateString('en-CA') ? 'opacity-40 cursor-not-allowed' : ''}`}
+                              title={cita.fecha && cita.fecha > new Date().toLocaleDateString('en-CA') ? "El pago solo se puede registrar el día de la cita o posterior" : "Registrar pago"}
                             >
                               <DollarSign className="w-4 h-4" />
                             </Button>
