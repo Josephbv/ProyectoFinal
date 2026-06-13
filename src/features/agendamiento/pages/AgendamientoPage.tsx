@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { toast } from "sonner";
-import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText, DollarSign, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText, DollarSign, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Activity } from "lucide-react";
 import { useAgendamiento, Agendamiento, AgendamientoServicio } from "../hooks/useAgendamiento";
 import { CitaModal } from "../components/CitaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
@@ -168,17 +168,42 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
       </header>
 
       <main className="p-8">
-        <div className="bg-dark-card border border-dark-color rounded-xl overflow-hidden">
+        <div className="dark-card">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-blue-500/10 border-dark-color">
-                  <TableHead className="text-dark-primary font-semibold">Fecha</TableHead>
-                  <TableHead className="text-dark-primary font-semibold">Hora</TableHead>
-                  <TableHead className="text-dark-primary font-semibold">Cliente</TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center">Servicios</TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center">Estado</TableHead>
-                  <TableHead className="text-dark-primary font-semibold text-center">Acciones</TableHead>
+                <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
+                  <TableHead className="text-dark-primary font-semibold">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-blue-400" />
+                      Fecha
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-blue-400" />
+                      Hora
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-blue-400" />
+                      Cliente
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <Stethoscope className="w-4 h-4 text-blue-400" />
+                      Servicios
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <Activity className="w-4 h-4 text-blue-400" />
+                      Estado
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-dark-primary font-semibold text-center w-36">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -187,31 +212,58 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                   const estadoFinal = isPagadoLocal ? 'completada' : cita.estado;
 
                   return (
-                    <TableRow key={cita.id_agendamiento} className="border-dark-color hover:bg-dark-hover transition-colors">
-                      <TableCell className="text-dark-primary">
+                    <TableRow key={cita.id_agendamiento} className="border-dark-color hover:bg-dark-table-hover transition-colors">
+                      <TableCell className="text-dark-primary font-medium">
                         {cita.fecha ? new Date(cita.fecha).toLocaleDateString() : 'Sin fecha'}
                       </TableCell>
-                      <TableCell className="text-dark-primary">
+                      <TableCell className="text-dark-primary font-medium">
                         {cita.hora ? formatTo12h(cita.hora) : 'Sin hora'}
                       </TableCell>
-                      <TableCell className="text-dark-primary">
-                        {cita.cliente?.nombre || 'Desconocido'}
+                      <TableCell className="font-medium text-dark-primary">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-semibold shadow">
+                            {(cita.cliente?.nombre || 'D').charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="font-semibold">{cita.cliente?.nombre || 'Desconocido'}</div>
+                            <div className="text-xs text-dark-secondary">{cita.cliente?.cedula ? `C.C. ${cita.cliente.cedula}` : 'Sin documento'}</div>
+                          </div>
+                        </div>
                       </TableCell>
-                      <TableCell className="text-center text-dark-primary">
-                        {cita.agendamiento_servicios?.length || 0}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${estadoFinal === 'completada' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
-                          }`}>
-                          {estadoFinal === 'completada' ? 'Completada' : 'Activa'}
+                      <TableCell className="text-center text-dark-primary font-semibold">
+                        <span className="bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full text-xs font-bold">
+                          {cita.agendamiento_servicios?.length || 0}
                         </span>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center justify-center gap-2">
-                          <Button onClick={() => abrirCitaModal(cita, true)} variant="outline" size="sm" className="p-2 bg-blue-500/20 border-blue-500 text-blue-400">
+                        <div className="flex justify-center">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            estadoFinal === 'completada' 
+                              ? 'bg-green-950/20 text-green-400 border border-green-500/20' 
+                              : 'bg-amber-900/20 text-amber-400 border border-amber-500/20'
+                          }`}>
+                            {estadoFinal === 'completada' ? 'Completada' : 'Activa'}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <Button 
+                            onClick={() => abrirCitaModal(cita, true)} 
+                            variant="outline" 
+                            size="sm" 
+                            className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
+                            title="Ver detalle"
+                          >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button onClick={() => abrirCitaModal(cita)} variant="outline" size="sm" className="p-2 bg-amber-500/20 border-amber-500 text-amber-400">
+                          <Button 
+                            onClick={() => abrirCitaModal(cita)} 
+                            variant="outline" 
+                            size="sm" 
+                            className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
+                            title="Editar"
+                          >
                             <Edit className="w-4 h-4" />
                           </Button>
                           {/* Botón Pagar — solo para citas ACTIVAS (no completadas) */}
@@ -220,13 +272,20 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                               onClick={() => onPagar(cita)}
                               variant="outline"
                               size="sm"
-                              className="p-2 bg-green-500/20 border-green-500 text-green-400 hover:bg-green-500/30"
+                              className="p-2 h-9 w-9 bg-green-500/20 border-green-500 text-green-400 hover:bg-green-500/30"
                               title="Registrar pago"
                             >
                               <DollarSign className="w-4 h-4" />
                             </Button>
                           )}
-                          <Button onClick={() => setDeleteDialog({ isOpen: true, cita })} variant="outline" size="sm" className="p-2 bg-red-500/20 border-red-500 text-red-400" disabled={estadoFinal === 'completada'}>
+                          <Button 
+                            onClick={() => setDeleteDialog({ isOpen: true, cita })} 
+                            variant="outline" 
+                            size="sm" 
+                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30" 
+                            disabled={estadoFinal === 'completada'}
+                            title="Eliminar"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -238,11 +297,54 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
             </Table>
           </div>
 
-          <div className="flex items-center justify-between p-4 border-t border-dark-color">
-            <span className="text-sm text-dark-secondary">Página {currentPage} de {totalPages || 1}</span>
-            <div className="flex gap-2">
-              <Button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} variant="outline" size="sm">Anterior</Button>
-              <Button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} variant="outline" size="sm">Siguiente</Button>
+          {/* Paginación */}
+          <div className="flex items-center justify-between pt-6 mt-6 border-t border-dark-color">
+            <div className="text-sm text-dark-secondary">
+              Mostrando {startIndex + 1}-{Math.min(endIndex, citasFiltradas.length)} de {citasFiltradas.length} citas
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-dark-secondary">Página {currentPage} de {totalPages || 1}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button 
+                  onClick={() => setCurrentPage(1)} 
+                  disabled={currentPage === 1 || loading || totalPages === 0} 
+                  variant="outline" 
+                  size="sm" 
+                  className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"
+                >
+                  <ChevronsLeft className="w-3 h-3" />
+                </Button>
+                <Button 
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
+                  disabled={currentPage === 1 || loading || totalPages === 0} 
+                  variant="outline" 
+                  size="sm" 
+                  className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"
+                >
+                  <ChevronLeft className="w-3 h-3" />
+                </Button>
+                <Button 
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
+                  disabled={currentPage === totalPages || loading || totalPages === 0} 
+                  variant="outline" 
+                  size="sm" 
+                  className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"
+                >
+                  <ChevronRight className="w-3 h-3" />
+                </Button>
+                <Button 
+                  onClick={() => setCurrentPage(totalPages)} 
+                  disabled={currentPage === totalPages || loading || totalPages === 0} 
+                  variant="outline" 
+                  size="sm" 
+                  className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"
+                >
+                  <ChevronsRight className="w-3 h-3" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
