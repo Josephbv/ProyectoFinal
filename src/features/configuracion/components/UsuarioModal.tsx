@@ -69,6 +69,10 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
 
         if (!formData.nombre_completo.trim()) {
             newErrors.nombre_completo = 'El nombre completo es obligatorio para la identificación.';
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s'-]+$/.test(formData.nombre_completo.trim())) {
+            newErrors.nombre_completo = 'El nombre solo debe contener letras. Retira números o símbolos especiales.';
+        } else if (formData.nombre_completo.trim().split(/\s+/).filter(Boolean).length < 2) {
+            newErrors.nombre_completo = 'Debes ingresar el nombre y apellido completos (mínimo dos palabras).';
         }
 
         if (!formData.correo.trim()) {
@@ -110,6 +114,11 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
 
         if (!formData.direccion.trim()) {
             newErrors.direccion = 'La dirección es obligatoria.';
+        } else {
+            const addressPrefixRegex = /^(calle|carrera|cra|cl|avenida|av|diagonal|dg|transversal|transv|tv|autopista|circular|via|vía)\b/i;
+            if (!addressPrefixRegex.test(formData.direccion.trim())) {
+                newErrors.direccion = 'La dirección debe comenzar con una vía válida (Ej: Calle, Carrera, Avenida, Diagonal, Transversal, etc.).';
+            }
         }
 
         setErrors(newErrors);

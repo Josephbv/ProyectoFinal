@@ -7,7 +7,7 @@ import { Label } from '../../../shared/components/label';
 import { Empleado, useEmpleados } from '../hooks/useEmpleados';
 import { User, Briefcase, Mail, Phone, MapPin } from 'lucide-react';
 import { useRoles } from '../../configuracion/hooks/useRoles';
-import { esCedulaValida, esTelefonoValido } from '../../../shared/utils/validators';
+import { esCedulaValida, esTelefonoValido, esNombreCompletoValido } from '../../../shared/utils/validators';
 
 interface EmpleadoModalProps {
     isOpen: boolean;
@@ -69,6 +69,8 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
             newErrors.nombre = 'Nombre: El nombre completo es obligatorio para el registro legal del empleado.';
         } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s'-]+$/.test(formData.nombre.trim())) {
             newErrors.nombre = 'Nombre: Solo se permiten letras. Retira números o símbolos especiales para continuar.';
+        } else if (formData.nombre.trim().split(/\s+/).filter(Boolean).length < 2) {
+            newErrors.nombre = 'Nombre: Debes ingresar el nombre y apellido completos (mínimo dos palabras).';
         }
 
         if (!formData.tipo_documento) newErrors.tipo_documento = 'Tipo de Documento: Debes elegir una opción de la lista (ej: C.C, C.E).';
@@ -105,7 +107,14 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
             newErrors.telefono = 'Teléfono: Debe empezar con 3 y tener exactamente 10 dígitos (ej: 3001234567). Sin espacios ni guiones.';
         }
 
-        if (!formData.direccion.trim()) newErrors.direccion = 'Dirección: Debes registrar el domicilio actual del empleado.';
+        if (!formData.direccion.trim()) {
+            newErrors.direccion = 'Dirección: Debes registrar el domicilio actual del empleado.';
+        } else {
+            const addressPrefixRegex = /^(calle|carrera|cra|cl|avenida|av|diagonal|dg|transversal|transv|tv|autopista|circular|via|vía)\b/i;
+            if (!addressPrefixRegex.test(formData.direccion.trim())) {
+                newErrors.direccion = 'Dirección: Debe comenzar con una vía válida (Ej: Calle, Carrera, Avenida, Diagonal, Transversal, etc.).';
+            }
+        }
 
         const expStr = String(formData.experiencia || '').trim();
         if (!expStr) {
