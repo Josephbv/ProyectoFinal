@@ -106,10 +106,19 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
       const clientID = citaPrevia.id_cliente?.toString() || '';
       console.log('[VentaModal] Cargando cliente de cita:', clientID);
 
+      // Determinar id_mascota con fallbacks robustos
+      let mascotId = citaPrevia.id_mascota?.toString() || localStorage.getItem(`cita_mascota_${citaPrevia.id_agendamiento}`) || '';
+      if (!mascotId && clientID && mascotas.length > 0) {
+        const clientMascotas = mascotas.filter(m => Number(m.id_cliente) === Number(clientID));
+        if (clientMascotas.length > 0) {
+          mascotId = clientMascotas[0].id_mascota?.toString() || '';
+        }
+      }
+
       setFormData({
         fecha: new Date().toISOString().split('T')[0],
         id_cliente: clientID,
-        id_mascota: citaPrevia.id_mascota?.toString() || '',
+        id_mascota: mascotId,
         total: serviciosCargar.reduce((acc: number, s: any) => acc + s.precio_unitario, 0),
         venta_servicios: serviciosCargar
       });
@@ -344,7 +353,7 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
                     <SelectContent className="bg-dark-card border-dark-color">
                       <SelectItem value="none">Sin mascota / No aplica</SelectItem>
                       {mascotas
-                        .filter(m => m.id_cliente === parseInt(formData.id_cliente))
+                        .filter(m => Number(m.id_cliente) === Number(formData.id_cliente))
                         .map((m, idx) => (
                           <SelectItem key={`${m.id_mascota || idx}`} value={String(m.id_mascota || '')}>
                             <div className="flex items-center gap-2">
@@ -356,7 +365,7 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
                             </div>
                           </SelectItem>
                         ))}
-                      {formData.id_cliente && mascotas.filter(m => m.id_cliente === parseInt(formData.id_cliente)).length === 0 && (
+                      {formData.id_cliente && mascotas.filter(m => Number(m.id_cliente) === Number(formData.id_cliente)).length === 0 && (
                         <div className="px-3 py-2 text-xs text-dark-secondary italic">Este cliente no tiene mascotas registradas</div>
                       )}
                     </SelectContent>

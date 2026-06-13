@@ -107,6 +107,7 @@ export function useAgendamiento() {
         Hora: citaData.hora ? (citaData.hora.length === 5 ? `${citaData.hora}:00` : citaData.hora) : null,
         IdCliente: Number(citaData.id_cliente),
         IdEmpleado: Number(citaData.id_empleado),
+        IdMascota: citaData.id_mascota ? Number(citaData.id_mascota) : null,
         Estado: 'activa',
         // Services are sent as a separate array of IDs for the many-to-many relation
         IdServicios: citaData.agendamiento_servicios?.map((s: any) => ({ IdServicio: Number(s.id_servicio) })) || [],
@@ -155,6 +156,7 @@ export function useAgendamiento() {
         Hora: datosActualizados.hora ? (datosActualizados.hora.length === 5 ? `${datosActualizados.hora}:00` : datosActualizados.hora) : null,
         IdCliente: Number(datosActualizados.id_cliente),
         IdEmpleado: Number(datosActualizados.id_empleado),
+        IdMascota: datosActualizados.id_mascota ? Number(datosActualizados.id_mascota) : null,
         Estado: datosActualizados.estado || 'activa',
         IdServicios: datosActualizados.agendamiento_servicios?.map((s: any) => ({ IdServicio: Number(s.id_servicio) })) || [],
       };
