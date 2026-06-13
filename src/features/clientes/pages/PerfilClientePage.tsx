@@ -9,7 +9,7 @@ import { useHorario } from "../../empleados/hooks/useHorario";
 import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
 import { toast } from "sonner";
 import { Badge } from "../../../shared/components/badge";
-import { esCedulaValida, esTelefonoValido } from "../../../shared/utils/validators";
+import { esCedulaValida, esTelefonoValido, esNombreCompletoValido } from "../../../shared/utils/validators";
 
 export function PerfilClientePage() {
     const { user, updateUser, logout } = useEmailAuth();
@@ -64,6 +64,14 @@ export function PerfilClientePage() {
         if (!user?.id_cliente || !clienteData) return;
 
         // Validaciones previas locales
+        if (!editFormData.nombre.trim()) {
+            toast.error("El nombre completo no puede estar vacío");
+            return;
+        }
+        if (!esNombreCompletoValido(editFormData.nombre)) {
+            toast.error("Debes ingresar tu nombre y apellido completos (solo letras y espacios)");
+            return;
+        }
         if (!editFormData.correo.trim()) {
             toast.error("El correo electrónico no puede estar vacío");
             return;

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../../shared/components/dialog';
 import { Button } from '../../../shared/components/button';
 import { Input } from '../../../shared/components/input';
@@ -136,6 +137,15 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
         const result = await onSubmit(data);
         if (result.success) {
             onClose();
+        } else if (result.error) {
+            // Mostrar el mensaje de error del backend (ej: cédula o correo duplicado)
+            const msg: string = result.error || '';
+            if (msg.toLowerCase().includes('documento') || msg.toLowerCase().includes('cédula') || msg.toLowerCase().includes('cedula')) {
+                setErrors(prev => ({ ...prev, cedula: msg }));
+            } else if (msg.toLowerCase().includes('correo') || msg.toLowerCase().includes('email') || msg.toLowerCase().includes('mail')) {
+                setErrors(prev => ({ ...prev, correo: msg }));
+            }
+            toast.error(msg);
         }
     };
 

@@ -9,6 +9,7 @@ import { PawIcon } from "../../../shared/components/PawIcon";
 import { useEmailAuth } from "../hooks/useEmailAuth";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const STRICT_EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@(gmail|hotmail|outlook|yahoo|live|icloud)\.[a-zA-Z]{2,}$/i;
 const ONLY_DIGITS = /^\d+$/;
 
 interface LoginPageProps {
@@ -115,6 +116,17 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
       errs.nombre = 'El nombre debe tener al menos 5 caracteres.';
     } else if (formData.nombre.trim().length > 30) {
       errs.nombre = 'El nombre no puede exceder los 30 caracteres.';
+    } else {
+      const v = formData.nombre.trim();
+      const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s'-]+$/;
+      if (!regexLetras.test(v)) {
+        errs.nombre = 'Solo se permiten letras y espacios.';
+      } else {
+        const palabras = v.split(/\s+/).filter(Boolean);
+        if (palabras.length < 2) {
+          errs.nombre = 'Debes ingresar tu nombre y apellido completos.';
+        }
+      }
     }
 
     if (!formData.telefono.trim()) {
@@ -144,8 +156,8 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
 
     if (!formData.email.trim()) {
       errs.email = 'El correo electrónico es obligatorio.';
-    } else if (!EMAIL_REGEX.test(formData.email.trim())) {
-      errs.email = 'Ingresa un correo electrónico válido (ej. usuario@correo.com).';
+    } else if (!STRICT_EMAIL_REGEX.test(formData.email.trim())) {
+      errs.email = 'El correo debe ser de un proveedor válido (Gmail, Hotmail, Outlook, Yahoo, iCloud, etc.).';
     }
 
     if (!formData.password) {

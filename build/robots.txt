@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /ventas
+Disallow: /clientes
+Disallow: /agendamiento
+Disallow: /empleados
+Disallow: /mascotas
+Disallow: /servicios
+Disallow: /configuracion
+Disallow: /historial
+
+Sitemap: https://kaivet.vercel.app/sitemap.xml

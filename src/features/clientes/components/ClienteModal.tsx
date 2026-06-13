@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../../shared/components/dialog';
 import { Button } from '../../../shared/components/button';
 import { Input } from '../../../shared/components/input';
@@ -6,7 +7,7 @@ import { Label } from '../../../shared/components/label';
 import { Cliente, useClientes } from '../hooks/useClientes';
 import { User, Phone, Mail, Dog, MapPin, FileText } from 'lucide-react';
 import { useMascotas } from '../../mascotas/hooks/useMascotas';
-import { esEmailValido, soloLetras, esTelefonoValido, esCedulaValida } from '../../../shared/utils/validators';
+import { esEmailValido, soloLetras, esTelefonoValido, esCedulaValida, esNombreCompletoValido } from '../../../shared/utils/validators';
 
 interface ClienteModalProps {
   isOpen: boolean;
@@ -61,8 +62,8 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
 
     if (!formData.nombre.trim()) {
       newErrors.nombre = 'El nombre es obligatorio.';
-    } else if (!soloLetras(formData.nombre)) {
-      newErrors.nombre = 'Solo se permiten letras. Por favor, retira números o símbolos.';
+    } else if (!esNombreCompletoValido(formData.nombre)) {
+      newErrors.nombre = 'Debes ingresar tu nombre y apellido completos (solo letras y espacios).';
     } else {
       const nombreDuplicado = clientes.some(
         c => c.nombre.toLowerCase().trim() === formData.nombre.toLowerCase().trim()
@@ -117,6 +118,16 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
     const result = await onSubmit(formData);
     if (result.success) {
       onClose();
+    } else if (result.error) {
+      // Mostrar el mensaje de error del backend (ej: cédula o correo duplicado)
+      const msg: string = result.error || '';
+      if (msg.toLowerCase().includes('documento') || msg.toLowerCase().includes('cédula') || msg.toLowerCase().includes('cedula')) {
+        setErrors(prev => ({ ...prev, cedula: msg }));
+      } else if (msg.toLowerCase().includes('correo') || msg.toLowerCase().includes('email') || msg.toLowerCase().includes('mail')) {
+        setErrors(prev => ({ ...prev, correo: msg }));
+      }
+      // Siempre mostrar un toast con el mensaje
+      toast.error(msg);
     }
   };
 

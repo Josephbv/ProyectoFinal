@@ -4,8 +4,8 @@ export const VALIDATORS = {
         message: "Solo se permiten letras y espacios. Por favor, retira números o símbolos especiales."
     },
     email: {
-        regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        message: "El formato de correo no es válido. Asegúrate de incluir el '@' y un dominio (ej: usuario@correo.com)."
+        regex: /^[a-zA-Z0-9._%+-]+@(gmail|hotmail|outlook|yahoo|live|icloud)\.[a-zA-Z]{2,}$/i,
+        message: "El correo debe ser de un proveedor válido (Gmail, Hotmail, Outlook, Yahoo, iCloud, etc.)."
     },
     telefono: {
         regex: /^3\d{9}$/,
@@ -28,4 +28,10 @@ export const esCedulaValida = (valor: string) => {
     const v = valor.trim();
     // Debe tener longitud correcta y no contener 4 o más dígitos idénticos consecutivos (ej: no "1111")
     return VALIDATORS.cedula.regex.test(v) && !/(\d)\1{3}/.test(v);
+};
+export const esNombreCompletoValido = (valor: string) => {
+    const v = valor.trim();
+    if (!VALIDATORS.nombre.regex.test(v)) return false;
+    const palabras = v.split(/\s+/).filter(Boolean);
+    return palabras.length >= 2;
 };
