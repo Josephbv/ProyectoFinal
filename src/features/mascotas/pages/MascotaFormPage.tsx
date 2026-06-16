@@ -329,7 +329,10 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
         if (value !== null && value >= 0) {
             const date = new Date();
             date.setMonth(date.getMonth() - value);
-            const dateString = date.toISOString().split('T')[0];
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            const dateString = `${yyyy}-${mm}-${dd}`;
             
             setFormData(prev => ({ ...prev, fecha_nacimiento: dateString }));
             if (errors['fecha_nacimiento']) setErrors(prev => ({ ...prev, fecha_nacimiento: '' }));
@@ -338,8 +341,8 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
 
     const handleFechaNacimientoChange = (value: string) => {
         handleChange('fecha_nacimiento', value);
-        if (value && formData.edad !== null && formData.edad !== undefined) {
-            const birthDate = new Date(value);
+        if (value) {
+            const birthDate = new Date(value + 'T12:00:00'); // Use noon to avoid timezone shift
             const today = new Date();
             let months = (today.getFullYear() - birthDate.getFullYear()) * 12 + (today.getMonth() - birthDate.getMonth());
             if (today.getDate() < birthDate.getDate()) {
@@ -347,9 +350,8 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
             }
             if (months < 0) months = 0;
             
-            if (months !== formData.edad) {
-                toast.warning('La edad no coincide con la fecha de nacimiento');
-            }
+            setFormData(prev => ({ ...prev, edad: months }));
+            if (errors['edad']) setErrors(prev => ({ ...prev, edad: '' }));
         }
     };
 
