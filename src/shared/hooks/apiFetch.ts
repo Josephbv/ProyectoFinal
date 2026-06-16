@@ -30,7 +30,7 @@ export async function apiFetch(url: string, options?: RequestInit): Promise<any>
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos máximo
+        const timeoutId = setTimeout(() => controller.abort(), 35000); // 35 segundos máximo (waking up Somee can take up to 25s)
 
         try {
             const resp = await fetch(url, { ...options, signal: controller.signal });
