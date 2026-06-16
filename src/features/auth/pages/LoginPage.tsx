@@ -194,7 +194,7 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
     e.preventDefault();
     setIsSubmitted(true);
     if (!validateRegisterForm()) {
-      toast.error("Formulario incompleto", { description: "Revisa los campos marcados en rojo." });
+      toast.error("Formulario incompleto", { description: "Corrige los errores indicados en rojo debajo de cada campo." });
       return;
     }
     const result = await register({
@@ -341,7 +341,7 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
                         placeholder="Número"
                         value={formData.numeroDocumento}
                         onChange={e => handleInputChange('numeroDocumento', e.target.value)}
-                        style={{ color: '#000000' }}
+                        style={{ color: '#000000', ...(fieldErrors.numeroDocumento ? { borderColor: '#ef4444', boxShadow: '0 0 0 2px rgba(239,68,68,0.25)' } : {}) }}
                         maxLength={15}
                       />
                     </div>
@@ -407,11 +407,11 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
                     <div className="relative">
                       <Input
                         type={showPassword ? "text" : "password"}
-                        className={`bg-slate-50 !text-black placeholder:text-slate-500 rounded-xl pr-12 h-12 focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm ${fieldErrors.password ? 'border-red-500 ring-1 ring-red-500/20' : 'border-slate-200'}`}
+                        className={`bg-slate-50 !text-black placeholder:text-slate-500 rounded-xl pr-12 h-12 focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm ${fieldErrors.password ? 'border-red-500' : 'border-slate-200'}`}
                         placeholder="••••••••"
                         value={formData.password}
                         onChange={e => handleInputChange('password', e.target.value)}
-                        style={{ color: '#000000' }}
+                        style={{ color: '#000000', ...(fieldErrors.password ? { borderColor: '#ef4444', boxShadow: '0 0 0 2px rgba(239,68,68,0.25)' } : {}) }}
                       />
                       <button
                         type="button"
@@ -436,11 +436,11 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
                     <div className="relative">
                       <Input
                         type={showConfirmPassword ? "text" : "password"}
-                        className={`bg-slate-50 !text-black placeholder:text-slate-500 rounded-xl pr-12 h-12 focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm ${fieldErrors.confirmPassword ? 'border-red-500 ring-1 ring-red-500/20' : 'border-slate-200'}`}
+                        className={`bg-slate-50 !text-black placeholder:text-slate-500 rounded-xl pr-12 h-12 focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm ${fieldErrors.confirmPassword ? 'border-red-500' : 'border-slate-200'}`}
                         placeholder="••••••••"
                         value={formData.confirmPassword}
                         onChange={e => handleInputChange('confirmPassword', e.target.value)}
-                        style={{ color: '#000000' }}
+                        style={{ color: '#000000', ...(fieldErrors.confirmPassword ? { borderColor: '#ef4444', boxShadow: '0 0 0 2px rgba(239,68,68,0.25)' } : {}) }}
                       />
                       <button
                         type="button"
@@ -717,13 +717,13 @@ function FormInput({ label, icon, value, onChange, placeholder, type = "text", c
       </Label>
       <Input
         type={type}
-        className={`bg-slate-50 border !text-black placeholder:text-slate-500 rounded-xl h-12 focus:ring-2 focus:ring-blue-500/50 transition-all ${error ? 'border-red-500 ring-1 ring-red-500/20' : 'border-slate-200'}`}
+        className={`bg-slate-50 border !text-black placeholder:text-slate-500 rounded-xl h-12 focus:ring-2 focus:ring-blue-500/50 transition-all ${error ? 'border-red-500' : 'border-slate-200'}`}
         placeholder={placeholder}
         value={value}
         onChange={e => onChange(e.target.value)}
         disabled={disabled}
         maxLength={maxLength}
-        style={{ color: '#000000' }}
+        style={{ color: '#000000', ...(error ? { borderColor: '#ef4444', boxShadow: '0 0 0 2px rgba(239,68,68,0.25)' } : {}) }}
       />
       {error && (
         <p className="font-bold italic ml-2 mt-1 flex items-center gap-1" style={{ color: '#ef4444', fontSize: '11px' }}>
