@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://kaivetapi.somee.com/api/:path*"
+      "destination": "https://kaivetapi.somee.com/api/:path*"
     },
     {
       "source": "/(.*)",
