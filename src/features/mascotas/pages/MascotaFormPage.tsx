@@ -79,6 +79,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
     const [listaVacunas, setListaVacunas] = useState<Array<{ nombre: string, fecha: string }>>([]);
     const [currentVacuna, setCurrentVacuna] = useState({ nombre: '', fecha: new Date().toISOString().split('T')[0] });
     const [vacunaError, setVacunaError] = useState('');
+    const [isCustomRaza, setIsCustomRaza] = useState(false);
 
     const mascotaId = mascota?.id_mascota;
     useEffect(() => {
@@ -105,6 +106,9 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                 fecha_ultima_vacuna: formatDateForInput(mascota.fecha_ultima_vacuna)
             });
             setSearchTerm(mascota.cliente?.nombre || '');
+
+            const isCustom = !!mascota.raza && !getRazasForEspecie(mascota.especie).includes(mascota.raza);
+            setIsCustomRaza(isCustom);
 
             if (mascota.vacunas) {
                 try {
@@ -158,6 +162,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                 // Solo actualizar término de búsqueda si está vacío
                 setSearchTerm(prev => prev || defaultSearchTerm);
             }
+            setIsCustomRaza(false);
         }
     }, [mascotaId, initialClientId, clientes.length, isClienteRole, user?.id_cliente]);
 
@@ -326,6 +331,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                 fecha_ultima_vacuna: '', fecha_desparasitacion: '', observaciones: '', foto: '',
                 color: '', rasgos_particulares: ''
             });
+            setIsCustomRaza(false);
             setSearchTerm(savedClienteName);
             setListaVacunas([]);
             setTieneVacunas(false);
@@ -489,6 +495,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             onChange={(e) => {
                                                 handleChange('especie', e.target.value);
                                                 handleChange('raza', '');
+                                                setIsCustomRaza(false);
                                             }}
                                             className={`w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30 ${readOnly ? 'opacity-100 cursor-default appearance-none' : ''}`}
                                         >
@@ -509,8 +516,17 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                     <div className="relative">
                                         <select
                                             disabled={readOnly || !formData.especie}
-                                            value={formData.raza || ''}
-                                            onChange={(e) => handleChange('raza', e.target.value)}
+                                            value={isCustomRaza ? 'Otro' : (formData.raza || '')}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (val === 'Otro') {
+                                                    setIsCustomRaza(true);
+                                                    handleChange('raza', '');
+                                                } else {
+                                                    setIsCustomRaza(false);
+                                                    handleChange('raza', val);
+                                                }
+                                            }}
                                             className={`w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30 ${readOnly ? 'opacity-100 cursor-default appearance-none' : ''}`}
                                         >
                                             <option value="">Seleccionar raza...</option>
@@ -525,6 +541,19 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                     </div>
                                     {errors.raza && <p className="text-red-400 text-xs mt-1 ml-1">{errors.raza}</p>}
                                 </div>
+
+                                {isCustomRaza && !readOnly && (
+                                    <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
+                                        <Label className="text-[10px] font-black tracking-widest ml-1 text-dark-secondary opacity-50">¿Cuál?</Label>
+                                        <Input
+                                            disabled={readOnly}
+                                            value={formData.raza || ''}
+                                            onChange={(e) => handleChange('raza', e.target.value)}
+                                            className="h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30"
+                                            placeholder="Especificar raza..."
+                                        />
+                                    </div>
+                                )}
 
                                 <div className="space-y-3">
                                     <Label className="text-[10px] font-black text-dark-secondary tracking-widest ml-1 opacity-50">Sexo</Label>
