@@ -382,12 +382,14 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
     // Presets de Especies y Razas para evitar errores de digitación
     const especiesComunes = [
         { id: 'Canino', label: '🐶 Canino (Perro)' },
-        { id: 'Felino', label: '🐱 Felino (Gato)' }
+        { id: 'Felino', label: '🐱 Felino (Gato)' },
+        { id: 'Otro', label: '🐾 Otro' }
     ];
 
     const razasPorEspecie: Record<string, string[]> = {
         Canino: ['Labrador Retriever', 'Pastor Alemán', 'Golden Retriever', 'Poodle', 'Bulldog', 'Beagle', 'Chihuahua', 'Dachshund', 'Yorkshire Terrier', 'Boxer', 'Siberian Husky', 'Pinscher', 'Pitbull', 'Mestizo'],
-        Felino: ['Persa', 'Siamés', 'Maine Coon', 'Bengalí', 'Sphynx', 'Ragdoll', 'British Shorthair', 'Abisinio', 'Angora', 'Común Europeo', 'Mestizo']
+        Felino: ['Persa', 'Siamés', 'Maine Coon', 'Bengalí', 'Sphynx', 'Ragdoll', 'British Shorthair', 'Abisinio', 'Angora', 'Común Europeo', 'Mestizo'],
+        Otro: ['Conejo', 'Hámster', 'Tortuga', 'Pájaro', 'Pez', 'Serpiente', 'Iguana', 'Hurón', 'Otra']
     };
 
     const getRazasForEspecie = (especie: string | null | undefined): string[] => {

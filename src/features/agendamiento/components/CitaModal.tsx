@@ -493,7 +493,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                         .filter(m => Number(m.id_cliente) === Number(formData.id_cliente))
                         .map((m, idx) => (
                           <SelectItem key={m.id_mascota || `pet-${idx}`} value={String(m.id_mascota || '')}>
-                            {m.nombre} ({m.especie})
+                            {m.nombre} ({m.raza || m.especie})
                           </SelectItem>
                         ))}
                     </SelectContent>

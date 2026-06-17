@@ -465,7 +465,7 @@ export function LandingPage({ onGoToLogin }: LandingPageProps) {
             }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
                     <h2 style={{ color: "#ffffff", fontSize: "clamp(1.8rem, 3vw, 2.8rem)", fontWeight: 900, margin: "0 0 16px", lineHeight: 1.2 }}>
-                        ¿Listo para organizar tu clínica?
+                        ¿Listo para entrar a KaiVet Manager?
                     </h2>
                     <p style={{ color: "rgba(255,255,255,0.85)", fontSize: 18, lineHeight: 1.7, margin: "0 0 40px" }}>
                         Accede a KaiVet y empieza a gestionar tus pacientes, citas y facturación de forma profesional.

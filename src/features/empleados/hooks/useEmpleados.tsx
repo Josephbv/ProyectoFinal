@@ -62,10 +62,18 @@ export function useEmpleados() {
                 body: JSON.stringify(payload),
             });
 
-            // Mapear el ID correctamente antes de agregarlo al estado local
-            const nuevo = {
+            // Mapear TODOS los campos para que el estado local quede completo
+            // sin depender de que el backend devuelva todo en camelCase
+            const nuevo: Empleado = {
                 ...response,
-                id_empleado: response.idEmpleado || response.IdEmpleado || response.id_empleado
+                id_empleado: response.idEmpleado || response.IdEmpleado || response.id_empleado,
+                nombre: response.nombre || response.Nombre || empleadoData.nombre || '',
+                cargo: response.cargo || response.Cargo || empleadoData.cargo || null,
+                cedula: response.cedula || response.Cedula || empleadoData.cedula,
+                correo: response.correo || response.Correo || empleadoData.correo,
+                telefono: response.telefono || response.Telefono || empleadoData.telefono,
+                direccion: response.direccion || response.Direccion || empleadoData.direccion,
+                tipo_documento: response.tipoDocumento || response.TipoDocumento || response.tipo_documento || empleadoData.tipo_documento,
             };
 
             setEmpleados(prev => [nuevo, ...prev]);

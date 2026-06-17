@@ -117,12 +117,12 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
   // Pacientes nuevos este mes vs mes anterior
   const mascotasTrend = useMemo(() => {
     const mes = allMascotas.filter(m=>{
-      const fn=(m as any).fecha_nacimiento||(m as any).createdAt; if(!fn) return false;
+      const fn=m.fecha_creacion||(m as any).createdAt||m.fecha_nacimiento; if(!fn) return false;
       const f=new Date(fn);
       return f.getMonth()===now.getMonth()&&f.getFullYear()===now.getFullYear();
     }).length;
     const mesAnt = allMascotas.filter(m=>{
-      const fn=(m as any).fecha_nacimiento||(m as any).createdAt; if(!fn) return false;
+      const fn=m.fecha_creacion||(m as any).createdAt||m.fecha_nacimiento; if(!fn) return false;
       const f=new Date(fn);
       const ant=new Date(now); ant.setMonth(ant.getMonth()-1);
       return f.getMonth()===ant.getMonth()&&f.getFullYear()===ant.getFullYear();

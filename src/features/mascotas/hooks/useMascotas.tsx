@@ -20,6 +20,7 @@ export interface Mascota {
   observaciones: string | null;
   id_cliente: number;
   cliente?: any;
+  fecha_creacion?: string | null;
 }
 
 const API_URL = '/api';
@@ -53,10 +54,14 @@ export function useMascotas() {
           fecha_nacimiento: m.fecha_nacimiento || m.fechaNacimiento || m.FechaNacimiento || null,
           fecha_desparasitacion: m.fecha_desparasitacion || m.fechaDesparasitacion || m.FechaDesparasitacion || null,
           fecha_ultima_vacuna: m.fecha_ultima_vacuna || m.fechaUltimaVacuna || m.FechaUltimaVacuna || null,
+          fecha_creacion: m.fecha_creacion || m.fechaCreacion || m.FechaCreacion || null,
           cliente: m.cliente || (m.idClienteNavigation || m.IdClienteNavigation ? {
             id_cliente: (m.idClienteNavigation || m.IdClienteNavigation).idCliente || (m.idClienteNavigation || m.IdClienteNavigation).IdCliente,
             nombre: (m.idClienteNavigation || m.IdClienteNavigation).nombre || (m.idClienteNavigation || m.IdClienteNavigation).Nombre,
-            cedula: (m.idClienteNavigation || m.IdClienteNavigation).cedula || (m.idClienteNavigation || m.IdClienteNavigation).Cedula
+            cedula: (m.idClienteNavigation || m.IdClienteNavigation).cedula || (m.idClienteNavigation || m.IdClienteNavigation).Cedula,
+            telefono: (m.idClienteNavigation || m.IdClienteNavigation).telefono || (m.idClienteNavigation || m.IdClienteNavigation).Telefono || null,
+            correo: (m.idClienteNavigation || m.IdClienteNavigation).correo || (m.idClienteNavigation || m.IdClienteNavigation).Correo || null,
+            direccion: (m.idClienteNavigation || m.IdClienteNavigation).direccion || (m.idClienteNavigation || m.IdClienteNavigation).Direccion || null,
           } : undefined)
         };
       });
@@ -108,7 +113,8 @@ export function useMascotas() {
         id_mascota: id,
         sexo: mascotaData.sexo || null,
         color: (mascotaData as any).color || null,
-        rasgos_particulares: (mascotaData as any).rasgos_particulares || null
+        rasgos_particulares: (mascotaData as any).rasgos_particulares || null,
+        fecha_creacion: nueva.fechaCreacion || nueva.FechaCreacion || nueva.fecha_creacion || new Date().toISOString()
       };
       setMascotas(prev => [mappedNueva, ...prev]);
       return { success: true, data: mappedNueva };
