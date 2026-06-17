@@ -98,7 +98,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
         data?.Modulos ||
         (data?.idPermisos || data?.IdPermisos || [])
           .filter((p: any) => p !== null)
-          .map((p: any) => p.nombreModulo || p.NombreModulo || p.descripcion || '');
+          .map((p: any) => p.nombreModulo || p.NombreModulo || p.descripcion || p.Descripcion || '');
       setLiveModulos(mods.filter(Boolean));
     } catch {
       setLiveModulos(null); // Fallback a los módulos del localStorage si la API falla
@@ -109,8 +109,11 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
     cargarModulosLive();
   }, [cargarModulosLive]);
 
-  const isCliente = user?.rol?.toLowerCase().includes('cliente');
-  const isVet = user?.rol?.toLowerCase().includes('veterinario');
+  const userRolName = typeof user?.rol === 'string'
+    ? user.rol
+    : (user?.rol as any)?.nombre_rol || (user?.rol as any)?.nombreRol || '';
+  const isCliente = userRolName.toLowerCase().includes('cliente') || user?.id_rol === 4;
+  const isVet = (userRolName.toLowerCase().includes('veterinario') || user?.id_rol === 3) && user?.id_rol !== 2;
 
   const [horarioAEditar, setHorarioAEditar] = useState<any>(null);
   const [citaAPagar, setCitaAPagar] = useState<any>(null);
@@ -119,10 +122,10 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
   // Filtra los ítems de navegación según los módulos asignados AL ROL en el backend.
   // Sin restricciones hardcodeadas por tipo de rol — el admin tiene control total.
   const filterByModules = (items: typeof mainNavItems) => {
-    const roleLower = (user?.rol || '').toLowerCase();
+    const roleLower = userRolName.toLowerCase();
 
     // Administrador siempre tiene acceso total (protección del rol maestro)
-    if (roleLower === 'administrador') return items;
+    if (roleLower.includes('administrador') || user?.id_rol === 2) return items;
 
     // Módulos frescos de la API; si falla, usa caché del localStorage
     const modulos: string[] = liveModulos ?? user?.modulos ?? [];

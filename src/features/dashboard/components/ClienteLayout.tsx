@@ -74,7 +74,7 @@ export function ClienteLayout({ onLogout }: ClienteLayoutProps) {
                 data?.Modulos ||
                 (data?.idPermisos || data?.IdPermisos || [])
                     .filter((p: any) => p !== null)
-                    .map((p: any) => p.nombreModulo || p.NombreModulo || p.descripcion || '');
+                    .map((p: any) => p.nombreModulo || p.NombreModulo || p.descripcion || p.Descripcion || '');
             setRoleModules(mods.filter(Boolean));
         } catch (e) {
             console.warn('[ClienteLayout] No se pudo obtener módulos del rol, usando caché.', e);

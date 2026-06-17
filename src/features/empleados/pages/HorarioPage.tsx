@@ -22,9 +22,10 @@ interface HorarioPageProps {
 
 export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
   const { horarios, loading, crearHorario, actualizarHorario, eliminarHorario } = useHorario();
-  const { user } = useEmailAuth();
-
-  const isVetRole = user?.rol?.toLowerCase().includes('veterinario');
+  const userRolName = typeof user?.rol === 'string'
+    ? user.rol
+    : (user?.rol as any)?.nombre_rol || (user?.rol as any)?.nombreRol || '';
+  const isVetRole = (userRolName.toLowerCase().includes('veterinario') || user?.id_rol === 3) && user?.id_rol !== 2;
   const [busqueda, setBusqueda] = useState("");
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, horario: null as any | null });
   const [verDetallesDialog, setVerDetallesDialog] = useState({ isOpen: false, horario: null as any | null });
