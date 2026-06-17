@@ -183,31 +183,30 @@ export function PerfilGeneralPage() {
                         <div className="shrink-0 flex gap-2">
                             {isEditing ? (
                                 <>
-                                    <button
+                                    <Button
                                         onClick={handleSave}
                                         disabled={updating}
-                                        style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', cursor: 'pointer', opacity: updating ? 0.7 : 1 }}
-                                        className="font-bold px-5 py-2 rounded-xl shadow-lg gap-2 text-xs flex items-center"
+                                        style={{ backgroundColor: '#10b981', color: '#ffffff' }}
+                                        className="hover:opacity-90 font-bold px-5 rounded-xl shadow-lg gap-2 text-xs"
                                     >
                                         <Save className="w-4 h-4" />
                                         {updating ? 'Guardando...' : 'Guardar'}
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         onClick={() => setIsEditing(false)}
-                                        style={{ backgroundColor: 'transparent', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}
-                                        className="font-bold px-4 py-2 rounded-xl text-xs flex items-center hover:bg-white/10"
+                                        variant="ghost"
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-xl border border-white/10 px-4 text-xs"
                                     >
                                         <X className="w-4 h-4" />
-                                    </button>
+                                    </Button>
                                 </>
                             ) : (
-                                <button
+                                <Button
                                     onClick={() => setIsEditing(true)}
-                                    style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}
-                                    className="font-bold text-xs tracking-wider uppercase py-2.5 px-6 rounded-xl flex items-center gap-2 hover:bg-white/20"
+                                    className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white font-bold text-xs tracking-wider uppercase py-2.5 px-6 rounded-xl gap-2 transition-all"
                                 >
                                     <PenLine className="w-3.5 h-3.5" /> Editar Perfil
-                                </button>
+                                </Button>
                             )}
                         </div>
                     </div>

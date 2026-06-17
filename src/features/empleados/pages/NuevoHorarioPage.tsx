@@ -456,7 +456,66 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
                                     })}
                                 </div>
 
-
+                                {/* Automatización Rápida */}
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const nuevosHorarios = { ...horariosPorDia };
+                                            diasSeleccionados.forEach(dia => {
+                                                nuevosHorarios[dia] = { horaInicio: '08:00', horaFin: '14:00', disponible: true };
+                                            });
+                                            setHorariosPorDia(nuevosHorarios);
+                                            toast.info("Preset Mañana aplicado");
+                                        }}
+                                        className="px-3 py-1.5 bg-dark-hover border border-dark-color rounded-lg text-[9px] font-bold text-dark-secondary hover:text-blue-400 transition-all uppercase tracking-wider"
+                                    >
+                                        Mañana
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const nuevosHorarios = { ...horariosPorDia };
+                                            diasSeleccionados.forEach(dia => {
+                                                nuevosHorarios[dia] = { horaInicio: '14:00', horaFin: '20:00', disponible: true };
+                                            });
+                                            setHorariosPorDia(nuevosHorarios);
+                                            toast.info("Preset Tarde aplicado");
+                                        }}
+                                        className="px-3 py-1.5 bg-dark-hover border border-dark-color rounded-lg text-[9px] font-bold text-dark-secondary hover:text-orange-400 transition-all uppercase tracking-wider"
+                                    >
+                                        Tarde
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const nuevosHorarios = { ...horariosPorDia };
+                                            diasSeleccionados.forEach(dia => {
+                                                nuevosHorarios[dia] = { horaInicio: '08:00', horaFin: '17:00', disponible: true };
+                                            });
+                                            setHorariosPorDia(nuevosHorarios);
+                                            toast.info("Día Completo aplicado");
+                                        }}
+                                        className="px-3 py-1.5 bg-dark-hover border border-dark-color rounded-lg text-[9px] font-bold text-dark-secondary hover:text-emerald-400 transition-all uppercase tracking-wider"
+                                    >
+                                        Todo el día
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const diasHabiles = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+                                            setDiasSeleccionados(diasHabiles);
+                                            const nuevosHorarios = { ...horariosPorDia };
+                                            diasHabiles.forEach(dia => {
+                                                if (!nuevosHorarios[dia]) nuevosHorarios[dia] = { horaInicio: '08:00', horaFin: '17:00', disponible: true };
+                                            });
+                                            setHorariosPorDia(nuevosHorarios);
+                                        }}
+                                        className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-[9px] font-black text-blue-400 transition-all uppercase tracking-widest ml-auto"
+                                    >
+                                        L-V Estándar
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Listado de Horarios por Día */}

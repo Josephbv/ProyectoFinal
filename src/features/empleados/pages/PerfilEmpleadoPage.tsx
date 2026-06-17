@@ -184,7 +184,8 @@ export function PerfilEmpleadoPage() {
                                 <Button
                                     onClick={handleSave}
                                     disabled={updating}
-                                    className="bg-white text-[#059669] hover:bg-white/90 font-black text-xs px-8 rounded-2xl"
+                                    style={{ backgroundColor: '#ffffff', color: '#059669' }}
+                                    className="hover:opacity-90 font-black text-xs px-8 rounded-2xl"
                                 >
                                     {updating ? 'Guardando...' : 'Guardar cambios'}
                                 </Button>
