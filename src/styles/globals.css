@@ -853,6 +853,15 @@ html {
     color: #EF4444 !important;
   }
 
+  .light button.text-red-500,
+  .light .text-red-500 {
+    color: #EF4444 !important;
+  }
+
+  .light .border-red-500 {
+    border-color: #EF4444 !important;
+  }
+
   .light button.text-red-400:hover,
   .light button:hover.text-red-400 {
     background-color: rgba(239, 68, 68, 0.1) !important;
