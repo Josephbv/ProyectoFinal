@@ -408,8 +408,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                         </button>
                         <div>
-                            <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-1 block">Gestión Clínica</span>
-                            <h1 className="text-2xl font-black text-dark-primary tracking-tighter">
+                            <h1 className="text-2xl font-bold text-dark-primary tracking-tighter">
                                 {readOnly ? 'Detalles del Paciente' : (mascota ? 'Editar Paciente' : 'Nuevo Registro Animal')}
                             </h1>
                         </div>
