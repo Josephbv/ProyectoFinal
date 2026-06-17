@@ -142,6 +142,20 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
     return Object.entries(c).map(([name,value])=>({name,value}));
   },[allMascotas]);
 
+  // Últimas mascotas registradas
+  const ultimasMascotas = useMemo(() => {
+    return [...allMascotas]
+      .sort((a, b) => (b.id_mascota || 0) - (a.id_mascota || 0))
+      .slice(0, 5)
+      .map(m => {
+        const owner = allClientes.find(c => c.id_cliente === m.id_cliente);
+        return {
+          ...m,
+          ownerName: owner?.nombre || 'Sin dueño'
+        };
+      });
+  }, [allMascotas, allClientes]);
+
   return (
     <main className="bg-dark-bg p-3 lg:p-4 overflow-x-hidden min-h-screen">
       <div className="max-w-[1400px] mx-auto space-y-4">
@@ -257,31 +271,61 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
             </div>
           </div>
 
-          {/* Próximas Citas 7 días */}
-          <div className="dark-card p-4 border-white/5">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[10px] font-black text-dark-secondary flex items-center gap-2"><CalendarDays className="w-3.5 h-3.5 text-purple-400"/>Próximas (7 días)</h3>
-              <Button onClick={()=>onNavigate?.("Agendamiento")} variant="link" className="text-blue-400 text-[9px] h-auto p-0 font-bold">Ver todas →</Button>
+          {/* Resumen de Caja o Últimos Pacientes */}
+          {isAdmin ? (
+            <div className="dark-card p-4 border-white/5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[10px] font-black text-dark-secondary flex items-center gap-2">
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-400"/>
+                  Resumen de Caja / Finanzas
+                </h3>
+                <Button onClick={()=>onNavigate?.("Ventas")} variant="link" className="text-blue-400 text-[9px] h-auto p-0 font-bold">Ver ventas →</Button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col justify-between">
+                  <p className="text-[9px] font-bold text-dark-secondary tracking-wider uppercase mb-1">Ingresos Hoy</p>
+                  <p className="text-sm font-black text-emerald-400">{fmt(balances.diario)}</p>
+                </div>
+                <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col justify-between">
+                  <p className="text-[9px] font-bold text-dark-secondary tracking-wider uppercase mb-1">Esta Semana</p>
+                  <p className="text-sm font-black text-blue-400">{fmt(balances.semanal)}</p>
+                </div>
+                <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col justify-between">
+                  <p className="text-[9px] font-bold text-dark-secondary tracking-wider uppercase mb-1">Este Mes</p>
+                  <p className="text-sm font-black text-purple-400">{fmt(balances.mensual)}</p>
+                </div>
+                <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col justify-between">
+                  <p className="text-[9px] font-bold text-dark-secondary tracking-wider uppercase mb-1">Anuladas (Mes)</p>
+                  <p className="text-sm font-black text-red-400">{balances.anuladas} ventas</p>
+                </div>
+              </div>
             </div>
-            <div className="space-y-1.5 max-h-[200px] overflow-y-auto pr-1">
-              {proximas.length>0 ? proximas.map(c=>{
-                const fecha=c.fecha?new Date(c.fecha):null;
-                return(
-                  <div key={c.id_agendamiento} className="flex items-center gap-2 p-2 bg-white/[0.02] border border-white/5 rounded-lg">
-                    <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex flex-col items-center justify-center shrink-0">
-                      <span className="text-[9px] font-black text-purple-400 leading-none">{fecha?.toLocaleDateString('es-CO',{day:'2-digit'})}</span>
-                      <span className="text-[7px] text-purple-300 uppercase">{fecha?.toLocaleDateString('es-CO',{month:'short'})}</span>
+          ) : (
+            <div className="dark-card p-4 border-white/5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-[10px] font-black text-dark-secondary flex items-center gap-2">
+                  <PawPrint className="w-3.5 h-3.5 text-pink-400"/>
+                  Últimos Pacientes
+                </h3>
+                <Button onClick={()=>onNavigate?.("Mascotas")} variant="link" className="text-blue-400 text-[9px] h-auto p-0 font-bold">Ver todos →</Button>
+              </div>
+              <div className="space-y-1.5 max-h-[200px] overflow-y-auto pr-1">
+                {ultimasMascotas.length > 0 ? ultimasMascotas.map(m => (
+                  <div key={m.id_mascota} className="flex items-center gap-2 p-2 bg-white/[0.02] border border-white/5 rounded-lg">
+                    <div className="w-9 h-9 rounded-lg bg-pink-500/10 flex items-center justify-center shrink-0">
+                      <PawPrint className="w-4 h-4 text-pink-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-dark-primary truncate">{c.cliente?.nombre||'Sin cliente'}</p>
-                      <p className="text-[9px] text-dark-secondary">{formatTo12h(c.hora)} · {c.empleado?.nombre||'Sin veterinario'}</p>
+                      <p className="text-[11px] font-bold text-dark-primary truncate">{m.nombre}</p>
+                      <p className="text-[9px] text-dark-secondary truncate">{m.especie} · {m.raza || 'Sin raza'}</p>
                     </div>
-                    {c.mascota?.nombre_mascota&&<Badge className="text-[8px] bg-pink-500/10 text-pink-400 border-none">{c.mascota.nombre_mascota}</Badge>}
+                    <Badge className="text-[8px] bg-blue-500/10 text-blue-400 border-none truncate max-w-[100px]">{m.ownerName}</Badge>
                   </div>
-                );
-              }) : <p className="text-[10px] text-dark-secondary italic py-4 text-center">No hay citas programadas</p>}
+                )) : <p className="text-[10px] text-dark-secondary italic py-4 text-center">No hay pacientes registrados</p>}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* FILA 4: Top Servicios + Últimas Ventas + Pacientes */}
