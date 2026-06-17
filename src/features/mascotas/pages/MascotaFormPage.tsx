@@ -369,7 +369,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
     return (
         <div className="flex flex-col min-h-screen bg-dark-bg animate-in fade-in duration-500">
             {/* Header Fijo */}
-            <header className="sticky top-0 z-30 bg-dark-bg/80 backdrop-blur-xl border-b border-dark-color p-4 md:p-6">
+            <header className="sticky top-0 bg-dark-bg/80 backdrop-blur-xl border-b border-dark-color p-4 md:p-6" style={{ zIndex: 30 }}>
                 <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <button
@@ -636,7 +636,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                     <div className="lg:col-span-1 space-y-6">
                         {/* Buscador de Clientes (Solo visible en modo edición y si no es cliente) */}
                         {!readOnly && !isClienteRole && (
-                            <div className="dark-card p-6 space-y-4 relative z-30">
+                            <div className="dark-card p-6 space-y-4 relative" style={{ zIndex: 20 }}>
                                 <Label className="text-[10px] font-black text-blue-500 tracking-widest ml-1">Cambiar / Buscar Dueño</Label>
                                 <div className="relative z-50">
                                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary" />
