@@ -186,7 +186,8 @@ export function PerfilGeneralPage() {
                                     <Button
                                         onClick={handleSave}
                                         disabled={updating}
-                                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 rounded-xl shadow-lg shadow-emerald-500/30 gap-2 text-xs"
+                                        style={{ backgroundColor: '#10b981', color: '#ffffff' }}
+                                        className="hover:opacity-90 font-bold px-5 rounded-xl shadow-lg gap-2 text-xs"
                                     >
                                         <Save className="w-4 h-4" />
                                         {updating ? 'Guardando...' : 'Guardar'}
