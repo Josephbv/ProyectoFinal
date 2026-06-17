@@ -331,7 +331,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
                     : 'Comienza registrando el primer horario para el personal'
                   }
                 </p>
-                {!busqueda && (
+                {!busqueda && !isVetRole && (
                   <Button
                     onClick={() => onNewHorario?.()}
                     className="bg-dark-cta text-white hover:bg-blue-600"

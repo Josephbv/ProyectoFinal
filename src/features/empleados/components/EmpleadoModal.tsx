@@ -5,7 +5,7 @@ import { Button } from '../../../shared/components/button';
 import { Input } from '../../../shared/components/input';
 import { Label } from '../../../shared/components/label';
 import { Empleado, useEmpleados } from '../hooks/useEmpleados';
-import { User, Briefcase, Mail, Phone, MapPin } from 'lucide-react';
+import { User, Briefcase, Mail, Phone, MapPin, CheckCircle2, Copy } from 'lucide-react';
 import { useRoles } from '../../configuracion/hooks/useRoles';
 import { esCedulaValida, esTelefonoValido, esNombreCompletoValido } from '../../../shared/utils/validators';
 
@@ -34,8 +34,12 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
     const { empleados } = useEmpleados();
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [createdUserActivation, setCreatedUserActivation] = useState<{ correo: string, activationLink: string | null } | null>(null);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
+        setCreatedUserActivation(null);
+        setCopied(false);
         if (empleado) {
             setFormData({
                 tipo_documento: empleado.tipo_documento || 'Cédula de Ciudadanía',
@@ -145,7 +149,14 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
 
         const result = await onSubmit(data);
         if (result.success) {
-            onClose();
+            if (!empleado && result.activationLink !== undefined) {
+                setCreatedUserActivation({
+                    correo: formData.correo,
+                    activationLink: result.activationLink || null
+                });
+            } else {
+                onClose();
+            }
         } else if (result.error) {
             // Mostrar el mensaje de error del backend (ej: cédula o correo duplicado)
             const msg: string = result.error || '';
@@ -168,175 +179,230 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-md bg-dark-card border-dark-color">
-                <DialogHeader>
-                    <DialogTitle className="text-xl font-semibold text-dark-primary flex items-center gap-2">
-                        <User className="w-5 h-5 text-blue-400" />
-                        {readOnly ? 'Detalles del Empleado' : empleado ? 'Editar Empleado' : 'Nuevo Empleado'}
-                    </DialogTitle>
-                    <DialogDescription className="text-dark-secondary">
-                        {readOnly ? 'Información detallada del empleado.' : empleado ? 'Actualiza los datos del empleado' : 'Ingresa la información básica del nuevo empleado'}
-                    </DialogDescription>
-                </DialogHeader>
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="space-y-4">
+                {createdUserActivation ? (
+                    <div className="space-y-6 py-4 text-center">
+                        <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-400">
+                            <CheckCircle2 className="w-10 h-10 animate-pulse" />
+                        </div>
                         <div className="space-y-2">
-                            <Label className="text-dark-secondary text-xs">Nombre Completo *</Label>
-                            <Input
-                                value={formData.nombre}
-                                onChange={(e) => handleChange('nombre', e.target.value)}
-                                className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.nombre ? 'border-red-500' : ''}`}
-                                placeholder="Nombre completo"
-                                readOnly={readOnly}
-                            />
-                            {errors.nombre && <p className="text-red-400 text-sm">{errors.nombre}</p>}
+                            <h2 className="text-xl font-black text-dark-primary tracking-tight font-sans">¡Empleado y Cuenta Creados!</h2>
+                            <p className="text-xs text-dark-secondary max-w-sm mx-auto font-sans leading-relaxed">
+                                El empleado ha sido registrado y su cuenta para <span className="font-bold text-indigo-400">{createdUserActivation.correo}</span> ha sido creada. Se le ha enviado un correo automático para asignar su contraseña.
+                            </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs">Tipo Doc. *</Label>
-                                <select
-                                    value={formData.tipo_documento}
-                                    onChange={(e) => handleChange('tipo_documento', e.target.value)}
-                                    disabled={readOnly || !!empleado}
-                                    className={`w-full h-10 px-3 py-2 bg-dark-hover border ${errors.tipo_documento ? 'border-red-500' : 'border-dark-color'} rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none appearance-none ${empleado ? 'opacity-60 cursor-not-allowed' : ''}`}
-                                >
-                                    <option value="Cédula de Ciudadanía">C.C.</option>
-                                    <option value="Cédula de Extranjería">C.E.</option>
-                                </select>
-                                {errors.tipo_documento && <p className="text-red-400 text-sm">{errors.tipo_documento}</p>}
+                        {createdUserActivation.activationLink && (
+                            <div className="p-4 bg-dark-hover rounded-xl border border-dark-color text-left space-y-2 max-w-sm mx-auto relative overflow-hidden">
+                                <span className="text-[9px] font-black tracking-widest text-indigo-400 uppercase block font-sans">Enlace de Activación (Plan B)</span>
+                                <p className="text-[10px] text-dark-secondary leading-relaxed font-sans">
+                                    Si no recibe el correo, puedes copiar este enlace de activación y enviárselo directamente:
+                                </p>
+                                <p className="text-[10px] font-mono bg-dark-bg p-2 rounded-lg border border-dark-color text-indigo-300 break-all select-all mt-1">
+                                    {createdUserActivation.activationLink}
+                                </p>
                             </div>
+                        )}
 
-                            <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs">Documento *</Label>
-                                <Input
-                                    value={formData.cedula}
-                                    onChange={(e) => handleChange('cedula', e.target.value)}
-                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.cedula ? 'border-red-500' : ''}`}
-                                    placeholder="Número de documento"
-                                    readOnly={readOnly}
-                                />
-                                {errors.cedula && <p className="text-red-400 text-sm">{errors.cedula}</p>}
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label className="text-dark-secondary text-xs">Teléfono *</Label>
-                            <div className="relative">
-                                <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark-secondary" />
-                                <Input
-                                    value={formData.telefono}
-                                    onChange={(e) => handleChange('telefono', e.target.value)}
-                                    className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.telefono ? 'border-red-500' : ''}`}
-                                    placeholder="300-123-4567"
-                                    readOnly={readOnly}
-                                />
-                            </div>
-                            {errors.telefono && <p className="text-red-400 text-sm">{errors.telefono}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label className="text-dark-secondary text-xs">Email *</Label>
-                            <div className="relative">
-                                <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark-secondary" />
-                                <Input
-                                    value={formData.correo}
-                                    onChange={(e) => handleChange('correo', e.target.value)}
-                                    className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.correo ? 'border-red-500' : ''}`}
-                                    placeholder="ejemplo@correo.com"
-                                    readOnly={readOnly}
-                                />
-                            </div>
-                            {errors.correo && <p className="text-red-400 text-sm">{errors.correo}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label className="text-dark-secondary text-xs">Dirección *</Label>
-                            <div className="relative">
-                                <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark-secondary" />
-                                <Input
-                                    value={formData.direccion}
-                                    onChange={(e) => handleChange('direccion', e.target.value)}
-                                    className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.direccion ? 'border-red-500' : ''}`}
-                                    placeholder="Calle 123 # 45 - 67"
-                                    readOnly={readOnly}
-                                />
-                            </div>
-                            {errors.direccion && <p className="text-red-400 text-sm">{errors.direccion}</p>}
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs flex items-center gap-1">
-                                    <Briefcase className="w-3 h-3" /> Cargo *
-                                </Label>
-                                <select
-                                    value={formData.cargo}
-                                    onChange={(e) => handleChange('cargo', e.target.value)}
-                                    disabled={readOnly || Boolean(empleado && (empleado.correo === 'josephballestas10@gmail.com' || empleado.cedula === '1001780874'))}
-                                    className={`w-full h-10 px-3 py-2 bg-dark-hover border ${errors.cargo ? 'border-red-500' : 'border-dark-color'} rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none appearance-none ${!formData.cargo && 'text-dark-secondary/70'} ${empleado && (empleado.correo === 'josephballestas10@gmail.com' || empleado.cedula === '1001780874') ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                >
-                                    <option value="" disabled>Seleccionar rol</option>
-                                    {roles
-                                        .filter(rol => (rol.nombre || '').toLowerCase() !== 'cliente')
-                                        .map((rol, index) => (
-                                            <option key={`${rol.id}-${index}`} value={rol.nombre} className="text-dark-primary">
-                                                {rol.nombre}
-                                            </option>
-                                        ))}
-                                </select>
-                                {errors.cargo && <p className="text-red-400 text-sm">{errors.cargo}</p>}
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label className="text-dark-secondary text-xs flex items-center gap-1">
-                                    Experiencia Laboral (Años) *
-                                </Label>
-                                <Input
-                                    type="number"
-                                    min="0"
-                                    step="1"
-                                    value={formData.experiencia}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (val === '' || /^\d*$/.test(val)) {
-                                            handleChange('experiencia', val);
+                        <div className="flex flex-col sm:flex-row justify-center gap-2 pt-2">
+                            {createdUserActivation.activationLink && (
+                                <Button
+                                    type="button"
+                                    onClick={async () => {
+                                        if (createdUserActivation.activationLink) {
+                                            await navigator.clipboard.writeText(createdUserActivation.activationLink);
+                                            setCopied(true);
+                                            setTimeout(() => setCopied(false), 2000);
                                         }
                                     }}
-                                    className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.experiencia ? 'border-red-500' : ''}`}
-                                    placeholder="Ej: 5"
-                                    readOnly={readOnly}
-                                    onKeyDown={(e) => {
-                                        if (e.key === '.' || e.key === ',' || e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E') {
-                                            e.preventDefault();
-                                        }
-                                    }}
-                                />
-                                {errors.experiencia && <p className="text-red-400 text-sm">{errors.experiencia}</p>}
-                            </div>
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-1.5 rounded-lg flex items-center justify-center gap-2 text-xs"
+                                >
+                                    {copied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                    {copied ? 'Copiado' : 'Copiar Enlace'}
+                                </Button>
+                            )}
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={onClose}
+                                className="text-dark-secondary border border-dark-color hover:bg-dark-hover rounded-lg px-4 py-1.5 text-xs"
+                            >
+                                Entendido
+                            </Button>
                         </div>
                     </div>
+                ) : (
+                    <>
+                        <DialogHeader>
+                            <DialogTitle className="text-xl font-semibold text-dark-primary flex items-center gap-2">
+                                <User className="w-5 h-5 text-blue-400" />
+                                {readOnly ? 'Detalles del Empleado' : empleado ? 'Editar Empleado' : 'Nuevo Empleado'}
+                            </DialogTitle>
+                            <DialogDescription className="text-dark-secondary">
+                                {readOnly ? 'Información detallada del empleado.' : empleado ? 'Actualiza los datos del empleado' : 'Ingresa la información básica del nuevo empleado'}
+                            </DialogDescription>
+                        </DialogHeader>
 
-                    <DialogFooter className="border-t border-dark-color pt-6 gap-2">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={onClose}
-                            className="text-dark-secondary border border-dark-color hover:bg-dark-hover"
-                        >
-                            {readOnly ? 'Cerrar' : 'Cancelar'}
-                        </Button>
-                        {!readOnly && (
-                            <Button
-                                type="submit"
-                                disabled={loading}
-                                className="bg-dark-cta text-white hover:bg-blue-600 px-6"
-                            >
-                                {loading ? 'Procesando...' : empleado ? 'Actualizar' : 'Crear Empleado'}
-                            </Button>
-                        )}
-                    </DialogFooter>
-                </form>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label className="text-dark-secondary text-xs">Nombre Completo *</Label>
+                                    <Input
+                                        value={formData.nombre}
+                                        onChange={(e) => handleChange('nombre', e.target.value)}
+                                        className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.nombre ? 'border-red-500' : ''}`}
+                                        placeholder="Nombre completo"
+                                        readOnly={readOnly}
+                                    />
+                                    {errors.nombre && <p className="text-red-400 text-sm">{errors.nombre}</p>}
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-dark-secondary text-xs">Tipo Doc. *</Label>
+                                        <select
+                                            value={formData.tipo_documento}
+                                            onChange={(e) => handleChange('tipo_documento', e.target.value)}
+                                            disabled={readOnly || !!empleado}
+                                            className={`w-full h-10 px-3 py-2 bg-dark-hover border ${errors.tipo_documento ? 'border-red-500' : 'border-dark-color'} rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none appearance-none ${empleado ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                        >
+                                            <option value="Cédula de Ciudadanía">C.C.</option>
+                                            <option value="Cédula de Extranjería">C.E.</option>
+                                        </select>
+                                        {errors.tipo_documento && <p className="text-red-400 text-sm">{errors.tipo_documento}</p>}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label className="text-dark-secondary text-xs">Documento *</Label>
+                                        <Input
+                                            value={formData.cedula}
+                                            onChange={(e) => handleChange('cedula', e.target.value)}
+                                            className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.cedula ? 'border-red-500' : ''}`}
+                                            placeholder="Número de documento"
+                                            readOnly={readOnly}
+                                        />
+                                        {errors.cedula && <p className="text-red-400 text-sm">{errors.cedula}</p>}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-dark-secondary text-xs">Teléfono *</Label>
+                                    <div className="relative">
+                                        <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark-secondary" />
+                                        <Input
+                                            value={formData.telefono}
+                                            onChange={(e) => handleChange('telefono', e.target.value)}
+                                            className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.telefono ? 'border-red-500' : ''}`}
+                                            placeholder="300-123-4567"
+                                            readOnly={readOnly}
+                                        />
+                                    </div>
+                                    {errors.telefono && <p className="text-red-400 text-sm">{errors.telefono}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-dark-secondary text-xs">Email *</Label>
+                                    <div className="relative">
+                                        <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark-secondary" />
+                                        <Input
+                                            value={formData.correo}
+                                            onChange={(e) => handleChange('correo', e.target.value)}
+                                            className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.correo ? 'border-red-500' : ''}`}
+                                            placeholder="ejemplo@correo.com"
+                                            readOnly={readOnly}
+                                        />
+                                    </div>
+                                    {errors.correo && <p className="text-red-400 text-sm">{errors.correo}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-dark-secondary text-xs">Dirección *</Label>
+                                    <div className="relative">
+                                        <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark-secondary" />
+                                        <Input
+                                            value={formData.direccion}
+                                            onChange={(e) => handleChange('direccion', e.target.value)}
+                                            className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.direccion ? 'border-red-500' : ''}`}
+                                            placeholder="Calle 123 # 45 - 67"
+                                            readOnly={readOnly}
+                                        />
+                                    </div>
+                                    {errors.direccion && <p className="text-red-400 text-sm">{errors.direccion}</p>}
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-dark-secondary text-xs flex items-center gap-1">
+                                            <Briefcase className="w-3 h-3" /> Cargo *
+                                        </Label>
+                                        <select
+                                            value={formData.cargo}
+                                            onChange={(e) => handleChange('cargo', e.target.value)}
+                                            disabled={readOnly || Boolean(empleado && (empleado.correo === 'josephballestas10@gmail.com' || empleado.cedula === '1001780874'))}
+                                            className={`w-full h-10 px-3 py-2 bg-dark-hover border ${errors.cargo ? 'border-red-500' : 'border-dark-color'} rounded-md text-sm text-dark-primary focus:border-dark-cta outline-none appearance-none ${!formData.cargo && 'text-dark-secondary/70'} ${empleado && (empleado.correo === 'josephballestas10@gmail.com' || empleado.cedula === '1001780874') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        >
+                                            <option value="" disabled>Seleccionar rol</option>
+                                            {roles
+                                                .filter(rol => (rol.nombre || '').toLowerCase() !== 'cliente')
+                                                .map((rol, index) => (
+                                                    <option key={`${rol.id}-${index}`} value={rol.nombre} className="text-dark-primary">
+                                                        {rol.nombre}
+                                                    </option>
+                                                ))}
+                                        </select>
+                                        {errors.cargo && <p className="text-red-400 text-sm">{errors.cargo}</p>}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label className="text-dark-secondary text-xs flex items-center gap-1">
+                                            Experiencia Laboral (Años) *
+                                        </Label>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            step="1"
+                                            value={formData.experiencia}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (val === '' || /^\d*$/.test(val)) {
+                                                    handleChange('experiencia', val);
+                                                }
+                                            }}
+                                            className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.experiencia ? 'border-red-500' : ''}`}
+                                            placeholder="Ej: 5"
+                                            readOnly={readOnly}
+                                            onKeyDown={(e) => {
+                                                if (e.key === '.' || e.key === ',' || e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E') {
+                                                    e.preventDefault();
+                                                }
+                                            }}
+                                        />
+                                        {errors.experiencia && <p className="text-red-400 text-sm">{errors.experiencia}</p>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <DialogFooter className="border-t border-dark-color pt-6 gap-2">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={onClose}
+                                    className="text-dark-secondary border border-dark-color hover:bg-dark-hover"
+                                >
+                                    {readOnly ? 'Cerrar' : 'Cancelar'}
+                                </Button>
+                                {!readOnly && (
+                                    <Button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="bg-dark-cta text-white hover:bg-blue-600 px-6"
+                                    >
+                                        {loading ? 'Procesando...' : empleado ? 'Actualizar' : 'Crear Empleado'}
+                                    </Button>
+                                )}
+                            </DialogFooter>
+                        </form>
+                    </>
+                )}
             </DialogContent>
         </Dialog>
     );

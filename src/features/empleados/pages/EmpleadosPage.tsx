@@ -13,7 +13,7 @@ import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
 export function EmpleadosPage() {
     const { empleados, loading, crearEmpleado, actualizarEmpleado, eliminarEmpleado, buscarEmpleados } = useEmpleados();
     const { user } = useEmailAuth();
-    const { usuarios } = useUsuarios();
+    const { usuarios, crearUsuario } = useUsuarios();
     const [busqueda, setBusqueda] = useState("");
     const [empleadoModal, setEmpleadoModal] = useState({ isOpen: false, empleado: null as Empleado | null, readOnly: false });
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, empleado: null as Empleado | null });
@@ -38,8 +38,30 @@ export function EmpleadosPage() {
         const result = await crearEmpleado(empleadoData);
         if (result.success) {
             toast.success("Empleado registrado exitosamente");
-            cerrarEmpleadoModal();
-            return { success: true };
+            
+            // Crear cuenta de usuario automáticamente para el empleado
+            const nombreUsuarioAuto = empleadoData.correo?.split('@')[0] || empleadoData.nombre;
+            const userResult = await crearUsuario({
+                nombre_usuario: nombreUsuarioAuto,
+                nombre_completo: empleadoData.nombre,
+                correo: empleadoData.correo,
+                cedula: empleadoData.cedula,
+                tipo_documento: empleadoData.tipo_documento,
+                telefono: empleadoData.telefono,
+                direccion: empleadoData.direccion,
+                nombre_rol: empleadoData.cargo || 'Administrador',
+                id_empleado: result.data?.id_empleado
+            });
+
+            if (userResult.success) {
+                toast.success("Cuenta de usuario creada y vinculada automáticamente");
+                return { success: true, activationLink: userResult.activationLink };
+            } else {
+                toast.warning("Empleado registrado, pero no se pudo crear su cuenta de usuario: " + (userResult.error || ""));
+                // Cerrar modal si no se creó cuenta de usuario para que no quede atascado
+                cerrarEmpleadoModal();
+                return { success: true, activationLink: null };
+            }
         } else {
             toast.error(result.error || "Error al registrar empleado");
             return { success: false };
