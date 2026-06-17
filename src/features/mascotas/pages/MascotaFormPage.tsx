@@ -466,7 +466,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-3">
-                                    <Label className={`text-[10px] font-black tracking-widest ml-1 transition-all ${errors.nombre ? 'text-red-500 opacity-100' : 'text-dark-secondary opacity-50'}`}>Nombre de la Mascota</Label>
+                                    <Label className={`text-[10px] font-black tracking-widest ml-1 transition-all ${errors.nombre ? 'text-red-400 opacity-100' : 'text-dark-secondary opacity-50'}`}>Nombre de la Mascota</Label>
                                     <div className="relative">
                                         <Dog className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary" />
                                         <Input
@@ -477,11 +477,11 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             placeholder="Ej: Max, Luna..."
                                         />
                                     </div>
-                                    {errors.nombre && <p className="text-red-500 text-xs mt-1 ml-1">{errors.nombre}</p>}
+                                    {errors.nombre && <p className="text-red-400 text-xs mt-1 ml-1">{errors.nombre}</p>}
                                 </div>
 
                                 <div className="space-y-3">
-                                    <Label className={`text-[10px] font-black tracking-widest ml-1 transition-all ${errors.especie ? 'text-red-500 opacity-100' : 'text-dark-secondary opacity-50'}`}>Especie</Label>
+                                    <Label className={`text-[10px] font-black tracking-widest ml-1 transition-all ${errors.especie ? 'text-red-400 opacity-100' : 'text-dark-secondary opacity-50'}`}>Especie</Label>
                                     <div className="relative">
                                         <select
                                             disabled={readOnly}
@@ -501,11 +501,11 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             )}
                                         </select>
                                     </div>
-                                    {errors.especie && <p className="text-red-500 text-xs mt-1 ml-1">{errors.especie}</p>}
+                                    {errors.especie && <p className="text-red-400 text-xs mt-1 ml-1">{errors.especie}</p>}
                                 </div>
 
                                 <div className="space-y-3">
-                                    <Label className={`text-[10px] font-black tracking-widest ml-1 transition-all ${errors.raza ? 'text-red-500 opacity-100' : 'text-dark-secondary opacity-50'}`}>Raza</Label>
+                                    <Label className={`text-[10px] font-black tracking-widest ml-1 transition-all ${errors.raza ? 'text-red-400 opacity-100' : 'text-dark-secondary opacity-50'}`}>Raza</Label>
                                     <div className="relative">
                                         <select
                                             disabled={readOnly || !formData.especie}
@@ -523,7 +523,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             <option value="Otro">Otra raza...</option>
                                         </select>
                                     </div>
-                                    {errors.raza && <p className="text-red-500 text-xs mt-1 ml-1">{errors.raza}</p>}
+                                    {errors.raza && <p className="text-red-400 text-xs mt-1 ml-1">{errors.raza}</p>}
                                 </div>
 
                                 <div className="space-y-3">
@@ -588,7 +588,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="space-y-2">
-                                    <Label className={`font-medium transition-all ${errors.edad ? 'text-red-500' : 'text-dark-primary'}`}>Edad (meses) *</Label>
+                                    <Label className={`font-medium transition-all ${errors.edad ? 'text-red-400' : 'text-dark-primary'}`}>Edad (meses) *</Label>
                                     <Input
                                         type="number"
                                         min={0}
@@ -598,10 +598,10 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         placeholder="Ej: 6, 18, 36..."
                                         disabled={readOnly}
                                     />
-                                    {errors.edad && <p className="text-red-500 text-xs mt-1 ml-1">{errors.edad}</p>}
+                                    {errors.edad && <p className="text-red-400 text-xs mt-1 ml-1">{errors.edad}</p>}
                                 </div>
                                 <div className="space-y-2 text-center md:text-left">
-                                    <Label className={`font-medium transition-all ${errors.peso ? 'text-red-500' : 'text-dark-primary'}`}>Peso (kg) *</Label>
+                                    <Label className={`font-medium transition-all ${errors.peso ? 'text-red-400' : 'text-dark-primary'}`}>Peso (kg) *</Label>
                                     <Input
                                         type="number"
                                         step="0.1"
@@ -611,10 +611,10 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         className="bg-dark-hover text-dark-primary h-11 border-2 transition-all border-dark-color focus:border-blue-500/50"
                                         disabled={readOnly}
                                     />
-                                    {errors.peso && <p className="text-red-500 text-xs mt-1 ml-1">{errors.peso}</p>}
+                                    {errors.peso && <p className="text-red-400 text-xs mt-1 ml-1">{errors.peso}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className={`font-medium transition-all ${errors.fecha_nacimiento ? 'text-red-500' : 'text-dark-primary'}`}>Fecha de Nacimiento *</Label>
+                                    <Label className={`font-medium transition-all ${errors.fecha_nacimiento ? 'text-red-400' : 'text-dark-primary'}`}>Fecha de Nacimiento *</Label>
                                     <div className="relative">
                                         <Input
                                             type="date"
@@ -626,7 +626,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         />
                                         <Calendar className="w-4 h-4 text-dark-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                                     </div>
-                                    {errors.fecha_nacimiento && <p className="text-red-500 text-xs mt-1 ml-1">{errors.fecha_nacimiento}</p>}
+                                    {errors.fecha_nacimiento && <p className="text-red-400 text-xs mt-1 ml-1">{errors.fecha_nacimiento}</p>}
                                 </div>
                             </div>
 
@@ -789,7 +789,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                             )}
                         </div>
                         {errors.id_cliente && (
-                            <p className="text-red-500 text-xs font-bold ml-2 uppercase -mt-3 animate-in fade-in duration-300">
+                            <p className="text-red-400 text-xs font-bold ml-2 uppercase -mt-3 animate-in fade-in duration-300">
                                 {errors.id_cliente}
                             </p>
                         )}
@@ -832,7 +832,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                                         }}
                                                         className="bg-dark-hover text-dark-primary h-10 text-xs border-2 transition-all border-dark-color focus:border-blue-500/50"
                                                     />
-                                                    {vacunaError && <p className="text-red-500 text-xs mt-1 ml-1">{vacunaError}</p>}
+                                                    {vacunaError && <p className="text-red-400 text-xs mt-1 ml-1">{vacunaError}</p>}
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="text-[10px] font-bold text-dark-secondary ml-1">Fecha</Label>
