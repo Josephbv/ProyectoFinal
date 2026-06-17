@@ -514,30 +514,36 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                 <div className="space-y-3">
                                     <Label className={`text-[10px] font-black tracking-widest ml-1 transition-all ${errors.raza ? 'text-red-400 opacity-100' : 'text-dark-secondary opacity-50'}`}>Raza</Label>
                                     <div className="relative">
-                                        <select
-                                            disabled={readOnly || !formData.especie}
-                                            value={isCustomRaza ? 'Otro' : (formData.raza || '')}
-                                            onChange={(e) => {
-                                                const val = e.target.value;
-                                                if (val === 'Otro') {
-                                                    setIsCustomRaza(true);
-                                                    handleChange('raza', '');
-                                                } else {
-                                                    setIsCustomRaza(false);
-                                                    handleChange('raza', val);
-                                                }
-                                            }}
-                                            className={`w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30 ${readOnly ? 'opacity-100 cursor-default appearance-none' : ''}`}
-                                        >
-                                            <option value="">Seleccionar raza...</option>
-                                            {getRazasForEspecie(formData.especie).map((raza: string) => (
-                                                <option key={raza} value={raza}>{raza}</option>
-                                            ))}
-                                            {formData.raza && !getRazasForEspecie(formData.especie).includes(formData.raza) && (
-                                                <option value={formData.raza}>{formData.raza}</option>
-                                            )}
-                                            <option value="Otro">Otra raza...</option>
-                                        </select>
+                                        {readOnly ? (
+                                            <div className="w-full h-14 px-4 bg-dark-hover border-2 border-dark-color rounded-2xl flex items-center text-base font-bold transition-all text-dark-primary">
+                                                {formData.raza || 'Sin especificar'}
+                                            </div>
+                                        ) : (
+                                            <select
+                                                disabled={!formData.especie}
+                                                value={isCustomRaza ? 'Otro' : (formData.raza || '')}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (val === 'Otro') {
+                                                        setIsCustomRaza(true);
+                                                        handleChange('raza', '');
+                                                    } else {
+                                                        setIsCustomRaza(false);
+                                                        handleChange('raza', val);
+                                                    }
+                                                }}
+                                                className="w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30"
+                                            >
+                                                <option value="">Seleccionar raza...</option>
+                                                {getRazasForEspecie(formData.especie).map((raza: string) => (
+                                                    <option key={raza} value={raza}>{raza}</option>
+                                                ))}
+                                                {formData.raza && !getRazasForEspecie(formData.especie).includes(formData.raza) && (
+                                                    <option value={formData.raza}>{formData.raza}</option>
+                                                )}
+                                                <option value="Otro">Otra raza...</option>
+                                            </select>
+                                        )}
                                     </div>
                                     {errors.raza && <p className="text-red-400 text-xs mt-1 ml-1">{errors.raza}</p>}
                                 </div>
