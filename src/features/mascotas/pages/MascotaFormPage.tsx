@@ -249,6 +249,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
             };
             await onSubmit(dataToSend, keepEditing);
             if (!keepEditing) {
+                toast.success(mascota ? "Mascota actualizada con éxito" : "Tu mascota fue registrada con éxito");
                 onSuccess();
             } else {
                 toast.success("Progreso guardado");
