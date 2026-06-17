@@ -22,6 +22,7 @@ interface HorarioPageProps {
 
 export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
   const { horarios, loading, crearHorario, actualizarHorario, eliminarHorario } = useHorario();
+  const { user } = useEmailAuth();
   const userRolName = typeof user?.rol === 'string'
     ? user.rol
     : (user?.rol as any)?.nombre_rol || (user?.rol as any)?.nombreRol || '';
