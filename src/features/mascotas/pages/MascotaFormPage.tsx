@@ -189,11 +189,11 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
 
         if (!formData.especie || !formData.especie.trim()) {
             newErrors.especie = 'La especie es obligatoria (ej: Canino, Felino).';
-        } else if (!soloLetras(formData.especie)) {
+        } else if (/\d/.test(formData.especie)) {
             newErrors.especie = 'La especie no debe contener números.';
         }
 
-        if (formData.raza && !soloLetras(formData.raza)) {
+        if (formData.raza && /\d/.test(formData.raza)) {
             newErrors.raza = 'La raza no debe contener números.';
         }
 
@@ -261,26 +261,43 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
     const handleAddAnother = async (e: React.MouseEvent) => {
         e.preventDefault();
         const newErrors: Record<string, string> = {};
-        if (!formData.nombre) newErrors.nombre = 'El nombre es requerido';
-        else if (!soloLetras(formData.nombre)) newErrors.nombre = 'El nombre no puede contener números';
-        if (!formData.id_cliente) newErrors.id_cliente = 'El dueño / cliente es requerido';
-        if (!formData.especie || !formData.especie.trim()) newErrors.especie = 'La especie es requerida';
-        else if (!soloLetras(formData.especie)) newErrors.especie = 'La especie no puede contener números';
-        if (formData.raza && !soloLetras(formData.raza)) newErrors.raza = 'La raza no puede contener números';
-        if (formData.edad === null || formData.edad === undefined || formData.edad === ('' as any)) newErrors.edad = 'La edad es requerida';
-        if (formData.peso === null || formData.peso === undefined || formData.peso === ('' as any)) newErrors.peso = 'El peso es requerido';
-        if (!formData.fecha_nacimiento) newErrors.fecha_nacimiento = 'La fecha de nacimiento es requerida';
-        else {
+        if (!formData.nombre || !formData.nombre.trim()) {
+            newErrors.nombre = 'El nombre del paciente es obligatorio.';
+        } else if (!soloLetras(formData.nombre || '')) {
+            newErrors.nombre = 'El nombre solo debe contener letras.';
+        }
+        if (!formData.id_cliente) newErrors.id_cliente = 'Debes seleccionar un dueño/cliente.';
+        if (!formData.especie || !formData.especie.trim()) {
+            newErrors.especie = 'La especie es obligatoria (ej: Canino, Felino).';
+        } else if (/\d/.test(formData.especie)) {
+            newErrors.especie = 'La especie no debe contener números.';
+        }
+        if (formData.raza && /\d/.test(formData.raza)) {
+            newErrors.raza = 'La raza no debe contener números.';
+        }
+        if (formData.edad === null || formData.edad === undefined || formData.edad === ('' as any)) {
+            newErrors.edad = 'La edad es obligatoria (en meses).';
+        } else if (Number(formData.edad) < 0) {
+            newErrors.edad = 'La edad no puede ser un valor negativo.';
+        }
+        if (formData.peso === null || formData.peso === undefined || formData.peso === ('' as any)) {
+            newErrors.peso = 'El peso es obligatorio (en kg).';
+        } else if (Number(formData.peso) < 0) {
+            newErrors.peso = 'El peso no puede ser un valor negativo.';
+        }
+        if (!formData.fecha_nacimiento) {
+            newErrors.fecha_nacimiento = 'La fecha de nacimiento es obligatoria.';
+        } else {
             const birthDate = new Date(formData.fecha_nacimiento);
             const today = new Date();
             birthDate.setHours(0, 0, 0, 0);
             today.setHours(0, 0, 0, 0);
-            if (birthDate > today) newErrors.fecha_nacimiento = 'La fecha de nacimiento no puede ser futura';
+            if (birthDate > today) newErrors.fecha_nacimiento = 'La fecha de nacimiento no puede ser una fecha futura.';
 
             if (listaVacunas.length > 0) {
                 const tieneVacunaInvalida = listaVacunas.some(v => new Date(v.fecha) < birthDate);
                 if (tieneVacunaInvalida) {
-                    toast.error('⚠️ Inconsistencia: Hay vacunas anteriores al nacimiento.');
+                    toast.error('⚠️ Inconsistencia: Hay vacunas registradas con fecha anterior al nacimiento del paciente.');
                     return;
                 }
             }
@@ -366,6 +383,18 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
         Felino: ['Persa', 'Siamés', 'Maine Coon', 'Bengalí', 'Sphynx', 'Ragdoll', 'British Shorthair', 'Abisinio', 'Angora', 'Común Europeo', 'Mestizo']
     };
 
+    const getRazasForEspecie = (especie: string | null | undefined): string[] => {
+        if (!especie) return [];
+        const normalized = especie.toLowerCase();
+        if (normalized.includes('canino') || normalized.includes('perro')) {
+            return razasPorEspecie.Canino;
+        }
+        if (normalized.includes('felino') || normalized.includes('gato')) {
+            return razasPorEspecie.Felino;
+        }
+        return [];
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-dark-bg animate-in fade-in duration-500">
             {/* Header Fijo */}
@@ -449,7 +478,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             placeholder="Ej: Max, Luna..."
                                         />
                                     </div>
-                                    {errors.nombre && <p className="text-[10px] text-red-500 font-bold ml-2 uppercase items-center flex gap-1"><Info className="w-3 h-3" /> {errors.nombre}</p>}
+                                    {errors.nombre && <p className="text-red-500 text-xs mt-1 ml-1 flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> {errors.nombre}</p>}
                                 </div>
 
                                 <div className="space-y-3">
@@ -473,7 +502,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             )}
                                         </select>
                                     </div>
-                                    {errors.especie && <p className="text-[10px] text-red-500 font-bold ml-2 uppercase items-center flex gap-1"><Info className="w-3 h-3" /> {errors.especie}</p>}
+                                    {errors.especie && <p className="text-red-500 text-xs mt-1 ml-1 flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> {errors.especie}</p>}
                                 </div>
 
                                 <div className="space-y-3">
@@ -486,16 +515,16 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             className={`w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 ${errors.raza ? 'border-red-500 ring-2 ring-red-500/10' : 'border-dark-color hover:border-blue-500/30'} ${readOnly ? 'opacity-100 cursor-default appearance-none' : ''}`}
                                         >
                                             <option value="">Seleccionar raza...</option>
-                                            {formData.especie && razasPorEspecie[formData.especie] && razasPorEspecie[formData.especie].map((raza: string) => (
+                                            {getRazasForEspecie(formData.especie).map((raza: string) => (
                                                 <option key={raza} value={raza}>{raza}</option>
                                             ))}
-                                            {formData.raza && (!formData.especie || !razasPorEspecie[formData.especie] || !razasPorEspecie[formData.especie].includes(formData.raza)) && (
+                                            {formData.raza && !getRazasForEspecie(formData.especie).includes(formData.raza) && (
                                                 <option value={formData.raza}>{formData.raza}</option>
                                             )}
                                             <option value="Otro">Otra raza...</option>
                                         </select>
                                     </div>
-                                    {errors.raza && <p className="text-[10px] text-red-500 font-bold ml-2 uppercase items-center flex gap-1"><Info className="w-3 h-3" /> {errors.raza}</p>}
+                                    {errors.raza && <p className="text-red-500 text-xs mt-1 ml-1 flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> {errors.raza}</p>}
                                 </div>
 
                                 <div className="space-y-3">
@@ -570,7 +599,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         placeholder="Ej: 6, 18, 36..."
                                         disabled={readOnly}
                                     />
-                                    {errors.edad && <p className="text-red-400 text-xs mt-1">{errors.edad}</p>}
+                                    {errors.edad && <p className="text-red-500 text-xs mt-1 ml-1 flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> {errors.edad}</p>}
                                 </div>
                                 <div className="space-y-2 text-center md:text-left">
                                     <Label className="text-dark-primary font-medium">Peso (kg) *</Label>
@@ -583,7 +612,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         className={`bg-dark-hover text-dark-primary h-11 border-2 transition-all ${errors.peso ? 'border-red-500 ring-2 ring-red-500/10' : 'border-dark-color focus:border-blue-500/50'}`}
                                         disabled={readOnly}
                                     />
-                                    {errors.peso && <p className="text-red-400 text-xs mt-1">{errors.peso}</p>}
+                                    {errors.peso && <p className="text-red-500 text-xs mt-1 ml-1 flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> {errors.peso}</p>}
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-dark-primary font-medium">Fecha de Nacimiento *</Label>
@@ -598,7 +627,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         />
                                         <Calendar className="w-4 h-4 text-dark-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                                     </div>
-                                    {errors.fecha_nacimiento && <p className="text-red-400 text-xs mt-1">{errors.fecha_nacimiento}</p>}
+                                    {errors.fecha_nacimiento && <p className="text-red-500 text-xs mt-1 ml-1 flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> {errors.fecha_nacimiento}</p>}
                                 </div>
                             </div>
 
