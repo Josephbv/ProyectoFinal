@@ -469,12 +469,11 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                 <div className="space-y-3">
                                     <Label className={`text-[10px] font-black tracking-widest ml-1 transition-all ${errors.nombre ? 'text-red-400 opacity-100' : 'text-dark-secondary opacity-50'}`}>Nombre de la Mascota</Label>
                                     <div className="relative">
-                                        <Dog className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary" />
                                         <Input
                                             disabled={readOnly}
                                             value={formData.nombre}
                                             onChange={(e) => handleChange('nombre', e.target.value)}
-                                            className={`h-14 pl-12 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30 ${readOnly ? 'opacity-100 cursor-default' : ''}`}
+                                            className={`h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30 ${readOnly ? 'opacity-100 cursor-default' : ''}`}
                                             placeholder="Ej: Max, Luna..."
                                         />
                                     </div>
