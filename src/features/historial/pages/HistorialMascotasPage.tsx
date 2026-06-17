@@ -864,7 +864,7 @@ export function HistorialMascotasPage() {
   const renderInicio = () => {
     return (
       <div className="p-8 space-y-8 animate-in fade-in duration-500">
-        <div className="max-w-6xl mx-auto space-y-8">
+        <div className="w-full space-y-8">
           {/* Tabla Global de Historial Médicos */}
           <div className="space-y-6 pt-0">
             <div className="flex items-center justify-between px-6">
