@@ -879,6 +879,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                                 </div>
                                             </div>
                                             <Button
+                                                type="button"
                                                 onClick={() => {
                                                     if (!currentVacuna.nombre.trim()) return;
                                                     if (/\d/.test(currentVacuna.nombre)) {
@@ -908,6 +909,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                                     </div>
                                                     {!readOnly && (
                                                         <button
+                                                            type="button"
                                                             onClick={() => setListaVacunas(prev => prev.filter((_, idx) => idx !== i))}
                                                             className="p-1.5 text-dark-secondary hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
                                                         >
