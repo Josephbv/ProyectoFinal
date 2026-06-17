@@ -534,7 +534,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                                 formData.sexo === 'Hembra' ? 'text-pink-400' :
                                                     'text-dark-primary'
                                                 }`}>
-                                                {formData.sexo === 'Macho' ? '♂️ Macho' : formData.sexo === 'Hembra' ? '♀️ Hembra' : formData.sexo || 'Desconocido'}
+                                                {formData.sexo === 'Macho' ? '♂️ Macho' : formData.sexo === 'Hembra' ? '♀️ Hembra' : 'No especificado'}
                                             </div>
                                         ) : (
                                             <select
@@ -545,7 +545,6 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                                 <option value="">Seleccionar...</option>
                                                 <option value="Macho">♂️ Macho</option>
                                                 <option value="Hembra">♀️ Hembra</option>
-                                                <option value="Desconocido">❓ Desconocido</option>
                                             </select>
                                         )}
                                     </div>
