@@ -445,7 +445,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             disabled={readOnly}
                                             value={formData.nombre}
                                             onChange={(e) => handleChange('nombre', e.target.value)}
-                                            className={`h-14 pl-12 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 ${errors.nombre ? 'border-red-500/50' : 'border-dark-color hover:border-blue-500/30'} ${readOnly ? 'opacity-100 cursor-default' : ''}`}
+                                            className={`h-14 pl-12 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 ${errors.nombre ? 'border-red-500 ring-2 ring-red-500/10' : 'border-dark-color hover:border-blue-500/30'} ${readOnly ? 'opacity-100 cursor-default' : ''}`}
                                             placeholder="Ej: Max, Luna..."
                                         />
                                     </div>
@@ -462,7 +462,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                                 handleChange('especie', e.target.value);
                                                 handleChange('raza', '');
                                             }}
-                                            className={`w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 ${errors.especie ? 'border-red-500/50' : 'border-dark-color hover:border-blue-500/30'} ${readOnly ? 'opacity-100 cursor-default appearance-none' : ''}`}
+                                            className={`w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 ${errors.especie ? 'border-red-500 ring-2 ring-red-500/10' : 'border-dark-color hover:border-blue-500/30'} ${readOnly ? 'opacity-100 cursor-default appearance-none' : ''}`}
                                         >
                                             <option value="">Seleccionar especie...</option>
                                             {especiesComunes.map(esp => (
@@ -483,7 +483,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             disabled={readOnly || !formData.especie}
                                             value={formData.raza || ''}
                                             onChange={(e) => handleChange('raza', e.target.value)}
-                                            className={`w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 ${errors.raza ? 'border-red-500/50' : 'border-dark-color hover:border-blue-500/30'} ${readOnly ? 'opacity-100 cursor-default appearance-none' : ''}`}
+                                            className={`w-full h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 ${errors.raza ? 'border-red-500 ring-2 ring-red-500/10' : 'border-dark-color hover:border-blue-500/30'} ${readOnly ? 'opacity-100 cursor-default appearance-none' : ''}`}
                                         >
                                             <option value="">Seleccionar raza...</option>
                                             {formData.especie && razasPorEspecie[formData.especie] && razasPorEspecie[formData.especie].map((raza: string) => (
@@ -566,7 +566,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         min={0}
                                         value={formData.edad ?? ''}
                                         onChange={(e) => handleEdadChange(e.target.value ? parseInt(e.target.value) : null)}
-                                        className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.edad ? 'border-red-500' : ''}`}
+                                        className={`bg-dark-hover text-dark-primary h-11 border-2 transition-all ${errors.edad ? 'border-red-500 ring-2 ring-red-500/10' : 'border-dark-color focus:border-blue-500/50'}`}
                                         placeholder="Ej: 6, 18, 36..."
                                         disabled={readOnly}
                                     />
@@ -580,7 +580,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                         min={0}
                                         value={formData.peso ?? ''}
                                         onChange={(e) => handleChange('peso', e.target.value ? parseFloat(e.target.value) : null)}
-                                        className={`bg-dark-hover border-dark-color text-dark-primary h-11 ${errors.peso ? 'border-red-500' : ''}`}
+                                        className={`bg-dark-hover text-dark-primary h-11 border-2 transition-all ${errors.peso ? 'border-red-500 ring-2 ring-red-500/10' : 'border-dark-color focus:border-blue-500/50'}`}
                                         disabled={readOnly}
                                     />
                                     {errors.peso && <p className="text-red-400 text-xs mt-1">{errors.peso}</p>}
@@ -593,7 +593,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             max={new Date().toISOString().split('T')[0]}
                                             value={formData.fecha_nacimiento ?? ''}
                                             onChange={(e) => handleFechaNacimientoChange(e.target.value)}
-                                            className={`bg-dark-hover border-dark-color text-dark-primary h-11 pr-10 ${errors.fecha_nacimiento ? 'border-red-500' : ''}`}
+                                            className={`bg-dark-hover text-dark-primary h-11 pr-10 border-2 transition-all ${errors.fecha_nacimiento ? 'border-red-500 ring-2 ring-red-500/10' : 'border-dark-color focus:border-blue-500/50'}`}
                                             disabled={readOnly}
                                         />
                                         <Calendar className="w-4 h-4 text-dark-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -636,7 +636,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                     <div className="lg:col-span-1 space-y-6">
                         {/* Buscador de Clientes (Solo visible en modo edición y si no es cliente) */}
                         {!readOnly && !isClienteRole && (
-                            <div className="dark-card p-6 space-y-4 relative" style={{ zIndex: 20 }}>
+                            <div className={`dark-card p-6 space-y-4 relative transition-all duration-300 ${errors.id_cliente ? 'border-red-500 ring-2 ring-red-500/10' : ''}`} style={{ zIndex: 20 }}>
                                 <Label className="text-[10px] font-black text-blue-500 tracking-widest ml-1">Cambiar / Buscar Dueño</Label>
                                 <div className="relative z-50">
                                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary" />
@@ -688,7 +688,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                         )}
 
                         {/* Card Cliente Seleccionado */}
-                        <div className="dark-card overflow-hidden relative z-10">
+                        <div className={`dark-card overflow-hidden relative z-10 transition-all duration-300 ${errors.id_cliente ? 'border-red-500 ring-2 ring-red-500/10' : ''}`}>
                             <div className="p-4 bg-blue-500/10 border-b border-dark-color/30 flex items-center gap-2">
                                 <User className="w-4 h-4 text-blue-400" />
                                 <span className="text-xs font-bold text-dark-primary tracking-wider">Cliente Responsable</span>
@@ -760,6 +760,11 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                 </div>
                             )}
                         </div>
+                        {errors.id_cliente && (
+                            <p className="text-red-500 text-xs font-bold ml-2 uppercase flex items-center gap-1.5 -mt-3 animate-in fade-in duration-300">
+                                <Info className="w-3.5 h-3.5" /> {errors.id_cliente}
+                            </p>
+                        )}
 
                         {/* Card de Vacunas */}
                         <div className="dark-card p-6 space-y-6">
@@ -797,7 +802,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                                             setCurrentVacuna(prev => ({ ...prev, nombre: e.target.value }));
                                                             if (vacunaError) setVacunaError('');
                                                         }}
-                                                        className={`bg-dark-hover border-dark-color text-dark-primary h-10 text-xs ${vacunaError ? 'border-red-500' : ''}`}
+                                                        className={`bg-dark-hover text-dark-primary h-10 text-xs border-2 transition-all ${vacunaError ? 'border-red-500 ring-2 ring-red-500/10' : 'border-dark-color focus:border-blue-500/50'}`}
                                                     />
                                                     {vacunaError && <p className="text-red-400 text-[10px] mt-1">{vacunaError}</p>}
                                                 </div>
