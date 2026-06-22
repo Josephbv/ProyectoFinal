@@ -53,22 +53,7 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
     tipoVisita: [] as string[],
     veterinario: '',
     diagnostico: '',
-    medicamentos: [{
-      nombre: '',
-      dosis: '',
-      frecuencia: '',
-      duracion: ''
-    }],
-    examenes: [{
-      tipo: '',
-      resultado: '',
-      fecha: new Date().toISOString().split('T')[0]
-    }],
-    estado: 'normal' as 'normal' | 'preocupante' | 'critico',
-    proximaCita: '',
-    costo: 0,
-    archivosAdjuntos: [] as string[],
-    vacunasAplicadas: [] as string[]
+    estado: 'normal' as 'normal' | 'preocupante' | 'critico'
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -86,13 +71,7 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
         tipoVisita: Array.isArray(entrada.tipoVisita) ? entrada.tipoVisita : (entrada.tipoVisita ? [entrada.tipoVisita] : []),
         veterinario: entrada.veterinario,
         diagnostico: entrada.diagnostico || (entrada as any).motivoConsulta || '',
-        medicamentos: entrada.medicamentos || [],
-        examenes: entrada.examenes || [],
-        estado: entrada.estado as any,
-        proximaCita: (entrada as any).proximaCita || (entrada as any).nextCita || '',
-        costo: (entrada as any).costo || 0,
-        archivosAdjuntos: (entrada as any).archivos?.map((a: any) => a.url) || [],
-        vacunasAplicadas: (entrada as any).vacunasAplicadas || []
+        estado: entrada.estado as any
       });
       setSelectedClientId((entrada as any).id_cliente?.toString() || '');
       setSelectedPetId(entrada.id_mascota?.toString() || '');
@@ -113,13 +92,7 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
       tipoVisita: [],
       veterinario: '',
       diagnostico: '',
-      medicamentos: [{ nombre: '', dosis: '', frecuencia: '', duracion: '' }],
-      examenes: [{ tipo: '', resultado: '', fecha: new Date().toISOString().split('T')[0] }],
-      estado: 'normal',
-      proximaCita: '',
-      costo: 0,
-      archivosAdjuntos: [],
-      vacunasAplicadas: []
+      estado: 'normal'
     });
     setSelectedClientId('');
     setSelectedPetId('');

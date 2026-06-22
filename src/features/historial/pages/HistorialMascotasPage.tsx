@@ -261,21 +261,8 @@ export function HistorialMascotasPage() {
     hora: new Date().toTimeString().slice(0, 5),
     tipoVisita: [] as string[],
     veterinario: '',
-    motivoConsulta: '',
-    sintomas: '',
     diagnostico: '',
     tratamiento: '',
-    medicamentos: '',
-    examenes: '',
-    peso: '',
-    temperatura: '',
-    frecuenciaCardiaca: '',
-    frecuenciaRespiratoria: '',
-    proximaCita: '',
-    observaciones: '',
-    costo: '',
-    vacunasAplicadas: '',
-    receta: '',
     estado: 'activo' as any
   });
 
@@ -421,11 +408,6 @@ export function HistorialMascotasPage() {
     const payload = {
       ...formData,
       id_mascota: petId,
-      peso: formData.peso ? parseFloat(formData.peso) : null,
-      temperatura: formData.temperatura ? parseFloat(formData.temperatura) : null,
-      frecuenciaCardiaca: formData.frecuenciaCardiaca ? parseInt(formData.frecuenciaCardiaca) : null,
-      frecuenciaRespiratoria: formData.frecuenciaRespiratoria ? parseInt(formData.frecuenciaRespiratoria) : null,
-      costo: formData.costo ? parseFloat(formData.costo) : null,
       nombreMascota: mascotaSeleccionada?.nombre || entradaSeleccionada?.nombreMascota || 'Mascota',
       nombreCliente: clienteSeleccionado?.nombre || entradaSeleccionada?.nombreCliente || 'Cliente'
     };
@@ -454,21 +436,8 @@ export function HistorialMascotasPage() {
       hora: new Date().toTimeString().slice(0, 5),
       tipoVisita: [],
       veterinario: '',
-      motivoConsulta: '',
-      sintomas: '',
       diagnostico: '',
       tratamiento: '',
-      medicamentos: '',
-      examenes: '',
-      peso: '',
-      temperatura: '',
-      frecuenciaCardiaca: '',
-      frecuenciaRespiratoria: '',
-      proximaCita: '',
-      observaciones: '',
-      costo: '',
-      vacunasAplicadas: '',
-      receta: '',
       estado: 'activo'
     });
     setSelectedClientId('');
@@ -509,21 +478,8 @@ export function HistorialMascotasPage() {
         hora: (entrada as any).hora || new Date().toTimeString().slice(0, 5),
         tipoVisita: Array.isArray(entrada.tipoVisita) ? entrada.tipoVisita : [],
         veterinario: entrada.veterinario || '',
-        motivoConsulta: (entrada as any).motivoConsulta || '',
-        sintomas: (entrada as any).sintomas ? (typeof (entrada as any).sintomas === 'string' ? (entrada as any).sintomas : JSON.stringify((entrada as any).sintomas)) : '',
         diagnostico: entrada.diagnostico || '',
         tratamiento: entrada.tratamiento || '',
-        medicamentos: entrada.medicamentos ? (typeof entrada.medicamentos === 'string' ? entrada.medicamentos : JSON.stringify(entrada.medicamentos)) : '',
-        examenes: entrada.examenes ? (typeof entrada.examenes === 'string' ? entrada.examenes : JSON.stringify(entrada.examenes)) : '',
-        peso: entrada.peso?.toString() || '',
-        temperatura: entrada.temperatura?.toString() || '',
-        frecuenciaCardiaca: entrada.frecuenciaCardiaca?.toString() || '',
-        frecuenciaRespiratoria: entrada.frecuenciaRespiratoria?.toString() || '',
-        proximaCita: entrada.proximaCita ? (entrada.proximaCita.includes('T') ? entrada.proximaCita.split('T')[0] : entrada.proximaCita) : '',
-        observaciones: entrada.observaciones || '',
-        costo: entrada.costo?.toString() || '',
-        vacunasAplicadas: entrada.vacunasAplicadas ? (typeof entrada.vacunasAplicadas === 'string' ? entrada.vacunasAplicadas : JSON.stringify(entrada.vacunasAplicadas)) : '',
-        receta: (entrada as any).receta || '',
         estado: entrada.estado as any
       });
       if (entrada.mascota) {
