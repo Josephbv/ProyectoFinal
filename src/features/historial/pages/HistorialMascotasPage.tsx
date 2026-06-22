@@ -1564,15 +1564,17 @@ export function HistorialMascotasPage() {
                 </button>
               )}
               {pasoActual === 'inicio' && !isClienteRole && (
-                <Button
+                <button
                   onClick={() => {
                     setPasoActual('cliente');
                     setBusqueda('');
                   }}
-                  className="bg-blue-600 hover:bg-blue-500 text-white font-black tracking-widest px-6 rounded-2xl h-11 shadow-lg shadow-blue-500/20 gap-2 transition-all active:scale-95"
+                  className="dark-button-primary gap-2 flex items-center"
+                  disabled={loading}
                 >
-                  <Plus className="w-4 h-4" /> Nuevo
-                </Button>
+                  <Plus className="w-4 h-4" />
+                  Nuevo
+                </button>
               )}
             </div>
           </div>
