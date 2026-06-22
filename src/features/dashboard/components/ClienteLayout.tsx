@@ -14,7 +14,10 @@ import {
     Clock,
     Wrench,
     Shield,
-    FileText
+    FileText,
+    Home,
+    Settings,
+    Command
 } from "lucide-react";
 import { useTheme } from "../../../shared/hooks/useTheme";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
@@ -95,6 +98,29 @@ export function ClienteLayout({ onLogout }: ClienteLayoutProps) {
             .map(m => ({ id: m, ...MODULE_CATALOG[m] }));
     }, [roleModules, user?.modulos]);
 
+    const visibleMainNav = useMemo(() => navItems.filter(item => item.id === "Dashboard"), [navItems]);
+    const visibleMascotasItems = useMemo(() => navItems.filter(item => ["Agendamiento", "Mascotas", "Historial Mascotas"].includes(item.id)), [navItems]);
+    const visibleOperationsItems = useMemo(() => navItems.filter(item => ["Ventas", "Clientes", "Horario", "Servicios"].includes(item.id)), [navItems]);
+    const visibleConfigItems = useMemo(() => navItems.filter(item => ["Empleados", "Roles", "Usuarios"].includes(item.id)), [navItems]);
+
+    const renderNavItem = (item: any) => {
+        const Icon = item.icon;
+        const isActive = activePage === item.id;
+        return (
+            <button
+                key={item.id}
+                onClick={() => setActivePage(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                    : "text-dark-secondary hover:bg-dark-hover hover:text-dark-primary"
+                    }`}
+            >
+                <Icon className={`w-5 h-5 ${isActive ? "scale-110" : ""}`} />
+                <span className="font-semibold text-sm">{item.label}</span>
+            </button>
+        );
+    };
+
     // Auto-dirección al primer módulo permitido al iniciar
     useEffect(() => {
         if (navItems.length > 0 && !activePage) {
@@ -163,27 +189,75 @@ export function ClienteLayout({ onLogout }: ClienteLayoutProps) {
                 </div>
 
                 {/* Navegación dinámica — refleja exactamente el rol configurado por el admin */}
-                <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
                     {navItems.length === 0 ? (
                         <p className="text-xs text-dark-secondary text-center py-8">No tienes módulos asignados.</p>
                     ) : (
-                        navItems.map((item) => {
-                            const Icon = item.icon;
-                            const isActive = activePage === item.id;
-                            return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => setActivePage(item.id)}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive
-                                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                                        : "text-dark-secondary hover:bg-dark-hover hover:text-dark-primary"
-                                        }`}
-                                >
-                                    <Icon className={`w-5 h-5 ${isActive ? "scale-110" : ""}`} />
-                                    <span className="font-semibold text-sm">{item.label}</span>
-                                </button>
-                            );
-                        })
+                        <div className="space-y-6">
+                            {/* Principal Group */}
+                            {visibleMainNav.length > 0 && (
+                                <div className="space-y-1">
+                                    <div className="px-3 mb-2">
+                                        <h3 className="text-xs font-semibold text-dark-secondary tracking-wider flex items-center gap-2">
+                                            <Home className="w-3.5 h-3.5" />
+                                            Principal
+                                        </h3>
+                                    </div>
+                                    {visibleMainNav.map(renderNavItem)}
+                                </div>
+                            )}
+
+                            {visibleMainNav.length > 0 && (visibleMascotasItems.length > 0 || visibleOperationsItems.length > 0 || visibleConfigItems.length > 0) && (
+                                <div className="h-px bg-dark-border/10 my-4" />
+                            )}
+
+                            {/* Gestión Clínica Group */}
+                            {visibleMascotasItems.length > 0 && (
+                                <div className="space-y-1">
+                                    <div className="px-3 mb-2">
+                                        <h3 className="text-xs font-semibold text-dark-secondary tracking-wider flex items-center gap-2">
+                                            <Heart className="w-3.5 h-3.5" />
+                                            Gestión Clínica
+                                        </h3>
+                                    </div>
+                                    {visibleMascotasItems.map(renderNavItem)}
+                                </div>
+                            )}
+
+                            {visibleMascotasItems.length > 0 && (visibleOperationsItems.length > 0 || visibleConfigItems.length > 0) && (
+                                <div className="h-px bg-dark-border/10 my-4" />
+                            )}
+
+                            {/* Operaciones Group */}
+                            {visibleOperationsItems.length > 0 && (
+                                <div className="space-y-1">
+                                    <div className="px-3 mb-2">
+                                        <h3 className="text-xs font-semibold text-dark-secondary tracking-wider flex items-center gap-2">
+                                            <Settings className="w-3.5 h-3.5" />
+                                            Operaciones
+                                        </h3>
+                                    </div>
+                                    {visibleOperationsItems.map(renderNavItem)}
+                                </div>
+                            )}
+
+                            {visibleOperationsItems.length > 0 && visibleConfigItems.length > 0 && (
+                                <div className="h-px bg-dark-border/10 my-4" />
+                            )}
+
+                            {/* Configuración Group */}
+                            {visibleConfigItems.length > 0 && (
+                                <div className="space-y-1">
+                                    <div className="px-3 mb-2">
+                                        <h3 className="text-xs font-semibold text-dark-secondary tracking-wider flex items-center gap-2">
+                                            <Command className="w-3.5 h-3.5" />
+                                            Configuración
+                                        </h3>
+                                    </div>
+                                    {visibleConfigItems.map(renderNavItem)}
+                                </div>
+                            )}
+                        </div>
                     )}
                 </nav>
 
