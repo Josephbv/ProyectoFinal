@@ -120,14 +120,20 @@ export function ConsultaMedicaModal({ isOpen, onClose, onSubmit, loading, entrad
 
           {/* Diagnóstico */}
           <div className="space-y-2">
-            <Label htmlFor="diagnostico" className="text-dark-primary flex items-center gap-2">
-              <Stethoscope className="w-4 h-4" />
-              Diagnóstico *
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="diagnostico" className="text-dark-primary flex items-center gap-2">
+                <Stethoscope className="w-4 h-4" />
+                Diagnóstico *
+              </Label>
+              <span className="text-[10px] font-bold text-dark-secondary bg-dark-hover px-2 py-0.5 rounded-full border border-dark-color">
+                {(formData.diagnostico || '').length}/100
+              </span>
+            </div>
             <Textarea
               id="diagnostico"
               value={formData.diagnostico}
-              onChange={(e) => handleChange('diagnostico', e.target.value)}
+              onChange={(e) => handleChange('diagnostico', e.target.value.slice(0, 100))}
+              maxLength={100}
               className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta min-h-[120px]"
               placeholder="Escribe el diagnóstico médico completo..."
             />
@@ -136,14 +142,20 @@ export function ConsultaMedicaModal({ isOpen, onClose, onSubmit, loading, entrad
 
           {/* Tratamiento */}
           <div className="space-y-2">
-            <Label htmlFor="tratamiento" className="text-dark-primary flex items-center gap-2">
-              <PillBottle className="w-4 h-4" />
-              Tratamiento *
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="tratamiento" className="text-dark-primary flex items-center gap-2">
+                <PillBottle className="w-4 h-4" />
+                Tratamiento *
+              </Label>
+              <span className="text-[10px] font-bold text-dark-secondary bg-dark-hover px-2 py-0.5 rounded-full border border-dark-color">
+                {(formData.tratamiento || '').length}/100
+              </span>
+            </div>
             <Textarea
               id="tratamiento"
               value={formData.tratamiento}
-              onChange={(e) => handleChange('tratamiento', e.target.value)}
+              onChange={(e) => handleChange('tratamiento', e.target.value.slice(0, 100))}
+              maxLength={100}
               className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta min-h-[120px]"
               placeholder="Detalla el tratamiento prescrito (medicamentos, terapias, recomendaciones)..."
             />

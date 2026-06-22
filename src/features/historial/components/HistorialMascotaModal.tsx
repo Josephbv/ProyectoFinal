@@ -379,11 +379,17 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs text-dark-secondary uppercase font-bold tracking-wider pl-1">Diagnóstico Médico y Evolución</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-dark-secondary uppercase font-bold tracking-wider pl-1">Diagnóstico Médico y Evolución</Label>
+                  <span className="text-[10px] font-bold text-dark-secondary bg-dark-hover px-2 py-0.5 rounded-full border border-dark-color">
+                    {(formData.diagnostico || '').length}/100
+                  </span>
+                </div>
                 <Textarea
                   placeholder="Escribe el diagnóstico clínico detallado, evolución y tratamiento..."
                   value={formData.diagnostico}
-                  onChange={(e) => handleChange('diagnostico', e.target.value)}
+                  onChange={(e) => handleChange('diagnostico', e.target.value.slice(0, 100))}
+                  maxLength={100}
                   className="bg-dark-card border-dark-color min-h-[200px] text-sm focus:ring-1 focus:ring-blue-500/30 text-dark-primary p-4 rounded-xl leading-relaxed"
                 />
               </div>

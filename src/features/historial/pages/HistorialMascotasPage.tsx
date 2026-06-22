@@ -1004,12 +1004,16 @@ export function HistorialMascotasPage() {
                     <div className="w-1.5 h-6 bg-pink-500 rounded-full" />
                     <h3 className="text-lg font-black text-dark-primary  tracking-widest">{toSentenceCase('Diagnóstico y evolución')} <span className="text-red-500">*</span></h3>
                   </div>
+                  <span className="text-xs font-bold text-dark-secondary bg-dark-hover px-3 py-1 rounded-full border border-dark-color">
+                    {(formData.diagnostico || '').length}/100
+                  </span>
                 </div>
                 <div className="bg-dark-card/50 p-2 rounded-[2.5rem] border border-dark-color focus-within:border-pink-500/30 transition-colors shadow-2xl">
                   <Textarea
                     placeholder="Escribre el diagnóstico médico detallado, síntomas observados, evolución clínica..."
                     value={formData.diagnostico}
-                    onChange={(e) => setFormData(prev => ({ ...prev, diagnostico: e.target.value }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, diagnostico: e.target.value.slice(0, 100) }))}
+                    maxLength={100}
                     className="bg-transparent border-none text-lg text-dark-primary placeholder:text-dark-secondary/30 min-h-[300px] p-8 focus-visible:ring-0 leading-relaxed resize-none"
                   />
                 </div>
@@ -1017,15 +1021,21 @@ export function HistorialMascotasPage() {
 
               {/* Tratamiento */}
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
-                  <h3 className="text-lg font-black text-dark-primary  tracking-widest">Tratamiento</h3>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+                    <h3 className="text-lg font-black text-dark-primary  tracking-widest">Tratamiento</h3>
+                  </div>
+                  <span className="text-xs font-bold text-dark-secondary bg-dark-hover px-3 py-1 rounded-full border border-dark-color">
+                    {(formData.tratamiento || '').length}/100
+                  </span>
                 </div>
                 <div className="bg-dark-card/50 p-2 rounded-[2rem] border border-dark-color focus-within:border-emerald-500/30 transition-colors shadow-xl">
                   <Textarea
                     placeholder="Procedimientos realizados..."
                     value={formData.tratamiento}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tratamiento: e.target.value }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tratamiento: e.target.value.slice(0, 100) }))}
+                    maxLength={100}
                     className="bg-transparent border-none text-sm text-dark-primary placeholder:text-dark-secondary/10 min-h-[150px] p-6 focus-visible:ring-0 leading-relaxed resize-none"
                   />
                 </div>
