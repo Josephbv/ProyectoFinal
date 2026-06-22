@@ -1266,7 +1266,7 @@ export function HistorialMascotasPage() {
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-5xl font-black text-dark-primary  tracking-tighter mb-2">{mascotaSeleccionada?.nombre}</h1>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4">
-                <span className="text-sm font-black text-pink-400  tracking-widest">Edad: {mascotaSeleccionada?.edad || 'N/A'} años</span>
+                <span className="text-sm font-black text-pink-400  tracking-widest">Edad: {mascotaSeleccionada?.edad || 'N/A'} meses</span>
                 <div className="w-1.5 h-1.5 bg-dark-color rounded-full" />
                 <span className="text-sm font-black text-emerald-400  tracking-widest">Vacunas: {mascotaSeleccionada?.vacunas ? 'AL DÍA' : 'PENDIENTE'}</span>
               </div>
@@ -1415,7 +1415,7 @@ export function HistorialMascotasPage() {
               <div className="space-y-1 text-sm font-semibold text-slate-600">
                 <p>Especie: <span className="text-slate-900">{toSentenceCase(mascotaInfo?.especie) || 'N/A'}</span></p>
                 <p>Raza: <span className="text-slate-900">{toSentenceCase(mascotaInfo?.raza) || 'N/A'}</span></p>
-                <p>Edad: <span className="text-slate-900">{mascotaInfo?.edad || 'N/A'} años</span></p>
+                <p>Edad: <span className="text-slate-900">{mascotaInfo?.edad || 'N/A'} meses</span></p>
                 <p>Peso: <span className="text-slate-900">{mascotaInfo?.peso || 'N/A'} kg</span></p>
               </div>
             </div>
