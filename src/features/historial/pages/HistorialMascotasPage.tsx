@@ -326,7 +326,7 @@ export function HistorialMascotasPage() {
       (entrada.cedulaCliente || '').toLowerCase().includes(searchLow) ||
       (entrada.veterinario || '').toLowerCase().includes(searchLow)
     );
-  }).sort((a, b) => a.id_historial - b.id_historial);
+  }).sort((a, b) => (a.nombreMascota || '').localeCompare(b.nombreMascota || '', 'es', { sensitivity: 'base' }));
 
   const estadisticas = {
     total: historiales.length,

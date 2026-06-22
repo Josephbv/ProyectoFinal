@@ -42,7 +42,7 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
       (cliente.cedula || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cliente.telefono || '').includes(busqueda);
     return matchBusqueda;
-  });
+  }).sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base' }));
 
   // Cálculos de paginación
   const totalPages = Math.ceil(clientesFiltrados.length / itemsPerPage);

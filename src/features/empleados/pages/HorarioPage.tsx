@@ -82,7 +82,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
     const ccMatch = (empleado.cc || '').toLowerCase().includes(searchLower);
 
     return nombreMatch || apellidoMatch || ccMatch;
-  });
+  }).sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base' }));
 
   // Calcular paginación
   const totalPaginas = Math.ceil(empleadosFiltrados.length / elementosPorPagina);

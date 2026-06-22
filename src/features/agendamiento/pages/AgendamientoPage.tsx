@@ -52,7 +52,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
       (cita.empleado?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cita.fecha || '').includes(busqueda);
     return matchBusqueda;
-  });
+  }).sort((a, b) => (a.cliente?.nombre || '').localeCompare(b.cliente?.nombre || '', 'es', { sensitivity: 'base' }));
 
   const totalPages = Math.ceil(citasFiltradas.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

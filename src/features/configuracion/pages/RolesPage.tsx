@@ -19,7 +19,7 @@ export function RolesPage() {
 
   const rolesFiltrados = roles.filter(rol =>
     (rol.nombre || '').toLowerCase().includes((busqueda || '').toLowerCase())
-  );
+  ).sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base' }));
 
   // Paginación
   const [paginaActual, setPaginaActual] = useState(1);

@@ -22,7 +22,7 @@ export function EmpleadosPage() {
     const [paginaActual, setPaginaActual] = useState(1);
     const [elementosPorPagina] = useState(10);
 
-    const empleadosFiltrados = buscarEmpleados(busqueda);
+    const empleadosFiltrados = buscarEmpleados(busqueda).sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base' }));
 
     // Calcular paginación
     const totalPaginas = Math.ceil(empleadosFiltrados.length / elementosPorPagina);
