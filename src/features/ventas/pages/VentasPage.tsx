@@ -3,7 +3,7 @@ import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
-import { Plus, Search, ShoppingCart, Calendar, Trash2, User, DollarSign, Stethoscope, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Tag, Fingerprint, AlertTriangle, X } from "lucide-react";
+import { Plus, Search, ShoppingCart, Calendar, Trash2, User, DollarSign, Stethoscope, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Tag, Fingerprint, AlertTriangle, X, FileText } from "lucide-react";
 import { useVentas, Venta, VentaServicio } from "../hooks/useVentas";
 import { VentaModal } from "../components/VentaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
