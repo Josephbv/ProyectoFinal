@@ -166,7 +166,7 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
                 disabled={loading}
               >
                 <Plus className="w-4 h-4" />
-                Nueva Mascota
+                Nuevo
               </button>
             )}
           </div>

@@ -126,14 +126,14 @@ export function UsuariosPage() {
                             />
                         </div>
 
-                        <Button
+                        <button
                             onClick={() => abrirUsuarioModal()}
+                            className="dark-button-primary gap-2 flex items-center"
                             disabled={loading}
-                            className="bg-dark-cta text-white hover:bg-blue-600 gap-2 shadow-lg shadow-blue-500/20"
                         >
                             <Plus className="w-4 h-4" />
-                            Añadir Usuario
-                        </Button>
+                            Nuevo
+                        </button>
                     </div>
                 </div>
             </header>

@@ -136,7 +136,7 @@ export function RolesPage() {
               disabled={loading}
             >
               <Plus className="w-4 h-4" />
-              Nuevo Rol
+              Nuevo
             </button>
           </div>
         </div>

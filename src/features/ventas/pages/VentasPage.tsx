@@ -227,7 +227,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                 disabled={loading}
               >
                 <Plus className="w-4 h-4" />
-                Nueva Venta
+                Nuevo
               </button>
             )}
           </div>

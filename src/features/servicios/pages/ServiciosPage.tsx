@@ -156,7 +156,7 @@ export function ServiciosPage() {
                 disabled={loading}
               >
                 <Plus className="w-4 h-4" />
-                Registrar
+                Nuevo
               </button>
             )}
           </div>

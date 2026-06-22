@@ -158,10 +158,10 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
             </div>
             <button
               onClick={() => abrirCitaModal()}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+              className="dark-button-primary gap-2 flex items-center"
             >
               <Plus className="w-4 h-4" />
-              Agendar Cita
+              Nuevo
             </button>
           </div>
         </div>
