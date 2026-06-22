@@ -257,7 +257,22 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
       return;
     }
 
-    if (authMode === 'activate-account' && formData.password !== formData.confirmPassword) {
+    if (formData.password.length < 8) {
+      toast.error("Contraseña insegura", { description: "La contraseña debe tener al menos 8 caracteres." });
+      return;
+    }
+
+    if (!PASSWORD_REGEX.test(formData.password)) {
+      toast.error("Contraseña insegura", { description: "La contraseña debe incluir al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&._#+-)." });
+      return;
+    }
+
+    if (formData.password.startsWith('Temp-')) {
+      toast.error("Contraseña insegura", { description: "Por seguridad, la contraseña no puede comenzar con 'Temp-'." });
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
       toast.error("Error", { description: "Las contraseñas no coinciden." });
       return;
     }

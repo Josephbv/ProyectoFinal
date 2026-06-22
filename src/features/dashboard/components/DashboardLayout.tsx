@@ -62,12 +62,12 @@ const mascotasItems = [
 
 const operationsItems = [
   { icon: DollarSign, label: "Ventas", shortcut: "⌘V" },
-  { icon: Users, label: "Clientes", shortcut: "⌘C" },
   { icon: Clock, label: "Horario", shortcut: "⌘O" },
   { icon: Wrench, label: "Servicios", shortcut: "⌘S" },
 ];
 
 const configItems = [
+  { icon: Users, label: "Clientes", shortcut: "⌘C" },
   { icon: User, label: "Empleados", shortcut: "⌘U" },
   { icon: Shield, label: "Roles", shortcut: "⌘R" },
   { icon: Users, label: "Usuarios", shortcut: "⌘O" },

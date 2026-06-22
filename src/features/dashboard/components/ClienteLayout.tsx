@@ -100,8 +100,8 @@ export function ClienteLayout({ onLogout }: ClienteLayoutProps) {
 
     const visibleMainNav = useMemo(() => navItems.filter(item => item.id === "Dashboard"), [navItems]);
     const visibleMascotasItems = useMemo(() => navItems.filter(item => ["Agendamiento", "Mascotas", "Historial Mascotas"].includes(item.id)), [navItems]);
-    const visibleOperationsItems = useMemo(() => navItems.filter(item => ["Ventas", "Clientes", "Horario", "Servicios"].includes(item.id)), [navItems]);
-    const visibleConfigItems = useMemo(() => navItems.filter(item => ["Empleados", "Roles", "Usuarios"].includes(item.id)), [navItems]);
+    const visibleOperationsItems = useMemo(() => navItems.filter(item => ["Ventas", "Horario", "Servicios"].includes(item.id)), [navItems]);
+    const visibleConfigItems = useMemo(() => navItems.filter(item => ["Clientes", "Empleados", "Roles", "Usuarios"].includes(item.id)), [navItems]);
 
     const renderNavItem = (item: any) => {
         const Icon = item.icon;
