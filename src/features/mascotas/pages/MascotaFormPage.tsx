@@ -66,7 +66,6 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
         fecha_ultima_vacuna: '',
         fecha_desparasitacion: '',
         observaciones: '',
-        foto: '',
         color: '',
         rasgos_particulares: ''
     });
@@ -153,7 +152,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                 return {
                     nombre: '', especie: '', raza: '', sexo: '', id_cliente: defaultClientId,
                     edad: null, fecha_nacimiento: '', peso: null, vacunas: '',
-                    fecha_ultima_vacuna: '', fecha_desparasitacion: '', observaciones: '', foto: '',
+                    fecha_ultima_vacuna: '', fecha_desparasitacion: '', observaciones: '',
                     color: '', rasgos_particulares: ''
                 };
             });
@@ -188,6 +187,20 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
             newErrors.nombre = 'El nombre del paciente es obligatorio.';
         } else if (!soloLetras(formData.nombre || '')) {
             newErrors.nombre = 'El nombre solo debe contener letras.';
+        } else if (formData.nombre.trim().length > 20) {
+            newErrors.nombre = 'El nombre no puede exceder los 20 caracteres.';
+        }
+
+        if (formData.color && formData.color.trim().length > 15) {
+            newErrors.color = 'El color no puede exceder los 15 caracteres.';
+        }
+
+        if (formData.rasgos_particulares && formData.rasgos_particulares.trim().length > 50) {
+            newErrors.rasgos_particulares = 'Los rasgos particulares no pueden exceder los 50 caracteres.';
+        }
+
+        if (formData.observaciones && formData.observaciones.trim().length > 100) {
+            newErrors.observaciones = 'Las observaciones no pueden exceder los 100 caracteres.';
         }
 
         if (!formData.id_cliente) newErrors.id_cliente = 'Debes seleccionar un dueño/cliente.';
@@ -271,6 +284,20 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
             newErrors.nombre = 'El nombre del paciente es obligatorio.';
         } else if (!soloLetras(formData.nombre || '')) {
             newErrors.nombre = 'El nombre solo debe contener letras.';
+        } else if (formData.nombre.trim().length > 20) {
+            newErrors.nombre = 'El nombre no puede exceder los 20 caracteres.';
+        }
+
+        if (formData.color && formData.color.trim().length > 15) {
+            newErrors.color = 'El color no puede exceder los 15 caracteres.';
+        }
+
+        if (formData.rasgos_particulares && formData.rasgos_particulares.trim().length > 50) {
+            newErrors.rasgos_particulares = 'Los rasgos particulares no pueden exceder los 50 caracteres.';
+        }
+
+        if (formData.observaciones && formData.observaciones.trim().length > 100) {
+            newErrors.observaciones = 'Las observaciones no pueden exceder los 100 caracteres.';
         }
         if (!formData.id_cliente) newErrors.id_cliente = 'Debes seleccionar un dueño/cliente.';
         if (!formData.especie || !formData.especie.trim()) {
@@ -328,7 +355,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
             setFormData({
                 nombre: '', especie: '', raza: '', sexo: '', id_cliente: savedClientId,
                 edad: null, fecha_nacimiento: '', peso: null, vacunas: '',
-                fecha_ultima_vacuna: '', fecha_desparasitacion: '', observaciones: '', foto: '',
+                fecha_ultima_vacuna: '', fecha_desparasitacion: '', observaciones: '',
                 color: '', rasgos_particulares: ''
             });
             setIsCustomRaza(false);
@@ -481,6 +508,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                             disabled={readOnly}
                                             value={formData.nombre}
                                             onChange={(e) => handleChange('nombre', e.target.value)}
+                                            maxLength={20}
                                             className={`h-14 px-4 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30 ${readOnly ? 'opacity-100 cursor-default' : ''}`}
                                             placeholder="Ej: Max, Luna..."
                                         />
@@ -588,25 +616,29 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                 </div>
 
                                 <div className="space-y-3">
-                                    <Label className="text-[10px] font-black text-dark-secondary tracking-widest ml-1 opacity-50">Color</Label>
+                                    <Label className={`text-[10px] font-black tracking-widest ml-1 transition-all ${errors.color ? 'text-red-400 opacity-100' : 'text-dark-secondary opacity-50'}`}>Color</Label>
                                     <Input
                                         disabled={readOnly}
                                         value={formData.color || ''}
                                         onChange={(e) => handleChange('color', e.target.value)}
+                                        maxLength={15}
                                         className={`h-14 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30 ${readOnly ? 'opacity-100 cursor-default' : ''}`}
                                         placeholder="Ej: Blanco con manchas negras..."
                                     />
+                                    {errors.color && <p className="text-red-400 text-xs mt-1 ml-1">{errors.color}</p>}
                                 </div>
 
                                 <div className="space-y-3 md:col-span-2">
-                                    <Label className="text-[10px] font-black text-dark-secondary tracking-widest ml-1 opacity-50">Rasgos Particulares</Label>
+                                    <Label className={`text-[10px] font-black tracking-widest ml-1 transition-all ${errors.rasgos_particulares ? 'text-red-400 opacity-100' : 'text-dark-secondary opacity-50'}`}>Rasgos Particulares</Label>
                                     <Input
                                         disabled={readOnly}
                                         value={formData.rasgos_particulares || ''}
                                         onChange={(e) => handleChange('rasgos_particulares', e.target.value)}
+                                        maxLength={50}
                                         className={`h-14 bg-dark-hover border-2 rounded-2xl text-base font-bold transition-all focus:ring-2 focus:ring-blue-500/50 border-dark-color hover:border-blue-500/30 ${readOnly ? 'opacity-100 cursor-default' : ''}`}
                                         placeholder="Ej: Cicatriz en la oreja derecha, ojos de diferente color..."
                                     />
+                                    {errors.rasgos_particulares && <p className="text-red-400 text-xs mt-1 ml-1">{errors.rasgos_particulares}</p>}
                                 </div>
                             </div>
                         </div>
@@ -683,14 +715,23 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label className="text-dark-primary font-medium">Observaciones / Alergias</Label>
+                                    <div className="flex justify-between items-center">
+                                        <Label className={`font-medium transition-all ${errors.observaciones ? 'text-red-400' : 'text-dark-primary'}`}>Observaciones / Alergias</Label>
+                                        {!readOnly && (
+                                            <span className="text-[10px] text-dark-secondary opacity-50">
+                                                {(formData.observaciones || '').length}/100
+                                            </span>
+                                        )}
+                                    </div>
                                     <textarea
                                         value={formData.observaciones ?? ''}
                                         onChange={(e) => handleChange('observaciones', e.target.value)}
+                                        maxLength={100}
                                         className="w-full min-h-[120px] p-4 bg-dark-hover border border-dark-color rounded-2xl text-sm text-dark-primary focus:border-blue-500/50 outline-none resize-none transition-all placeholder:text-dark-secondary/50 shadow-inner disabled:opacity-70 disabled:cursor-default"
                                         disabled={readOnly}
                                         placeholder="Escribe aquí cualquier dato médico importante, alergias o comportamientos notables..."
                                     />
+                                    {errors.observaciones && <p className="text-red-400 text-xs mt-1 ml-1">{errors.observaciones}</p>}
                                 </div>
                             </div>
                         </div>

@@ -75,6 +75,8 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
             newErrors.nombre = 'Nombre: Solo se permiten letras. Retira números o símbolos especiales para continuar.';
         } else if (formData.nombre.trim().split(/\s+/).filter(Boolean).length < 2) {
             newErrors.nombre = 'Nombre: Debes ingresar el nombre y apellido completos (mínimo dos palabras).';
+        } else if (formData.nombre.trim().length > 30) {
+            newErrors.nombre = 'Nombre: El nombre no puede exceder los 30 caracteres.';
         }
 
         if (!formData.tipo_documento) newErrors.tipo_documento = 'Tipo de Documento: Debes elegir una opción de la lista (ej: C.C, C.E).';
@@ -113,6 +115,8 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
 
         if (!formData.direccion.trim()) {
             newErrors.direccion = 'Dirección: Debes registrar el domicilio actual del empleado.';
+        } else if (formData.direccion.trim().length > 30) {
+            newErrors.direccion = 'Dirección: La dirección no puede exceder los 30 caracteres.';
         } else {
             const addressPrefixRegex = /^(calle|carrera|cra|cl|avenida|av|diagonal|dg|transversal|transv|tv|autopista|circular|via|vía)\b/i;
             if (!addressPrefixRegex.test(formData.direccion.trim())) {
@@ -249,6 +253,7 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                                     <Input
                                         value={formData.nombre}
                                         onChange={(e) => handleChange('nombre', e.target.value)}
+                                        maxLength={30}
                                         className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.nombre ? 'border-red-500' : ''}`}
                                         placeholder="Nombre completo"
                                         readOnly={readOnly}
@@ -321,6 +326,7 @@ export function EmpleadoModal({ isOpen, onClose, onSubmit, empleado, loading, re
                                         <Input
                                             value={formData.direccion}
                                             onChange={(e) => handleChange('direccion', e.target.value)}
+                                            maxLength={30}
                                             className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.direccion ? 'border-red-500' : ''}`}
                                             placeholder="Calle 123 # 45 - 67"
                                             readOnly={readOnly}

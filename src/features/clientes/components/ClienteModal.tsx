@@ -64,6 +64,8 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
       newErrors.nombre = 'El nombre es obligatorio.';
     } else if (!esNombreCompletoValido(formData.nombre)) {
       newErrors.nombre = 'Debes ingresar tu nombre y apellido completos (solo letras y espacios).';
+    } else if (formData.nombre.trim().length > 30) {
+      newErrors.nombre = 'El nombre no puede exceder los 30 caracteres.';
     } else {
       const nombreDuplicado = clientes.some(
         c => c.nombre.toLowerCase().trim() === formData.nombre.toLowerCase().trim()
@@ -93,6 +95,8 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
 
     if (!formData.direccion.trim()) {
       newErrors.direccion = 'La dirección es obligatoria.';
+    } else if (formData.direccion.trim().length > 30) {
+      newErrors.direccion = 'La dirección no puede exceder los 30 caracteres.';
     } else {
       const addressPrefixRegex = /^(calle|carrera|cra|cl|avenida|av|diagonal|dg|transversal|transv|tv|autopista|circular|via|vía)\b/i;
       if (!addressPrefixRegex.test(formData.direccion.trim())) {
@@ -167,6 +171,7 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
                 id="nombre"
                 value={formData.nombre}
                 onChange={(e) => handleChange('nombre', e.target.value)}
+                maxLength={30}
                 className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.nombre ? 'border-red-500' : ''}`}
                 placeholder="Nombre completo"
                 readOnly={readOnly}
@@ -260,6 +265,7 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
                   id="direccion"
                   value={formData.direccion}
                   onChange={(e) => handleChange('direccion', e.target.value)}
+                  maxLength={30}
                   className={`pl-10 bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.direccion ? 'border-red-500' : ''}`}
                   placeholder="Calle 123 # 45 - 67"
                   readOnly={readOnly}

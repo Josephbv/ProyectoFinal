@@ -57,6 +57,8 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
       newErrors.nombre = 'El nombre del servicio es obligatorio para el catálogo.';
     } else if (!soloLetras(formData.nombre)) {
       newErrors.nombre = 'El nombre no debe contener números ni símbolos especiales.';
+    } else if (formData.nombre.trim().length > 30) {
+      newErrors.nombre = 'El nombre del servicio no puede exceder los 30 caracteres.';
     } else {
       const nombreIngresado = formData.nombre.trim().toLowerCase();
       const esDuplicado = servicios.some(s => {
@@ -72,6 +74,8 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
 
     if (!formData.descripcion.trim()) {
       newErrors.descripcion = 'La descripción es obligatoria para informar al cliente.';
+    } else if (formData.descripcion.trim().length > 100) {
+      newErrors.descripcion = 'La descripción no puede exceder los 100 caracteres.';
     }
 
     if (formData.precio <= 0) {
@@ -137,6 +141,7 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
                 id="nombre"
                 value={formData.nombre}
                 onChange={(e) => handleChange('nombre', e.target.value)}
+                maxLength={30}
                 className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
                 placeholder="Ej: Consulta General"
               />
@@ -144,11 +149,17 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="descripcion" className="text-dark-primary">Descripción *</Label>
+              <div className="flex justify-between items-center">
+                <Label htmlFor="descripcion" className="text-dark-primary">Descripción *</Label>
+                <span className="text-[10px] text-dark-secondary opacity-50">
+                  {(formData.descripcion || '').length}/100
+                </span>
+              </div>
               <Textarea
                 id="descripcion"
                 value={formData.descripcion}
                 onChange={(e) => handleChange('descripcion', e.target.value)}
+                maxLength={100}
                 className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta"
                 placeholder="Describe el servicio en detalle..."
                 rows={3}

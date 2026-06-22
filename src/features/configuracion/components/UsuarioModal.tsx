@@ -73,6 +73,8 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
             newErrors.nombre_completo = 'El nombre solo debe contener letras. Retira números o símbolos especiales.';
         } else if (formData.nombre_completo.trim().split(/\s+/).filter(Boolean).length < 2) {
             newErrors.nombre_completo = 'Debes ingresar el nombre y apellido completos (mínimo dos palabras).';
+        } else if (formData.nombre_completo.trim().length > 30) {
+            newErrors.nombre_completo = 'El nombre no puede exceder los 30 caracteres.';
         }
 
         if (!formData.correo.trim()) {
@@ -114,6 +116,8 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
 
         if (!formData.direccion.trim()) {
             newErrors.direccion = 'La dirección es obligatoria.';
+        } else if (formData.direccion.trim().length > 30) {
+            newErrors.direccion = 'La dirección no puede exceder los 30 caracteres.';
         } else {
             const addressPrefixRegex = /^(calle|carrera|cra|cl|avenida|av|diagonal|dg|transversal|transv|tv|autopista|circular|via|vía)\b/i;
             if (!addressPrefixRegex.test(formData.direccion.trim())) {
@@ -267,6 +271,7 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                         <Input
                                             value={formData.nombre_completo}
                                             onChange={(e) => handleChange('nombre_completo', e.target.value)}
+                                            maxLength={30}
                                             className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.nombre_completo ? 'border-red-500' : ''}`}
                                             placeholder="Nombre completo de la persona"
                                             readOnly={readOnly}
@@ -344,6 +349,7 @@ export function UsuarioModal({ isOpen, onClose, onSubmit, usuario, loading, read
                                         <Input
                                             value={formData.direccion}
                                             onChange={(e) => handleChange('direccion', e.target.value)}
+                                            maxLength={30}
                                             className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${errors.direccion ? 'border-red-500' : ''}`}
                                             placeholder="Calle 10 # 20-30"
                                             readOnly={readOnly}

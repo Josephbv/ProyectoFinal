@@ -64,6 +64,8 @@ export function RolModal({ isOpen, onClose, onSubmit, rol, loading, roles = [] }
 
     if (!nombre.trim()) {
       newErrors.nombre = 'El nombre del rol es obligatorio';
+    } else if (nombre.trim().length > 15) {
+      newErrors.nombre = 'El nombre del rol no puede exceder los 15 caracteres.';
     } else if (!rol) {
       // Crear nuevo rol: validar nombres reservados y duplicados
       if (SYSTEM_ROLES.includes(nombre.toLowerCase().trim())) {
@@ -129,6 +131,7 @@ export function RolModal({ isOpen, onClose, onSubmit, rol, loading, roles = [] }
                 setNombre(e.target.value);
                 if (errors.nombre) setErrors(prev => ({ ...prev, nombre: '' }));
               }}
+              maxLength={15}
               disabled={isSystemRole}
               className={`bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta ${
                 isSystemRole ? 'opacity-60 cursor-not-allowed' : ''
