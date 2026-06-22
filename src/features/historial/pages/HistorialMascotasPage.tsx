@@ -989,7 +989,7 @@ export function HistorialMascotasPage() {
                       <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary opacity-30" />
 
                       {mostrarSugerenciasCliente && (
-                        <div className="absolute left-0 w-full mt-1 z-[100] bg-dark-card border border-dark-color rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto pointer-events-auto">
+                        <div className="absolute left-0 w-full mt-1 z-[100] bg-white dark:bg-[#0f172a] border border-dark-color/80 rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto pointer-events-auto">
                           {clientes
                             .filter(c =>
                               (c.cedula || '').toLowerCase().includes(busquedaCliente.toLowerCase()) ||
@@ -1136,7 +1136,7 @@ export function HistorialMascotasPage() {
                     <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary opacity-30" />
 
                     {mostrarSugerenciasVet && doctoresFiltrados.length > 0 && (
-                      <div className="absolute left-0 w-full mt-1 z-[100] bg-dark-card border border-dark-color rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 pointer-events-auto">
+                      <div className="absolute left-0 w-full mt-1 z-[100] bg-white dark:bg-[#0f172a] border border-dark-color/80 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 pointer-events-auto">
                         {doctoresFiltrados.map(doc => (
                           <button
                             key={doc.id}
