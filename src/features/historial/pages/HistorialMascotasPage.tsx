@@ -796,7 +796,7 @@ export function HistorialMascotasPage() {
               {/* Patient & Owner Summary Card */}
               <div className="bg-dark-card/50 rounded-[2.5rem] border border-dark-color p-8 space-y-8 shadow-2xl relative group">
                 {/* Header Context Indicator */}
-                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
                   <Activity className="w-16 h-16 text-blue-500 rotate-12" />
                 </div>
 
@@ -857,7 +857,7 @@ export function HistorialMascotasPage() {
                           setMostrarSugerenciasCliente(true);
                         }}
                         placeholder="Cédula o nombre..."
-                        className="bg-dark-bg/50 border-dark-color/50 h-14 rounded-2xl text-[11px] font-black text-dark-primary tracking-tighter focus:border-blue-500/30 transition-all shadow-inner px-4"
+                        className="bg-dark-card border-dark-color/50 h-14 rounded-2xl text-[11px] font-black text-dark-primary tracking-tighter focus:border-blue-500/30 transition-all shadow-inner px-4"
                         onBlur={() => setTimeout(() => setMostrarSugerenciasCliente(false), 200)}
                         onFocus={() => setMostrarSugerenciasCliente(true)}
                       />
@@ -865,7 +865,7 @@ export function HistorialMascotasPage() {
                     </div>
 
                     {mostrarSugerenciasCliente && (
-                      <div className="absolute z-[100] w-72 mt-2 bg-[#000000] border border-dark-color rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto pointer-events-auto">
+                      <div className="absolute z-[100] w-72 mt-2 bg-dark-card border border-dark-color rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto pointer-events-auto">
                         {clientes
                           .filter(c =>
                             (c.cedula || '').toLowerCase().includes(busquedaCliente.toLowerCase()) ||
@@ -970,13 +970,13 @@ export function HistorialMascotasPage() {
                                 setSelectedPetId(petIdStr);
                               }
                             }}
-                            className="w-full h-12 px-3 py-2 bg-dark-bg/50 border border-dark-color/50 rounded-2xl text-[11px] text-dark-primary focus:border-blue-500/30 outline-none cursor-pointer"
+                            className="w-full h-12 px-3 py-2 bg-dark-card border border-dark-color/50 rounded-2xl text-[11px] text-dark-primary focus:border-blue-500/30 outline-none cursor-pointer"
                           >
-                            <option value="" disabled className="bg-dark-bg">Seleccionar mascota...</option>
+                            <option value="" disabled className="bg-dark-card">Seleccionar mascota...</option>
                             {mascotas
                               .filter(m => m.id_cliente === clienteSeleccionado.id_cliente)
                               .map(m => (
-                                <option key={m.id_mascota} value={m.id_mascota.toString()} className="bg-dark-bg text-dark-primary">
+                                <option key={m.id_mascota} value={m.id_mascota.toString()} className="bg-dark-card text-dark-primary">
                                   {m.nombre} ({m.especie})
                                 </option>
                               ))}
@@ -1008,7 +1008,7 @@ export function HistorialMascotasPage() {
                         value={busquedaVetCedula}
                         onChange={(e) => handleBusquedaVetChange(e.target.value, doctores)}
                         placeholder="Cédula o nombre..."
-                        className="bg-dark-bg/50 border-dark-color/50 h-14 rounded-2xl text-[11px] font-black text-dark-primary tracking-tighter focus:border-blue-500/30 transition-all shadow-inner px-4"
+                        className="bg-dark-card border-dark-color/50 h-14 rounded-2xl text-[11px] font-black text-dark-primary tracking-tighter focus:border-blue-500/30 transition-all shadow-inner px-4"
                         onBlur={() => setTimeout(() => setMostrarSugerenciasVet(false), 200)}
                         onFocus={() => busquedaVetCedula && setMostrarSugerenciasVet(true)}
                       />
@@ -1016,7 +1016,7 @@ export function HistorialMascotasPage() {
                     </div>
 
                     {mostrarSugerenciasVet && doctoresFiltrados.length > 0 && (
-                      <div className="absolute z-[100] w-full mt-2 bg-[#000000] border border-dark-color rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 pointer-events-auto">
+                      <div className="absolute z-[100] w-full mt-2 bg-dark-card border border-dark-color rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 pointer-events-auto">
                         {doctoresFiltrados.map(doc => (
                           <button
                             key={doc.id}
