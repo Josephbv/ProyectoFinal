@@ -274,6 +274,10 @@ export function HistorialMascotasPage() {
   const [mostrarSugerenciasVet, setMostrarSugerenciasVet] = useState(false);
   const [vetSeleccionado, setVetSeleccionado] = useState<any>(null);
 
+  // Estados para búsqueda de cliente en formulario
+  const [busquedaCliente, setBusquedaCliente] = useState("");
+  const [mostrarSugerenciasCliente, setMostrarSugerenciasCliente] = useState(false);
+
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -447,6 +451,8 @@ export function HistorialMascotasPage() {
     setDoctoresFiltrados([]);
     setMostrarSugerenciasVet(false);
     setVetSeleccionado(null);
+    setBusquedaCliente('');
+    setMostrarSugerenciasCliente(false);
   };
 
   const handleEliminarEntrada = async () => {
@@ -470,7 +476,7 @@ export function HistorialMascotasPage() {
     }
   };
 
-  const abrirFormulario = (entrada?: HistorialMascota) => {
+  const abrirFormulario = (entrada?: HistorialMascota, presetSelection: boolean = false) => {
     if (entrada) {
       setEntradaSeleccionada(entrada);
       setFormData({
@@ -522,8 +528,15 @@ export function HistorialMascotasPage() {
     } else {
       setEntradaSeleccionada(null);
       resetForm();
-      setSelectedClientId(clienteSeleccionado?.id_cliente?.toString() || '');
-      setSelectedPetId(mascotaSeleccionada?.id_mascota?.toString() || '');
+      if (presetSelection) {
+        setSelectedClientId(clienteSeleccionado?.id_cliente?.toString() || '');
+        setSelectedPetId(mascotaSeleccionada?.id_mascota?.toString() || '');
+      } else {
+        setClienteSeleccionado(null);
+        setMascotaSeleccionada(null);
+        setSelectedClientId('');
+        setSelectedPetId('');
+      }
     }
     setPasoActual('formulario');
   };
@@ -788,75 +801,194 @@ export function HistorialMascotasPage() {
                 </div>
 
                 {/* Responsible Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
-                      <User className="w-6 h-6 text-blue-400" />
+                {clienteSeleccionado ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
+                        <User className="w-6 h-6 text-blue-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start">
+                          <p className="text-[10px] font-black text-blue-400 tracking-widest leading-none mb-1.5 opacity-80">Responsable</p>
+                          {!isEdit && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setClienteSeleccionado(null);
+                                setSelectedClientId('');
+                                setMascotaSeleccionada(null);
+                                setSelectedPetId('');
+                              }}
+                              className="text-[9px] font-black text-red-400 hover:text-red-300 uppercase tracking-widest"
+                            >
+                              Cambiar
+                            </button>
+                          )}
+                        </div>
+                        <h4 className="text-sm font-black text-dark-primary truncate leading-tight tracking-tight">
+                          {toTitleCase(clienteSeleccionado.nombre)}
+                        </h4>
+                        <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60">ID: {clienteSeleccionado.cedula || 'N/A'}</p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-black text-blue-400 tracking-widest leading-none mb-1.5 opacity-80">Responsable</p>
-                      <h4 className="text-sm font-black text-dark-primary truncate leading-tight tracking-tight">
-                        {toTitleCase(clienteSeleccionado?.nombre) || 'No seleccionado'}
-                      </h4>
-                      <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60">ID: {clienteSeleccionado?.cedula || 'N/A'}</p>
-                    </div>
-                  </div>
 
-                  {/* Additional Owner Info */}
-                  <div className="grid grid-cols-1 gap-3 pl-1">
-                    <div className="flex items-center gap-3 text-[10px] text-dark-secondary/80 font-bold">
-                      <div className="w-1 h-1 rounded-full bg-blue-500/40" />
-                      <span className="truncate">{clienteSeleccionado?.telefono || 'Sin Teléfono'}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-[10px] text-dark-secondary/80 font-bold italic">
-                      <div className="w-1 h-1 rounded-full bg-blue-500/40" />
-                      <span className="truncate">{clienteSeleccionado?.direccion || 'Sin Dirección'}</span>
+                    {/* Additional Owner Info */}
+                    <div className="grid grid-cols-1 gap-3 pl-1">
+                      <div className="flex items-center gap-3 text-[10px] text-dark-secondary/80 font-bold">
+                        <div className="w-1 h-1 rounded-full bg-blue-500/40" />
+                        <span className="truncate">{clienteSeleccionado.telefono || 'Sin Teléfono'}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-[10px] text-dark-secondary/80 font-bold italic">
+                        <div className="w-1 h-1 rounded-full bg-blue-500/40" />
+                        <span className="truncate">{clienteSeleccionado.direccion || 'Sin Dirección'}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80">
+                      Responsable (Cliente) <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        value={busquedaCliente}
+                        onChange={(e) => {
+                          setBusquedaCliente(e.target.value);
+                          setMostrarSugerenciasCliente(true);
+                        }}
+                        placeholder="Cédula o nombre..."
+                        className="bg-dark-bg/50 border-dark-color/50 h-14 rounded-2xl text-[11px] font-black text-dark-primary tracking-tighter focus:border-blue-500/30 transition-all shadow-inner px-4"
+                        onBlur={() => setTimeout(() => setMostrarSugerenciasCliente(false), 200)}
+                        onFocus={() => setMostrarSugerenciasCliente(true)}
+                      />
+                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary opacity-30" />
+                    </div>
+
+                    {mostrarSugerenciasCliente && (
+                      <div className="absolute z-[100] w-72 mt-2 bg-[#000000] border border-dark-color rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto pointer-events-auto">
+                        {clientes
+                          .filter(c =>
+                            (c.cedula || '').toLowerCase().includes(busquedaCliente.toLowerCase()) ||
+                            (c.nombre || '').toLowerCase().includes(busquedaCliente.toLowerCase())
+                          )
+                          .slice(0, 10)
+                          .map(c => (
+                            <button
+                              key={c.id_cliente}
+                              type="button"
+                              className="w-full text-left p-4 hover:bg-blue-500/10 border-b border-dark-color/30 last:border-0 transition-colors group"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                setClienteSeleccionado(c);
+                                setSelectedClientId(c.id_cliente.toString());
+                                setMascotaSeleccionada(null);
+                                setSelectedPetId('');
+                                setBusquedaCliente('');
+                                setMostrarSugerenciasCliente(false);
+                              }}
+                            >
+                              <p className="text-[11px] font-bold text-dark-primary tracking-tighter group-hover:text-blue-400 transition-colors">{c.nombre}</p>
+                              <p className="text-[9px] text-dark-secondary tracking-widest opacity-60">Ced: {c.cedula || 'N/A'}</p>
+                            </button>
+                          ))}
+                        {clientes.filter(c =>
+                          (c.cedula || '').toLowerCase().includes(busquedaCliente.toLowerCase()) ||
+                          (c.nombre || '').toLowerCase().includes(busquedaCliente.toLowerCase())
+                        ).length === 0 && (
+                          <div className="p-4 text-center text-xs text-dark-secondary italic">No se encontraron clientes</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="h-px bg-gradient-to-r from-transparent via-dark-color to-transparent opacity-50" />
 
                 {/* Patient Section */}
                 <div className="space-y-5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-pink-500/10 flex items-center justify-center shrink-0 border border-pink-500/20">
-                      <Heart className="w-6 h-6 text-pink-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-black text-pink-400 tracking-widest leading-none mb-1.5 opacity-80">Paciente</p>
-                      <h4 className="text-sm font-black text-dark-primary truncate leading-tight tracking-tight">
-                        {toTitleCase(mascotaSeleccionada?.nombre) || 'No seleccionado'}
-                      </h4>
-                      <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60">
-                        {toSentenceCase(mascotaSeleccionada?.especie) || 'N/A'} · {toSentenceCase(mascotaSeleccionada?.raza) || 'N/A'}
-                      </p>
-                    </div>
-                  </div>
+                  {clienteSeleccionado ? (
+                    mascotaSeleccionada ? (
+                      <div className="space-y-5 animate-in fade-in duration-300">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-2xl bg-pink-500/10 flex items-center justify-center shrink-0 border border-pink-500/20">
+                            <Heart className="w-6 h-6 text-pink-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start">
+                              <p className="text-[10px] font-black text-pink-400 tracking-widest leading-none mb-1.5 opacity-80">Paciente</p>
+                              {!isEdit && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setMascotaSeleccionada(null);
+                                    setSelectedPetId('');
+                                  }}
+                                  className="text-[9px] font-black text-red-400 hover:text-red-300 uppercase tracking-widest"
+                                >
+                                  Cambiar
+                                </button>
+                              )}
+                            </div>
+                            <h4 className="text-sm font-black text-dark-primary truncate leading-tight tracking-tight">
+                              {toTitleCase(mascotaSeleccionada.nombre)}
+                            </h4>
+                            <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60">
+                              {toSentenceCase(mascotaSeleccionada.especie)} · {toSentenceCase(mascotaSeleccionada.raza) || 'N/A'}
+                            </p>
+                          </div>
+                        </div>
 
-                  {/* Enhanced Patient Details Grid */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
-                      <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Edad</p>
-                      <p className="text-xs font-black text-emerald-400 break-all">{mascotaSeleccionada?.edad || 'N/A'} meses</p>
+                        {/* Enhanced Patient Details Grid */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
+                            <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Edad</p>
+                            <p className="text-xs font-black text-emerald-400 break-all">{mascotaSeleccionada.edad || 'N/A'} meses</p>
+                          </div>
+                          <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
+                            <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Peso</p>
+                            <p className="text-xs font-black text-blue-400 break-all">{mascotaSeleccionada.peso || 'N/A'} kg</p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 animate-in fade-in duration-300">
+                        <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80">
+                          Paciente (Mascota) <span className="text-red-500">*</span>
+                        </Label>
+                        {mascotas.filter(m => m.id_cliente === clienteSeleccionado.id_cliente).length === 0 ? (
+                          <p className="text-[10px] text-red-400 italic bg-red-400/5 py-3 px-4 rounded-xl border border-dashed border-red-400/30">
+                            Este cliente no tiene mascotas registradas
+                          </p>
+                        ) : (
+                          <select
+                            value={selectedPetId}
+                            onChange={(e) => {
+                              const petIdStr = e.target.value;
+                              const pet = mascotas.find(m => m.id_mascota.toString() === petIdStr);
+                              if (pet) {
+                                setMascotaSeleccionada(pet);
+                                setSelectedPetId(petIdStr);
+                              }
+                            }}
+                            className="w-full h-12 px-3 py-2 bg-dark-bg/50 border border-dark-color/50 rounded-2xl text-[11px] text-dark-primary focus:border-blue-500/30 outline-none cursor-pointer"
+                          >
+                            <option value="" disabled className="bg-dark-bg">Seleccionar mascota...</option>
+                            {mascotas
+                              .filter(m => m.id_cliente === clienteSeleccionado.id_cliente)
+                              .map(m => (
+                                <option key={m.id_mascota} value={m.id_mascota.toString()} className="bg-dark-bg text-dark-primary">
+                                  {m.nombre} ({m.especie})
+                                </option>
+                              ))}
+                          </select>
+                        )}
+                      </div>
+                    )
+                  ) : (
+                    <div className="p-4 text-center text-xs text-dark-secondary italic bg-dark-bg/30 rounded-2xl border border-dashed border-dark-color/40">
+                      Primero selecciona un responsable
                     </div>
-                    <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
-                      <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Peso</p>
-                      <p className="text-xs font-black text-blue-400 break-all">{mascotaSeleccionada?.peso || 'N/A'} kg</p>
-                    </div>
-                    <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
-                      <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Nacimiento</p>
-                      <p className="text-xs font-black text-purple-400 break-all">
-                        {mascotaSeleccionada?.fecha_nacimiento
-                          ? new Date(
-                            (mascotaSeleccionada.fecha_nacimiento.includes('T')
-                              ? mascotaSeleccionada.fecha_nacimiento.split('T')[0]
-                              : mascotaSeleccionada.fecha_nacimiento) + 'T12:00:00'
-                          ).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })
-                          : 'N/A'}
-                      </p>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="h-px bg-gradient-to-r from-transparent via-dark-color to-transparent opacity-50" />
@@ -1378,7 +1510,7 @@ export function HistorialMascotasPage() {
             </Button>
             {!isClienteRole && (
               <Button
-                onClick={() => abrirFormulario()}
+                onClick={() => abrirFormulario(undefined, true)}
                 className="bg-blue-600 hover:bg-blue-500 text-white font-black tracking-widest px-8 rounded-2xl h-12 shadow-xl shadow-blue-500/20 gap-2 transition-all active:scale-95 hover:scale-[1.02]"
               >
                 <Plus className="w-4 h-4" /> Nuevo
@@ -1692,10 +1824,7 @@ export function HistorialMascotasPage() {
               )}
               {pasoActual === 'inicio' && !isClienteRole && (
                 <button
-                  onClick={() => {
-                    setPasoActual('cliente');
-                    setBusqueda('');
-                  }}
+                  onClick={() => abrirFormulario()}
                   className="dark-button-primary font-bold gap-2 flex items-center"
                   disabled={loading}
                 >
