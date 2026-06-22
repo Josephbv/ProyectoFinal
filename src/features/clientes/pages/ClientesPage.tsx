@@ -176,6 +176,39 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
     return colors[index];
   };
 
+  const exportarClientesCSV = () => {
+    try {
+      const headers = ["ID Cliente", "Nombre Completo", "Tipo Documento", "Cedula", "Telefono", "Correo", "Direccion"];
+      const rows = clientesFiltrados.map(c => [
+        c.id_cliente,
+        `"${(c.nombre || '').replace(/"/g, '""')}"`,
+        c.tipo_documento || 'CC',
+        c.cedula || '—',
+        c.telefono || '—',
+        c.correo || '—',
+        `"${(c.direccion || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = "\uFEFF" + [
+        headers.join(","),
+        ...rows.map(e => e.join(","))
+      ].join("\n");
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `reporte_clientes_kaivet_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Listado de clientes exportado con éxito");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al exportar reporte");
+    }
+  };
+
   return (
     <>
       <header className="bg-dark-bg border-b border-dark-color px-8 py-6">
@@ -200,6 +233,17 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
                   className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
                 />
               </div>
+            )}
+
+            {!isClienteRole && (
+              <button
+                onClick={exportarClientesCSV}
+                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-sm rounded-lg shadow flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                disabled={loading || clientesFiltrados.length === 0}
+              >
+                <FileText className="w-4.5 h-4.5" />
+                Exportar Reporte
+              </button>
             )}
 
             {!isClienteRole && (

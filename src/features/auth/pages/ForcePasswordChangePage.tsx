@@ -6,6 +6,8 @@ import { Label } from '../../../shared/components/label';
 import { toast } from 'sonner';
 import { KeyRound, ShieldAlert, Eye, EyeOff, Lock, ArrowRight } from 'lucide-react';
 
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._#+-])[A-Za-z\d@$!%*?&._#+-]{8,}$/;
+
 interface ForcePasswordChangePageProps {
   onSuccess: () => void;
   onCancel: () => void;
@@ -25,8 +27,10 @@ export function ForcePasswordChangePage({ onSuccess, onCancel }: ForcePasswordCh
     const errs: Record<string, string> = {};
     if (!formData.password) {
       errs.password = 'La nueva contraseña es obligatoria.';
-    } else if (formData.password.length < 6) {
-      errs.password = 'La contraseña debe tener al menos 6 caracteres.';
+    } else if (formData.password.length < 8) {
+      errs.password = 'La contraseña debe tener al menos 8 caracteres.';
+    } else if (!PASSWORD_REGEX.test(formData.password)) {
+      errs.password = 'Debe incluir al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&._#+-).';
     }
 
     if (!formData.confirmPassword) {
@@ -55,7 +59,7 @@ export function ForcePasswordChangePage({ onSuccess, onCancel }: ForcePasswordCh
       const id = user.id_usuario;
 
       // Realizar la actualización del usuario incluyendo la nueva contraseña
-      await apiFetch(`/api/auth/auth/users/${id}`, {
+      await apiFetch(`/api/auth/users/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

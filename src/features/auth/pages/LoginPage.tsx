@@ -11,6 +11,7 @@ import { useEmailAuth } from "../hooks/useEmailAuth";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const STRICT_EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@(gmail|hotmail|outlook|yahoo|live|icloud)\.[a-zA-Z]{2,}$/i;
 const ONLY_DIGITS = /^\d+$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._#+-])[A-Za-z\d@$!%*?&._#+-]{8,}$/;
 
 interface LoginPageProps {
   onLogin: (user?: any) => void;
@@ -164,6 +165,8 @@ export function LoginPage({ onLogin, onBackToLanding }: LoginPageProps) {
       errs.password = 'La contraseña es obligatoria.';
     } else if (formData.password.length < 8) {
       errs.password = 'La contraseña debe tener al menos 8 caracteres.';
+    } else if (!PASSWORD_REGEX.test(formData.password)) {
+      errs.password = 'Debe incluir al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&._#+-).';
     } else if (formData.password.startsWith('Temp-')) {
       errs.password = 'Por seguridad, la contraseña no puede comenzar con "Temp-".';
     }

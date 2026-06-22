@@ -47,6 +47,41 @@ export function HistorialMascotasPage() {
   const [mascotaSeleccionada, setMascotaSeleccionada] = useState<any | null>(null);
   const [entradaSeleccionada, setEntradaSeleccionada] = useState<HistorialMascota | null>(null);
 
+  const exportarHistorialesCSV = () => {
+    try {
+      const headers = ["ID Registro", "Mascota", "Propietario", "Documento Propietario", "Fecha", "Hora", "Veterinario", "Diagnostico", "Tratamiento"];
+      const rows = historialFiltrado.map(h => [
+        h.id_historial,
+        `"${(h.nombreMascota || '').replace(/"/g, '""')}"`,
+        `"${(h.nombreCliente || '').replace(/"/g, '""')}"`,
+        h.cedulaCliente || '—',
+        h.fecha ? h.fecha.split('T')[0] : '',
+        (h as any).hora || '—',
+        `"${(h.veterinario || '').replace(/"/g, '""')}"`,
+        `"${(h.diagnostico || '').replace(/"/g, '""')}"`,
+        `"${(h.tratamiento || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = "\uFEFF" + [
+        headers.join(","),
+        ...rows.map(e => e.join(","))
+      ].join("\n");
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `reporte_historial_medico_kaivet_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Historial médico exportado con éxito");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al exportar reporte");
+    }
+  };
+
   // Paginación para Historial
   const [paginaActualMascota, setPaginaActualMascota] = useState(1);
 
@@ -1518,6 +1553,16 @@ export function HistorialMascotasPage() {
             )}
 
             <div className="flex items-center gap-4 shrink-0">
+              {pasoActual === 'inicio' && !isClienteRole && (
+                <button
+                  onClick={exportarHistorialesCSV}
+                  className="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-black text-xs tracking-widest rounded-2xl shadow flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 h-11"
+                  disabled={loading || historialFiltrado.length === 0}
+                >
+                  <FileText className="w-4.5 h-4.5" />
+                  <span>Exportar Reporte</span>
+                </button>
+              )}
               {pasoActual === 'inicio' && !isClienteRole && (
                 <Button
                   onClick={() => {

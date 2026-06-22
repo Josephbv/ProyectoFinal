@@ -3,7 +3,7 @@ import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
-import { Dog, Plus, Search, Eye, Edit, Trash2, User, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Hash, Info, Fingerprint } from "lucide-react";
+import { Dog, Plus, Search, Eye, Edit, Trash2, User, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Hash, Info, Fingerprint, FileText } from "lucide-react";
 import { useMascotas, Mascota } from "../hooks/useMascotas";
 import { useClientes } from "../../clientes/hooks/useClientes";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
@@ -94,6 +94,40 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
     return <Dog className="w-5 h-5 text-indigo-400" />;
   };
 
+  const exportarMascotasCSV = () => {
+    try {
+      const headers = ["ID Mascota", "Nombre", "Especie", "Raza", "Sexo", "Edad (Meses)", "Dueño / Cliente", "Doc. Dueño"];
+      const rows = mascotasFiltradas.map(m => [
+        m.id_mascota,
+        `"${(m.nombre || '').replace(/"/g, '""')}"`,
+        m.especie || '—',
+        m.raza || '—',
+        m.sexo || '—',
+        m.edad_meses || 0,
+        `"${getClienteNombre(m.id_cliente).replace(/"/g, '""')}"`,
+        getClienteCedula(m.id_cliente)
+      ]);
+
+      const csvContent = "\uFEFF" + [
+        headers.join(","),
+        ...rows.map(e => e.join(","))
+      ].join("\n");
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `reporte_pacientes_kaivet_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Listado de mascotas exportado con éxito");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al exportar reporte");
+    }
+  };
+
   return (
     <>
       <header className="bg-dark-bg border-b border-dark-color px-8 py-6">
@@ -113,6 +147,17 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
                 className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"
               />
             </div>
+
+            {!isVetRole && (
+              <button
+                onClick={exportarMascotasCSV}
+                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-sm rounded-lg shadow flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                disabled={loading || mascotasFiltradas.length === 0}
+              >
+                <FileText className="w-4.5 h-4.5" />
+                Exportar Reporte
+              </button>
+            )}
 
             {!isVetRole && (
               <button

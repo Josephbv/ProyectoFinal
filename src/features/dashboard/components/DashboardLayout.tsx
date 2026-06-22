@@ -52,17 +52,17 @@ import { PerfilGeneralPage } from "../../auth/pages/PerfilGeneralPage";
 
 const mainNavItems = [
   { icon: BarChart3, label: "Dashboard", active: true, shortcut: "⌘D" },
-  { icon: DollarSign, label: "Ventas", shortcut: "⌘V" },
-  { icon: Users, label: "Clientes", shortcut: "⌘C" },
-  { icon: Calendar, label: "Agendamiento", shortcut: "⌘A" },
 ];
 
 const mascotasItems = [
+  { icon: Calendar, label: "Agendamiento", shortcut: "⌘A" },
   { icon: Heart, label: "Mascotas", shortcut: "⌘M" },
   { icon: FileText, label: "Historial Mascotas", shortcut: "⌘H" },
 ];
 
 const operationsItems = [
+  { icon: DollarSign, label: "Ventas", shortcut: "⌘V" },
+  { icon: Users, label: "Clientes", shortcut: "⌘C" },
   { icon: Clock, label: "Horario", shortcut: "⌘O" },
   { icon: Wrench, label: "Servicios", shortcut: "⌘S" },
 ];
@@ -368,7 +368,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
                 <div className="px-3 mb-3">
                   <h3 className="text-xs font-semibold text-dark-secondary tracking-wider flex items-center gap-2">
                     <Heart className="w-3 h-3" />
-                    Mascotas
+                    Gestión Clínica
                   </h3>
                 </div>
               )}
@@ -402,7 +402,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
                 <div className="px-3 mb-3">
                   <h3 className="text-xs font-semibold text-dark-secondary tracking-wider flex items-center gap-2">
                     <Command className="w-3 h-3" />
-                    Sistema
+                    Configuración
                   </h3>
                 </div>
               )}
