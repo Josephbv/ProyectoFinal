@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/components/dialog";
 import { toast } from "sonner";
-import { FileText, Plus, Search, Calendar, Eye, Edit, Trash2, Heart, User, Users, Stethoscope, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardPlus, TrendingUp, Activity, Syringe, CheckCircle, XCircle, Save, Undo2, Phone, Hash, Fingerprint } from "lucide-react";
+import { FileText, Plus, Search, Calendar, Eye, Edit, Trash2, Heart, User, Users, Stethoscope, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardPlus, TrendingUp, Activity, Syringe, CheckCircle, XCircle, Save, Undo2, Phone, Hash, Fingerprint, Dog, ClipboardList } from "lucide-react";
 import { useHistorialMascotas, HistorialMascota } from "../hooks/useHistorialMascotas";
 import { useClientes } from "../../clientes/hooks/useClientes";
 import { formatTo12h } from '../../../shared/utils/formatTime';
@@ -764,9 +764,9 @@ export function HistorialMascotasPage() {
     };
 
     return (
-      <div className="flex flex-col bg-[#0a0b0c] animate-in slide-in-from-right duration-500">
+      <div className="flex flex-col min-h-screen bg-dark-bg animate-in fade-in duration-500">
         {/* Header Formulario */}
-        <header className="bg-dark-card border-b border-dark-color px-10 py-6 flex justify-between items-center shrink-0 z-20">
+        <header className="sticky top-0 bg-dark-bg/80 backdrop-blur-xl border-b border-dark-color px-6 md:px-10 py-6 flex justify-between items-center z-30">
           <div className="flex items-center gap-6">
             <Button
               variant="ghost"
@@ -787,18 +787,153 @@ export function HistorialMascotasPage() {
               </p>
             </div>
           </div>
+
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={cerrarVistaActual}
+              className="hidden md:flex text-dark-secondary hover:text-dark-primary hover:bg-dark-hover"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              form="historial-form"
+              disabled={loading}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black shadow-lg shadow-blue-900/20"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {loading ? 'Procesando...' : (entradaSeleccionada ? 'Actualizar Historial' : 'Guardar Historial')}
+            </Button>
+          </div>
         </header>
 
-        <form onSubmit={handleGuardarFormulario} className="flex">
-          {/* Sidebar Metadata & Selección */}
-          <aside className="w-96 bg-[#0f1113] border-r border-dark-color flex flex-col shrink-0">
-            <div className="p-8 space-y-8">
-              {/* Patient & Owner Summary Card */}
-              <div className="bg-dark-card/50 rounded-[2.5rem] border border-dark-color p-8 space-y-8 shadow-2xl relative group">
-                {/* Header Context Indicator */}
+        <main className="flex-1 p-4 md:p-8">
+          <form id="historial-form" onSubmit={handleGuardarFormulario} className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Columna Izquierda: Información de la Visita (col-span-2) */}
+            <div className="lg:col-span-2 space-y-6">
+              
+              {/* Card 1: Detalles del Servicio y Diagnóstico */}
+              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-8 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-blue-500/10 transition-all duration-700 pointer-events-none" />
+
+                <h2 className="text-lg font-black text-dark-primary flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/10 rounded-xl">
+                    <ClipboardList className="w-5 h-5 text-blue-400" />
+                  </div>
+                  Detalles de la Entrada Clínica
+                </h2>
+
+                {/* Tipos de Visita */}
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80 uppercase">
+                    Tipo de servicio <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex flex-wrap gap-3">
+                    {visitTypes.map(type => (
+                      <button
+                        key={type.id}
+                        type="button"
+                        onClick={() => toggleTipoVisita(type.id)}
+                        className={`px-5 py-3 rounded-2xl border text-xs font-black tracking-widest transition-all flex items-center gap-3 ${formData.tipoVisita.includes(type.id)
+                          ? `bg-blue-500/20 border-blue-500 text-blue-400 shadow-md transform scale-105`
+                          : 'bg-dark-bg border-dark-color/50 text-dark-secondary hover:bg-dark-hover'
+                          }`}
+                      >
+                        <div className={`w-2 h-2 rounded-full ${formData.tipoVisita.includes(type.id) ? `bg-blue-400 animate-pulse` : 'bg-dark-secondary opacity-30'}`} />
+                        {type.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Diagnóstico */}
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80 uppercase">
+                      Diagnóstico y evolución <span className="text-red-500">*</span>
+                    </Label>
+                    <span className="text-[10px] text-dark-secondary opacity-50 bg-dark-bg px-3 py-1 rounded-full border border-dark-color">
+                      {(formData.diagnostico || '').length}/100
+                    </span>
+                  </div>
+                  <textarea
+                    placeholder="Escribe el diagnóstico médico detallado, síntomas observados, evolución clínica..."
+                    value={formData.diagnostico}
+                    onChange={(e) => setFormData(prev => ({ ...prev, diagnostico: e.target.value.slice(0, 100) }))}
+                    maxLength={100}
+                    className="w-full min-h-[160px] p-6 bg-dark-bg border border-dark-color rounded-2xl text-sm text-dark-primary focus:border-blue-500/50 outline-none resize-none transition-all placeholder:text-dark-secondary/50 shadow-inner"
+                  />
+                </div>
+              </div>
+
+              {/* Card 2: Tratamiento */}
+              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-emerald-500/10 transition-all duration-700 pointer-events-none" />
+
+                <h2 className="text-lg font-black text-dark-primary flex items-center gap-3">
+                  <div className="p-2 bg-emerald-500/10 rounded-xl">
+                    <HeartPulse className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  Plan de Tratamiento
+                </h2>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80 uppercase">
+                      Tratamiento y Procedimientos
+                    </Label>
+                    <span className="text-[10px] text-dark-secondary opacity-50 bg-dark-bg px-3 py-1 rounded-full border border-dark-color">
+                      {(formData.tratamiento || '').length}/100
+                    </span>
+                  </div>
+                  <textarea
+                    placeholder="Procedimientos realizados, medicamentos recetados, recomendaciones..."
+                    value={formData.tratamiento}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tratamiento: e.target.value.slice(0, 100) }))}
+                    maxLength={100}
+                    className="w-full min-h-[120px] p-6 bg-dark-bg border border-dark-color rounded-2xl text-sm text-dark-primary focus:border-emerald-500/50 outline-none resize-none transition-all placeholder:text-dark-secondary/50 shadow-inner"
+                  />
+                </div>
+              </div>
+
+              {/* Botones de acción inferiores */}
+              <div className="flex items-center justify-end gap-4 pt-6 border-t border-dark-color">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={cerrarVistaActual}
+                  className="h-12 border-dark-color text-dark-secondary hover:bg-dark-hover rounded-2xl font-black text-xs tracking-widest px-8"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black text-xs tracking-widest px-8 shadow-xl shadow-blue-500/20 gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {entradaSeleccionada ? 'Actualizar Historial' : 'Guardar Historial'}
+                </Button>
+              </div>
+
+            </div>
+
+            {/* Columna Derecha: Paciente, Dueño y Doctor (col-span-1) */}
+            <div className="lg:col-span-1 space-y-6">
+              
+              {/* Card 1: Paciente y Dueño */}
+              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
                   <Activity className="w-16 h-16 text-blue-500 rotate-12" />
                 </div>
+
+                <h3 className="text-xs font-black text-dark-primary tracking-wider uppercase border-b border-dark-color/50 pb-3 flex items-center gap-2">
+                  <User className="w-4 h-4 text-blue-400" />
+                  Responsable y Paciente
+                </h3>
 
                 {/* Responsible Section */}
                 {clienteSeleccionado ? (
@@ -825,22 +960,12 @@ export function HistorialMascotasPage() {
                             </button>
                           )}
                         </div>
-                        <h4 className="text-sm font-black text-dark-primary truncate leading-tight tracking-tight">
+                        <h4 className="text-xs font-black text-dark-primary truncate leading-tight tracking-tight">
                           {toTitleCase(clienteSeleccionado.nombre)}
                         </h4>
-                        <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60">ID: {clienteSeleccionado.cedula || 'N/A'}</p>
-                      </div>
-                    </div>
-
-                    {/* Additional Owner Info */}
-                    <div className="grid grid-cols-1 gap-3 pl-1">
-                      <div className="flex items-center gap-3 text-[10px] text-dark-secondary/80 font-bold">
-                        <div className="w-1 h-1 rounded-full bg-blue-500/40" />
-                        <span className="truncate">{clienteSeleccionado.telefono || 'Sin Teléfono'}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-[10px] text-dark-secondary/80 font-bold italic">
-                        <div className="w-1 h-1 rounded-full bg-blue-500/40" />
-                        <span className="truncate">{clienteSeleccionado.direccion || 'Sin Dirección'}</span>
+                        <p className="text-[9px] text-dark-secondary font-black tracking-widest opacity-60">
+                          Ced: {clienteSeleccionado.cedula || 'N/A'}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -857,7 +982,7 @@ export function HistorialMascotasPage() {
                           setMostrarSugerenciasCliente(true);
                         }}
                         placeholder="Cédula o nombre..."
-                        className="bg-dark-card border-dark-color/50 h-14 rounded-2xl text-[11px] font-black text-dark-primary tracking-tighter focus:border-blue-500/30 transition-all shadow-inner px-4"
+                        className="bg-dark-bg border-dark-color/50 h-14 rounded-2xl text-[11px] font-black text-dark-primary tracking-tighter focus:border-blue-500/30 transition-all shadow-inner px-4"
                         onBlur={() => setTimeout(() => setMostrarSugerenciasCliente(false), 200)}
                         onFocus={() => setMostrarSugerenciasCliente(true)}
                       />
@@ -887,7 +1012,7 @@ export function HistorialMascotasPage() {
                                 setMostrarSugerenciasCliente(false);
                               }}
                             >
-                              <p className="text-[11px] font-bold text-dark-primary tracking-tighter group-hover:text-blue-400 transition-colors">{c.nombre}</p>
+                              <p className="text-[11px] font-bold text-dark-primary tracking-tighter">{c.nombre}</p>
                               <p className="text-[9px] text-dark-secondary tracking-widest opacity-60">Ced: {c.cedula || 'N/A'}</p>
                             </button>
                           ))}
@@ -902,16 +1027,14 @@ export function HistorialMascotasPage() {
                   </div>
                 )}
 
-                <div className="h-px bg-gradient-to-r from-transparent via-dark-color to-transparent opacity-50" />
-
                 {/* Patient Section */}
-                <div className="space-y-5">
+                <div className="border-t border-dark-color/50 pt-4">
                   {clienteSeleccionado ? (
                     mascotaSeleccionada ? (
-                      <div className="space-y-5 animate-in fade-in duration-300">
+                      <div className="space-y-4">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 rounded-2xl bg-pink-500/10 flex items-center justify-center shrink-0 border border-pink-500/20">
-                            <Heart className="w-6 h-6 text-pink-400" />
+                            <Dog className="w-6 h-6 text-pink-400" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start">
@@ -929,22 +1052,22 @@ export function HistorialMascotasPage() {
                                 </button>
                               )}
                             </div>
-                            <h4 className="text-sm font-black text-dark-primary truncate leading-tight tracking-tight">
+                            <h4 className="text-xs font-black text-dark-primary truncate leading-tight tracking-tight">
                               {toTitleCase(mascotaSeleccionada.nombre)}
                             </h4>
-                            <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60">
+                            <p className="text-[9px] text-dark-secondary font-black tracking-tighter opacity-60">
                               {toSentenceCase(mascotaSeleccionada.especie)} · {toSentenceCase(mascotaSeleccionada.raza) || 'N/A'}
                             </p>
                           </div>
                         </div>
 
                         {/* Enhanced Patient Details Grid */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          <div className="bg-dark-bg p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
                             <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Edad</p>
                             <p className="text-xs font-black text-emerald-400 break-all">{mascotaSeleccionada.edad || 'N/A'} meses</p>
                           </div>
-                          <div className="bg-dark-bg/50 p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
+                          <div className="bg-dark-bg p-3 rounded-2xl border border-dark-color/50 flex flex-col justify-center">
                             <p className="text-[8px] font-black text-dark-secondary tracking-[0.1em] mb-1">Peso</p>
                             <p className="text-xs font-black text-blue-400 break-all">{mascotaSeleccionada.peso || 'N/A'} kg</p>
                           </div>
@@ -970,13 +1093,13 @@ export function HistorialMascotasPage() {
                                 setSelectedPetId(petIdStr);
                               }
                             }}
-                            className="w-full h-12 px-3 py-2 bg-dark-card border border-dark-color/50 rounded-2xl text-[11px] text-dark-primary focus:border-blue-500/30 outline-none cursor-pointer"
+                            className="w-full h-12 px-3 py-2 bg-dark-bg border border-dark-color/50 rounded-2xl text-[11px] text-dark-primary focus:border-blue-500/30 outline-none cursor-pointer"
                           >
-                            <option value="" disabled className="bg-dark-card">Seleccionar mascota...</option>
+                            <option value="" disabled className="bg-dark-bg">Seleccionar mascota...</option>
                             {mascotas
                               .filter(m => m.id_cliente === clienteSeleccionado.id_cliente)
                               .map(m => (
-                                <option key={m.id_mascota} value={m.id_mascota.toString()} className="bg-dark-card text-dark-primary">
+                                <option key={m.id_mascota} value={m.id_mascota.toString()} className="bg-dark-bg text-dark-primary">
                                   {m.nombre} ({m.especie})
                                 </option>
                               ))}
@@ -990,50 +1113,47 @@ export function HistorialMascotasPage() {
                     </div>
                   )}
                 </div>
+              </div>
 
-                <div className="h-px bg-gradient-to-r from-transparent via-dark-color to-transparent opacity-50" />
+              {/* Card 2: Veterinario Asignado */}
+              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative overflow-hidden group">
+                
+                <h3 className="text-xs font-black text-dark-primary tracking-wider uppercase border-b border-dark-color/50 pb-3 flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-blue-500" />
+                  Veterinario Asignado
+                </h3>
 
-                {/* Veterinarian Search Integrated */}
-                <div className="space-y-4 pt-2">
-                  <div className="flex items-center gap-2">
-                    <Activity className="w-3 h-3 text-blue-500 opacity-60" />
-                    <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80">
-                      Veterinario asignado <span className="text-red-500">*</span>
-                    </Label>
-                  </div>
-
+                <div className="space-y-4">
                   <div className="relative">
-                    <div className="relative">
-                      <Input
-                        value={busquedaVetCedula}
-                        onChange={(e) => handleBusquedaVetChange(e.target.value, doctores)}
-                        placeholder="Cédula o nombre..."
-                        className="bg-dark-card border-dark-color/50 h-14 rounded-2xl text-[11px] font-black text-dark-primary tracking-tighter focus:border-blue-500/30 transition-all shadow-inner px-4"
-                        onBlur={() => setTimeout(() => setMostrarSugerenciasVet(false), 200)}
-                        onFocus={() => busquedaVetCedula && setMostrarSugerenciasVet(true)}
-                      />
-                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary opacity-30" />
-                    </div>
-
-                    {mostrarSugerenciasVet && doctoresFiltrados.length > 0 && (
-                      <div className="absolute z-[100] w-full mt-2 bg-dark-card border border-dark-color rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 pointer-events-auto">
-                        {doctoresFiltrados.map(doc => (
-                          <button
-                            key={doc.id}
-                            type="button"
-                            className="w-full text-left p-4 hover:bg-blue-500/10 border-b border-dark-color/30 last:border-0 transition-colors group"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              seleccionarVeterinario(doc);
-                            }}
-                          >
-                            <p className="text-[11px] font-bold text-dark-primary tracking-tighter group-hover:text-blue-400 transition-colors">{doc.nombre}</p>
-                            <p className="text-[9px] text-dark-secondary tracking-widest opacity-60">Cédula: {doc.cedula || 'N/A'}</p>
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    <Input
+                      value={busquedaVetCedula}
+                      onChange={(e) => handleBusquedaVetChange(e.target.value, doctores)}
+                      placeholder="Buscar doctor..."
+                      className="bg-dark-bg border-dark-color/50 h-14 rounded-2xl text-[11px] font-black text-dark-primary tracking-tighter focus:border-blue-500/30 transition-all shadow-inner px-4"
+                      onBlur={() => setTimeout(() => setMostrarSugerenciasVet(false), 200)}
+                      onFocus={() => busquedaVetCedula && setMostrarSugerenciasVet(true)}
+                    />
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary opacity-30" />
                   </div>
+
+                  {mostrarSugerenciasVet && doctoresFiltrados.length > 0 && (
+                    <div className="absolute z-[100] w-full mt-2 bg-dark-card border border-dark-color rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 pointer-events-auto">
+                      {doctoresFiltrados.map(doc => (
+                        <button
+                          key={doc.id}
+                          type="button"
+                          className="w-full text-left p-4 hover:bg-blue-500/10 border-b border-dark-color/30 last:border-0 transition-colors group"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            seleccionarVeterinario(doc);
+                          }}
+                        >
+                          <p className="text-[11px] font-bold text-dark-primary tracking-tighter group-hover:text-blue-400 transition-colors">{doc.nombre}</p>
+                          <p className="text-[9px] text-dark-secondary tracking-widest opacity-60">Cédula: {doc.cedula || 'N/A'}</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Detalles del Veterinario Seleccionado */}
                   {vetSeleccionado && (
@@ -1043,115 +1163,22 @@ export function HistorialMascotasPage() {
                           <Activity className="w-4 h-4 text-blue-400" />
                         </div>
                         <div>
-                          <p className="text-[10px] font-black text-blue-400  tracking-widest leading-none mb-1">Doctor Activo</p>
-                          <h5 className="text-[11px] font-bold text-dark-primary  tracking-tighter">
+                          <p className="text-[10px] font-black text-blue-400 tracking-widest leading-none mb-1">Doctor Activo</p>
+                          <h5 className="text-[11px] font-bold text-dark-primary tracking-tighter">
                             {toTitleCase(vetSeleccionado.nombre)}
                           </h5>
-                          <p className="text-[9px] text-dark-secondary font-bold  opacity-60">Cédula: {vetSeleccionado.cedula || 'N/A'}</p>
+                          <p className="text-[9px] text-dark-secondary font-bold opacity-60">Cédula: {vetSeleccionado.cedula || 'N/A'}</p>
                         </div>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
+
             </div>
-          </aside>
 
-          {/* Área Principal de Carga */}
-          <main className="flex-1 bg-[#0a0b0c] p-12">
-            <div className="max-w-4xl mx-auto space-y-10">
-              {/* Tipos de Visita */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-1.5 h-6 bg-blue-500 rounded-full" />
-                  <h3 className="text-lg font-black text-dark-primary  tracking-widest">Tipo de servicio <span className="text-red-500">*</span></h3>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  {visitTypes.map(type => (
-                    <button
-                      key={type.id}
-                      type="button"
-                      onClick={() => toggleTipoVisita(type.id)}
-                      className={`px-6 py-3 rounded-2xl border text-xs font-black  tracking-widest transition-all flex items-center gap-3 ${formData.tipoVisita.includes(type.id)
-                        ? `bg-${type.color}-500/20 border-${type.color}-500 text-${type.color}-400 shadow-md transform scale-105`
-                        : 'bg-dark-card border-dark-color text-dark-secondary hover:bg-dark-hover'
-                        }`}
-                    >
-                      <div className={`w-2 h-2 rounded-full ${formData.tipoVisita.includes(type.id) ? `bg-${type.color}-400 animate-pulse` : 'bg-dark-secondary opacity-30'}`} />
-                      {type.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-
-              {/* Diagnóstico */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-6 bg-pink-500 rounded-full" />
-                    <h3 className="text-lg font-black text-dark-primary  tracking-widest">{toSentenceCase('Diagnóstico y evolución')} <span className="text-red-500">*</span></h3>
-                  </div>
-                  <span className="text-xs font-bold text-dark-secondary bg-dark-hover px-3 py-1 rounded-full border border-dark-color">
-                    {(formData.diagnostico || '').length}/100
-                  </span>
-                </div>
-                <div className="bg-dark-card/50 p-2 rounded-[2.5rem] border border-dark-color focus-within:border-pink-500/30 transition-colors shadow-2xl">
-                  <Textarea
-                    placeholder="Escribre el diagnóstico médico detallado, síntomas observados, evolución clínica..."
-                    value={formData.diagnostico}
-                    onChange={(e) => setFormData(prev => ({ ...prev, diagnostico: e.target.value.slice(0, 100) }))}
-                    maxLength={100}
-                    className="bg-transparent border-none text-lg text-dark-primary placeholder:text-dark-secondary/30 min-h-[300px] p-8 focus-visible:ring-0 leading-relaxed resize-none"
-                  />
-                </div>
-              </div>
-
-              {/* Tratamiento */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
-                    <h3 className="text-lg font-black text-dark-primary  tracking-widest">Tratamiento</h3>
-                  </div>
-                  <span className="text-xs font-bold text-dark-secondary bg-dark-hover px-3 py-1 rounded-full border border-dark-color">
-                    {(formData.tratamiento || '').length}/100
-                  </span>
-                </div>
-                <div className="bg-dark-card/50 p-2 rounded-[2rem] border border-dark-color focus-within:border-emerald-500/30 transition-colors shadow-xl">
-                  <Textarea
-                    placeholder="Procedimientos realizados..."
-                    value={formData.tratamiento}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tratamiento: e.target.value.slice(0, 100) }))}
-                    maxLength={100}
-                    className="bg-transparent border-none text-sm text-dark-primary placeholder:text-dark-secondary/10 min-h-[150px] p-6 focus-visible:ring-0 leading-relaxed resize-none"
-                  />
-                </div>
-              </div>
-
-
-              {/* Botón Guardar Inferior (Mobile Friendly) */}
-              <div className="flex items-center justify-end gap-4 pt-10 border-t border-dark-color">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={cerrarVistaActual}
-                  className="h-14 border-dark-color text-dark-secondary hover:bg-dark-hover rounded-2xl font-black  text-xs tracking-widest px-10"
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black  text-xs tracking-widest px-10 shadow-xl shadow-blue-500/20 gap-2"
-                >
-                  <Save className="w-4 h-4" />
-                  {entradaSeleccionada ? 'Actualizar historial' : 'Guardar historial'}
-                </Button>
-              </div>
-            </div>
-          </main>
-        </form>
+          </form>
+        </main>
       </div>
     );
   };
