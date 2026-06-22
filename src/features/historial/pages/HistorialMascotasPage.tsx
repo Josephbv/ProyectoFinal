@@ -925,7 +925,7 @@ export function HistorialMascotasPage() {
             <div className="lg:col-span-1 space-y-6">
               
               {/* Card 1: Paciente y Dueño */}
-              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative z-20 group">
+              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative z-50 group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
                   <Activity className="w-16 h-16 text-blue-500 rotate-12" />
                 </div>
@@ -1116,7 +1116,7 @@ export function HistorialMascotasPage() {
               </div>
 
               {/* Card 2: Veterinario Asignado */}
-              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative z-10 group">
+              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative group">
                 
                 <h3 className="text-xs font-black text-dark-primary tracking-wider uppercase border-b border-dark-color/50 pb-3 flex items-center gap-2">
                   <Activity className="w-4 h-4 text-blue-500" />
