@@ -128,7 +128,7 @@ export function UsuariosPage() {
 
                         <button
                             onClick={() => abrirUsuarioModal()}
-                            className="dark-button-primary gap-2 flex items-center"
+                            className="dark-button-primary font-bold gap-2 flex items-center"
                             disabled={loading}
                         >
                             <Plus className="w-4 h-4" />

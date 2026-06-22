@@ -176,33 +176,194 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
     return colors[index];
   };
 
-  const exportarClientesCSV = () => {
+  const exportarClientesPDF = () => {
     try {
-      const headers = ["ID Cliente", "Nombre Completo", "Tipo Documento", "Cedula", "Telefono", "Correo", "Direccion"];
-      const rows = clientesFiltrados.map(c => [
-        c.id_cliente,
-        `"${(c.nombre || '').replace(/"/g, '""')}"`,
-        c.tipo_documento || 'CC',
-        c.cedula || '—',
-        c.telefono || '—',
-        c.correo || '—',
-        `"${(c.direccion || '').replace(/"/g, '""')}"`
-      ]);
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        toast.error("No se pudo abrir la ventana de impresión. Por favor, permite las ventanas emergentes.");
+        return;
+      }
+      
+      const fechaGeneracion = new Date().toLocaleDateString('es-CO', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
 
-      const csvContent = "\uFEFF" + [
-        headers.join(","),
-        ...rows.map(e => e.join(","))
-      ].join("\n");
+      const filasHtml = clientesFiltrados.map(c => `
+        <tr>
+          <td>${c.id_cliente}</td>
+          <td style="font-weight: 600;">${c.nombre || ''}</td>
+          <td>${c.tipo_documento || 'CC'} - ${c.cedula || '—'}</td>
+          <td>${c.telefono || '—'}</td>
+          <td>${c.correo || '—'}</td>
+          <td>${c.direccion || '—'}</td>
+        </tr>
+      `).join('');
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `reporte_clientes_kaivet_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success("Listado de clientes exportado con éxito");
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Reporte de Clientes - KaiVet</title>
+            <style>
+              @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+              body {
+                font-family: 'Outfit', sans-serif;
+                color: #1e293b;
+                padding: 40px;
+                margin: 0;
+                background-color: #ffffff;
+              }
+              .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 2px solid #e2e8f0;
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+              }
+              .logo-container {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+              }
+              .logo-icon {
+                width: 32px;
+                height: 32px;
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                font-size: 18px;
+              }
+              .logo-text {
+                font-size: 22px;
+                font-weight: 700;
+                color: #0f172a;
+              }
+              .logo-sub {
+                color: #3b82f6;
+              }
+              .report-info {
+                text-align: right;
+              }
+              .title {
+                font-size: 24px;
+                font-weight: 700;
+                color: #0f172a;
+                margin: 0;
+                margin-top: 10px;
+              }
+              .date {
+                font-size: 12px;
+                color: #64748b;
+                margin-top: 5px;
+              }
+              .summary {
+                margin-bottom: 25px;
+                font-size: 14px;
+                color: #475569;
+                background-color: #f8fafc;
+                padding: 12px 20px;
+                border-radius: 8px;
+                border-left: 4px solid #3b82f6;
+                display: inline-block;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 30px;
+              }
+              th {
+                background-color: #f1f5f9;
+                color: #475569;
+                font-weight: 600;
+                font-size: 12px;
+                text-transform: uppercase;
+                text-align: left;
+                padding: 12px;
+                border-bottom: 2px solid #e2e8f0;
+              }
+              td {
+                padding: 12px;
+                font-size: 13px;
+                border-bottom: 1px solid #e2e8f0;
+                color: #334155;
+              }
+              tr:nth-child(even) td {
+                background-color: #f8fafc;
+              }
+              .footer {
+                text-align: center;
+                font-size: 11px;
+                color: #94a3b8;
+                margin-top: 60px;
+                border-top: 1px solid #e2e8f0;
+                padding-top: 20px;
+              }
+              @page {
+                size: letter;
+                margin: 20mm;
+              }
+              @media print {
+                body { padding: 0; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="logo-container">
+                <div class="logo-icon">🐾</div>
+                <div class="logo-text">KaiVet<span class="logo-sub"> Manager</span></div>
+              </div>
+              <div class="report-info">
+                <div class="title">Reporte de Clientes</div>
+                <div class="date">Generado el ${fechaGeneracion}</div>
+              </div>
+            </div>
+            
+            <div class="summary">
+              <strong>Total de registros:</strong> ${clientesFiltrados.length} clientes encontrados bajo los criterios de búsqueda actuales.
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 10%;">ID</th>
+                  <th style="width: 25%;">Nombre Completo</th>
+                  <th style="width: 20%;">Identificación</th>
+                  <th style="width: 15%;">Teléfono</th>
+                  <th style="width: 20%;">Correo</th>
+                  <th style="width: 20%;">Dirección</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filasHtml}
+              </tbody>
+            </table>
+
+            <div class="footer">
+              Este es un reporte oficial emitido por la plataforma KaiVet Manager. &copy; ${new Date().getFullYear()} KaiVet. Todos los derechos reservados.
+            </div>
+
+            <script>
+              window.onload = function() {
+                setTimeout(function() {
+                  window.print();
+                  window.close();
+                }, 500);
+              };
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      toast.success("Listado de clientes listo para imprimir / guardar como PDF");
     } catch (error) {
       console.error(error);
       toast.error("Error al exportar reporte");
@@ -237,11 +398,11 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
 
             {!isClienteRole && (
               <button
-                onClick={exportarClientesCSV}
-                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-sm rounded-lg shadow flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                onClick={exportarClientesPDF}
+                className="dark-button-secondary font-bold gap-2 flex items-center"
                 disabled={loading || clientesFiltrados.length === 0}
               >
-                <FileText className="w-4.5 h-4.5" />
+                <FileText className="w-4 h-4" />
                 Exportar Reporte
               </button>
             )}
@@ -249,7 +410,7 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
             {!isClienteRole && (
               <button
                 onClick={() => abrirClienteModal()}
-                className="dark-button-primary gap-2 flex items-center"
+                className="dark-button-primary font-bold gap-2 flex items-center"
                 disabled={loading}
               >
                 <Plus className="w-4 h-4" />
