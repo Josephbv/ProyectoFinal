@@ -925,7 +925,7 @@ export function HistorialMascotasPage() {
             <div className="lg:col-span-1 space-y-6">
               
               {/* Card 1: Paciente y Dueño */}
-              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative overflow-hidden group">
+              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
                   <Activity className="w-16 h-16 text-blue-500 rotate-12" />
                 </div>
@@ -987,43 +987,43 @@ export function HistorialMascotasPage() {
                         onFocus={() => setMostrarSugerenciasCliente(true)}
                       />
                       <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary opacity-30" />
-                    </div>
 
-                    {mostrarSugerenciasCliente && (
-                      <div className="absolute z-[100] w-72 mt-2 bg-dark-card border border-dark-color rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto pointer-events-auto">
-                        {clientes
-                          .filter(c =>
+                      {mostrarSugerenciasCliente && (
+                        <div className="absolute left-0 w-full mt-1 z-[100] bg-dark-card border border-dark-color rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto pointer-events-auto">
+                          {clientes
+                            .filter(c =>
+                              (c.cedula || '').toLowerCase().includes(busquedaCliente.toLowerCase()) ||
+                              (c.nombre || '').toLowerCase().includes(busquedaCliente.toLowerCase())
+                            )
+                            .slice(0, 10)
+                            .map(c => (
+                              <button
+                                key={c.id_cliente}
+                                type="button"
+                                className="w-full text-left p-4 hover:bg-blue-500/10 border-b border-dark-color/30 last:border-0 transition-colors group"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  setClienteSeleccionado(c);
+                                  setSelectedClientId(c.id_cliente.toString());
+                                  setMascotaSeleccionada(null);
+                                  setSelectedPetId('');
+                                  setBusquedaCliente('');
+                                  setMostrarSugerenciasCliente(false);
+                                }}
+                              >
+                                <p className="text-[11px] font-bold text-dark-primary tracking-tighter">{c.nombre}</p>
+                                <p className="text-[9px] text-dark-secondary tracking-widest opacity-60">Ced: {c.cedula || 'N/A'}</p>
+                              </button>
+                            ))}
+                          {clientes.filter(c =>
                             (c.cedula || '').toLowerCase().includes(busquedaCliente.toLowerCase()) ||
                             (c.nombre || '').toLowerCase().includes(busquedaCliente.toLowerCase())
-                          )
-                          .slice(0, 10)
-                          .map(c => (
-                            <button
-                              key={c.id_cliente}
-                              type="button"
-                              className="w-full text-left p-4 hover:bg-blue-500/10 border-b border-dark-color/30 last:border-0 transition-colors group"
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                setClienteSeleccionado(c);
-                                setSelectedClientId(c.id_cliente.toString());
-                                setMascotaSeleccionada(null);
-                                setSelectedPetId('');
-                                setBusquedaCliente('');
-                                setMostrarSugerenciasCliente(false);
-                              }}
-                            >
-                              <p className="text-[11px] font-bold text-dark-primary tracking-tighter">{c.nombre}</p>
-                              <p className="text-[9px] text-dark-secondary tracking-widest opacity-60">Ced: {c.cedula || 'N/A'}</p>
-                            </button>
-                          ))}
-                        {clientes.filter(c =>
-                          (c.cedula || '').toLowerCase().includes(busquedaCliente.toLowerCase()) ||
-                          (c.nombre || '').toLowerCase().includes(busquedaCliente.toLowerCase())
-                        ).length === 0 && (
-                          <div className="p-4 text-center text-xs text-dark-secondary italic">No se encontraron clientes</div>
-                        )}
-                      </div>
-                    )}
+                          ).length === 0 && (
+                            <div className="p-4 text-center text-xs text-dark-secondary italic">No se encontraron clientes</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -1116,7 +1116,7 @@ export function HistorialMascotasPage() {
               </div>
 
               {/* Card 2: Veterinario Asignado */}
-              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative overflow-hidden group">
+              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative group">
                 
                 <h3 className="text-xs font-black text-dark-primary tracking-wider uppercase border-b border-dark-color/50 pb-3 flex items-center gap-2">
                   <Activity className="w-4 h-4 text-blue-500" />
@@ -1134,26 +1134,26 @@ export function HistorialMascotasPage() {
                       onFocus={() => busquedaVetCedula && setMostrarSugerenciasVet(true)}
                     />
                     <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-secondary opacity-30" />
-                  </div>
 
-                  {mostrarSugerenciasVet && doctoresFiltrados.length > 0 && (
-                    <div className="absolute z-[100] w-full mt-2 bg-dark-card border border-dark-color rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 pointer-events-auto">
-                      {doctoresFiltrados.map(doc => (
-                        <button
-                          key={doc.id}
-                          type="button"
-                          className="w-full text-left p-4 hover:bg-blue-500/10 border-b border-dark-color/30 last:border-0 transition-colors group"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            seleccionarVeterinario(doc);
-                          }}
-                        >
-                          <p className="text-[11px] font-bold text-dark-primary tracking-tighter group-hover:text-blue-400 transition-colors">{doc.nombre}</p>
-                          <p className="text-[9px] text-dark-secondary tracking-widest opacity-60">Cédula: {doc.cedula || 'N/A'}</p>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                    {mostrarSugerenciasVet && doctoresFiltrados.length > 0 && (
+                      <div className="absolute left-0 w-full mt-1 z-[100] bg-dark-card border border-dark-color rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 pointer-events-auto">
+                        {doctoresFiltrados.map(doc => (
+                          <button
+                            key={doc.id}
+                            type="button"
+                            className="w-full text-left p-4 hover:bg-blue-500/10 border-b border-dark-color/30 last:border-0 transition-colors group"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              seleccionarVeterinario(doc);
+                            }}
+                          >
+                            <p className="text-[11px] font-bold text-dark-primary tracking-tighter group-hover:text-blue-400 transition-colors">{doc.nombre}</p>
+                            <p className="text-[9px] text-dark-secondary tracking-widest opacity-60">Cédula: {doc.cedula || 'N/A'}</p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
                   {/* Detalles del Veterinario Seleccionado */}
                   {vetSeleccionado && (
