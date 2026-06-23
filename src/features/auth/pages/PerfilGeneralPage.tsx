@@ -364,7 +364,7 @@ export function PerfilGeneralPage() {
                                         <span className="text-[10px] font-mono text-dark-secondary opacity-40">#{m.id_mascota}</span>
                                         {m.edad !== null && m.edad !== undefined && (
                                             <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-0 font-bold text-[10px]">
-                                                {m.edad} {m.edad === 1 ? 'Año' : 'Años'}
+                                                {m.edad} {m.edad === 1 ? 'Mes' : 'Meses'}
                                             </Badge>
                                         )}
                                     </div>

@@ -357,7 +357,7 @@ export function PerfilClientePage() {
                                         <span className="text-[9px] font-mono text-dark-secondary opacity-40">#{m.id_mascota}</span>
                                         {m.edad !== null && m.edad !== undefined && (
                                             <span className="text-[10px] font-bold text-dark-secondary bg-dark-bg px-2 py-0.5 rounded-md border border-dark-color/50">
-                                                {m.edad} {m.edad === 1 ? 'Año' : 'Años'}
+                                                {m.edad} {m.edad === 1 ? 'Mes' : 'Meses'}
                                             </span>
                                         )}
                                     </div>
