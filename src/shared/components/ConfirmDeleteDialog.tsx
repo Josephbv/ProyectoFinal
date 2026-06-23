@@ -10,6 +10,7 @@ interface ConfirmDeleteDialogProps {
     loading?: boolean;
     confirmText?: string;
     loadingText?: string;
+    variant?: 'danger' | 'warning';
 }
 
 export function ConfirmDeleteDialog({
@@ -19,11 +20,18 @@ export function ConfirmDeleteDialog({
     title,
     description,
     loading = false,
-    confirmText = "Sí, eliminar",
-    loadingText = "Eliminando..."
+    confirmText,
+    loadingText,
+    variant = 'danger'
 }: ConfirmDeleteDialogProps) {
     const [countdown, setCountdown] = useState(3);
     const [canConfirm, setCanConfirm] = useState(false);
+
+    const defaultConfirmText = variant === 'danger' ? "Sí, eliminar" : "Sí, cancelar";
+    const defaultLoadingText = variant === 'danger' ? "Eliminando..." : "Cancelando...";
+
+    const activeConfirmText = confirmText || defaultConfirmText;
+    const activeLoadingText = loadingText || defaultLoadingText;
 
     useEffect(() => {
         if (!isOpen) {
@@ -48,6 +56,20 @@ export function ConfirmDeleteDialog({
 
     if (!isOpen) return null;
 
+    const headerGradient = variant === 'danger' 
+        ? "bg-gradient-to-br from-red-500 to-rose-600" 
+        : "bg-gradient-to-br from-orange-500 to-orange-600";
+
+    const HeaderIcon = variant === 'danger' ? Trash2 : AlertTriangle;
+
+    const confirmButtonStyles = variant === 'danger'
+        ? (canConfirm
+            ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-200 active:scale-95 cursor-pointer'
+            : 'bg-red-200 text-red-400 cursor-not-allowed')
+        : (canConfirm
+            ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-orange-200 active:scale-95 cursor-pointer'
+            : 'bg-orange-200 text-orange-400 cursor-not-allowed');
+
     return (
         <div className="fixed inset-0 z-[9998] flex items-center justify-center px-4">
             {/* Backdrop animado */}
@@ -58,10 +80,10 @@ export function ConfirmDeleteDialog({
 
             {/* Modal */}
             <div className="relative z-[9999] w-full max-w-sm animate-in zoom-in-90 fade-in duration-300">
-                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-red-100">
+                <div className={`bg-white rounded-3xl shadow-2xl overflow-hidden border ${variant === 'danger' ? 'border-red-100' : 'border-orange-100'}`}>
 
-                    {/* Header rojo con ícono animado */}
-                    <div className="bg-gradient-to-br from-red-500 to-rose-600 p-8 flex flex-col items-center relative">
+                    {/* Header rojo/naranja con ícono animado */}
+                    <div className={`${headerGradient} p-8 flex flex-col items-center relative`}>
                         <button
                             onClick={onClose}
                             className="absolute top-3 right-3 text-white/70 hover:text-white transition-colors"
@@ -73,7 +95,7 @@ export function ConfirmDeleteDialog({
                         <div className="relative">
                             <div className="absolute inset-0 bg-white/20 rounded-full animate-ping" />
                             <div className="relative w-16 h-16 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/30">
-                                <Trash2 className="w-8 h-8 text-white" />
+                                <HeaderIcon className="w-8 h-8 text-white" />
                             </div>
                         </div>
 
@@ -87,7 +109,8 @@ export function ConfirmDeleteDialog({
                         <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-3">
                             <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
                             <p className="text-xs text-amber-700 font-medium leading-relaxed">
-                                Esta acción <strong>no se puede deshacer</strong>. Los datos serán eliminados permanentemente.
+                                Esta acción <strong>no se puede deshacer</strong>.
+                                {variant === 'danger' ? ' Los datos serán eliminados permanentemente.' : ' El estado de la cita cambiará de forma definitiva.'}
                             </p>
                         </div>
 
@@ -100,17 +123,13 @@ export function ConfirmDeleteDialog({
                                     e.stopPropagation();
                                     await onConfirm();
                                 }}
-                                className={`w-full h-12 rounded-2xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 shadow-lg
-                                    ${canConfirm
-                                        ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-200 active:scale-95 cursor-pointer'
-                                        : 'bg-red-200 text-red-400 cursor-not-allowed'
-                                    }`}
+                                className={`w-full h-12 rounded-2xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 shadow-lg ${confirmButtonStyles}`}
                             >
                                 {loading
-                                    ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{loadingText}</>
+                                    ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{activeLoadingText}</>
                                     : !canConfirm
                                         ? `Espera ${countdown}s...`
-                                        : <><Trash2 className="w-4 h-4" />{confirmText}</>
+                                        : <><HeaderIcon className="w-4 h-4" />{activeConfirmText}</>
                                 }
                             </button>
                             <button
@@ -129,3 +148,4 @@ export function ConfirmDeleteDialog({
         </div>
     );
 }
+

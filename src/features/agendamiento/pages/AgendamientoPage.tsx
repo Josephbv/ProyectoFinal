@@ -383,6 +383,9 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
         title="¿Cancelar Cita?"
         description="¿Estás seguro de cancelar esta cita? Esta acción cambiará su estado a cancelada."
         loading={loading}
+        variant="warning"
+        confirmText="Sí, cancelar"
+        loadingText="Cancelando..."
       />
     </>
   );
