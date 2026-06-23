@@ -241,10 +241,10 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-center">
-                          <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider ${
+                          <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border ${
                             estadoFinal === 'completada' 
-                              ? 'bg-green-100 text-green-800 border border-green-200 dark:bg-green-950/40 dark:text-green-400 dark:border-green-500/20' 
-                              : 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-500/20'
+                              ? 'bg-green-900/20 text-green-400 border-green-500/30' 
+                              : 'bg-yellow-900/20 text-yellow-400 border-yellow-500/30'
                           }`}>
                             {estadoFinal === 'completada' ? 'Completada' : 'Activa'}
                           </span>
