@@ -624,7 +624,7 @@ export function HistorialMascotasPage() {
                   <Heart className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="text-lg font-black text-dark-primary tracking-tight mb-0.5">{toSentenceCase(mascotaInfo?.nombre || (entrada as any).nombreMascota || 'Mascota')}</h3>
-                <p className="text-[9px] font-black text-pink-400 tracking-[0.2em] mb-3 uppercase">Mascota</p>
+                <p className="text-[9px] font-black text-pink-400 tracking-[0.2em] mb-3">Mascota</p>
 
                 <div className="w-full grid grid-cols-2 gap-2 pt-3 border-t border-dark-color/40">
                   <div className="bg-dark-bg/30 p-2 rounded-xl border border-dark-color/30 flex flex-col">
@@ -652,7 +652,7 @@ export function HistorialMascotasPage() {
                     <h4 className="text-base font-black text-dark-primary truncate leading-tight tracking-tight">
                       {toSentenceCase(clienteInfo?.nombre || (entrada as any).nombreCliente || 'Desconocido')}
                     </h4>
-                    <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60 uppercase">Cédula: {clienteInfo?.cedula || 'N/A'}</p>
+                    <p className="text-[10px] text-dark-secondary font-black tracking-tighter opacity-60">Cédula: {clienteInfo?.cedula || 'N/A'}</p>
                   </div>
                 </div>
 
@@ -673,14 +673,14 @@ export function HistorialMascotasPage() {
             <div className="dark-card p-8 relative overflow-hidden group">
               <div className="absolute bottom-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-12 -mb-12 blur-2xl group-hover:bg-emerald-500/10 transition-colors" />
               <div className="relative z-10 flex flex-col">
-                <h4 className="text-[9px] font-black text-dark-secondary tracking-[0.3em] pl-1 opacity-50 uppercase mb-3">{toSentenceCase('Información de visita')}</h4>
+                <h4 className="text-[9px] font-black text-dark-secondary tracking-[0.3em] pl-1 opacity-50 mb-3">Información de Visita</h4>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center">
                       <Calendar className="w-4 h-4 text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-[8px] font-black text-dark-secondary tracking-widest mb-0.5 uppercase">Fecha</p>
+                      <p className="text-[8px] font-black text-dark-secondary tracking-widest mb-0.5">Fecha</p>
                       <p className="text-xs font-black text-dark-primary">{entrada.fecha ? new Date(entrada.fecha.includes('T') ? entrada.fecha.split('T')[0] + 'T12:00:00' : entrada.fecha + 'T12:00:00').toLocaleDateString() : 'Sin fecha'}</p>
                     </div>
                   </div>
@@ -689,7 +689,7 @@ export function HistorialMascotasPage() {
                       <Clock className="w-4 h-4 text-orange-400" />
                     </div>
                     <div>
-                      <p className="text-[8px] font-black text-dark-secondary tracking-widest mb-0.5 uppercase">Hora</p>
+                      <p className="text-[8px] font-black text-dark-secondary tracking-widest mb-0.5">Hora</p>
                       <p className="text-xs font-black text-dark-primary">{formatTo12h((entrada as any).hora) || '00:00'}</p>
                     </div>
                   </div>
@@ -703,7 +703,7 @@ export function HistorialMascotasPage() {
             <div className="space-y-6">
               <div className="flex items-center gap-4 border-l-4 border-pink-600 pl-8 py-2">
                 <Activity className="w-8 h-8 text-pink-500" />
-                <h3 className="text-2xl font-black text-dark-primary tracking-[0.15em] uppercase">{toSentenceCase('Diagnóstico y evolución')}</h3>
+                <h3 className="text-2xl font-black text-dark-primary tracking-[0.15em]">Diagnóstico y Evolución</h3>
               </div>
               <div className="dark-card p-12 transform transition-all hover:scale-[1.005]">
                 <p className="text-xl text-dark-primary leading-relaxed font-medium whitespace-pre-wrap min-h-[100px]">
@@ -715,7 +715,7 @@ export function HistorialMascotasPage() {
             <div className="space-y-6">
               <div className="flex items-center gap-4 border-l-4 border-emerald-600 pl-8 py-2">
                 <Stethoscope className="w-8 h-8 text-emerald-500" />
-                <h3 className="text-2xl font-black text-dark-primary tracking-[0.15em] uppercase">{toSentenceCase('Tratamiento realizado')}</h3>
+                <h3 className="text-2xl font-black text-dark-primary tracking-[0.15em]">Tratamiento Realizado</h3>
               </div>
               <div className="dark-card p-12 transform transition-all hover:scale-[1.005]">
                 <p className="text-xl text-dark-primary leading-relaxed font-medium whitespace-pre-wrap min-h-[100px]">
