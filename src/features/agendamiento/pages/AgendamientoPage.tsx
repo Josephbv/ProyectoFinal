@@ -233,22 +233,18 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center text-dark-primary font-semibold">
+                      <TableCell className="text-center text-dark-primary font-semibold text-sm">
                         {(() => {
                           const mas = mascotas.find(m => m.id_mascota === cita.id_mascota);
-                          return (
-                            <span className="bg-purple-500/20 text-purple-400 px-2.5 py-1 rounded-full text-xs font-bold">
-                              {mas?.nombre || 'Consulta General'}
-                            </span>
-                          );
+                          return mas?.nombre || 'Consulta General';
                         })()}
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-center">
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider ${
                             estadoFinal === 'completada' 
-                              ? 'bg-green-950/20 text-green-400 border border-green-500/20' 
-                              : 'bg-amber-900/20 text-amber-400 border border-amber-500/20'
+                              ? 'bg-green-100 text-green-800 border border-green-200 dark:bg-green-950/40 dark:text-green-400 dark:border-green-500/20' 
+                              : 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-500/20'
                           }`}>
                             {estadoFinal === 'completada' ? 'Completada' : 'Activa'}
                           </span>
