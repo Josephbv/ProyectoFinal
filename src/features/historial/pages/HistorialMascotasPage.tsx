@@ -1671,7 +1671,7 @@ export function HistorialMascotasPage() {
             >
               <ChevronLeft className="w-6 h-6" />
             </Button>
-            <h2 className="text-xl font-black text-white tracking-widest uppercase">Vista Previa del Reporte Completo</h2>
+            <h2 className="text-xl font-black text-white tracking-widest">Vista Previa del Reporte Completo</h2>
           </div>
           <div className="flex gap-4">
             <Button
@@ -1696,7 +1696,7 @@ export function HistorialMascotasPage() {
           <div className="flex justify-between items-start border-b-2 border-slate-900 pb-10 mb-10 text-slate-900">
             <div>
               <h1 className="text-4xl font-bold tracking-tighter mb-2">{toSentenceCase('Historial Clínico Consolidado')}</h1>
-              <p className="text-sm font-bold text-slate-500 tracking-widest uppercase text-left">Centro Veterinario KaiVet Manager</p>
+              <p className="text-sm font-bold text-slate-500 tracking-widest text-left">Centro Veterinario KaiVet Manager</p>
             </div>
             <div className="text-right text-sm">
               <p className="font-black">Fecha de Generación</p>
@@ -1707,7 +1707,7 @@ export function HistorialMascotasPage() {
           {/* Información del Paciente y Dueño */}
           <div className="grid grid-cols-2 gap-10 mb-12">
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200">
-              <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mb-4">Información del Paciente</h3>
+              <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] mb-4">Información del Paciente</h3>
               <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(mascotaInfo?.nombre || historialesMascota[0]?.nombreMascota)}</p>
               <div className="space-y-1 text-sm font-semibold text-slate-600">
                 <p>Especie: <span className="text-slate-900">{toSentenceCase(mascotaInfo?.especie) || 'N/A'}</span></p>
@@ -1717,7 +1717,7 @@ export function HistorialMascotasPage() {
               </div>
             </div>
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200">
-              <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mb-4">Información del Propietario</h3>
+              <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] mb-4">Información del Propietario</h3>
               <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(clienteInfo?.nombre || historialesMascota[0]?.nombreCliente)}</p>
               <div className="space-y-1 text-sm font-semibold text-slate-600">
                 <p>ID: <span className="text-slate-900">{clienteInfo?.cedula || historialesMascota[0]?.cedulaCliente || 'N/A'}</span></p>
@@ -1729,7 +1729,7 @@ export function HistorialMascotasPage() {
 
           {/* Listado de Evoluciones Clínicas */}
           <div className="space-y-12">
-            <h3 className="text-xl font-bold text-slate-900 tracking-tight border-b-2 border-slate-200 pb-2 uppercase">{toSentenceCase(`Cronología médica (${historialesMascota.length} Entradas)`)}</h3>
+            <h3 className="text-xl font-bold text-slate-900 tracking-tight border-b-2 border-slate-200 pb-2">Cronología Médica ({historialesMascota.length} Entradas)</h3>
 
             {historialesMascota.map((h, index) => {
               const vetRaw = (h as any).veterinario || 'Veterinario';
@@ -1739,7 +1739,7 @@ export function HistorialMascotasPage() {
               return (
                 <div key={h.id_historial} className="relative pl-6 border-l-2 border-slate-200 pb-12 last:pb-0">
                   <div className="mb-4">
-                    <div className="flex items-center gap-3 text-sm font-bold text-slate-400 tracking-widest uppercase mb-1">
+                    <div className="flex items-center gap-3 text-sm font-bold text-slate-400 tracking-widest mb-1">
                       <span>{h.fecha ? new Date(h.fecha.includes('T') ? h.fecha.split('T')[0] + 'T12:00:00' : h.fecha + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A'}</span>
                       <span className="text-slate-200">|</span>
                       <span>{formatTo12h((h as any).hora) || '00:00'}</span>
@@ -1751,13 +1751,13 @@ export function HistorialMascotasPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-50 p-6 rounded-2xl">
                     <div>
-                      <p className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase mb-2 text-blue-800">Diagnóstico Y Hallazgos</p>
+                      <p className="text-[9px] font-bold text-slate-400 tracking-[0.2em] mb-2 text-blue-800">Diagnóstico y Hallazgos</p>
                       <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed">
                         {toSentenceCase(h.diagnostico || 'No registrado')}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase mb-2 text-emerald-800">Tratamiento Y Procedimientos</p>
+                      <p className="text-[9px] font-bold text-slate-400 tracking-[0.2em] mb-2 text-emerald-800">Tratamiento y Procedimientos</p>
                       <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed">
                         {toSentenceCase(h.tratamiento || 'No registrado')}
                       </p>
@@ -1769,8 +1769,8 @@ export function HistorialMascotasPage() {
           </div>
 
           {/* Footer del Documento */}
-          <div className="mt-20 pt-10 border-t border-slate-200 text-center uppercase">
-            <p className="text-[10px] font-black text-slate-400 tracking-[0.4em]">Fin Del Reporte Médico Oficial - KaiVet Manager</p>
+          <div className="mt-20 pt-10 border-t border-slate-200 text-center">
+            <p className="text-[10px] font-black text-slate-400 tracking-[0.4em]">Fin del Reporte Médico Oficial - KaiVet Manager</p>
           </div>
         </div>
       </div>
