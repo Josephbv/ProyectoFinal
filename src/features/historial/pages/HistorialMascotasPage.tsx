@@ -617,7 +617,7 @@ export function HistorialMascotasPage() {
           {/* Fila Superior: Mascota, Cliente e Info Cita */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mt-12">
             {/* Tarjeta de la Mascota */}
-            <div className="bg-dark-card border border-dark-color rounded-[3.5rem] p-8 shadow-2xl relative overflow-hidden group">
+            <div className="dark-card p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-pink-500/10 transition-colors" />
               <div className="relative z-10 flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-xl mb-3 transform -rotate-3 group-hover:rotate-0 transition-transform">
@@ -640,7 +640,7 @@ export function HistorialMascotasPage() {
             </div>
 
             {/* Tarjeta del Cliente */}
-            <div className="bg-dark-card border border-dark-color rounded-[3.5rem] p-8 shadow-2xl relative overflow-hidden group">
+            <div className="dark-card p-8 relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-24 h-24 bg-blue-500/5 rounded-full -ml-12 -mt-12 blur-2xl group-hover:bg-blue-500/10 transition-colors" />
               <div className="relative z-10 flex flex-col">
                 <div className="flex items-center gap-4 mb-4">
@@ -670,7 +670,7 @@ export function HistorialMascotasPage() {
             </div>
 
             {/* Tarjeta de Detalles de la Cita */}
-            <div className="bg-dark-card border border-dark-color rounded-[3.5rem] p-8 shadow-2xl relative overflow-hidden group">
+            <div className="dark-card p-8 relative overflow-hidden group">
               <div className="absolute bottom-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-12 -mb-12 blur-2xl group-hover:bg-emerald-500/10 transition-colors" />
               <div className="relative z-10 flex flex-col">
                 <h4 className="text-[9px] font-black text-dark-secondary tracking-[0.3em] pl-1 opacity-50 uppercase mb-3">{toSentenceCase('Información de visita')}</h4>
@@ -705,7 +705,7 @@ export function HistorialMascotasPage() {
                 <Activity className="w-8 h-8 text-pink-500" />
                 <h3 className="text-2xl font-black text-dark-primary tracking-[0.15em] uppercase">{toSentenceCase('Diagnóstico y evolución')}</h3>
               </div>
-              <div className="bg-dark-card p-12 rounded-[3.5rem] border border-dark-color shadow-2xl transform transition-all hover:scale-[1.005]">
+              <div className="dark-card p-12 transform transition-all hover:scale-[1.005]">
                 <p className="text-xl text-dark-primary leading-relaxed font-medium whitespace-pre-wrap min-h-[100px]">
                   {toSentenceCase(entrada.diagnostico || 'Sin diagnóstico registrado')}
                 </p>
@@ -717,7 +717,7 @@ export function HistorialMascotasPage() {
                 <Stethoscope className="w-8 h-8 text-emerald-500" />
                 <h3 className="text-2xl font-black text-dark-primary tracking-[0.15em] uppercase">{toSentenceCase('Tratamiento realizado')}</h3>
               </div>
-              <div className="bg-dark-card p-12 rounded-[3.5rem] border border-dark-color shadow-2xl transform transition-all hover:scale-[1.005]">
+              <div className="dark-card p-12 transform transition-all hover:scale-[1.005]">
                 <p className="text-xl text-dark-primary leading-relaxed font-medium whitespace-pre-wrap min-h-[100px]">
                   {toSentenceCase(entrada.tratamiento || 'Sin tratamiento registrado')}
                 </p>
@@ -816,7 +816,7 @@ export function HistorialMascotasPage() {
             <div className="lg:col-span-2 space-y-6">
               
               {/* Card 1: Detalles del Servicio y Diagnóstico */}
-              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-8 relative overflow-hidden group">
+              <div className="dark-card p-8 space-y-8 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-blue-500/10 transition-all duration-700 pointer-events-none" />
 
                 <h2 className="text-lg font-black text-dark-primary flex items-center gap-3">
@@ -870,7 +870,7 @@ export function HistorialMascotasPage() {
               </div>
 
               {/* Card 2: Tratamiento */}
-              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative overflow-hidden group">
+              <div className="dark-card p-8 space-y-6 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-emerald-500/10 transition-all duration-700 pointer-events-none" />
 
                 <h2 className="text-lg font-black text-dark-primary flex items-center gap-3">
@@ -925,7 +925,7 @@ export function HistorialMascotasPage() {
             <div className="lg:col-span-1 space-y-6">
               
               {/* Card 1: Paciente y Dueño */}
-              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative z-50 group">
+              <div className="dark-card p-8 space-y-6 relative z-50 group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
                   <Activity className="w-16 h-16 text-blue-500 rotate-12" />
                 </div>
@@ -1116,7 +1116,7 @@ export function HistorialMascotasPage() {
               </div>
 
               {/* Card 2: Veterinario Asignado */}
-              <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl space-y-6 relative group">
+              <div className="dark-card p-8 space-y-6 relative group">
                 
                 <h3 className="text-xs font-black text-dark-primary tracking-wider uppercase border-b border-dark-color/50 pb-3 flex items-center gap-2">
                   <Activity className="w-4 h-4 text-blue-500" />

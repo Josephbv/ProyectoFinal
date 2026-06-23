@@ -121,7 +121,7 @@ export function DashboardLayout({ onLogout }: DashboardProps) {
 
   // Filtra los ítems de navegación según los módulos asignados AL ROL en el backend.
   // Sin restricciones hardcodeadas por tipo de rol — el admin tiene control total.
-  const filterByModules = (items: typeof mainNavItems) => {
+  const filterByModules = <T extends { label: string }>(items: T[]): T[] => {
     const roleLower = userRolName.toLowerCase();
 
     // Administrador siempre tiene acceso total (protección del rol maestro)

@@ -117,7 +117,7 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
           <td>${m.especie || '—'}</td>
           <td>${m.raza || '—'}</td>
           <td>${m.sexo || '—'}</td>
-          <td>${m.edad_meses || 0} meses</td>
+          <td>${m.edad || 0} meses</td>
           <td>${getClienteNombre(m.id_cliente)}</td>
           <td>${getClienteCedula(m.id_cliente)}</td>
         </tr>
