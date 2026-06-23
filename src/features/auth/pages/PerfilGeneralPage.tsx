@@ -1,16 +1,20 @@
-import { Mail, CreditCard, Shield, Activity, Fingerprint, KeyRound, Clock, CheckCircle2, PenLine, X, Save, AlertCircle } from "lucide-react";
+import { Mail, CreditCard, Shield, Activity, Fingerprint, KeyRound, Clock, CheckCircle2, PenLine, X, Save, AlertCircle, Dog } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
 import { Button } from "../../../shared/components/button";
 import { PawIcon } from "../../../shared/components/PawIcon";
+import { useMascotas } from "../../mascotas/hooks/useMascotas";
+import { Badge } from "../../../shared/components/badge";
 import { toast } from "sonner";
 import { esCedulaValida } from "../../../shared/utils/validators";
 
 export function PerfilGeneralPage() {
     const { user, updateUser, logout } = useEmailAuth();
     const { usuarios, actualizarUsuario, loading: updating } = useUsuarios();
+    const { mascotas } = useMascotas();
     const [isEditing, setIsEditing] = useState(false);
+    const misMascotas = mascotas.filter(m => m.id_cliente === user?.id_cliente);
 
     const [editFormData, setEditFormData] = useState({
         nombre_completo: '',
@@ -323,6 +327,59 @@ export function PerfilGeneralPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Ficha de Cliente Vinculada */}
+            {user?.id_cliente && (
+                <section className="bg-dark-card border border-dark-color rounded-[3.5rem] p-8 shadow-xl mt-6">
+                    <h3 className="text-2xl font-black text-dark-primary mb-8 tracking-tight flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-500/10 rounded-xl">
+                                <Dog className="w-6 h-6 text-blue-400" />
+                            </div>
+                            Mis Mascotas (Ficha de Cliente)
+                        </div>
+                        <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full text-xs font-black text-blue-400 uppercase">
+                            {misMascotas.length} {misMascotas.length === 1 ? 'Mascota' : 'Mascotas'}
+                        </span>
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {misMascotas.length > 0 ? (
+                            misMascotas.map((m) => (
+                                <div key={m.id_mascota} className="flex items-center justify-between p-4 bg-dark-hover/40 rounded-[2rem] border border-dark-color/50 hover:border-blue-500/30 transition-all hover:scale-[1.02]">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 flex items-center justify-center text-2xl">
+                                            {m.especie?.toLowerCase().includes('perro') ? '🐕' : m.especie?.toLowerCase().includes('gato') ? '🐈' : '🐾'}
+                                        </div>
+                                        <div>
+                                            <p className="text-base font-black text-dark-primary uppercase tracking-tight">{m.nombre}</p>
+                                            <p className="text-xs text-dark-secondary flex items-center gap-2 mt-0.5">
+                                                <span className="font-bold">{m.especie}</span>
+                                                <span className="opacity-40">•</span>
+                                                <span>{m.raza || 'Sin raza'}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-1">
+                                        <span className="text-[10px] font-mono text-dark-secondary opacity-40">#{m.id_mascota}</span>
+                                        {m.edad !== null && m.edad !== undefined && (
+                                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-0 font-bold text-[10px]">
+                                                {m.edad} {m.edad === 1 ? 'Año' : 'Años'}
+                                            </Badge>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="col-span-full py-16 text-center border border-dashed border-dark-color/50 rounded-[2.5rem]">
+                                <Dog className="w-12 h-12 text-dark-secondary opacity-25 mx-auto mb-3" />
+                                <p className="text-sm font-bold text-dark-secondary uppercase tracking-widest">Sin mascotas registradas</p>
+                                <p className="text-xs text-dark-secondary/60 mt-1">Si tienes mascotas registradas, aparecerán aquí</p>
+                            </div>
+                        )}
+                    </div>
+                </section>
+            )}
 
             {/* ─── FOOTER ──────────────────────────────────────── */}
             <div className="mt-6 flex items-center justify-center gap-3 opacity-30">
