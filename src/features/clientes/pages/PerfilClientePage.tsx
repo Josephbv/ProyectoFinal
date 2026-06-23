@@ -465,12 +465,29 @@ export function PerfilClientePage() {
                                         </div>
 
                                         <div className="flex flex-col items-end gap-2 shrink-0">
-                                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${cita.estado?.toLowerCase() === 'completada' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
-                                                cita.estado?.toLowerCase() === 'pendiente' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' :
-                                                    'bg-dark-hover text-dark-secondary border-dark-color'
-                                                }`}>
-                                                {cita.estado || 'Agendada'}
-                                            </span>
+                                            {(() => {
+                                                const estadoFinal = (() => {
+                                                    const isPagadoLocal = localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true';
+                                                    if (isPagadoLocal || cita.estado?.toLowerCase() === 'completada') return 'completada';
+                                                    if (cita.fecha) {
+                                                        const hoyLocalStr = new Date().toLocaleDateString('en-CA');
+                                                        if (cita.fecha < hoyLocalStr) return 'no_asistio';
+                                                    }
+                                                    return cita.estado?.toLowerCase() || 'activa';
+                                                })();
+
+                                                return (
+                                                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                                                        estadoFinal === 'completada' 
+                                                            ? 'bg-green-900/20 text-green-400 border-green-500/30' 
+                                                            : estadoFinal === 'no_asistio'
+                                                                ? 'bg-red-900/20 text-red-400 border-red-500/30'
+                                                                : 'bg-yellow-900/20 text-yellow-400 border-yellow-500/30'
+                                                        }`}>
+                                                        {estadoFinal === 'completada' ? 'Completada' : estadoFinal === 'no_asistio' ? 'No Asistió' : 'Activa'}
+                                                    </span>
+                                                );
+                                            })()}
                                             <span className="text-xs font-mono text-dark-secondary opacity-40">Ref: #{idCita}</span>
                                         </div>
                                     </div>

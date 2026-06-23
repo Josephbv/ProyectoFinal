@@ -209,8 +209,15 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
               </TableHeader>
               <TableBody>
                 {citasPaginadas.map((cita: Agendamiento) => {
-                  const isPagadoLocal = localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true';
-                  const estadoFinal = isPagadoLocal ? 'completada' : cita.estado;
+                  const estadoFinal = (() => {
+                    const isPagadoLocal = localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true';
+                    if (isPagadoLocal || cita.estado === 'completada') return 'completada';
+                    if (cita.fecha) {
+                      const hoyLocalStr = new Date().toLocaleDateString('en-CA');
+                      if (cita.fecha < hoyLocalStr) return 'no_asistio';
+                    }
+                    return cita.estado || 'activa';
+                  })();
 
                   return (
                     <TableRow key={cita.id_agendamiento} className="border-dark-color hover:bg-dark-table-hover transition-colors">
@@ -244,9 +251,11 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                           <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border ${
                             estadoFinal === 'completada' 
                               ? 'bg-green-900/20 text-green-400 border-green-500/30' 
-                              : 'bg-yellow-900/20 text-yellow-400 border-yellow-500/30'
+                              : estadoFinal === 'no_asistio'
+                                ? 'bg-red-900/20 text-red-400 border-red-500/30'
+                                : 'bg-yellow-900/20 text-yellow-400 border-yellow-500/30'
                           }`}>
-                            {estadoFinal === 'completada' ? 'Completada' : 'Activa'}
+                            {estadoFinal === 'completada' ? 'Completada' : estadoFinal === 'no_asistio' ? 'No Asistió' : 'Activa'}
                           </span>
                         </div>
                       </TableCell>
