@@ -4,6 +4,7 @@ import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { useEmpleados } from "../hooks/useEmpleados";
 import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
 import { Button } from "../../../shared/components/button";
+import { PerfilGeneralPage } from "../../auth/pages/PerfilGeneralPage";
 import { toast } from "sonner";
 import { esCedulaValida, esTelefonoValido } from "../../../shared/utils/validators";
 
@@ -138,12 +139,15 @@ export function PerfilEmpleadoPage() {
     };
 
     if (!empleadoData) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-dark-secondary">
-                <User className="w-16 h-16 opacity-20 mb-4 animate-pulse" />
-                <p className="font-bold tracking-widest uppercase text-sm">Cargando...</p>
-            </div>
-        );
+        if (updating) {
+            return (
+                <div className="flex flex-col items-center justify-center min-h-[60vh] text-dark-secondary">
+                    <User className="w-16 h-16 opacity-20 mb-4 animate-pulse" />
+                    <p className="font-bold tracking-widest uppercase text-sm">Cargando...</p>
+                </div>
+            );
+        }
+        return <PerfilGeneralPage />;
     }
 
     return (

@@ -7,6 +7,7 @@ import { useMascotas } from "../../mascotas/hooks/useMascotas";
 import { useAgendamiento } from "../../agendamiento/hooks/useAgendamiento";
 import { useHorario } from "../../empleados/hooks/useHorario";
 import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
+import { PerfilGeneralPage } from "../../auth/pages/PerfilGeneralPage";
 import { toast } from "sonner";
 import { Badge } from "../../../shared/components/badge";
 import { esCedulaValida, esTelefonoValido, esNombreCompletoValido } from "../../../shared/utils/validators";
@@ -176,12 +177,15 @@ export function PerfilClientePage() {
     };
 
     if (!clienteData) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-dark-secondary">
-                <User className="w-16 h-16 opacity-20 mb-4 animate-pulse" />
-                <p className="font-bold tracking-widest uppercase text-sm">Sincronizando información...</p>
-            </div>
-        );
+        if (updating) {
+            return (
+                <div className="flex flex-col items-center justify-center min-h-[60vh] text-dark-secondary">
+                    <User className="w-16 h-16 opacity-20 mb-4 animate-pulse" />
+                    <p className="font-bold tracking-widest uppercase text-sm">Sincronizando información...</p>
+                </div>
+            );
+        }
+        return <PerfilGeneralPage />;
     }
 
     return (
