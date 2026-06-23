@@ -161,23 +161,11 @@ export function PerfilGeneralPage() {
                                     placeholder="Tu nombre completo"
                                 />
                             </div>
-                            <div>
-                                <label className="text-[9px] font-black tracking-[0.15em] text-white/50 block mb-1">Usuario (Alias)</label>
-                                <input
-                                    className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2.5 text-center text-base font-bold text-white placeholder-white/30 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/20 transition-all"
-                                    value={editFormData.nombre_usuario}
-                                    onChange={(e) => setEditFormData({ ...editFormData, nombre_usuario: e.target.value })}
-                                    placeholder="Alias de usuario"
-                                />
-                            </div>
                         </div>
                     ) : (
-                        <>
-                            <h1 className="text-3xl lg:text-5xl font-black tracking-tight text-white mb-1">
-                                {user.nombre_completo || user.nombre_usuario}
-                            </h1>
-                            <p className="text-blue-200/60 text-sm font-bold">@{user.nombre_usuario}</p>
-                        </>
+                        <h1 className="text-3xl lg:text-5xl font-black tracking-tight text-white mb-1">
+                            {user.nombre_completo || user.nombre_usuario}
+                        </h1>
                     )}
 
                     {/* Action Area */}
