@@ -1,10 +1,12 @@
-import { Mail, CreditCard, Shield, Activity, Fingerprint, KeyRound, Clock, CheckCircle2, PenLine, X, Save, AlertCircle, Dog } from "lucide-react";
+import { Mail, CreditCard, Shield, Activity, Fingerprint, KeyRound, Clock, CheckCircle2, PenLine, X, Save, AlertCircle, Dog, Phone, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { useUsuarios } from "../../configuracion/hooks/useUsuarios";
 import { Button } from "../../../shared/components/button";
 import { PawIcon } from "../../../shared/components/PawIcon";
 import { useMascotas } from "../../mascotas/hooks/useMascotas";
+import { useClientes } from "../../clientes/hooks/useClientes";
+import { useEmpleados } from "../../empleados/hooks/useEmpleados";
 import { Badge } from "../../../shared/components/badge";
 import { toast } from "sonner";
 import { esCedulaValida } from "../../../shared/utils/validators";
@@ -13,7 +15,17 @@ export function PerfilGeneralPage() {
     const { user, updateUser, logout } = useEmailAuth();
     const { usuarios, actualizarUsuario, loading: updating } = useUsuarios();
     const { mascotas } = useMascotas();
+    const { clientes } = useClientes();
+    const { empleados } = useEmpleados();
     const [isEditing, setIsEditing] = useState(false);
+
+    // Buscar información en Clientes o Empleados según lo que tenga asignado el usuario
+    const clienteAsociado = user?.id_cliente ? clientes.find(c => c.id_cliente === user.id_cliente) : null;
+    const empleadoAsociado = user?.id_empleado ? empleados.find(e => e.id_empleado === user.id_empleado) : null;
+
+    const telefono = empleadoAsociado?.telefono || clienteAsociado?.telefono || 'No registrado';
+    const direccion = empleadoAsociado?.direccion || clienteAsociado?.direccion || 'No registrada';
+
     const misMascotas = mascotas.filter(m => m.id_cliente === user?.id_cliente);
 
     const [editFormData, setEditFormData] = useState({
@@ -205,9 +217,9 @@ export function PerfilGeneralPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
                     { label: 'Rol', value: user.rol || 'N/A', icon: Shield, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-                    { label: 'Estado', value: 'Activa', icon: Activity, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', dot: true },
+                    { label: 'Teléfono', value: telefono, icon: Phone, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
                     { label: 'Documento', value: user.cedula || '---', icon: CreditCard, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-                    { label: 'ID Sesión', value: `#${user.id_usuario}`, icon: KeyRound, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
+                    { label: 'Dirección', value: direccion, icon: MapPin, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
                 ].map((stat, i) => (
                     <div key={i} className={`dark-card p-4 border ${stat.border} hover:scale-[1.02] transition-transform cursor-default`}>
                         <div className="flex items-center gap-2 mb-2">
