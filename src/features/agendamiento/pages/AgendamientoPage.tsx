@@ -37,7 +37,6 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
   const [itemsPerPage] = useState(10);
 
   const citasFiltradas = citas.filter(cita => {
-    if (cita.estado === 'cancelada') return false;
     if (isClienteRole) {
       if (cita.id_cliente !== user?.id_cliente) return false;
     }
@@ -123,10 +122,10 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
     });
 
     if (result.success) {
-      toast.success("Cita removida exitosamente");
+      toast.success("Cita cancelada exitosamente");
       setDeleteDialog({ isOpen: false, cita: null });
     } else {
-      toast.error(result.error || "Error al eliminar cita");
+      toast.error(result.error || "Error al cancelar cita");
     }
   };
 
@@ -212,6 +211,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                   const estadoFinal = (() => {
                     const isPagadoLocal = localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true';
                     if (isPagadoLocal || cita.estado === 'completada') return 'completada';
+                    if (cita.estado === 'cancelada') return 'cancelada';
                     if (cita.fecha) {
                       const hoyLocalStr = new Date().toLocaleDateString('en-CA');
                       if (cita.fecha < hoyLocalStr) return 'no_asistio';
@@ -251,11 +251,13 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                           <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border ${
                             estadoFinal === 'completada' 
                               ? 'bg-green-900/20 text-green-400 border-green-500/30' 
-                              : estadoFinal === 'no_asistio'
-                                ? 'bg-red-900/20 text-red-400 border-red-500/30'
-                                : 'bg-yellow-900/20 text-yellow-400 border-yellow-500/30'
+                              : estadoFinal === 'cancelada'
+                                ? 'bg-gray-900/20 text-gray-400 border-gray-500/30'
+                                : estadoFinal === 'no_asistio'
+                                  ? 'bg-red-900/20 text-red-400 border-red-500/30'
+                                  : 'bg-yellow-900/20 text-yellow-400 border-yellow-500/30'
                           }`}>
-                            {estadoFinal === 'completada' ? 'Completada' : estadoFinal === 'no_asistio' ? 'No Asistió' : 'Activa'}
+                            {estadoFinal === 'completada' ? 'Completada' : estadoFinal === 'cancelada' ? 'Cancelada' : estadoFinal === 'no_asistio' ? 'No Asistió' : 'Activa'}
                           </span>
                         </div>
                       </TableCell>
@@ -275,12 +277,13 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                             variant="outline" 
                             size="sm" 
                             className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
+                            disabled={estadoFinal === 'completada' || estadoFinal === 'cancelada'}
                             title="Editar"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          {/* Botón Pagar — solo para citas ACTIVAS (no completadas) */}
-                          {estadoFinal !== 'completada' && onPagar && !isVetRole && !isClienteRole && (
+                          {/* Botón Pagar — solo para citas ACTIVAS (no completadas, canceladas o no_asistio) */}
+                          {estadoFinal !== 'completada' && estadoFinal !== 'cancelada' && estadoFinal !== 'no_asistio' && onPagar && !isVetRole && !isClienteRole && (
                             <Button
                               onClick={() => onPagar(cita)}
                               variant="outline"
@@ -297,8 +300,8 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                             variant="outline" 
                             size="sm" 
                             className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30" 
-                            disabled={estadoFinal === 'completada'}
-                            title="Eliminar"
+                            disabled={estadoFinal === 'completada' || estadoFinal === 'cancelada'}
+                            title="Cancelar Cita"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -377,8 +380,8 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
         isOpen={deleteDialog.isOpen}
         onClose={() => setDeleteDialog({ isOpen: false, cita: null })}
         onConfirm={handleEliminarCita}
-        title="¿Eliminar Cita?"
-        description="¿Estás seguro de eliminar esta cita? Esta acción no se puede deshacer."
+        title="¿Cancelar Cita?"
+        description="¿Estás seguro de cancelar esta cita? Esta acción cambiará su estado a cancelada."
         loading={loading}
       />
     </>

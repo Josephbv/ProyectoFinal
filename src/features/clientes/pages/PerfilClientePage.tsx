@@ -469,6 +469,7 @@ export function PerfilClientePage() {
                                                 const estadoFinal = (() => {
                                                     const isPagadoLocal = localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true';
                                                     if (isPagadoLocal || cita.estado?.toLowerCase() === 'completada') return 'completada';
+                                                    if (cita.estado?.toLowerCase() === 'cancelada') return 'cancelada';
                                                     if (cita.fecha) {
                                                         const hoyLocalStr = new Date().toLocaleDateString('en-CA');
                                                         if (cita.fecha < hoyLocalStr) return 'no_asistio';
@@ -480,11 +481,13 @@ export function PerfilClientePage() {
                                                     <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
                                                         estadoFinal === 'completada' 
                                                             ? 'bg-green-900/20 text-green-400 border-green-500/30' 
-                                                            : estadoFinal === 'no_asistio'
-                                                                ? 'bg-red-900/20 text-red-400 border-red-500/30'
-                                                                : 'bg-yellow-900/20 text-yellow-400 border-yellow-500/30'
+                                                            : estadoFinal === 'cancelada'
+                                                                ? 'bg-gray-900/20 text-gray-400 border-gray-500/30'
+                                                                : estadoFinal === 'no_asistio'
+                                                                    ? 'bg-red-900/20 text-red-400 border-red-500/30'
+                                                                    : 'bg-yellow-900/20 text-yellow-400 border-yellow-500/30'
                                                         }`}>
-                                                        {estadoFinal === 'completada' ? 'Completada' : estadoFinal === 'no_asistio' ? 'No Asistió' : 'Activa'}
+                                                        {estadoFinal === 'completada' ? 'Completada' : estadoFinal === 'cancelada' ? 'Cancelada' : estadoFinal === 'no_asistio' ? 'No Asistió' : 'Activa'}
                                                     </span>
                                                 );
                                             })()}
