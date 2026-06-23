@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { toast } from "sonner";
-import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText, DollarSign, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Activity } from "lucide-react";
+import { Calendar, Plus, Search, Clock, Edit, Trash2, User, Stethoscope, Ticket, Eye, FileText, DollarSign, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Activity, Dog } from "lucide-react";
 import { useAgendamiento, Agendamiento, AgendamientoServicio } from "../hooks/useAgendamiento";
 import { CitaModal } from "../components/CitaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
@@ -50,6 +50,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
     const matchBusqueda = (cita.cliente?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cita.cliente?.cedula || '').toLowerCase().includes(busqueda.toLowerCase()) ||
       (cita.empleado?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
+      nombreMascota.toLowerCase().includes(busqueda.toLowerCase()) ||
       (cita.fecha || '').includes(busqueda);
     return matchBusqueda;
   }).sort((a, b) => (a.cliente?.nombre || '').localeCompare(b.cliente?.nombre || '', 'es', { sensitivity: 'base' }));
@@ -193,8 +194,8 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <Stethoscope className="w-4 h-4 text-blue-400" />
-                      Servicios
+                      <Dog className="w-4 h-4 text-blue-400" />
+                      Mascota
                     </div>
                   </TableHead>
                   <TableHead className="text-dark-primary font-semibold text-center">
@@ -233,9 +234,14 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                         </div>
                       </TableCell>
                       <TableCell className="text-center text-dark-primary font-semibold">
-                        <span className="bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full text-xs font-bold">
-                          {cita.agendamiento_servicios?.length || 0}
-                        </span>
+                        {(() => {
+                          const mas = mascotas.find(m => m.id_mascota === cita.id_mascota);
+                          return (
+                            <span className="bg-purple-500/20 text-purple-400 px-2.5 py-1 rounded-full text-xs font-bold">
+                              {mas?.nombre || 'Consulta General'}
+                            </span>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-center">
