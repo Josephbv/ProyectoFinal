@@ -129,90 +129,86 @@ export function PerfilGeneralPage() {
                 <div className="absolute bottom-0 left-0 w-56 h-56 bg-blue-400/10 rounded-full -ml-16 -mb-16"></div>
                 <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-purple-400/5 rounded-full blur-2xl"></div>
 
-                <div className="relative z-10 p-8 lg:p-10">
-                    <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6">
-                        {/* Avatar */}
-                        <div className="relative shrink-0">
-                            <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl">
-                                <span className="text-3xl lg:text-4xl font-black text-white">{initials}</span>
+                <div className="relative z-10 flex flex-col items-center text-center text-white p-8 lg:p-10">
+                    {/* Avatar */}
+                    <div className="relative shrink-0 mb-4">
+                        <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl">
+                            <span className="text-3xl lg:text-4xl font-black text-white">{initials}</span>
+                        </div>
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-lg border-2 border-blue-600 flex items-center justify-center">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                        </div>
+                    </div>
+
+                    {/* User Info */}
+                    <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
+                        <span className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-[9px] font-black tracking-[0.15em] uppercase border border-white/20 text-white/80">
+                            Mi Cuenta
+                        </span>
+                        <span className="px-3 py-1 bg-emerald-500/20 backdrop-blur-sm rounded-full text-[9px] font-black tracking-[0.15em] uppercase border border-emerald-400/30 text-emerald-300">
+                            {user.rol || 'Usuario'}
+                        </span>
+                    </div>
+
+                    {isEditing ? (
+                        <div className="space-y-3 w-full max-w-md mx-auto">
+                            <div>
+                                <label className="text-[9px] font-black tracking-[0.15em] text-white/50 block mb-1">Nombre Completo</label>
+                                <input
+                                    className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2.5 text-center text-lg font-bold text-white placeholder-white/30 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/20 transition-all"
+                                    value={editFormData.nombre_completo}
+                                    onChange={(e) => setEditFormData({ ...editFormData, nombre_completo: e.target.value })}
+                                    placeholder="Tu nombre completo"
+                                />
                             </div>
-                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-lg border-2 border-blue-600 flex items-center justify-center">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                            <div>
+                                <label className="text-[9px] font-black tracking-[0.15em] text-white/50 block mb-1">Usuario (Alias)</label>
+                                <input
+                                    className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2.5 text-center text-base font-bold text-white placeholder-white/30 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/20 transition-all"
+                                    value={editFormData.nombre_usuario}
+                                    onChange={(e) => setEditFormData({ ...editFormData, nombre_usuario: e.target.value })}
+                                    placeholder="Alias de usuario"
+                                />
                             </div>
                         </div>
+                    ) : (
+                        <>
+                            <h1 className="text-3xl lg:text-5xl font-black tracking-tight text-white mb-1">
+                                {user.nombre_completo || user.nombre_usuario}
+                            </h1>
+                            <p className="text-blue-200/60 text-sm font-bold">@{user.nombre_usuario}</p>
+                        </>
+                    )}
 
-                        {/* User Info */}
-                        <div className="flex-1 text-center lg:text-left">
-                            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-3">
-                                <span className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-[9px] font-black tracking-[0.15em] uppercase border border-white/20 text-white/80">
-                                    Mi Cuenta
-                                </span>
-                                <span className="px-3 py-1 bg-emerald-500/20 backdrop-blur-sm rounded-full text-[9px] font-black tracking-[0.15em] uppercase border border-emerald-400/30 text-emerald-300">
-                                    {user.rol || 'Usuario'}
-                                </span>
-                            </div>
-
-                            {isEditing ? (
-                                <div className="space-y-3 max-w-lg mx-auto lg:mx-0">
-                                    <div>
-                                        <label className="text-[9px] font-black tracking-[0.15em] text-white/50 block mb-1">Nombre Completo</label>
-                                        <input
-                                            className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2.5 text-lg font-bold text-white placeholder-white/30 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/20 transition-all"
-                                            value={editFormData.nombre_completo}
-                                            onChange={(e) => setEditFormData({ ...editFormData, nombre_completo: e.target.value })}
-                                            placeholder="Tu nombre completo"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-[9px] font-black tracking-[0.15em] text-white/50 block mb-1">Usuario (Alias)</label>
-                                        <input
-                                            className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2.5 text-base font-bold text-white placeholder-white/30 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/20 transition-all"
-                                            value={editFormData.nombre_usuario}
-                                            onChange={(e) => setEditFormData({ ...editFormData, nombre_usuario: e.target.value })}
-                                            placeholder="Alias de usuario"
-                                        />
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-white mb-1">
-                                        {user.nombre_completo || user.nombre_usuario}
-                                    </h1>
-                                    <p className="text-blue-200/60 text-sm font-bold">@{user.nombre_usuario}</p>
-                                </>
-                            )}
-                        </div>
-
-                        {/* Action Area */}
-                        <div className="shrink-0 flex gap-2">
-                            {isEditing ? (
-                                <>
-                                    <Button
-                                        onClick={handleSave}
-                                        disabled={updating}
-                                        style={{ backgroundColor: '#10b981', color: '#ffffff' }}
-                                        className="hover:opacity-90 font-bold px-5 rounded-xl shadow-lg gap-2 text-xs"
-                                    >
-                                        <Save className="w-4 h-4" />
-                                        {updating ? 'Guardando...' : 'Guardar'}
-                                    </Button>
-                                    <Button
-                                        onClick={() => setIsEditing(false)}
-                                        variant="ghost"
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-xl border border-white/10 px-4 text-xs"
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </Button>
-                                </>
-                            ) : (
+                    {/* Action Area */}
+                    <div className="mt-6 flex justify-center gap-2">
+                        {isEditing ? (
+                            <>
                                 <Button
-                                    onClick={() => setIsEditing(true)}
-                                    className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white font-bold text-xs tracking-wider uppercase py-2.5 px-6 rounded-xl gap-2 transition-all"
+                                    onClick={handleSave}
+                                    disabled={updating}
+                                    style={{ backgroundColor: '#10b981', color: '#ffffff' }}
+                                    className="hover:opacity-90 font-bold px-5 rounded-xl shadow-lg gap-2 text-xs"
                                 >
-                                    <PenLine className="w-3.5 h-3.5" /> Editar Perfil
+                                    <Save className="w-4 h-4" />
+                                    {updating ? 'Guardando...' : 'Guardar'}
                                 </Button>
-                            )}
-                        </div>
+                                <Button
+                                    onClick={() => setIsEditing(false)}
+                                    variant="ghost"
+                                    className="text-white/70 hover:text-white hover:bg-white/10 rounded-xl border border-white/10 px-4 text-xs"
+                                >
+                                    <X className="w-4 h-4" />
+                                </Button>
+                            </>
+                        ) : (
+                            <Button
+                                onClick={() => setIsEditing(true)}
+                                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white font-bold text-xs tracking-wider uppercase py-2.5 px-6 rounded-xl gap-2 transition-all"
+                            >
+                                <PenLine className="w-3.5 h-3.5" /> Editar Perfil
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
