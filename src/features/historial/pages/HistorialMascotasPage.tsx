@@ -828,8 +828,8 @@ export function HistorialMascotasPage() {
 
                 {/* Tipos de Visita */}
                 <div className="space-y-4">
-                  <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80 uppercase">
-                    Tipo de servicio <span className="text-red-500">*</span>
+                  <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80">
+                    Tipo de Servicio <span className="text-red-500">*</span>
                   </Label>
                   <div className="flex flex-wrap gap-3">
                     {visitTypes.map(type => (
@@ -863,8 +863,8 @@ export function HistorialMascotasPage() {
                 {/* Diagnóstico */}
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80 uppercase">
-                      Diagnóstico y evolución <span className="text-red-500">*</span>
+                    <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80">
+                      Diagnóstico y Evolución <span className="text-red-500">*</span>
                     </Label>
                     <span className="text-[10px] text-dark-secondary opacity-50 bg-dark-bg px-3 py-1 rounded-full border border-dark-color">
                       {(formData.diagnostico || '').length}/100
@@ -893,7 +893,7 @@ export function HistorialMascotasPage() {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80 uppercase">
+                    <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80">
                       Tratamiento y Procedimientos
                     </Label>
                     <span className="text-[10px] text-dark-secondary opacity-50 bg-dark-bg px-3 py-1 rounded-full border border-dark-color">
@@ -941,7 +941,7 @@ export function HistorialMascotasPage() {
                   <Activity className="w-16 h-16 text-blue-500 rotate-12" />
                 </div>
 
-                <h3 className="text-xs font-black text-dark-primary tracking-wider uppercase border-b border-dark-color/50 pb-3 flex items-center gap-2">
+                <h3 className="text-xs font-black text-dark-primary tracking-wider border-b border-dark-color/50 pb-3 flex items-center gap-2">
                   <User className="w-4 h-4 text-blue-400" />
                   Responsable y Paciente
                 </h3>
@@ -1129,7 +1129,7 @@ export function HistorialMascotasPage() {
               {/* Card 2: Veterinario Asignado */}
               <div className="dark-card p-8 space-y-6 relative group">
                 
-                <h3 className="text-xs font-black text-dark-primary tracking-wider uppercase border-b border-dark-color/50 pb-3 flex items-center gap-2">
+                <h3 className="text-xs font-black text-dark-primary tracking-wider border-b border-dark-color/50 pb-3 flex items-center gap-2">
                   <Activity className="w-4 h-4 text-blue-500" />
                   Veterinario Asignado
                 </h3>
