@@ -248,7 +248,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               Todo lo que necesitas en un solo lugar
             </h2>
             <p className="text-xl text-blue-600 max-w-3xl mx-auto">
-              Potentes características diseñadas específicamente para clínicas veterinarias profesionales con el cariño que merecen tus pacientes peludos
+              Potentes características diseñadas específicamente para clínicas veterinarias profesionales con el cariño que merecen tus mascotas peludas
             </p>
           </div>
 
@@ -344,7 +344,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </div>
 
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-            ¿Listo para dar lo mejor a tus pacientes peludos?
+            ¿Listo para dar lo mejor a tus mascotas peludas?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto leading-relaxed">
             Únete a las clínicas veterinarias que ya están revolucionando su gestión con KaiVet Manager.

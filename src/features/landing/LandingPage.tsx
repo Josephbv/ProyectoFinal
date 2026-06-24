@@ -9,7 +9,7 @@ const modules = [
         emoji: "🐾",
         title: "Gestión de Mascotas",
         description:
-            "Registra, consulta y actualiza el perfil clínico completo de cada paciente con historial médico, vacunas y seguimiento.",
+            "Registra, consulta y actualiza el perfil clínico completo de cada mascota con historial médico, vacunas y seguimiento.",
         color: "#2563eb",
         bg: "#eff6ff",
     },
@@ -25,7 +25,7 @@ const modules = [
         emoji: "🩺",
         title: "Historial Clínico",
         description:
-            "Accede al historial médico completo de cada mascota: diagnósticos, tratamientos y evolución del paciente.",
+            "Accede al historial médico completo de cada mascota: diagnósticos, tratamientos y evolución de la misma.",
         color: "#7c3aed",
         bg: "#f5f3ff",
     },
@@ -49,7 +49,7 @@ const features = [
 ];
 
 const benefits = [
-    "Control total de pacientes y sus dueños",
+    "Control total de mascotas y sus dueños",
     "Agendamiento inteligente con notificaciones",
     "Historial clínico siempre disponible",
     "Facturación y control de ingresos",
@@ -251,7 +251,7 @@ export function LandingPage({ onGoToLogin }: LandingPageProps) {
                         color: "rgba(255,255,255,0.88)", fontSize: "clamp(1rem, 2vw, 1.25rem)",
                         lineHeight: 1.7, marginBottom: 40, maxWidth: 680, margin: "0 auto 40px"
                     }}>
-                        KaiVet es el sistema de gestión veterinaria que simplifica el manejo de pacientes,
+                        KaiVet es el sistema de gestión veterinaria que simplifica el manejo de mascotas,
                         citas, historial clínico y facturación en un solo lugar.
                     </p>
 
@@ -468,7 +468,7 @@ export function LandingPage({ onGoToLogin }: LandingPageProps) {
                         ¿Listo para entrar a KaiVet Manager?
                     </h2>
                     <p style={{ color: "rgba(255,255,255,0.85)", fontSize: 18, lineHeight: 1.7, margin: "0 0 40px" }}>
-                        Accede a KaiVet y empieza a gestionar tus pacientes, citas y facturación de forma profesional.
+                        Accede a KaiVet y empieza a gestionar tus mascotas, citas y facturación de forma profesional.
                     </p>
                     <button onClick={onGoToLogin} style={{
                         background: "#fff", color: "#1e3a8a", border: "none", borderRadius: 18,
@@ -493,7 +493,7 @@ export function LandingPage({ onGoToLogin }: LandingPageProps) {
                                 <span style={{ color: "#fff", fontWeight: 900, fontSize: 20 }}>Kai<span style={{ color: "#60a5fa" }}>Vet</span></span>
                             </div>
                             <p style={{ color: "#94a3b8", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
-                                Sistema de gestión veterinaria integral. Diseñado para clínicas que se preocupan por la salud de sus pacientes.
+                                Sistema de gestión veterinaria integral. Diseñado para clínicas que se preocupan por la salud de sus mascotas.
                             </p>
                         </div>
 

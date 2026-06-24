@@ -217,7 +217,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
       }
     }
 
-    if (!formData.id_mascota) newErrors.id_mascota = 'Debes seleccionar el paciente (mascota).';
+    if (!formData.id_mascota) newErrors.id_mascota = 'Debes seleccionar la mascota.';
 
     if (!formData.id_empleado) {
       newErrors.id_empleado = 'Debes asignar un profesional veterinario.';
@@ -470,7 +470,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
             <div className="space-y-2">
               <Label className="text-dark-primary flex items-center gap-1.5">
                 <Dog className="w-4 h-4 text-emerald-400" />
-                Mascota (Paciente) *
+                Mascota *
               </Label>
               {readOnly ? (
                 <p className="text-sm text-dark-primary font-semibold">

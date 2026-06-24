@@ -149,7 +149,7 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
 
         if (!formData.id_mascota) {
             toast.error("Mascota requerida", {
-                description: "Debes seleccionar el paciente asociado a este cobro."
+                description: "Debes seleccionar la mascota asociada a este cobro."
             });
             return false;
         }
@@ -298,7 +298,7 @@ export function NuevaVentaPage({ onBack, onSuccess }: NuevaVentaPageProps) {
                             {clienteSeleccionado && (
                                 <div className="mt-6 space-y-5 animate-in slide-in-from-left-2">
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] text-dark-secondary uppercase font-bold ml-1">Mascota del Paciente</Label>
+                                        <Label className="text-[10px] text-dark-secondary uppercase font-bold ml-1">Mascota</Label>
                                         <Select
                                             value={formData.id_mascota}
                                             onValueChange={(val: string) => setFormData(prev => ({ ...prev, id_mascota: val }))}

@@ -126,7 +126,7 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
       printWindow.document.write(`
         <html>
           <head>
-            <title>Reporte de Pacientes - KaiVet</title>
+            <title>Reporte de Mascotas - KaiVet</title>
             <style>
               @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
               body {
@@ -242,13 +242,13 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
                 <div class="logo-text">KaiVet<span class="logo-sub"> Manager</span></div>
               </div>
               <div class="report-info">
-                <div class="title">Reporte de Pacientes</div>
+                <div class="title">Reporte de Mascotas</div>
                 <div class="date">Generado el ${fechaGeneracion}</div>
               </div>
             </div>
             
             <div class="summary">
-              <strong>Total de registros:</strong> ${mascotasFiltradas.length} pacientes / mascotas registradas bajo los criterios de búsqueda actuales.
+              <strong>Total de registros:</strong> ${mascotasFiltradas.length} mascotas registradas bajo los criterios de búsqueda actuales.
             </div>
 
             <table>
@@ -298,7 +298,7 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-dark-primary">Gestión de Mascotas</h1>
-            <p className="text-sm text-dark-secondary mt-1">Registro y control de pacientes</p>
+            <p className="text-sm text-dark-secondary mt-1">Registro y control de mascotas</p>
           </div>
           <div className="flex items-center space-x-3">
             <div className="relative">

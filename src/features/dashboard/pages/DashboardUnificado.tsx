@@ -114,7 +114,7 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
     [...ventasValidas].sort((a,b)=>new Date(b.fecha||'').getTime()-new Date(a.fecha||'').getTime()).slice(0,5)
   , [ventasValidas]);
 
-  // Pacientes nuevos este mes vs mes anterior
+  // Mascotas nuevas este mes vs mes anterior
   const mascotasTrend = useMemo(() => {
     const mes = allMascotas.filter(m=>{
       const fn=m.fecha_creacion||(m as any).createdAt||m.fecha_nacimiento; if(!fn) return false;
@@ -178,7 +178,7 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { label:'Clientes', val:allClientes.length, icon:UserCheck, color:'text-blue-400', bg:'bg-blue-400/5', onClick:()=>onNavigate?.("Clientes") },
-            { label:'Pacientes', val:allMascotas.length, icon:PawPrint, color:'text-pink-400', bg:'bg-pink-400/5', onClick:()=>onNavigate?.("Mascotas") },
+            { label:'Mascotas', val:allMascotas.length, icon:PawPrint, color:'text-pink-400', bg:'bg-pink-400/5', onClick:()=>onNavigate?.("Mascotas") },
             { label:'Citas Hoy', val:citasHoy.length, icon:CalendarCheck, color:'text-emerald-400', bg:'bg-emerald-400/5', onClick:()=>onNavigate?.("Agendamiento") },
             { label:'Ventas Activas', val:ventasValidas.length, icon:ShoppingCart, color:'text-amber-400', bg:'bg-amber-400/5', onClick:()=>onNavigate?.("Ventas") },
           ].map((m,i)=>(
@@ -221,7 +221,7 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
           {/* Distribución por especie */}
           <div className="lg:col-span-4 dark-card p-4 border-white/5 flex flex-col">
             <h2 className="text-[10px] font-black text-dark-secondary uppercase mb-3 flex items-center gap-2">
-              <PieIcon className="w-3.5 h-3.5 text-blue-400"/> Distribución Pacientes
+              <PieIcon className="w-3.5 h-3.5 text-blue-400"/> Distribución Mascotas
             </h2>
             <div className="flex-1 flex flex-col items-center justify-center">
               <PieChart width={140} height={130}>
@@ -271,7 +271,7 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
             </div>
           </div>
 
-          {/* Resumen de Caja o Últimos Pacientes */}
+          {/* Resumen de Caja o Últimas Mascotas */}
           {isAdmin ? (
             <div className="dark-card p-4 border-white/5">
               <div className="flex items-center justify-between mb-4">
@@ -306,7 +306,7 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-[10px] font-black text-dark-secondary flex items-center gap-2">
                   <PawPrint className="w-3.5 h-3.5 text-pink-400"/>
-                  Últimos Pacientes
+                  Últimas Mascotas
                 </h3>
                 <Button onClick={()=>onNavigate?.("Mascotas")} variant="link" className="text-blue-400 text-[9px] h-auto p-0 font-bold">Ver todos →</Button>
               </div>
@@ -322,13 +322,13 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
                     </div>
                     <Badge className="text-[8px] bg-blue-500/10 text-blue-400 border-none truncate max-w-[100px]">{m.ownerName}</Badge>
                   </div>
-                )) : <p className="text-[10px] text-dark-secondary italic py-4 text-center">No hay pacientes registrados</p>}
+                )) : <p className="text-[10px] text-dark-secondary italic py-4 text-center">No hay mascotas registradas</p>}
               </div>
             </div>
           )}
         </div>
 
-        {/* FILA 4: Top Servicios + Últimas Ventas + Pacientes */}
+        {/* FILA 4: Top Servicios + Últimas Ventas + Mascotas */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
           {/* Top Servicios del mes */}
@@ -380,9 +380,9 @@ export function DashboardUnificado({ onNavigate }: { onNavigate?: (page: string)
             </div>
           </div>
 
-          {/* Pacientes nuevos */}
+          {/* Mascotas nuevas */}
           <div className="lg:col-span-2 dark-card p-4 border-white/5 flex flex-col justify-between">
-            <h3 className="text-[10px] font-black text-dark-secondary flex items-center gap-1.5"><Heart className="w-3.5 h-3.5 text-pink-400"/>Nuevos Pacientes</h3>
+            <h3 className="text-[10px] font-black text-dark-secondary flex items-center gap-1.5"><Heart className="w-3.5 h-3.5 text-pink-400"/>Nuevas Mascotas</h3>
             <div className="text-center my-auto py-4">
               <p className="text-4xl font-black text-dark-primary">{mascotasTrend.mes}</p>
               <p className="text-[9px] text-dark-secondary mt-1">este mes</p>

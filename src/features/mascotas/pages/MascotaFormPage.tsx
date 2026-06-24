@@ -184,7 +184,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
         const newErrors: Record<string, string> = {};
 
         if (!formData.nombre || !formData.nombre.trim()) {
-            newErrors.nombre = 'El nombre del paciente es obligatorio.';
+            newErrors.nombre = 'El nombre de la mascota es obligatorio.';
         } else if (!soloLetras(formData.nombre || '')) {
             newErrors.nombre = 'El nombre solo debe contener letras.';
         } else if (formData.nombre.trim().length > 20) {
@@ -246,7 +246,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                     return vDate < birthDate;
                 });
                 if (tieneVacunaInvalida) {
-                    toast.error('⚠️ Inconsistencia: Hay vacunas registradas con fecha anterior al nacimiento del paciente.');
+                    toast.error('⚠️ Inconsistencia: Hay vacunas registradas con fecha anterior al nacimiento de la mascota.');
                     return;
                 }
             }
@@ -281,7 +281,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
         e.preventDefault();
         const newErrors: Record<string, string> = {};
         if (!formData.nombre || !formData.nombre.trim()) {
-            newErrors.nombre = 'El nombre del paciente es obligatorio.';
+            newErrors.nombre = 'El nombre de la mascota es obligatorio.';
         } else if (!soloLetras(formData.nombre || '')) {
             newErrors.nombre = 'El nombre solo debe contener letras.';
         } else if (formData.nombre.trim().length > 20) {
@@ -330,7 +330,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
             if (listaVacunas.length > 0) {
                 const tieneVacunaInvalida = listaVacunas.some(v => new Date(v.fecha) < birthDate);
                 if (tieneVacunaInvalida) {
-                    toast.error('⚠️ Inconsistencia: Hay vacunas registradas con fecha anterior al nacimiento del paciente.');
+                    toast.error('⚠️ Inconsistencia: Hay vacunas registradas con fecha anterior al nacimiento de la mascota.');
                     return;
                 }
             }
@@ -445,7 +445,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                         </button>
                         <div>
                             <h1 className="text-2xl font-bold text-dark-primary tracking-tighter">
-                                {readOnly ? 'Detalles del Paciente' : (mascota ? 'Editar Paciente' : 'Nuevo Registro Animal')}
+                                {readOnly ? 'Detalles de la Mascota' : (mascota ? 'Editar Mascota' : 'Nuevo Registro Animal')}
                             </h1>
                         </div>
                     </div>
@@ -478,7 +478,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                     className="bg-blue-600 hover:bg-blue-700 text-white font-black shadow-lg shadow-blue-900/20"
                                 >
                                     <Save className="w-4 h-4 mr-2" />
-                                    {isLoading ? 'Procesando...' : (mascota ? 'Actualizar Ficha' : 'Guardar Paciente')}
+                                    {isLoading ? 'Procesando...' : (mascota ? 'Actualizar Ficha' : 'Guardar Mascota')}
                                 </Button>
                             </>
                         )}
@@ -497,7 +497,7 @@ export const MascotaFormPage: React.FC<MascotaFormPageProps> = ({
                                 <div className="p-2 bg-blue-500/10 rounded-xl">
                                     <Fingerprint className="w-5 h-5 text-blue-400" />
                                 </div>
-                                Identificación del Paciente
+                                Identificación de la Mascota
                             </h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

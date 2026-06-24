@@ -143,7 +143,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-dark-primary">Agendamiento de Citas</h1>
-            <p className="text-sm text-dark-secondary mt-1">Programa citas y asigna empleados a los pacientes</p>
+            <p className="text-sm text-dark-secondary mt-1">Programa citas y asigna empleados a las mascotas</p>
           </div>
           <div className="flex items-center space-x-3">
             <div className="relative">

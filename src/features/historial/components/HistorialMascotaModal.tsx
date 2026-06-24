@@ -203,7 +203,7 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
             <div className="p-5 bg-dark-bg/40 border border-dark-color rounded-2xl space-y-4">
               <div className="flex items-center gap-2 text-dark-secondary mb-1">
                 <User className="w-4 h-4 text-blue-400" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Identificación del Paciente</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Identificación de la Mascota</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

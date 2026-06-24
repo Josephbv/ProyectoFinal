@@ -932,10 +932,10 @@ export function HistorialMascotasPage() {
 
             </div>
 
-            {/* Columna Derecha: Paciente, Dueño y Doctor (col-span-1) */}
+            {/* Columna Derecha: Mascota, Dueño y Doctor (col-span-1) */}
             <div className="lg:col-span-1 space-y-6">
               
-              {/* Card 1: Paciente y Dueño */}
+              {/* Card 1: Mascota y Dueño */}
               <div className="dark-card p-8 space-y-6 relative z-50 group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
                   <Activity className="w-16 h-16 text-blue-500 rotate-12" />
@@ -943,7 +943,7 @@ export function HistorialMascotasPage() {
 
                 <h3 className="text-xs font-black text-dark-primary tracking-wider border-b border-dark-color/50 pb-3 flex items-center gap-2">
                   <User className="w-4 h-4 text-blue-400" />
-                  Responsable y Paciente
+                  Responsable y Mascota
                 </h3>
 
                 {/* Responsible Section */}
@@ -1049,7 +1049,7 @@ export function HistorialMascotasPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start">
-                              <p className="text-[10px] font-black text-pink-400 tracking-widest leading-none mb-1.5 opacity-80">Paciente</p>
+                              <p className="text-[10px] font-black text-pink-400 tracking-widest leading-none mb-1.5 opacity-80">Mascota</p>
                               {!isEdit && (
                                 <button
                                   type="button"
@@ -1087,7 +1087,7 @@ export function HistorialMascotasPage() {
                     ) : (
                       <div className="space-y-2 animate-in fade-in duration-300">
                         <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80">
-                          Paciente (Mascota) <span className="text-red-500">*</span>
+                          Mascota <span className="text-red-500">*</span>
                         </Label>
                         {mascotas.filter(m => m.id_cliente === clienteSeleccionado.id_cliente).length === 0 ? (
                           <p className="text-[10px] text-red-400 italic bg-red-400/5 py-3 px-4 rounded-xl border border-dashed border-red-400/30">
@@ -1214,7 +1214,7 @@ export function HistorialMascotasPage() {
                     <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
 
                       <TableHead className="text-dark-primary font-semibold min-w-[120px]">
-                        <div className="flex items-center gap-2"><Heart className="w-4 h-4 text-blue-400" />Paciente</div>
+                        <div className="flex items-center gap-2"><Heart className="w-4 h-4 text-blue-400" />Mascota</div>
                       </TableHead>
                       <TableHead className="text-dark-primary font-semibold min-w-[140px]">
                         <div className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400" />Propietario</div>
@@ -1704,10 +1704,10 @@ export function HistorialMascotasPage() {
             </div>
           </div>
 
-          {/* Información del Paciente y Dueño */}
+          {/* Información de la Mascota y Dueño */}
           <div className="grid grid-cols-2 gap-10 mb-12">
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200">
-              <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] mb-4">Información del Paciente</h3>
+              <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] mb-4">Información de la Mascota</h3>
               <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(mascotaInfo?.nombre || historialesMascota[0]?.nombreMascota)}</p>
               <div className="space-y-1 text-sm font-semibold text-slate-600">
                 <p>Especie: <span className="text-slate-900">{toSentenceCase(mascotaInfo?.especie) || 'N/A'}</span></p>

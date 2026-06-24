@@ -432,7 +432,7 @@ export function PerfilClientePage() {
                                             </div>
                                             <div>
                                                 <h4 className="text-lg font-black text-dark-primary uppercase tracking-tight flex items-center gap-2">
-                                                    {cita.mascota?.nombre || cita.idMascotaNavigation?.nombre || 'Paciente'}
+                                                    {cita.mascota?.nombre || cita.idMascotaNavigation?.nombre || 'Mascota'}
                                                     <Badge className="bg-blue-500/10 text-blue-400 border-0 text-[10px]">
                                                         {cita.motivo || cita.motivoCita || 'Consulta'}
                                                     </Badge>

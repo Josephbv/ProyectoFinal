@@ -274,14 +274,14 @@ export function ClienteModal({ isOpen, onClose, onSubmit, cliente, loading, read
               {errors.direccion && <p className="text-red-400 text-xs">{errors.direccion}</p>}
             </div>
 
-            {/* Sección Espejo: Pacientes Vinculados */}
+            {/* Sección Espejo: Mascotas Vinculadas */}
             {cliente && (
               <div className="space-y-4 pt-6 mt-2 border-t border-dark-color/50 animate-in slide-in-from-bottom-4 duration-500">
                 <div className="flex items-center justify-between px-1">
                   <div className="flex flex-col">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                      <h3 className="text-xs font-black text-dark-primary uppercase tracking-[0.2em]">Pacientes Vinculados</h3>
+                      <h3 className="text-xs font-black text-dark-primary uppercase tracking-[0.2em]">Mascotas Vinculadas</h3>
                     </div>
                     <p className="text-[10px] text-dark-secondary opacity-60">Sincronización automática con base de datos clínica</p>
                   </div>
