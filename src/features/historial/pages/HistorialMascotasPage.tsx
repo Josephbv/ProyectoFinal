@@ -1654,6 +1654,12 @@ export function HistorialMascotasPage() {
                     const cleanVet = ((entrada as any).veterinario || '').replace(/^(?:(?:dr|dra|doctor|doctora)\.?\s*)+/i, '');
                     const formattedVet = cleanVet ? `Dr. ${toSentenceCase(cleanVet)}` : 'No asignado';
 
+                    let diagText = toSentenceCase(entrada.diagnostico || 'Sin diagnóstico');
+                    diagText = diagText.length > 20 ? diagText.substring(0, 20) + '...' : diagText;
+                    
+                    let tratText = toSentenceCase(entrada.tratamiento || 'Sin tratamiento');
+                    tratText = tratText.length > 20 ? tratText.substring(0, 20) + '...' : tratText;
+
                     return (
                       <TableRow key={`${entrada.id_historial}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors group">
                         {/* Fecha */}
@@ -1700,14 +1706,14 @@ export function HistorialMascotasPage() {
                         {/* Diagnóstico */}
                         <TableCell className="max-w-[200px]">
                           <p className="text-xs text-dark-secondary truncate" title={entrada.diagnostico ?? undefined}>
-                            {toSentenceCase(entrada.diagnostico || 'Sin diagnóstico')}
+                            {diagText}
                           </p>
                         </TableCell>
 
                         {/* Tratamiento */}
                         <TableCell className="max-w-[200px]">
                           <p className="text-xs text-dark-secondary truncate" title={entrada.tratamiento ?? undefined}>
-                            {toSentenceCase(entrada.tratamiento || 'Sin tratamiento')}
+                            {tratText}
                           </p>
                         </TableCell>
 
