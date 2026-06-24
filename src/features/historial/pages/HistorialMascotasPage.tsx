@@ -837,13 +837,15 @@ export function HistorialMascotasPage() {
                         key={type.id}
                         type="button"
                         onClick={() => toggleTipoVisita(type.id)}
-                        className={`flex items-center justify-center gap-3 px-5 rounded-2xl border text-xs font-black tracking-widest transition-all whitespace-nowrap h-[42px] ${formData.tipoVisita.includes(type.id)
+                        className={`flex items-center justify-center gap-3 px-5 rounded-2xl border text-xs font-black tracking-wider transition-all whitespace-nowrap h-[42px] ${formData.tipoVisita.includes(type.id)
                           ? `bg-blue-500/20 border-blue-500 text-blue-400 shadow-md transform scale-105`
                           : 'bg-dark-bg border-dark-color/50 text-dark-secondary hover:bg-dark-hover'
                           }`}
                       >
                         <div className={`w-2 h-2 rounded-full shrink-0 ${formData.tipoVisita.includes(type.id) ? `bg-blue-400 animate-pulse` : 'bg-dark-secondary opacity-30'}`} />
                         <span>{type.label}</span>
+                        {/* Invisible spacer of the same size as the dot to center the text perfectly */}
+                        <div className="w-2 h-2 shrink-0 opacity-0 pointer-events-none" aria-hidden="true" />
                       </button>
                     ))}
                   </div>
