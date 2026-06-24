@@ -99,8 +99,8 @@ export function ConfirmDeleteDialog({
                             </div>
                         </div>
 
-                        <h2 className="text-xl font-black text-white mt-4 text-center">{title}</h2>
-                        <p className="text-red-100 text-sm text-center mt-1 leading-relaxed">{description}</p>
+                        <h2 className="text-xl font-black text-slate-900 dark:text-white mt-4 text-center">{title}</h2>
+                        <p className="text-black dark:text-slate-200 text-sm text-center mt-1 leading-relaxed">{description}</p>
                     </div>
 
                     {/* Cuerpo */}
