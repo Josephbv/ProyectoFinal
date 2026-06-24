@@ -31,7 +31,8 @@ function generarSlots(horaInicio: string, horaFin: string, intervaloMin = 30): s
   const [hF, mF] = horaFin.split(':').map(Number);
   let totalMin = hI * 60 + mI;
   const finMin = hF * 60 + mF;
-  while (totalMin <= finMin) {
+  // Solo agregar el slot si hay suficiente tiempo para al menos un intervalo
+  while (totalMin + intervaloMin <= finMin) {
     const h = Math.floor(totalMin / 60).toString().padStart(2, '0');
     const m = (totalMin % 60).toString().padStart(2, '0');
     slots.push(`${h}:${m}`);

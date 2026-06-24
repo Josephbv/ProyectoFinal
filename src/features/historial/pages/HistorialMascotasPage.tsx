@@ -1899,7 +1899,7 @@ export function HistorialMascotasPage() {
             <div className="space-y-8">
               {entrada.motivoConsulta && (
                 <div>
-                  <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2 uppercase">Motivo de Consulta / Síntomas</h4>
+                  <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2">Motivo de Consulta / Síntomas</h4>
                   <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100">
                     {toSentenceCase(entrada.motivoConsulta)}
                   </p>
@@ -1907,14 +1907,14 @@ export function HistorialMascotasPage() {
               )}
 
               <div>
-                <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2 uppercase">Diagnóstico y Hallazgos</h4>
+                <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2">Diagnóstico y Hallazgos</h4>
                 <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100">
                   {toSentenceCase(entrada.diagnostico || 'No registrado')}
                 </p>
               </div>
 
               <div>
-                <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2 uppercase">Tratamiento y Procedimientos</h4>
+                <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2">Tratamiento y Procedimientos</h4>
                 <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100">
                   {toSentenceCase(entrada.tratamiento || 'No registrado')}
                 </p>
@@ -1922,7 +1922,7 @@ export function HistorialMascotasPage() {
 
               {(entrada as any).observaciones && (
                 <div>
-                  <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2 uppercase">Observaciones Adicionales</h4>
+                  <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2">Observaciones Adicionales</h4>
                   <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100">
                     {toSentenceCase((entrada as any).observaciones)}
                   </p>
