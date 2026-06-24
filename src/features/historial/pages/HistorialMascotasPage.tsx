@@ -1582,20 +1582,6 @@ export function HistorialMascotasPage() {
             )}
           </div>
 
-          <header className="bg-dark-card border border-dark-color rounded-[3rem] p-10 shadow-2xl mb-12 flex flex-col md:flex-row items-center gap-10">
-            <div className="w-32 h-32 rounded-[2.5rem] bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shrink-0 shadow-2xl rotate-3">
-              <Heart className="w-16 h-16 text-white" />
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h1 className="text-5xl font-black text-dark-primary  tracking-tighter mb-2">{mascotaSeleccionada?.nombre}</h1>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4">
-                <span className="text-sm font-black text-pink-400  tracking-widest">Edad: {mascotaSeleccionada?.edad || 'N/A'} meses</span>
-                <div className="w-1.5 h-1.5 bg-dark-color rounded-full" />
-                <span className="text-sm font-black text-emerald-400  tracking-widest">Vacunas: {mascotaSeleccionada?.vacunas ? 'AL DÍA' : 'PENDIENTE'}</span>
-              </div>
-            </div>
-          </header>
-
           <div className="dark-card overflow-hidden">
             <div className="overflow-x-auto">
               <Table>
@@ -1603,6 +1589,9 @@ export function HistorialMascotasPage() {
                   <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
                     <TableHead className="text-dark-primary font-semibold min-w-[120px]">
                       <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" />Fecha / Hora</div>
+                    </TableHead>
+                    <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                      <div className="flex items-center gap-2"><Dog className="w-4 h-4 text-blue-400" />Mascota</div>
                     </TableHead>
                     <TableHead className="text-dark-primary font-semibold min-w-[120px]">
                       <div className="flex items-center gap-2"><Activity className="w-4 h-4 text-blue-400" />Servicios</div>
@@ -1636,6 +1625,13 @@ export function HistorialMascotasPage() {
                               {formatTo12h((entrada as any).hora) || '00:00'}
                             </span>
                           </div>
+                        </TableCell>
+
+                        {/* Mascota */}
+                        <TableCell>
+                          <span className="font-semibold text-dark-primary text-xs">
+                            {toSentenceCase(mascotaSeleccionada?.nombre || (entrada as any).nombreMascota)}
+                          </span>
                         </TableCell>
 
                         {/* Servicio */}
@@ -1954,30 +1950,6 @@ export function HistorialMascotasPage() {
               <div className="flex items-center gap-3">
                 <ClipboardPlus className="w-6 h-6 text-blue-500" />
                 <h1 className="text-2xl font-black text-dark-primary  tracking-tighter">Historial Mascotas</h1>
-              </div>
-              <div className="flex items-center gap-4 mt-1">
-                {pasoActual !== 'inicio' && (
-                  <>
-                    {!isClienteRole && (
-                      <>
-                        <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
-                          <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'cliente' ? 'bg-blue-500' : 'bg-dark-color'}`} />
-                          <span className={pasoActual === 'cliente' ? 'text-blue-400' : 'text-dark-secondary'}>Cliente</span>
-                        </div>
-                        <ChevronRight className="w-3 h-3 text-dark-color" />
-                      </>
-                    )}
-                    <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
-                      <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'mascota' ? 'bg-pink-500' : 'bg-dark-color'}`} />
-                      <span className={pasoActual === 'mascota' ? 'text-pink-400' : 'text-dark-secondary'}>Mascota</span>
-                    </div>
-                    <ChevronRight className="w-3 h-3 text-dark-color" />
-                    <div className="flex items-center gap-1.5 text-[10px] font-black tracking-widest">
-                      <div className={`w-1.5 h-1.5 rounded-full ${pasoActual === 'timeline' ? 'bg-emerald-500' : 'bg-dark-color'}`} />
-                      <span className={pasoActual === 'timeline' ? 'text-emerald-400' : 'text-dark-secondary'}>Historial</span>
-                    </div>
-                  </>
-                )}
               </div>
             </div>
 
