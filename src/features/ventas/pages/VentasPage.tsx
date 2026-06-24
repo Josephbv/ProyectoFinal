@@ -53,7 +53,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
       (venta.cliente?.nombre || '').toLowerCase().includes(searchLow) ||
       (venta.cliente?.cedula || '').toLowerCase().includes(searchLow)
     );
-  }).sort((a, b) => (a.cliente?.nombre || '').localeCompare(b.cliente?.nombre || '', 'es', { sensitivity: 'base' }));
+  }).sort((a, b) => new Date(b.fecha || '').getTime() - new Date(a.fecha || '').getTime());
 
   const totalPages = Math.ceil(ventasFiltradas.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

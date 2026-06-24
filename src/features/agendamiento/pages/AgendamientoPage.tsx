@@ -52,7 +52,11 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
       nombreMascota.toLowerCase().includes(busqueda.toLowerCase()) ||
       (cita.fecha || '').includes(busqueda);
     return matchBusqueda;
-  }).sort((a, b) => (a.cliente?.nombre || '').localeCompare(b.cliente?.nombre || '', 'es', { sensitivity: 'base' }));
+  }).sort((a, b) => {
+    const dateA = new Date(`${a.fecha?.split('T')[0] || ''}T${a.hora || '00:00'}`);
+    const dateB = new Date(`${b.fecha?.split('T')[0] || ''}T${b.hora || '00:00'}`);
+    return dateB.getTime() - dateA.getTime();
+  });
 
   const totalPages = Math.ceil(citasFiltradas.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
