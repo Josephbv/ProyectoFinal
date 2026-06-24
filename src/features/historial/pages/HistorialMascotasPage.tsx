@@ -634,31 +634,33 @@ export function HistorialMascotasPage() {
     return (
       <div className="flex flex-col bg-[#0a0b0c] animate-in fade-in duration-500 overflow-y-auto min-h-screen">
         {/* Header del Reporte */}
-        <header className="bg-dark-card border-b border-dark-color px-10 py-6 flex justify-between items-center shrink-0 z-20 sticky top-0">
-          <div className="flex items-center gap-6">
-            <Button
-              variant="ghost"
-              onClick={cerrarVistaActual}
-              className="text-dark-secondary hover:bg-dark-hover rounded-full w-12 h-12 p-0"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </Button>
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <div className="bg-blue-500 w-2 h-6 rounded-full" />
-                <h2 className="text-2xl font-black text-dark-primary tracking-tighter">{toSentenceCase('Informe clínico detallado')}</h2>
+        <header className="bg-dark-card border-b border-dark-color px-10 py-6 shrink-0 z-20 sticky top-0">
+          <div className="max-w-5xl mx-auto w-full flex justify-between items-center">
+            <div className="flex items-center gap-6">
+              <Button
+                variant="ghost"
+                onClick={cerrarVistaActual}
+                className="text-dark-secondary hover:bg-dark-hover rounded-full w-12 h-12 p-0"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </Button>
+              <div>
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="bg-blue-500 w-2 h-6 rounded-full" />
+                  <h2 className="text-2xl font-black text-dark-primary tracking-tighter">{toSentenceCase('Informe clínico detallado')}</h2>
+                </div>
+                <p className="text-[10px] text-dark-secondary font-black tracking-widest pl-5 opacity-60">{toSentenceCase(`Expediente médico #${entrada.id_historial}`)}</p>
               </div>
-              <p className="text-[10px] text-dark-secondary font-black tracking-widest pl-5 opacity-60">{toSentenceCase(`Expediente médico #${entrada.id_historial}`)}</p>
             </div>
-          </div>
-          <div className="flex gap-4">
-            <Button
-              onClick={() => setPasoActual('reporteCompleto')}
-              className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-[11px] font-black tracking-widest h-12 px-8 rounded-2xl shadow-[0_10px_40px_rgba(16,185,129,0.25)] border border-emerald-400/20 transition-all hover:scale-105 active:scale-95 gap-3"
-            >
-              <FileText className="w-4 h-4" />
-              <span>Generar reporte de consulta</span>
-            </Button>
+            <div className="flex gap-4">
+              <Button
+                onClick={() => setPasoActual('reporteCompleto')}
+                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-[11px] font-black tracking-widest h-12 px-8 rounded-2xl shadow-[0_10px_40px_rgba(16,185,129,0.25)] border border-emerald-400/20 transition-all hover:scale-105 active:scale-95 gap-3"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Generar reporte de consulta</span>
+              </Button>
+            </div>
           </div>
         </header>
 
