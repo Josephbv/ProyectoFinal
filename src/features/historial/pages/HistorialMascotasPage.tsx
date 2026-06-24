@@ -653,7 +653,7 @@ export function HistorialMascotasPage() {
               className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-[11px] font-black tracking-widest h-12 px-8 rounded-2xl shadow-[0_10px_40px_rgba(16,185,129,0.25)] border border-emerald-400/20 transition-all hover:scale-105 active:scale-95 gap-3"
             >
               <FileText className="w-4 h-4" />
-              <span>Generar reporte histórico</span>
+              <span>Generar reporte de consulta</span>
             </Button>
           </div>
         </header>
@@ -1659,17 +1659,13 @@ export function HistorialMascotasPage() {
     );
   };
 
-  const renderReporteCompleto = (idMascota: number) => {
-    const historialesMascota = historiales
-      .filter(h => h.id_mascota === idMascota)
-      .sort((a, b) => {
-        const dateA = new Date(a.fecha + 'T' + ((a as any).hora || '00:00')).getTime();
-        const dateB = new Date(b.fecha + 'T' + ((b as any).hora || '00:00')).getTime();
-        return dateB - dateA; // Newest first
-      });
-
-    const mascotaInfo = mascotas.find(m => m.id_mascota === idMascota) || mascotaSeleccionada || historialesMascota[0]?.mascota;
+  const renderReporteCompleto = (entrada: HistorialMascota) => {
+    const mascotaInfo = mascotas.find(m => m.id_mascota === entrada.id_mascota) || mascotaSeleccionada || entrada.mascota;
     const clienteInfo = clientes.find(c => c.id_cliente === mascotaInfo?.id_cliente) || mascotaInfo?.cliente || clienteSeleccionado;
+
+    const vetRaw = (entrada as any).veterinario || 'Veterinario';
+    const cleanVet = vetRaw.replace(/^(?:(?:dr|dra|doctor|doctora)\.?\s*)+/i, '');
+    const formattedVet = `Dr. ${toSentenceCase(cleanVet)}`;
 
     return (
       <div className="flex flex-col bg-white text-slate-900 min-h-screen animate-in fade-in duration-700 overflow-y-auto print:overflow-visible print:bg-white print:block">
@@ -1693,7 +1689,7 @@ export function HistorialMascotasPage() {
             >
               <ChevronLeft className="w-6 h-6" />
             </Button>
-            <h2 className="text-xl font-black text-white tracking-widest">Vista Previa del Reporte Completo</h2>
+            <h2 className="text-xl font-black text-white tracking-widest">Vista Previa del Reporte de Consulta</h2>
           </div>
           <div className="flex gap-4">
             <Button
@@ -1717,7 +1713,7 @@ export function HistorialMascotasPage() {
           {/* Header del Documento */}
           <div className="flex justify-between items-start border-b-2 border-slate-900 pb-10 mb-10 text-slate-900">
             <div>
-              <h1 className="text-4xl font-bold tracking-tighter mb-2">{toSentenceCase('Historial Clínico Consolidado')}</h1>
+              <h1 className="text-4xl font-bold tracking-tighter mb-2">{toSentenceCase('Reporte Clínico de Consulta')}</h1>
               <p className="text-sm font-bold text-slate-500 tracking-widest text-left">Centro Veterinario KaiVet Manager</p>
             </div>
             <div className="text-right text-sm">
@@ -1730,7 +1726,7 @@ export function HistorialMascotasPage() {
           <div className="grid grid-cols-2 gap-10 mb-12">
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200">
               <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] mb-4">Información de la Mascota</h3>
-              <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(mascotaInfo?.nombre || historialesMascota[0]?.nombreMascota)}</p>
+              <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(mascotaInfo?.nombre || entrada.nombreMascota)}</p>
               <div className="space-y-1 text-sm font-semibold text-slate-600">
                 <p>Especie: <span className="text-slate-900">{toSentenceCase(mascotaInfo?.especie) || 'N/A'}</span></p>
                 <p>Raza: <span className="text-slate-900">{toSentenceCase(mascotaInfo?.raza) || 'N/A'}</span></p>
@@ -1740,54 +1736,100 @@ export function HistorialMascotasPage() {
             </div>
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200">
               <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] mb-4">Información del Propietario</h3>
-              <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(clienteInfo?.nombre || historialesMascota[0]?.nombreCliente)}</p>
+              <p className="text-2xl font-bold text-slate-900 mb-2">{toSentenceCase(clienteInfo?.nombre || entrada.nombreCliente)}</p>
               <div className="space-y-1 text-sm font-semibold text-slate-600">
-                <p>ID: <span className="text-slate-900">{clienteInfo?.cedula || historialesMascota[0]?.cedulaCliente || 'N/A'}</span></p>
+                <p>ID: <span className="text-slate-900">{clienteInfo?.cedula || entrada.cedulaCliente || 'N/A'}</span></p>
                 <p>Teléfono: <span className="text-slate-900">{clienteInfo?.telefono || 'N/A'}</span></p>
                 <p>Dirección: <span className="text-slate-900 text-left">{toSentenceCase(clienteInfo?.direccion) || 'N/A'}</span></p>
               </div>
             </div>
           </div>
 
-          {/* Listado de Evoluciones Clínicas */}
-          <div className="space-y-12">
-            <h3 className="text-xl font-bold text-slate-900 tracking-tight border-b-2 border-slate-200 pb-2">Cronología Médica ({historialesMascota.length} Entradas)</h3>
+          {/* Información de la Consulta */}
+          <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200 mb-12">
+            <h3 className="text-[10px] font-bold text-slate-400 tracking-[0.2em] mb-4">Detalles de la Consulta</h3>
+            <div className="grid grid-cols-3 gap-6 text-sm font-semibold text-slate-600">
+              <div>
+                <p className="text-slate-400">Fecha y Hora</p>
+                <p className="text-slate-900 font-bold">
+                  {entrada.fecha ? new Date(entrada.fecha.includes('T') ? entrada.fecha.split('T')[0] + 'T12:00:00' : entrada.fecha + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A'} - {formatTo12h((entrada as any).hora) || '00:00'}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-400">Servicio / Tipo de Visita</p>
+                <p className="text-slate-900 font-bold">
+                  {Array.isArray(entrada.tipoVisita) 
+                    ? entrada.tipoVisita.map(t => toSentenceCase(t)).join(', ') 
+                    : toSentenceCase(entrada.tipoVisita || '')}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-400">Médico Veterinario</p>
+                <p className="text-slate-900 font-bold">{formattedVet}</p>
+              </div>
+            </div>
+          </div>
 
-            {historialesMascota.map((h, index) => {
-              const vetRaw = (h as any).veterinario || 'Veterinario';
-              const cleanVet = vetRaw.replace(/^(?:(?:dr|dra|doctor|doctora)\.?\s*)+/i, '');
-              const formattedVet = `Dr. ${toSentenceCase(cleanVet)}`;
+          {/* Evoluciones Clínicas de la Consulta */}
+          <div className="space-y-10">
+            <h3 className="text-xl font-bold text-slate-900 tracking-tight border-b-2 border-slate-200 pb-2">Información Clínica</h3>
 
-              return (
-                <div key={h.id_historial} className="relative pl-6 border-l-2 border-slate-200 pb-12 last:pb-0">
-                  <div className="mb-4">
-                    <div className="flex items-center gap-3 text-sm font-bold text-slate-400 tracking-widest mb-1">
-                      <span>{h.fecha ? new Date(h.fecha.includes('T') ? h.fecha.split('T')[0] + 'T12:00:00' : h.fecha + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A'}</span>
-                      <span className="text-slate-200">|</span>
-                      <span>{formatTo12h((h as any).hora) || '00:00'}</span>
-                      <span className="text-slate-200">|</span>
-                      <span className="text-slate-900">{formattedVet}</span>
-                    </div>
-                    <h4 className="text-lg font-bold text-slate-900 tracking-tight">{toSentenceCase('Evolución clínica')}</h4>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-50 p-6 rounded-2xl">
-                    <div>
-                      <p className="text-[9px] font-bold text-slate-400 tracking-[0.2em] mb-2 text-blue-800">Diagnóstico y Hallazgos</p>
-                      <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed">
-                        {toSentenceCase(h.diagnostico || 'No registrado')}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-bold text-slate-400 tracking-[0.2em] mb-2 text-emerald-800">Tratamiento y Procedimientos</p>
-                      <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed">
-                        {toSentenceCase(h.tratamiento || 'No registrado')}
-                      </p>
-                    </div>
-                  </div>
+            <div className="space-y-8">
+              {entrada.motivoConsulta && (
+                <div>
+                  <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2 uppercase">Motivo de Consulta / Síntomas</h4>
+                  <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                    {toSentenceCase(entrada.motivoConsulta)}
+                  </p>
                 </div>
-              );
-            })}
+              )}
+
+              <div>
+                <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2 uppercase">Diagnóstico y Hallazgos</h4>
+                <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                  {toSentenceCase(entrada.diagnostico || 'No registrado')}
+                </p>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2 uppercase">Tratamiento y Procedimientos</h4>
+                <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                  {toSentenceCase(entrada.tratamiento || 'No registrado')}
+                </p>
+              </div>
+
+              {((entrada as any).receta || (entrada as any).medicamentos) && (
+                <div>
+                  <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2 uppercase">Receta / Prescripción Médica</h4>
+                  <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                    {toSentenceCase((entrada as any).receta || (entrada as any).medicamentos)}
+                  </p>
+                </div>
+              )}
+
+              {(entrada as any).observaciones && (
+                <div>
+                  <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2 uppercase">Observaciones Adicionales</h4>
+                  <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                    {toSentenceCase((entrada as any).observaciones)}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Firmas */}
+          <div className="mt-24 grid grid-cols-2 gap-16">
+            <div className="text-center pt-8 border-t border-slate-300">
+              <p className="text-sm font-bold text-slate-800">Firma del Propietario</p>
+              <p className="text-[10px] text-slate-400 font-bold mt-1">CC: {clienteInfo?.cedula || '---'}</p>
+            </div>
+            <div className="text-center pt-8 border-t border-slate-300">
+              <p className="text-sm font-bold text-slate-800">Firma del Médico Veterinario</p>
+              <p className="text-[10px] text-slate-400 font-bold mt-1">
+                {formattedVet}
+              </p>
+            </div>
           </div>
 
           {/* Footer del Documento */}
@@ -1797,7 +1839,7 @@ export function HistorialMascotasPage() {
         </div>
       </div>
     );
-  }
+  };
 
   const renderContenido = () => {
     switch (pasoActual) {
@@ -1814,7 +1856,7 @@ export function HistorialMascotasPage() {
       case 'detalles':
         return entradaSeleccionada ? renderReporteDetallado(entradaSeleccionada) : renderInicio();
       case 'reporteCompleto':
-        return entradaSeleccionada ? renderReporteCompleto(entradaSeleccionada.id_mascota) : renderInicio();
+        return entradaSeleccionada ? renderReporteCompleto(entradaSeleccionada) : renderInicio();
       default:
         return renderInicio();
     }
