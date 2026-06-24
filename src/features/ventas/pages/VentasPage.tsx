@@ -389,7 +389,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
           <div>
             <h1 className="text-2xl font-semibold text-dark-primary flex items-center gap-2">
               <ShoppingCart className="w-6 h-6 text-emerald-400" />
-              Ventas y Facturación
+              Ventas
             </h1>
             <p className="text-sm text-dark-secondary mt-1">Administra los ingresos de los servicios veterinarios</p>
           </div>
@@ -552,7 +552,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                             size="sm"
                             className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
                             disabled={loading || venta.estado === 'anulada'}
-                            title="Anular Factura"
+                            title="Anular Venta"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -573,7 +573,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                 <p className="text-dark-secondary mb-6">
                   {busqueda
                     ? 'Intenta con otras fechas o nombres'
-                    : 'Comienza registrando tu primera venta/factura'
+                    : 'Comienza registrando tu primera venta'
                   }
                 </p>
               </div>
@@ -633,9 +633,9 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-black text-white">Anular Factura</h3>
+                    <h3 className="text-lg font-black text-white">Anular Venta</h3>
                     <p className="text-orange-100 text-xs font-medium">
-                      Factura #{anularDialog.venta?.id_venta?.toString().padStart(5, '0')} · Esta acción no se puede deshacer
+                      Venta #{anularDialog.venta?.id_venta?.toString().padStart(5, '0')} · Esta acción no se puede deshacer
                     </p>
                   </div>
                 </div>
@@ -646,7 +646,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                 <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
                   <p className="text-xs text-amber-700 leading-relaxed">
-                    La factura quedará marcada como <strong>ANULADA</strong> y no podrá ser modificada. El motivo quedará registrado en el sistema.
+                    La venta quedará marcada como <strong>ANULADA</strong> y no podrá ser modificada. El motivo quedará registrado en el sistema.
                   </p>
                 </div>
 
@@ -686,7 +686,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                   >
                     {loading
                       ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Anulando...</>
-                      : <><AlertTriangle className="w-4 h-4" />Anular Factura</>
+                      : <><AlertTriangle className="w-4 h-4" />Anular Venta</>
                     }
                   </button>
                 </div>
