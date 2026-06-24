@@ -59,7 +59,7 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
       clienteNombre.includes(searchLow) ||
       clienteCedula.includes(searchLow)
     );
-  }).sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base' }));
+  }).sort((a, b) => (b.id_mascota || 0) - (a.id_mascota || 0));
 
   // Cálculos de paginación
   const totalPages = Math.ceil(mascotasFiltradas.length / itemsPerPage);

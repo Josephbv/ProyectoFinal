@@ -322,7 +322,7 @@ export function HistorialMascotasPage() {
       (entrada.cedulaCliente || '').toLowerCase().includes(searchLow) ||
       (entrada.veterinario || '').toLowerCase().includes(searchLow)
     );
-  }).sort((a, b) => (a.nombreMascota || '').localeCompare(b.nombreMascota || '', 'es', { sensitivity: 'base' }));
+  }).sort((a, b) => (b.id_historial || 0) - (a.id_historial || 0));
 
   // Agrupamos el historial clínico por mascota única (id_mascota) para evitar duplicados en la tabla principal
   // Nos quedamos con la entrada más reciente de cada mascota para mostrar su información actual
@@ -342,7 +342,7 @@ export function HistorialMascotasPage() {
       }
       return acc;
     }, {} as Record<number, HistorialMascota>)
-  ).sort((a, b) => (a.nombreMascota || '').localeCompare(b.nombreMascota || '', 'es', { sensitivity: 'base' }));
+  ).sort((a, b) => (b.id_historial || 0) - (a.id_historial || 0));
 
   const estadisticas = {
     total: historiales.length,
@@ -1699,14 +1699,14 @@ export function HistorialMascotasPage() {
 
                         {/* Diagnóstico */}
                         <TableCell className="max-w-[200px]">
-                          <p className="text-xs text-dark-secondary truncate" title={entrada.diagnostico}>
+                          <p className="text-xs text-dark-secondary truncate" title={entrada.diagnostico ?? undefined}>
                             {toSentenceCase(entrada.diagnostico || 'Sin diagnóstico')}
                           </p>
                         </TableCell>
 
                         {/* Tratamiento */}
                         <TableCell className="max-w-[200px]">
-                          <p className="text-xs text-dark-secondary truncate" title={entrada.tratamiento}>
+                          <p className="text-xs text-dark-secondary truncate" title={entrada.tratamiento ?? undefined}>
                             {toSentenceCase(entrada.tratamiento || 'Sin tratamiento')}
                           </p>
                         </TableCell>

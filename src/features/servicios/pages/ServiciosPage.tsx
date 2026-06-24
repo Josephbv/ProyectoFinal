@@ -27,7 +27,7 @@ export function ServiciosPage() {
   const [paginaActual, setPaginaActual] = useState(1);
   const [elementosPorPagina] = useState(10);
 
-  const serviciosFiltrados = buscarServicios(busqueda).sort((a, b) => (a.nombre_servicio || '').localeCompare(b.nombre_servicio || '', 'es', { sensitivity: 'base' }));
+  const serviciosFiltrados = buscarServicios(busqueda).sort((a, b) => (b.id_servicio || 0) - (a.id_servicio || 0));
   const estadisticas = obtenerEstadisticas();
 
   // Calcular paginación

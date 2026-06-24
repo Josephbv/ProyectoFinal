@@ -18,7 +18,7 @@ export function UsuariosPage() {
     const [paginaActual, setPaginaActual] = useState(1);
     const [elementosPorPagina] = useState(10);
 
-    const usuariosFiltrados = buscarUsuarios(busqueda).sort((a, b) => (a.nombre_usuario || '').localeCompare(b.nombre_usuario || '', 'es', { sensitivity: 'base' }));
+    const usuariosFiltrados = buscarUsuarios(busqueda).sort((a, b) => (b.id_usuario || 0) - (a.id_usuario || 0));
 
     // Calcular paginación
     const totalPaginas = Math.ceil(usuariosFiltrados.length / elementosPorPagina);
