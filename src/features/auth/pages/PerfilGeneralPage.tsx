@@ -216,10 +216,10 @@ export function PerfilGeneralPage() {
             {/* ─── STATS GRID ──────────────────────────────────── */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
-                    { label: 'Rol', value: user.rol || 'N/A', icon: Shield, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-                    { label: 'Teléfono', value: telefono, icon: Phone, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-                    { label: 'Documento', value: user.cedula || '---', icon: CreditCard, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-                    { label: 'Dirección', value: direccion, icon: MapPin, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
+                    { label: 'Rol', value: user.rol || 'N/A', icon: Shield, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', dot: false },
+                    { label: 'Teléfono', value: telefono, icon: Phone, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', dot: false },
+                    { label: 'Documento', value: user.cedula || '---', icon: CreditCard, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20', dot: false },
+                    { label: 'Dirección', value: direccion, icon: MapPin, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', dot: false },
                 ].map((stat, i) => (
                     <div key={i} className={`dark-card p-4 border ${stat.border} hover:scale-[1.02] transition-transform cursor-default`}>
                         <div className="flex items-center gap-2 mb-2">

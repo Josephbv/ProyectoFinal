@@ -482,23 +482,23 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
             </Table>
           </div>
 
-          <div className="flex items-center justify-between pt-4 mt-4 border-t border-dark-color">
-            <div className="text-sm text-dark-secondary">
-              Mostrando {startIndex + 1}-{Math.min(endIndex, mascotasFiltradas.length)} de {mascotasFiltradas.length} mascotas
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-dark-secondary">Página {currentPage} de {totalPages || 1}</span>
+                    {/* Paginación */}
+          {mascotasFiltradas.length > 0 && (
+            <div className="flex items-center justify-between pt-4 mt-4 px-4 pb-4 border-t border-dark-color/40">
+              <div className="text-sm text-dark-secondary">
+                Mostrando {startIndex + 1}-{Math.min(endIndex, mascotasFiltradas.length)} de {mascotasFiltradas.length} mascotas
               </div>
-              <div className="flex items-center gap-1">
+
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1">
                 <Button onClick={() => goToPage(1)} disabled={currentPage === 1 || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
                 <Button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1 || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
                 <Button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
                 <Button onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages || loading || totalPages === 0} variant="outline" size="sm" className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
               </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
       </main>
 

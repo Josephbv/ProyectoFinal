@@ -17,36 +17,18 @@ namespace DbTool
                     connection.Open();
                     Console.WriteLine("Connection opened successfully.\n");
 
-                    Console.WriteLine("--- Mascotas in Database ---");
-                    using (SqlCommand cmd = new SqlCommand("SELECT id_mascota, nombre, fecha_creacion FROM Mascotas", connection))
+                    Console.WriteLine("--- Clientes in Database ---");
+                    using (SqlCommand cmd = new SqlCommand("SELECT id_cliente, nombre, correo, telefono, cedula FROM cliente", connection))
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             int id = reader.GetInt32(0);
                             string name = reader.IsDBNull(1) ? "null" : reader.GetString(1);
-                            string date = reader.IsDBNull(2) ? "null" : reader.GetDateTime(2).ToString("yyyy-MM-dd HH:mm:ss");
-                            Console.WriteLine($"ID: {id}, Name: {name}, FechaCreacion: {date}");
-                        }
-                    }
-
-                    Console.WriteLine("\n--- Updating null fecha_creacion to GETDATE() ---");
-                    using (SqlCommand cmd = new SqlCommand("UPDATE Mascotas SET fecha_creacion = GETDATE() WHERE fecha_creacion IS NULL", connection))
-                    {
-                        int affected = cmd.ExecuteNonQuery();
-                        Console.WriteLine($"Rows updated: {affected}");
-                    }
-
-                    Console.WriteLine("\n--- Mascotas in Database after update ---");
-                    using (SqlCommand cmd = new SqlCommand("SELECT id_mascota, nombre, fecha_creacion FROM Mascotas", connection))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            int id = reader.GetInt32(0);
-                            string name = reader.IsDBNull(1) ? "null" : reader.GetString(1);
-                            string date = reader.IsDBNull(2) ? "null" : reader.GetDateTime(2).ToString("yyyy-MM-dd HH:mm:ss");
-                            Console.WriteLine($"ID: {id}, Name: {name}, FechaCreacion: {date}");
+                            string email = reader.IsDBNull(2) ? "null" : reader.GetString(2);
+                            string phone = reader.IsDBNull(3) ? "null" : reader.GetString(3);
+                            string cedula = reader.IsDBNull(4) ? "null" : reader.GetString(4);
+                            Console.WriteLine($"ID: {id} | Name: '{name}' | Email: '{email}' | Phone: '{phone}' | Cedula: '{cedula}'");
                         }
                     }
                 }
