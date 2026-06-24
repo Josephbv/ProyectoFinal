@@ -1601,18 +1601,15 @@ export function HistorialMascotasPage() {
                     setFiltroServicio(e.target.value);
                     setPaginaActualMascota(1);
                   }}
-                  className="w-full h-11 bg-dark-card border border-dark-color rounded-2xl px-4 text-xs font-bold text-dark-primary focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all shadow-inner outline-none appearance-none pr-10 cursor-pointer"
+                  className="w-full h-11 bg-dark-card border border-dark-color rounded-2xl px-4 text-xs font-bold text-dark-primary focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-inner cursor-pointer outline-none"
                 >
-                  <option value="" className="bg-[#121314] text-dark-primary font-bold">Todos los servicios</option>
+                  <option value="">Todos los servicios</option>
                   {serviciosActivos.map((s) => (
-                    <option key={s.id_servicio} value={s.nombre_servicio} className="bg-[#121314] text-dark-primary">
+                    <option key={s.id_servicio} value={s.nombre_servicio}>
                       {toSentenceCase(s.nombre_servicio)}
                     </option>
                   ))}
                 </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-dark-secondary">
-                  <Search className="w-4 h-4 opacity-50" />
-                </div>
               </div>
 
               {!isClienteRole && (
