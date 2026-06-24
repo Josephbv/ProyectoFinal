@@ -148,7 +148,13 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
   };
 
   const getInitials = (nombre: string) => {
-    return nombre?.substring(0, 2).toUpperCase() || 'CL';
+    const cleanName = (nombre || '').trim();
+    if (!cleanName) return 'CL';
+    const parts = cleanName.split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return cleanName.substring(0, 2).toUpperCase();
   };
 
   const normalizarTipoDoc = (tipo?: string | null): string => {
@@ -163,17 +169,18 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
     return mapa[tipo.trim().toUpperCase()] || tipo;
   };
 
-  const getAvatarColor = (nombre: string) => {
-    const colors = [
-      'bg-gradient-to-br from-blue-500 to-blue-600',
-      'bg-gradient-to-br from-green-500 to-green-600',
-      'bg-gradient-to-br from-purple-500 to-purple-600',
-      'bg-gradient-to-br from-orange-500 to-orange-600',
-      'bg-gradient-to-br from-pink-500 to-pink-600',
-      'bg-gradient-to-br from-indigo-500 to-indigo-600'
-    ];
-    const index = (nombre?.length || 0) % colors.length;
-    return colors[index];
+  const getAvatarStyle = (nombre: string) => {
+    let hash = 0;
+    const str = (nombre || '').trim();
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const h = Math.abs(hash % 360);
+    const s = 65; // Saturation
+    const l = 45; // Lightness
+    return {
+      background: `linear-gradient(135deg, hsl(${h}, ${s}%, ${l}%) 0%, hsl(${(h + 40) % 360}, ${s}%, ${l - 10}%) 100%)`
+    };
   };
 
   const exportarClientesPDF = () => {
@@ -462,7 +469,10 @@ export function ClientesPage({ onNewMascota }: ClientesPageProps) {
                   <TableRow key={`${cliente.id_cliente}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 ${getAvatarColor(cliente.nombre || cliente.correo || '')} rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg`}>
+                        <div 
+                          style={getAvatarStyle(cliente.nombre || cliente.correo || '')}
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg shrink-0"
+                        >
                           {getInitials(cliente.nombre || cliente.correo || '')}
                         </div>
                         <div>
