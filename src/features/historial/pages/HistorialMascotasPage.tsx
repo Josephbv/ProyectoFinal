@@ -1568,7 +1568,7 @@ export function HistorialMascotasPage() {
       .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 
     // Paginación para Historial
-    const elementosPorPaginaMascota = 5;
+    const elementosPorPaginaMascota = 10;
 
     const totalPaginas = Math.ceil(historialDeLaMascota.length / elementosPorPaginaMascota);
     const indiceInicio = (paginaActualMascota - 1) * elementosPorPaginaMascota;
