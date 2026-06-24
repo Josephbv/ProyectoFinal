@@ -1926,7 +1926,7 @@ export function HistorialMascotasPage() {
     <div className="flex flex-col bg-[#0a0b0c]">
       {!['formulario', 'detalles', 'reporteCompleto'].includes(pasoActual) && (
         <header className="px-10 py-6 border-b border-dark-color bg-dark-bg shrink-0">
-          <div className="flex items-center justify-between gap-12">
+          <div className="max-w-5xl mx-auto w-full flex items-center justify-between gap-12">
             <div className="shrink-0">
               <div className="flex items-center gap-3">
                 <ClipboardPlus className="w-6 h-6 text-blue-500" />
