@@ -1790,7 +1790,7 @@ export function HistorialMascotasPage() {
         </div>
 
         {/* Contenido del Reporte (Formato A4) */}
-        <div id="printable-report-area" className="mx-auto w-full p-16 print:p-0 bg-white print:shadow-none shadow-2xl my-10 print:my-0" style={{ maxWidth: '850px' }}>
+        <div id="printable-report-area" className="mx-auto w-full p-16 print:p-0 bg-white print:shadow-none" style={{ maxWidth: '850px' }}>
           {/* Header del Documento */}
           <div className="flex justify-between items-start border-b-2 border-slate-900 pb-10 mb-10 text-slate-900">
             <div>
@@ -1879,15 +1879,6 @@ export function HistorialMascotasPage() {
                 </p>
               </div>
 
-              {((entrada as any).receta || (entrada as any).medicamentos) && (
-                <div>
-                  <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2 uppercase">Receta / Prescripción Médica</h4>
-                  <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                    {toSentenceCase((entrada as any).receta || (entrada as any).medicamentos)}
-                  </p>
-                </div>
-              )}
-
               {(entrada as any).observaciones && (
                 <div>
                   <h4 className="text-sm font-bold text-slate-400 tracking-widest mb-2 uppercase">Observaciones Adicionales</h4>
@@ -1896,20 +1887,6 @@ export function HistorialMascotasPage() {
                   </p>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Firmas */}
-          <div className="mt-24 grid grid-cols-2 gap-16">
-            <div className="text-center pt-8 border-t border-slate-300">
-              <p className="text-sm font-bold text-slate-800">Firma del Propietario</p>
-              <p className="text-[10px] text-slate-400 font-bold mt-1">CC: {clienteInfo?.cedula || '---'}</p>
-            </div>
-            <div className="text-center pt-8 border-t border-slate-300">
-              <p className="text-sm font-bold text-slate-800">Firma del Médico Veterinario</p>
-              <p className="text-[10px] text-slate-400 font-bold mt-1">
-                {formattedVet}
-              </p>
             </div>
           </div>
 
