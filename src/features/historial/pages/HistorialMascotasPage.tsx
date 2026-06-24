@@ -1601,7 +1601,7 @@ export function HistorialMascotasPage() {
                     setFiltroServicio(e.target.value);
                     setPaginaActualMascota(1);
                   }}
-                  className="w-full h-11 bg-dark-card border border-dark-color rounded-2xl px-4 text-xs font-bold text-dark-primary focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-inner cursor-pointer outline-none"
+                  className="w-full h-12 bg-dark-card border border-dark-color rounded-2xl px-4 text-xs font-bold text-dark-primary focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-inner cursor-pointer outline-none"
                 >
                   <option value="">Todos los servicios</option>
                   {serviciosActivos.map((s) => (
@@ -1615,7 +1615,7 @@ export function HistorialMascotasPage() {
               {!isClienteRole && (
                 <Button
                   onClick={() => abrirFormulario(undefined, true)}
-                  className="bg-blue-600 hover:bg-blue-500 text-white font-black tracking-widest px-8 rounded-2xl h-11 shadow-xl shadow-blue-500/20 gap-2 transition-all active:scale-95 hover:scale-[1.02]"
+                  className="bg-blue-600 hover:bg-blue-500 text-white font-black tracking-widest px-8 rounded-2xl h-12 shadow-xl shadow-blue-500/20 gap-2 transition-all active:scale-95 hover:scale-[1.02]"
                 >
                   <Plus className="w-4 h-4" /> Nuevo
                 </Button>
