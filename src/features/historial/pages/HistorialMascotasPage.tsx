@@ -319,16 +319,36 @@ export function HistorialMascotasPage() {
     );
   }).sort((a, b) => (a.nombreMascota || '').localeCompare(b.nombreMascota || '', 'es', { sensitivity: 'base' }));
 
+  // Agrupamos el historial clínico por mascota única (id_mascota) para evitar duplicados en la tabla principal
+  // Nos quedamos con la entrada más reciente de cada mascota para mostrar su información actual
+  const historialAgrupadoPorMascota = Object.values(
+    historialFiltrado.reduce((acc, entrada) => {
+      const petId = entrada.id_mascota;
+      if (!petId) return acc;
+      if (!acc[petId]) {
+        acc[petId] = entrada;
+      } else {
+        const currentNewest = acc[petId];
+        const dateCurrent = new Date(currentNewest.fecha + 'T' + (currentNewest.hora || '00:00')).getTime();
+        const dateNew = new Date(entrada.fecha + 'T' + (entrada.hora || '00:00')).getTime();
+        if (dateNew > dateCurrent) {
+          acc[petId] = entrada;
+        }
+      }
+      return acc;
+    }, {} as Record<number, HistorialMascota>)
+  ).sort((a, b) => (a.nombreMascota || '').localeCompare(b.nombreMascota || '', 'es', { sensitivity: 'base' }));
+
   const estadisticas = {
     total: historiales.length,
     hoy: historiales.filter(h => h.fecha === new Date().toISOString().split('T')[0]).length
   };
 
-  // Cálculos de paginación
-  const totalPages = Math.ceil(historialFiltrado.length / itemsPerPage);
+  // Cálculos de paginación basados en mascotas únicas
+  const totalPages = Math.ceil(historialAgrupadoPorMascota.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const historialPaginado = historialFiltrado.slice(startIndex, endIndex);
+  const historialPaginado = historialAgrupadoPorMascota.slice(startIndex, endIndex);
 
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
@@ -549,6 +569,31 @@ export function HistorialMascotasPage() {
   const abrirDetalles = (entrada: HistorialMascota) => {
     setEntradaSeleccionada(entrada);
     setPasoActual('detalles');
+  };
+
+  const abrirTimelineMascota = (entrada: HistorialMascota) => {
+    const petInfo = mascotas.find(m => m.id_mascota === entrada.id_mascota) || entrada.mascota;
+    const clientInfo = clientes.find(c => c.id_cliente === petInfo?.id_cliente) || petInfo?.cliente;
+    
+    setClienteSeleccionado(clientInfo || null);
+    setMascotaSeleccionada(petInfo || null);
+    setPaginaActualMascota(1);
+    setPasoActual('timeline');
+  };
+
+  const registrarNuevoHistorialMascota = (entrada: HistorialMascota) => {
+    const petInfo = mascotas.find(m => m.id_mascota === entrada.id_mascota) || entrada.mascota;
+    const clientInfo = clientes.find(c => c.id_cliente === petInfo?.id_cliente) || petInfo?.cliente;
+    
+    setClienteSeleccionado(clientInfo || null);
+    setMascotaSeleccionada(petInfo || null);
+    setEntradaSeleccionada(null);
+    resetForm();
+    
+    setSelectedClientId(clientInfo?.id_cliente?.toString() || '');
+    setSelectedPetId(petInfo?.id_mascota?.toString() || '');
+    
+    setPasoActual('formulario');
   };
 
   const handleConsultaMedica = async (data: { motivoConsulta: string; diagnostico: string; tratamiento: string }) => {
@@ -1193,9 +1238,9 @@ export function HistorialMascotasPage() {
             <div className="flex items-center justify-between px-6">
               <h3 className="text-xl font-black text-dark-primary tracking-tight flex items-center gap-3">
                 <FileText className="w-6 h-6 text-blue-500" />
-                Registros históricos recientes
+                Mascotas con registros médicos
               </h3>
-              <span className="text-[10px] font-black text-dark-secondary tracking-widest">{historialFiltrado.length} entradas totales</span>
+              <span className="text-[10px] font-black text-dark-secondary tracking-widest">{historialAgrupadoPorMascota.length} mascotas registradas ({historialFiltrado.length} consultas)</span>
             </div>
 
             <div className="dark-card overflow-hidden">
@@ -1214,13 +1259,13 @@ export function HistorialMascotasPage() {
                         <div className="flex items-center gap-2"><Fingerprint className="w-4 h-4 text-blue-400" />Documento</div>
                       </TableHead>
                       <TableHead className="text-dark-primary font-semibold min-w-[120px]">
-                        <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" />Fecha / hora</div>
+                        <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" />Última Visita</div>
                       </TableHead>
                       <TableHead className="text-dark-primary font-semibold min-w-[120px]">
-                        <div className="flex items-center gap-2"><Activity className="w-4 h-4 text-blue-400" />Categoría</div>
+                        <div className="flex items-center gap-2"><Activity className="w-4 h-4 text-blue-400" />Último Tipo</div>
                       </TableHead>
                       <TableHead className="text-dark-primary font-semibold min-w-[140px]">
-                        <div className="flex items-center gap-2"><Stethoscope className="w-4 h-4 text-blue-400" />Veterinario</div>
+                        <div className="flex items-center gap-2"><Stethoscope className="w-4 h-4 text-blue-400" />Veterinario Asignado</div>
                       </TableHead>
                       <TableHead className="text-dark-primary font-semibold text-center w-28">Acciones</TableHead>
                     </TableRow>
@@ -1267,40 +1312,26 @@ export function HistorialMascotasPage() {
                         <TableCell>
                           <div className="flex items-center justify-center gap-1.5">
                             <Button
-                              onClick={() => abrirDetalles(entrada)}
+                              onClick={() => abrirTimelineMascota(entrada)}
                               variant="outline"
                               size="sm"
                               className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
-                              title="Ver reporte"
+                              title="Ver historial completo"
                               disabled={loading}
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
                             {!isClienteRole && (
-                              <>
-                                <Button
-                                  onClick={() => abrirFormulario(entrada)}
-                                  variant="outline"
-                                  size="sm"
-                                  className="p-2 h-9 w-9 bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30"
-                                  title="Editar"
-                                  disabled={loading}
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                {!isVetRole && (
-                                  <Button
-                                    onClick={() => setDeleteDialog({ isOpen: true, entrada })}
-                                    variant="outline"
-                                    size="sm"
-                                    className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                                    title="Eliminar"
-                                    disabled={loading}
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                )}
-                              </>
+                              <Button
+                                onClick={() => registrarNuevoHistorialMascota(entrada)}
+                                variant="outline"
+                                size="sm"
+                                className="p-2 h-9 w-9 bg-emerald-500/20 border-emerald-500 text-emerald-400 hover:bg-emerald-500/30"
+                                title="Nueva consulta rápida"
+                                disabled={loading}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
                             )}
                           </div>
                         </TableCell>
@@ -1311,7 +1342,7 @@ export function HistorialMascotasPage() {
                         <TableCell colSpan={7} className="h-64 text-center border-none">
                           <div className="flex flex-col items-center justify-center gap-4 text-dark-secondary">
                             <FileText className="w-12 h-12 opacity-20" />
-                            <p className="font-black  tracking-[0.2em] text-sm">No se encontraron registros médicos</p>
+                            <p className="font-black  tracking-[0.2em] text-sm">No se encontraron mascotas con registros</p>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -1532,10 +1563,10 @@ export function HistorialMascotasPage() {
           <div className="flex items-center justify-between mb-8">
             <Button
               variant="ghost"
-              onClick={() => setPasoActual('mascota')}
+              onClick={() => setPasoActual('inicio')}
               className="text-dark-secondary hover:bg-dark-hover gap-2 font-black  tracking-widest"
             >
-              <ChevronLeft className="w-4 h-4" /> Volver a Mascotas
+              <ChevronLeft className="w-4 h-4" /> Volver al Inicio
             </Button>
             {!isClienteRole && (
               <Button
