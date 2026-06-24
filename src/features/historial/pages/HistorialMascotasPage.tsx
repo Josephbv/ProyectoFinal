@@ -249,6 +249,7 @@ export function HistorialMascotasPage() {
 
   // Paginación para Historial
   const [paginaActualMascota, setPaginaActualMascota] = useState(1);
+  const [filtroServicio, setFiltroServicio] = useState("");
 
   // Hooks para el formulario
   const { clientes } = useClientes();
@@ -1551,8 +1552,19 @@ export function HistorialMascotasPage() {
   };
 
   const renderTimeline = () => {
+    const serviciosActivos = servicios.filter(s => s.estado === 'activo');
+
     const historialDeLaMascota = historiales
       .filter(h => h.id_mascota === mascotaSeleccionada?.id_mascota)
+      .filter(h => {
+        if (!filtroServicio) return true;
+        const tipoVisitaArr = Array.isArray(h.tipoVisita) 
+          ? h.tipoVisita 
+          : [h.tipoVisita];
+        const normalizeStr = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        const normalizedFilter = normalizeStr(filtroServicio);
+        return tipoVisitaArr.some(tipo => tipo && normalizeStr(tipo).includes(normalizedFilter));
+      })
       .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 
     // Paginación para Historial
@@ -1566,22 +1578,52 @@ export function HistorialMascotasPage() {
     return (
       <div className="p-8 space-y-8 animate-in zoom-in-95 duration-500">
         <div className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <Button
-              variant="ghost"
-              onClick={() => setPasoActual('inicio')}
-              className="text-dark-secondary hover:bg-dark-hover gap-2 font-black  tracking-widest"
-            >
-              <ChevronLeft className="w-4 h-4" /> Volver al Inicio
-            </Button>
-            {!isClienteRole && (
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-4">
               <Button
-                onClick={() => abrirFormulario(undefined, true)}
-                className="bg-blue-600 hover:bg-blue-500 text-white font-black tracking-widest px-8 rounded-2xl h-12 shadow-xl shadow-blue-500/20 gap-2 transition-all active:scale-95 hover:scale-[1.02]"
+                variant="ghost"
+                onClick={() => {
+                  setFiltroServicio("");
+                  setPasoActual('inicio');
+                }}
+                className="text-dark-secondary hover:bg-dark-hover gap-2 font-black tracking-widest"
               >
-                <Plus className="w-4 h-4" /> Nuevo
+                <ChevronLeft className="w-4 h-4" /> Volver al Inicio
               </Button>
-            )}
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              {/* Filtro por Servicio */}
+              <div className="relative min-w-[220px]">
+                <select
+                  value={filtroServicio}
+                  onChange={(e) => {
+                    setFiltroServicio(e.target.value);
+                    setPaginaActualMascota(1);
+                  }}
+                  className="w-full h-11 bg-dark-card border border-dark-color rounded-2xl px-4 text-xs font-bold text-dark-primary focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all shadow-inner outline-none appearance-none pr-10 cursor-pointer"
+                >
+                  <option value="" className="bg-[#121314] text-dark-primary font-bold">Todos los servicios</option>
+                  {serviciosActivos.map((s) => (
+                    <option key={s.id_servicio} value={s.nombre_servicio} className="bg-[#121314] text-dark-primary">
+                      {toSentenceCase(s.nombre_servicio)}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-dark-secondary">
+                  <Search className="w-4 h-4 opacity-50" />
+                </div>
+              </div>
+
+              {!isClienteRole && (
+                <Button
+                  onClick={() => abrirFormulario(undefined, true)}
+                  className="bg-blue-600 hover:bg-blue-500 text-white font-black tracking-widest px-8 rounded-2xl h-11 shadow-xl shadow-blue-500/20 gap-2 transition-all active:scale-95 hover:scale-[1.02]"
+                >
+                  <Plus className="w-4 h-4" /> Nuevo
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="dark-card overflow-hidden">
