@@ -1596,63 +1596,114 @@ export function HistorialMascotasPage() {
             </div>
           </header>
 
-          <div className="space-y-12 pl-8 border-l border-dark-color relative">
-            {historialesPaginados.map((entrada, index) => (
-              <div key={`${entrada.id_historial}-${index}`} className="relative">
-                <div className="absolute -left-[41px] top-4 w-5 h-5 rounded-full bg-[#0a0b0c] border-[4px] border-blue-500 z-10" />
+          <div className="bg-dark-card border border-dark-color rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-dark-bg/60 border-b border-dark-color">
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-8 py-6">Fecha / Hora</TableHead>
+                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-6 py-6">Servicios</TableHead>
+                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-6 py-6">Veterinario</TableHead>
+                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-6 py-6">Diagnóstico</TableHead>
+                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-6 py-6">Tratamiento</TableHead>
+                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-8 py-6 text-right">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {historialesPaginados.map((entrada, index) => {
+                    const cleanVet = ((entrada as any).veterinario || '').replace(/^(?:(?:dr|dra|doctor|doctora)\.?\s*)+/i, '');
+                    const formattedVet = cleanVet ? `Dr. ${toSentenceCase(cleanVet)}` : 'No asignado';
 
-                <div className="bg-dark-card border border-dark-color rounded-[2.5rem] p-8 shadow-xl hover:border-blue-500/30 transition-all group">
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-lg text-[10px] font-black  tracking-widest underline decoration-2">
-                          ID: #{entrada.id_historial}
-                        </span>
-                        <span className="text-[10px] font-black text-dark-secondary  tracking-widest">
-                          {new Date(
-                            (entrada.fecha.includes('T') ? entrada.fecha.split('T')[0] : entrada.fecha) + 'T12:00:00'
-                          ).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                        </span>
-                      </div>
-                      <h3 className="text-2xl font-black text-dark-primary  tracking-tight group-hover:text-blue-400 transition-colors">
-                        {toSentenceCase(entrada.descripcion) || 'Consulta médica'}
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button onClick={() => abrirDetalles(entrada)} variant="outline" size="icon" className="w-10 h-10 rounded-2xl border-dark-color text-blue-400 hover:bg-blue-500/10">
-                        <Eye className="w-5 h-5" />
-                      </Button>
-                      {!isClienteRole && (
-                        <>
-                          <Button onClick={() => abrirFormulario(entrada)} variant="outline" size="icon" className="w-10 h-10 rounded-2xl border-dark-color text-yellow-400 hover:bg-yellow-500/10">
-                            <Edit className="w-5 h-5" />
-                          </Button>
-                          {!isVetRole && (
-                            <Button onClick={() => setDeleteDialog({ isOpen: true, entrada })} variant="outline" size="icon" className="w-10 h-10 rounded-2xl border-dark-color text-red-400 hover:bg-red-500/10">
-                              <Trash2 className="w-5 h-5" />
+                    return (
+                      <TableRow key={`${entrada.id_historial}-${index}`} className="border-b border-dark-color/40 hover:bg-dark-hover/40 transition-colors">
+                        {/* Fecha */}
+                        <TableCell className="px-8 py-6">
+                          <div className="flex flex-col">
+                            <span className="text-xs font-black text-dark-primary">
+                              {new Date((entrada.fecha.includes('T') ? entrada.fecha.split('T')[0] : entrada.fecha) + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            </span>
+                            <span className="text-[10px] text-dark-secondary font-bold tracking-wider mt-0.5">
+                              {formatTo12h((entrada as any).hora) || '00:00'}
+                            </span>
+                          </div>
+                        </TableCell>
+
+                        {/* Servicio */}
+                        <TableCell className="px-6 py-6">
+                          <div className="flex flex-wrap gap-1">
+                            {Array.isArray(entrada.tipoVisita) ? entrada.tipoVisita.map((tipo, idx) => (
+                              <span key={idx} className="px-2 py-0.5 rounded-md text-[8px] font-black tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                {toSentenceCase(tipo)}
+                              </span>
+                            )) : (
+                              <span className="px-2 py-0.5 rounded-md text-[8px] font-black tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                {toSentenceCase(entrada.tipoVisita)}
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+
+                        {/* Veterinario */}
+                        <TableCell className="px-6 py-6">
+                          <span className="text-xs font-black text-dark-secondary">
+                            {formattedVet}
+                          </span>
+                        </TableCell>
+
+                        {/* Diagnóstico */}
+                        <TableCell className="px-6 py-6 max-w-[200px]">
+                          <p className="text-xs font-bold text-dark-primary truncate" title={entrada.diagnostico}>
+                            {toSentenceCase(entrada.diagnostico || 'Sin diagnóstico')}
+                          </p>
+                        </TableCell>
+
+                        {/* Tratamiento */}
+                        <TableCell className="px-6 py-6 max-w-[200px]">
+                          <p className="text-xs font-bold text-dark-primary truncate" title={entrada.tratamiento}>
+                            {toSentenceCase(entrada.tratamiento || 'Sin tratamiento')}
+                          </p>
+                        </TableCell>
+
+                        {/* Acciones */}
+                        <TableCell className="px-8 py-6 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button onClick={() => abrirDetalles(entrada)} variant="outline" size="icon" className="w-8 h-8 rounded-xl border-dark-color text-blue-400 hover:bg-blue-500/10 transition-all">
+                              <Eye className="w-4 h-4" />
                             </Button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+                            {!isClienteRole && (
+                              <>
+                                <Button onClick={() => abrirFormulario(entrada)} variant="outline" size="icon" className="w-8 h-8 rounded-xl border-dark-color text-yellow-400 hover:bg-yellow-500/10 transition-all">
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                {!isVetRole && (
+                                  <Button onClick={() => setDeleteDialog({ isOpen: true, entrada })} variant="outline" size="icon" className="w-8 h-8 rounded-xl border-dark-color text-red-400 hover:bg-red-500/10 transition-all">
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
 
             {/* Paginación */}
             {historialDeLaMascota.length > 0 && (
-              <div className="flex items-center justify-between pt-4 mt-4 px-4 pb-4">
-                <div className="text-sm text-dark-secondary">
+              <div className="flex items-center justify-between pt-6 pb-6 px-8 border-t border-dark-color/40 bg-dark-bg/25">
+                <div className="text-xs font-bold text-dark-secondary">
                   Mostrando {indiceInicio + 1}-{Math.min(indiceFin, historialDeLaMascota.length)} de {historialDeLaMascota.length} entradas
                 </div>
 
                 {totalPaginas > 1 && (
                   <div className="flex items-center gap-1">
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(1)} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.max(prev - 1, 1))} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(totalPaginas)} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(1)} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3.5 h-3.5" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.max(prev - 1, 1))} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3.5 h-3.5" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3.5 h-3.5" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(totalPaginas)} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3.5 h-3.5" /></Button>
                   </div>
                 )}
               </div>
