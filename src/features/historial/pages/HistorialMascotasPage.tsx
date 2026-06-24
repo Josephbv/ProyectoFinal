@@ -1790,7 +1790,7 @@ export function HistorialMascotasPage() {
         </div>
 
         {/* Contenido del Reporte (Formato A4) */}
-        <div id="printable-report-area" className="max-w-[1000px] mx-auto w-full p-16 print:p-0 bg-white print:shadow-none shadow-2xl my-10 print:my-0">
+        <div id="printable-report-area" className="mx-auto w-full p-16 print:p-0 bg-white print:shadow-none shadow-2xl my-10 print:my-0" style={{ maxWidth: '850px' }}>
           {/* Header del Documento */}
           <div className="flex justify-between items-start border-b-2 border-slate-900 pb-10 mb-10 text-slate-900">
             <div>
