@@ -831,30 +831,19 @@ export function HistorialMascotasPage() {
                   <Label className="text-[10px] font-black text-dark-secondary tracking-[0.2em] opacity-80">
                     Tipo de Servicio <span className="text-red-500">*</span>
                   </Label>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap justify-start items-center gap-3 w-full">
                     {visitTypes.map(type => (
                       <button
                         key={type.id}
                         type="button"
                         onClick={() => toggleTipoVisita(type.id)}
-                        className={`px-5 rounded-2xl border text-xs font-black tracking-widest transition-all whitespace-nowrap ${formData.tipoVisita.includes(type.id)
+                        className={`flex items-center justify-center gap-3 px-5 rounded-2xl border text-xs font-black tracking-widest transition-all whitespace-nowrap h-[42px] ${formData.tipoVisita.includes(type.id)
                           ? `bg-blue-500/20 border-blue-500 text-blue-400 shadow-md transform scale-105`
                           : 'bg-dark-bg border-dark-color/50 text-dark-secondary hover:bg-dark-hover'
                           }`}
-                        style={{
-                          height: '42px',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          lineHeight: '1',
-                          paddingTop: 0,
-                          paddingBottom: 0
-                        }}
                       >
-                        <div className="flex items-center justify-center gap-3 h-full">
-                          <div className={`w-2 h-2 rounded-full shrink-0 ${formData.tipoVisita.includes(type.id) ? `bg-blue-400 animate-pulse` : 'bg-dark-secondary opacity-30'}`} />
-                          <span>{type.label}</span>
-                        </div>
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${formData.tipoVisita.includes(type.id) ? `bg-blue-400 animate-pulse` : 'bg-dark-secondary opacity-30'}`} />
+                        <span>{type.label}</span>
                       </button>
                     ))}
                   </div>
