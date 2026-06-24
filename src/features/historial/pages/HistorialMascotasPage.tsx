@@ -1596,17 +1596,27 @@ export function HistorialMascotasPage() {
             </div>
           </header>
 
-          <div className="bg-dark-card border border-dark-color rounded-[2.5rem] overflow-hidden shadow-2xl">
+          <div className="dark-card overflow-hidden">
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="bg-dark-bg/60 border-b border-dark-color">
-                  <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-8 py-6">Fecha / Hora</TableHead>
-                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-6 py-6">Servicios</TableHead>
-                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-6 py-6">Veterinario</TableHead>
-                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-6 py-6">Diagnóstico</TableHead>
-                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-6 py-6">Tratamiento</TableHead>
-                    <TableHead className="text-[10px] font-black text-dark-secondary uppercase tracking-[0.2em] px-8 py-6 text-right">Acciones</TableHead>
+                <TableHeader>
+                  <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
+                    <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                      <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" />Fecha / Hora</div>
+                    </TableHead>
+                    <TableHead className="text-dark-primary font-semibold min-w-[120px]">
+                      <div className="flex items-center gap-2"><Activity className="w-4 h-4 text-blue-400" />Servicios</div>
+                    </TableHead>
+                    <TableHead className="text-dark-primary font-semibold min-w-[140px]">
+                      <div className="flex items-center gap-2"><Stethoscope className="w-4 h-4 text-blue-400" />Veterinario</div>
+                    </TableHead>
+                    <TableHead className="text-dark-primary font-semibold min-w-[160px]">
+                      <div className="flex items-center gap-2"><FileText className="w-4 h-4 text-blue-400" />Diagnóstico</div>
+                    </TableHead>
+                    <TableHead className="text-dark-primary font-semibold min-w-[160px]">
+                      <div className="flex items-center gap-2"><HeartPulse className="w-4 h-4 text-blue-400" />Tratamiento</div>
+                    </TableHead>
+                    <TableHead className="text-dark-primary font-semibold text-center w-28">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1615,28 +1625,28 @@ export function HistorialMascotasPage() {
                     const formattedVet = cleanVet ? `Dr. ${toSentenceCase(cleanVet)}` : 'No asignado';
 
                     return (
-                      <TableRow key={`${entrada.id_historial}-${index}`} className="border-b border-dark-color/40 hover:bg-dark-hover/40 transition-colors">
+                      <TableRow key={`${entrada.id_historial}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors group">
                         {/* Fecha */}
-                        <TableCell className="px-8 py-6">
+                        <TableCell>
                           <div className="flex flex-col">
-                            <span className="text-xs font-black text-dark-primary">
+                            <span className="text-dark-primary text-xs font-black">
                               {new Date((entrada.fecha.includes('T') ? entrada.fecha.split('T')[0] : entrada.fecha) + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                             </span>
-                            <span className="text-[10px] text-dark-secondary font-bold tracking-wider mt-0.5">
+                            <span className="text-[9px] text-dark-secondary font-bold tracking-widest mt-0.5">
                               {formatTo12h((entrada as any).hora) || '00:00'}
                             </span>
                           </div>
                         </TableCell>
 
                         {/* Servicio */}
-                        <TableCell className="px-6 py-6">
+                        <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {Array.isArray(entrada.tipoVisita) ? entrada.tipoVisita.map((tipo, idx) => (
-                              <span key={idx} className="px-2 py-0.5 rounded-md text-[8px] font-black tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                              <span key={idx} className={`px-2 py-0.5 rounded-md text-[8px] font-black tracking-widest ${getTipoVisitaColor(tipo)}`}>
                                 {toSentenceCase(tipo)}
                               </span>
                             )) : (
-                              <span className="px-2 py-0.5 rounded-md text-[8px] font-black tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                              <span className={`px-2 py-0.5 rounded-md text-[8px] font-black tracking-widest ${getTipoVisitaColor(entrada.tipoVisita)}`}>
                                 {toSentenceCase(entrada.tipoVisita)}
                               </span>
                             )}
@@ -1644,39 +1654,57 @@ export function HistorialMascotasPage() {
                         </TableCell>
 
                         {/* Veterinario */}
-                        <TableCell className="px-6 py-6">
-                          <span className="text-xs font-black text-dark-secondary">
+                        <TableCell>
+                          <span className="text-dark-primary text-xs font-bold">
                             {formattedVet}
                           </span>
                         </TableCell>
 
                         {/* Diagnóstico */}
-                        <TableCell className="px-6 py-6 max-w-[200px]">
-                          <p className="text-xs font-bold text-dark-primary truncate" title={entrada.diagnostico}>
+                        <TableCell className="max-w-[200px]">
+                          <p className="text-xs text-dark-secondary truncate" title={entrada.diagnostico}>
                             {toSentenceCase(entrada.diagnostico || 'Sin diagnóstico')}
                           </p>
                         </TableCell>
 
                         {/* Tratamiento */}
-                        <TableCell className="px-6 py-6 max-w-[200px]">
-                          <p className="text-xs font-bold text-dark-primary truncate" title={entrada.tratamiento}>
+                        <TableCell className="max-w-[200px]">
+                          <p className="text-xs text-dark-secondary truncate" title={entrada.tratamiento}>
                             {toSentenceCase(entrada.tratamiento || 'Sin tratamiento')}
                           </p>
                         </TableCell>
 
                         {/* Acciones */}
-                        <TableCell className="px-8 py-6 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <Button onClick={() => abrirDetalles(entrada)} variant="outline" size="icon" className="w-8 h-8 rounded-xl border-dark-color text-blue-400 hover:bg-blue-500/10 transition-all">
+                        <TableCell>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <Button
+                              onClick={() => abrirDetalles(entrada)}
+                              variant="outline"
+                              size="sm"
+                              className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
+                              title="Ver detalles / Imprimir"
+                            >
                               <Eye className="w-4 h-4" />
                             </Button>
                             {!isClienteRole && (
                               <>
-                                <Button onClick={() => abrirFormulario(entrada)} variant="outline" size="icon" className="w-8 h-8 rounded-xl border-dark-color text-yellow-400 hover:bg-yellow-500/10 transition-all">
+                                <Button
+                                  onClick={() => abrirFormulario(entrada)}
+                                  variant="outline"
+                                  size="sm"
+                                  className="p-2 h-9 w-9 bg-yellow-500/20 border-yellow-500 text-yellow-400 hover:bg-yellow-500/30"
+                                  title="Editar"
+                                >
                                   <Edit className="w-4 h-4" />
                                 </Button>
                                 {!isVetRole && (
-                                  <Button onClick={() => setDeleteDialog({ isOpen: true, entrada })} variant="outline" size="icon" className="w-8 h-8 rounded-xl border-dark-color text-red-400 hover:bg-red-500/10 transition-all">
+                                  <Button
+                                    onClick={() => setDeleteDialog({ isOpen: true, entrada })}
+                                    variant="outline"
+                                    size="sm"
+                                    className="p-2 h-9 w-9 bg-rose-500/20 border-rose-500 text-rose-500 hover:bg-rose-500/30"
+                                    title="Eliminar"
+                                  >
                                     <Trash2 className="w-4 h-4" />
                                   </Button>
                                 )}
@@ -1693,17 +1721,17 @@ export function HistorialMascotasPage() {
 
             {/* Paginación */}
             {historialDeLaMascota.length > 0 && (
-              <div className="flex items-center justify-between pt-6 pb-6 px-8 border-t border-dark-color/40 bg-dark-bg/25">
-                <div className="text-xs font-bold text-dark-secondary">
+              <div className="flex items-center justify-between pt-4 mt-4 px-4 pb-4 border-t border-dark-color/40">
+                <div className="text-sm text-dark-secondary">
                   Mostrando {indiceInicio + 1}-{Math.min(indiceFin, historialDeLaMascota.length)} de {historialDeLaMascota.length} entradas
                 </div>
 
                 {totalPaginas > 1 && (
                   <div className="flex items-center gap-1">
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(1)} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3.5 h-3.5" /></Button>
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.max(prev - 1, 1))} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3.5 h-3.5" /></Button>
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3.5 h-3.5" /></Button>
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(totalPaginas)} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3.5 h-3.5" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(1)} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.max(prev - 1, 1))} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(totalPaginas)} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
                   </div>
                 )}
               </div>
