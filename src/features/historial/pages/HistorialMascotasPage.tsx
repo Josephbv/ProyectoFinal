@@ -19,15 +19,19 @@ import { Textarea } from "../../../shared/components/textarea";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
 import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 
-const toSentenceCase = (str: string = '') => {
-  if (!str) return '';
-  const s = str.trim().toLowerCase();
+const toSentenceCase = (str: any = '') => {
+  if (str === null || str === undefined) return '';
+  const stringVal = typeof str === 'string' ? str : String(str);
+  if (!stringVal.trim()) return '';
+  const s = stringVal.trim().toLowerCase();
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
-const toTitleCase = (str: string = '') => {
-  if (!str) return '';
-  return str.trim().toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+const toTitleCase = (str: any = '') => {
+  if (str === null || str === undefined) return '';
+  const stringVal = typeof str === 'string' ? str : String(str);
+  if (!stringVal.trim()) return '';
+  return stringVal.trim().toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
 
 export function HistorialMascotasPage() {
