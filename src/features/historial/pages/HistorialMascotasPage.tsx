@@ -1419,8 +1419,8 @@ export function HistorialMascotasPage() {
       );
 
     return (
-      <div className="p-8 space-y-8 animate-in slide-in-from-right duration-500">
-        <div className="max-w-6xl mx-auto space-y-12">
+      <div className="p-4 md:p-8 space-y-8 animate-in slide-in-from-right duration-500">
+        <div className="w-full space-y-12">
           <div className="flex items-center justify-between mb-8">
             <Button
               variant="ghost"
@@ -1576,8 +1576,8 @@ export function HistorialMascotasPage() {
     const historialesPaginados = historialDeLaMascota.slice(indiceInicio, indiceFin);
 
     return (
-      <div className="p-8 space-y-8 animate-in zoom-in-95 duration-500">
-        <div className="max-w-5xl mx-auto">
+      <div className="p-4 md:p-8 space-y-8 animate-in zoom-in-95 duration-500">
+        <div className="w-full">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
               <Button
