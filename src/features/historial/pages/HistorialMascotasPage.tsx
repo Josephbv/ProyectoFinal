@@ -1761,31 +1761,33 @@ export function HistorialMascotasPage() {
           }
         `}} />
         {/* Cabecera del Reporte (No imprimible) */}
-        <div className="bg-slate-900 px-10 py-6 flex justify-between items-center shrink-0 print:hidden sticky top-0 z-50">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              onClick={() => setPasoActual('detalles')}
-              className="text-white hover:bg-white/10 rounded-full w-10 h-10 p-0"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </Button>
-            <h2 className="text-xl font-black text-white tracking-widest">Vista Previa del Reporte de Consulta</h2>
-          </div>
-          <div className="flex gap-4">
-            <Button
-              onClick={() => window.print()}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs tracking-widest px-8 h-12 rounded-xl"
-            >
-              <FileText className="w-4 h-4 mr-2" /> Imprimir / Guardar PDF
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setPasoActual('detalles')}
-              className="border-slate-700 text-slate-400 hover:bg-slate-800 font-black text-xs tracking-widest px-8 h-12 rounded-xl"
-            >
-              Cerrar
-            </Button>
+        <div className="bg-slate-900 px-10 py-6 shrink-0 print:hidden sticky top-0 z-50">
+          <div className="max-w-5xl mx-auto w-full flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                onClick={() => setPasoActual('detalles')}
+                className="text-white hover:bg-white/10 rounded-full w-10 h-10 p-0"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </Button>
+              <h2 className="text-xl font-black text-white tracking-widest">Vista Previa del Reporte de Consulta</h2>
+            </div>
+            <div className="flex gap-4">
+              <Button
+                onClick={() => window.print()}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs tracking-widest px-8 h-12 rounded-xl"
+              >
+                <FileText className="w-4 h-4 mr-2" /> Imprimir / Guardar PDF
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setPasoActual('detalles')}
+                className="border-slate-700 text-slate-400 hover:bg-slate-800 font-black text-xs tracking-widest px-8 h-12 rounded-xl"
+              >
+                Cerrar
+              </Button>
+            </div>
           </div>
         </div>
 
