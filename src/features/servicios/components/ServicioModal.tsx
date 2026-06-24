@@ -80,6 +80,8 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
 
     if (formData.precio <= 0) {
       newErrors.precio = 'El precio debe ser un valor mayor a 0.';
+    } else if (formData.precio < 1000) {
+      newErrors.precio = 'El precio mínimo permitido es $1.000 COP.';
     }
 
     if (formData.duracion <= 0) {
@@ -179,10 +181,12 @@ export function ServicioModal({ isOpen, onClose, onSubmit, servicio, servicios, 
                 <Input
                   id="precio"
                   type="number"
+                  min={1000}
+                  step={100}
                   value={formData.precio}
                   onChange={(e) => handleChange('precio', Number(e.target.value))}
                   className="bg-dark-hover border-dark-color text-dark-primary focus:border-dark-cta h-11"
-                  placeholder="0"
+                  placeholder="Ej: 50000"
                 />
                 {errors.precio && <p className="text-red-400 text-sm">{errors.precio}</p>}
               </div>
