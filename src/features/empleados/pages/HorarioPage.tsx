@@ -79,10 +79,9 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
 
     const searchLower = busqueda.toLowerCase();
     const nombreMatch = (empleado.nombre || '').toLowerCase().includes(searchLower);
-    const apellidoMatch = (empleado.apellido || '').toLowerCase().includes(searchLower);
     const ccMatch = (empleado.cc || '').toLowerCase().includes(searchLower);
 
-    return nombreMatch || apellidoMatch || ccMatch;
+    return nombreMatch || ccMatch;
   }).sort((a, b) => (b.id_empleado || 0) - (a.id_empleado || 0));
 
   // Calcular paginación
@@ -161,7 +160,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
               <input
                 type="text"
-                placeholder="Buscar personal..."
+                placeholder="Buscar por nombre o cédula..."
                 value={busqueda}
                 onChange={(e) => {
                   setBusqueda(e.target.value);

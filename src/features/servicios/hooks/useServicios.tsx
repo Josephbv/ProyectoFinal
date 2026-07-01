@@ -131,8 +131,7 @@ export function useServicios() {
 
     return servicios
       .filter(s =>
-        s.nombre_servicio?.toLowerCase().includes(q) ||
-        s.descripcion?.toLowerCase().includes(q)
+        s.nombre_servicio?.toLowerCase().includes(q)
       )
       .map(mapService);
   }, [servicios]);

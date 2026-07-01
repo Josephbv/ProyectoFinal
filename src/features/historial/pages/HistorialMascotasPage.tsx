@@ -313,14 +313,9 @@ export function HistorialMascotasPage() {
     if (!searchLow) return true;
 
     return (
-      entrada.id_historial.toString().includes(searchLow) ||
-      (entrada.descripcion || '').toLowerCase().includes(searchLow) ||
-      (entrada.diagnostico || '').toLowerCase().includes(searchLow) ||
-      (entrada.tratamiento || '').toLowerCase().includes(searchLow) ||
-      (entrada.nombreMascota || '').toLowerCase().includes(searchLow) ||
       (entrada.nombreCliente || '').toLowerCase().includes(searchLow) ||
       (entrada.cedulaCliente || '').toLowerCase().includes(searchLow) ||
-      (entrada.veterinario || '').toLowerCase().includes(searchLow)
+      (entrada.nombreMascota || '').toLowerCase().includes(searchLow)
     );
   }).sort((a, b) => (b.id_historial || 0) - (a.id_historial || 0));
 
@@ -1985,7 +1980,7 @@ export function HistorialMascotasPage() {
                 <div className="relative flex items-center bg-dark-card border border-dark-color rounded-2xl focus-within:border-blue-500/50 focus-within:ring-4 focus-within:ring-blue-500/5 transition-all shadow-inner px-4 overflow-hidden">
                   <Search className="w-4 h-4 text-dark-secondary shrink-0 opacity-40 group-focus-within:opacity-100 transition-opacity" />
                   <Input
-                    placeholder="Buscar historial..."
+                    placeholder="Buscar por propietario, cédula o mascota..."
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
                     className="h-11 border-none bg-transparent text-xs font-bold text-dark-primary focus-visible:ring-0 placeholder:text-dark-secondary/30 shadow-none w-full"

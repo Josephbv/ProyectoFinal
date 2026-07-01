@@ -65,10 +65,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
     const nombreMascota = mascotaAsociada ? mascotaAsociada.nombre : '';
 
     const matchBusqueda = (cita.cliente?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
-      (cita.cliente?.cedula || '').toLowerCase().includes(busqueda.toLowerCase()) ||
-      (cita.empleado?.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
-      nombreMascota.toLowerCase().includes(busqueda.toLowerCase()) ||
-      (cita.fecha || '').includes(busqueda);
+      (cita.cliente?.cedula || '').toLowerCase().includes(busqueda.toLowerCase());
     return matchBusqueda;
   }).sort((a, b) => {
     const dateA = new Date(`${a.fecha?.split('T')[0] || ''}T${a.hora || '00:00'}`);
@@ -172,7 +169,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
               <input
                 type="text"
-                placeholder="Buscar..."
+                placeholder="Buscar por nombre o cédula del cliente..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary focus:outline-none"

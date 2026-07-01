@@ -50,15 +50,8 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
     if (!searchLow) return true;
 
     const mascotaNombre = (mascota.nombre || '').toLowerCase();
-    const cliente = clientes.find(c => c.id_cliente === mascota.id_cliente);
-    const clienteNombre = (cliente?.nombre || '').toLowerCase();
-    const clienteCedula = (cliente?.cedula || '').toLowerCase();
 
-    return (
-      mascotaNombre.includes(searchLow) ||
-      clienteNombre.includes(searchLow) ||
-      clienteCedula.includes(searchLow)
-    );
+    return mascotaNombre.includes(searchLow);
   }).sort((a, b) => (b.id_mascota || 0) - (a.id_mascota || 0));
 
   // Cálculos de paginación
@@ -305,7 +298,7 @@ export function MascotasPage({ onNewMascota, onEditMascota, onViewMascota }: Mas
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
               <input
                 type="text"
-                placeholder="Buscar mascota..."
+                placeholder="Buscar por nombre de mascota..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-dark-cta focus:outline-none"

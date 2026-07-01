@@ -140,7 +140,7 @@ export function ServiciosPage() {
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
               <input
                 type="text"
-                placeholder="Buscar servicios..."
+                placeholder="Buscar por nombre de servicio..."
                 value={busqueda}
                 onChange={(e) => {
                   setBusqueda(e.target.value);

@@ -49,8 +49,9 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
     const searchLow = busqueda.toLowerCase().trim();
     if (!searchLow) return true;
 
+    const fechaFormat = venta.fecha ? venta.fecha.split('T')[0] : '';
     return (
-      venta.id_venta?.toString().includes(searchLow) ||
+      fechaFormat.includes(searchLow) ||
       (venta.cliente?.nombre || '').toLowerCase().includes(searchLow) ||
       (venta.cliente?.cedula || '').toLowerCase().includes(searchLow)
     );
@@ -222,7 +223,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-secondary" />
                 <input
                   type="text"
-                  placeholder="Buscar por ID o nombre..."
+                  placeholder="Buscar por fecha (AAAA-MM-DD) o cliente..."
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   className="pl-10 pr-4 py-2 w-full sm:w-64 bg-dark-hover border border-dark-color rounded-lg text-dark-primary placeholder-dark-secondary focus:border-emerald-500 focus:outline-none"
