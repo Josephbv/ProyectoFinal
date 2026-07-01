@@ -173,17 +173,19 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
         ];
       });
 
-      // Crear el contenido CSV con BOM UTF-8 para que Excel reconozca tildes y caracteres especiales
-      const csvContent = "\uFEFF" + [
-        headers.join(","),
+      // Crear el contenido CSV con BOM UTF-8 y la instrucción sep=; para que Excel organice las columnas automáticamente
+      const csvLines = [
+        "sep=;",
+        headers.join(";"),
         ...rows.map(e => e.map(val => {
-          // Limpiar comillas y envolver si contiene comas, saltos de línea o comillas
+          // Limpiar comillas y envolver si contiene punto y coma, saltos de línea o comillas
           const cleanVal = typeof val === 'string' ? val.replace(/"/g, '""') : val;
-          return typeof val === 'string' && (cleanVal.includes(",") || cleanVal.includes("\n") || cleanVal.includes('"'))
+          return typeof val === 'string' && (cleanVal.includes(";") || cleanVal.includes("\n") || cleanVal.includes('"'))
             ? `"${cleanVal}"`
             : cleanVal;
-        }).join(","))
-      ].join("\n");
+        }).join(";"))
+      ];
+      const csvContent = "\uFEFF" + csvLines.join("\n");
 
       // Descargar archivo
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
