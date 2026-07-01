@@ -12,6 +12,7 @@ import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { useMascotas } from "../../mascotas/hooks/useMascotas";
 import { useServicios } from "../../servicios/hooks/useServicios";
 import { Dog, Briefcase } from "lucide-react";
+import { cleanCedula } from "../../../shared/components/utils";
 
 interface VentasPageProps {
   onNewSale?: () => void;
@@ -176,7 +177,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
             <td>${venta.id_venta}</td>
             <td>${venta.fecha ? venta.fecha.split('T')[0] : ''}</td>
             <td style="font-weight: 600;">${venta.cliente?.nombre || 'Cliente desconocido'}</td>
-            <td>${venta.cliente?.cedula || '—'}</td>
+            <td>${cleanCedula(venta.cliente?.cedula) || '—'}</td>
             <td>${mascota ? mascota.nombre : 'Sin mascota'}</td>
             <td style="font-size: 11px; max-width: 200px; word-wrap: break-word;">${serviciosNombres || '—'}</td>
             <td style="font-weight: bold; text-align: right;">${formattedTotal}</td>
@@ -477,7 +478,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                         </div>
                         <div>
                           <div className="font-semibold text-dark-primary text-sm">{venta.cliente?.nombre || 'Cliente desconocido'}</div>
-                          <div className="text-[10px] text-dark-primary font-mono">{venta.cliente?.cedula || '—'}</div>
+                          <div className="text-[10px] text-dark-primary font-mono">{cleanCedula(venta.cliente?.cedula) || '—'}</div>
                         </div>
                       </div>
                     </TableCell>
@@ -544,19 +545,6 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-
-                        {!isClienteRole && !isVetRole && (
-                          <Button
-                            onClick={() => setAnularDialog({ isOpen: true, venta, motivo: '' })}
-                            variant="outline"
-                            size="sm"
-                            className="p-2 h-9 w-9 bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30"
-                            disabled={loading || venta.estado === 'anulada'}
-                            title="Anular Venta"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        )}
                       </div>
                     </TableCell>
                   </TableRow>

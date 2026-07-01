@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
 import { useEmailAuth } from '../../auth/hooks/useEmailAuth';
+import { cleanCedula, cleanEmail } from '../../../shared/components/utils';
 
 export interface Mascota {
   id_mascota: number;
@@ -34,19 +35,17 @@ export function useMascotas() {
     setLoading(true);
     try {
       const data: any[] = await apiFetch(`${API_URL}/mascotas`);
-      let mapped = (data || []).map((m: any) => {
-        const id = m.idMascota || m.IdMascota || m.id_mascota;
+      let mapped: Mascota[] = (data || []).map((m: any) => {
         return {
-          ...m,
-          id_mascota: id,
-          id_cliente: m.idCliente || m.IdCliente || m.id_cliente,
+          id_mascota: m.idMascota || m.IdMascota || m.id_mascota,
           nombre: m.nombre || m.Nombre,
-          especie: m.especie || m.Especie,
-          raza: m.raza || m.Raza,
+          especie: m.especie || m.Especie || null,
+          raza: m.raza || m.Raza || null,
           sexo: m.sexo || m.Sexo || null,
           color: m.color || m.Color || null,
-          rasgos_particulares: m.rasgosParticulares || m.RasgosParticulares || m.rasgos_particulares || null,
+          rasgos_particulares: m.rasgos_particulares || m.rasgosParticulares || m.RasgosParticulares || null,
           edad: m.edad ?? m.Edad ?? null,
+          id_cliente: m.idCliente || m.IdCliente || m.id_cliente,
           peso: m.peso ?? m.Peso ?? null,
           vacunas: m.vacunas || m.Vacunas || null,
           observaciones: m.observaciones || m.Observaciones || null,
@@ -58,9 +57,9 @@ export function useMascotas() {
           cliente: m.cliente || (m.idClienteNavigation || m.IdClienteNavigation ? {
             id_cliente: (m.idClienteNavigation || m.IdClienteNavigation).idCliente || (m.idClienteNavigation || m.IdClienteNavigation).IdCliente,
             nombre: (m.idClienteNavigation || m.IdClienteNavigation).nombre || (m.idClienteNavigation || m.IdClienteNavigation).Nombre,
-            cedula: (m.idClienteNavigation || m.IdClienteNavigation).cedula || (m.idClienteNavigation || m.IdClienteNavigation).Cedula,
+            cedula: cleanCedula((m.idClienteNavigation || m.IdClienteNavigation).cedula || (m.idClienteNavigation || m.IdClienteNavigation).Cedula),
             telefono: (m.idClienteNavigation || m.IdClienteNavigation).telefono || (m.idClienteNavigation || m.IdClienteNavigation).Telefono || null,
-            correo: (m.idClienteNavigation || m.IdClienteNavigation).correo || (m.idClienteNavigation || m.IdClienteNavigation).Correo || null,
+            correo: cleanEmail((m.idClienteNavigation || m.IdClienteNavigation).correo || (m.idClienteNavigation || m.IdClienteNavigation).Correo || null),
             direccion: (m.idClienteNavigation || m.IdClienteNavigation).direccion || (m.idClienteNavigation || m.IdClienteNavigation).Direccion || null,
           } : undefined)
         };

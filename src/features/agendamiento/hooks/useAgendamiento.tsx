@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
 import { useEmailAuth } from '../../auth/hooks/useEmailAuth';
+import { cleanCedula } from '../../../shared/components/utils';
 
 export interface AgendamientoServicio {
   id_agendamiento: number;
@@ -57,7 +58,7 @@ export function useAgendamiento() {
           cliente: a.cliente || (a.idClienteNavigation || a.IdClienteNavigation ? {
             id_cliente: (a.idClienteNavigation || a.IdClienteNavigation).idCliente || (a.idClienteNavigation || a.IdClienteNavigation).IdCliente,
             nombre: (a.idClienteNavigation || a.IdClienteNavigation).nombre || (a.idClienteNavigation || a.IdClienteNavigation).Nombre,
-            cedula: (a.idClienteNavigation || a.IdClienteNavigation).cedula || (a.idClienteNavigation || a.IdClienteNavigation).Cedula
+            cedula: cleanCedula((a.idClienteNavigation || a.IdClienteNavigation).cedula || (a.idClienteNavigation || a.IdClienteNavigation).Cedula)
           } : undefined),
           empleado: a.empleado || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation ? {
             id_empleado: (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).idEmpleado || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).IdEmpleado,

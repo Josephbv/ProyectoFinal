@@ -10,6 +10,21 @@ import { Switch } from "../../../shared/components/switch";
 import { useEmpleados } from "../../empleados/hooks/useEmpleados";
 import { useClientes } from "../../clientes/hooks/useClientes";
 
+const suffixEmail = (email: string, suffix: string) => {
+    if (!email) return '';
+    if (email.includes(`-${suffix}@`)) return email;
+    const parts = email.split('@');
+    if (parts.length === 2) {
+        return `${parts[0]}-${suffix}@${parts[1]}`;
+    }
+    return `${email}-${suffix}`;
+};
+
+const cleanEmail = (email: string) => {
+    if (!email) return '';
+    return email.replace(/-[CEce]@/, '@');
+};
+
 export function UsuariosPage() {
     const { usuarios, loading, crearUsuario, actualizarUsuario, buscarUsuarios } = useUsuarios();
     const { empleados, crearEmpleado, actualizarEmpleado } = useEmpleados();
@@ -44,13 +59,14 @@ export function UsuariosPage() {
         if (targetRol === 'cliente') {
             idEmpleado = null;
 
-            // Libera la cédula si está registrada en algún empleado
+            // Libera la cédula y el correo si está registrada en algún empleado
             if (cedulaStr) {
                 const empConCedula = empleados.find(e => e.cedula === cedulaStr);
                 if (empConCedula && !empConCedula.cedula.endsWith('-E')) {
                     await actualizarEmpleado(empConCedula.id_empleado, {
                         ...empConCedula,
-                        cedula: `${empConCedula.cedula}-E`
+                        cedula: `${empConCedula.cedula}-E`,
+                        correo: empConCedula.correo ? suffixEmail(empConCedula.correo, 'E') : empConCedula.correo
                     });
                 }
             }
@@ -63,11 +79,13 @@ export function UsuariosPage() {
 
                 if (clienteExistente) {
                     idCliente = clienteExistente.id_cliente;
-                    // Restauramos la cédula limpia si tenía un sufijo
-                    if (clienteExistente.cedula && clienteExistente.cedula.endsWith('-C')) {
+                    // Restauramos la cédula y el correo limpios si tenían un sufijo
+                    if ((clienteExistente.cedula && clienteExistente.cedula.endsWith('-C')) ||
+                        (clienteExistente.correo && clienteExistente.correo.includes('-C@'))) {
                         await actualizarCliente(clienteExistente.id_cliente, {
                             ...clienteExistente,
-                            cedula: cedulaStr
+                            cedula: cedulaStr,
+                            correo: cleanEmail(clienteExistente.correo)
                         });
                     }
                 } else {
@@ -87,13 +105,14 @@ export function UsuariosPage() {
         } else {
             idCliente = null;
 
-            // Libera la cédula si está registrada en algún cliente
+            // Libera la cédula y el correo si está registrada en algún cliente
             if (cedulaStr) {
                 const cliConCedula = clientes.find(c => c.cedula === cedulaStr);
                 if (cliConCedula && !cliConCedula.cedula.endsWith('-C')) {
                     await actualizarCliente(cliConCedula.id_cliente, {
                         ...cliConCedula,
-                        cedula: `${cliConCedula.cedula}-C`
+                        cedula: `${cliConCedula.cedula}-C`,
+                        correo: cliConCedula.correo ? suffixEmail(cliConCedula.correo, 'C') : cliConCedula.correo
                     });
                 }
             }
@@ -106,11 +125,13 @@ export function UsuariosPage() {
 
                 if (empleadoExistente) {
                     idEmpleado = empleadoExistente.id_empleado;
-                    // Restauramos la cédula limpia si tenía un sufijo
-                    if (empleadoExistente.cedula && empleadoExistente.cedula.endsWith('-E')) {
+                    // Restauramos la cédula y el correo limpios si tenían un sufijo
+                    if ((empleadoExistente.cedula && empleadoExistente.cedula.endsWith('-E')) ||
+                        (empleadoExistente.correo && empleadoExistente.correo.includes('-E@'))) {
                         await actualizarEmpleado(empleadoExistente.id_empleado, {
                             ...empleadoExistente,
-                            cedula: cedulaStr
+                            cedula: cedulaStr,
+                            correo: cleanEmail(empleadoExistente.correo)
                         });
                     }
                 } else {
@@ -160,13 +181,14 @@ export function UsuariosPage() {
         if (targetRol === 'cliente') {
             updatedIdEmpleado = null;
 
-            // Libera la cédula si está registrada en algún empleado
+            // Libera la cédula y el correo si está registrada en algún empleado
             if (cedulaStr) {
                 const empConCedula = empleados.find(e => e.cedula === cedulaStr);
                 if (empConCedula && !empConCedula.cedula.endsWith('-E')) {
                     await actualizarEmpleado(empConCedula.id_empleado, {
                         ...empConCedula,
-                        cedula: `${empConCedula.cedula}-E`
+                        cedula: `${empConCedula.cedula}-E`,
+                        correo: empConCedula.correo ? suffixEmail(empConCedula.correo, 'E') : empConCedula.correo
                     });
                 }
             }
@@ -179,11 +201,13 @@ export function UsuariosPage() {
 
                 if (clienteExistente) {
                     updatedIdCliente = clienteExistente.id_cliente;
-                    // Restauramos la cédula limpia si tenía un sufijo
-                    if (clienteExistente.cedula && clienteExistente.cedula.endsWith('-C')) {
+                    // Restauramos la cédula y el correo limpios si tenían un sufijo
+                    if ((clienteExistente.cedula && clienteExistente.cedula.endsWith('-C')) ||
+                        (clienteExistente.correo && clienteExistente.correo.includes('-C@'))) {
                         await actualizarCliente(clienteExistente.id_cliente, {
                             ...clienteExistente,
-                            cedula: cedulaStr
+                            cedula: cedulaStr,
+                            correo: cleanEmail(clienteExistente.correo)
                         });
                     }
                 } else {
@@ -203,13 +227,14 @@ export function UsuariosPage() {
         } else {
             updatedIdCliente = null;
 
-            // Libera la cédula si está registrada en algún cliente
+            // Libera la cédula y el correo si está registrada en algún cliente
             if (cedulaStr) {
                 const cliConCedula = clientes.find(c => c.cedula === cedulaStr);
                 if (cliConCedula && !cliConCedula.cedula.endsWith('-C')) {
                     await actualizarCliente(cliConCedula.id_cliente, {
                         ...cliConCedula,
-                        cedula: `${cliConCedula.cedula}-C`
+                        cedula: `${cliConCedula.cedula}-C`,
+                        correo: cliConCedula.correo ? suffixEmail(cliConCedula.correo, 'C') : cliConCedula.correo
                     });
                 }
             }
@@ -222,11 +247,13 @@ export function UsuariosPage() {
 
                 if (empleadoExistente) {
                     updatedIdEmpleado = empleadoExistente.id_empleado;
-                    // Restauramos la cédula limpia si tenía un sufijo
-                    if (empleadoExistente.cedula && empleadoExistente.cedula.endsWith('-E')) {
+                    // Restauramos la cédula y el correo limpios si tenían un sufijo
+                    if ((empleadoExistente.cedula && empleadoExistente.cedula.endsWith('-E')) ||
+                        (empleadoExistente.correo && empleadoExistente.correo.includes('-E@'))) {
                         await actualizarEmpleado(empleadoExistente.id_empleado, {
                             ...empleadoExistente,
-                            cedula: cedulaStr
+                            cedula: cedulaStr,
+                            correo: cleanEmail(empleadoExistente.correo)
                         });
                     }
                 } else {

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
+import { cleanCedula, cleanEmail } from '../../../shared/components/utils';
 
 export interface Empleado {
     id_empleado: number;
@@ -27,9 +28,9 @@ export function useEmpleados() {
                 id_empleado: e.idEmpleado || e.IdEmpleado || e.id_empleado,
                 nombre: e.nombre || e.Nombre,
                 cargo: e.cargo || e.Cargo,
-                cedula: e.cedula || e.Cedula,
+                cedula: cleanCedula(e.cedula || e.Cedula),
                 telefono: e.telefono || e.Telefono,
-                correo: e.correo || e.Correo,
+                correo: cleanEmail(e.correo || e.Correo),
                 direccion: e.direccion || e.Direccion,
                 tipo_documento: e.tipoDocumento || e.TipoDocumento || e.tipo_documento
             }));

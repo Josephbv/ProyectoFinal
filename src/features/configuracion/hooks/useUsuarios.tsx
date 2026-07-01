@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
+import { cleanCedula, cleanEmail } from '../../../shared/components/utils';
 
 export interface Usuario {
     id_usuario: number;
@@ -19,6 +20,7 @@ export interface Usuario {
     // Perfiles
     nombre_completo?: string;
     grupo_usuario?: string;
+    permisos_especifices?: string; // (original has typos but let's keep original structure or allow matching)
     permisos_especificos?: string;
 
     // Seguridad
@@ -49,8 +51,8 @@ export function useUsuarios() {
                 id_usuario: u.idUsuario || u.IdUsuario || u.id_usuario,
                 nombre_usuario: u.nombreUsuario || u.NombreUsuario || u.nombre_usuario,
                 nombre_completo: u.nombreCompleto || u.NombreCompleto || u.nombre_completo,
-                correo: u.correo || u.Correo,
-                cedula: u.cedula || u.Cedula,
+                correo: cleanEmail(u.correo || u.Correo),
+                cedula: cleanCedula(u.cedula || u.Cedula),
                 tipo_documento: u.tipoDocumento || u.TipoDocumento || u.tipo_documento,
                 telefono: u.telefono || u.Telefono || '',
                 direccion: u.direccion || u.Direccion || '',

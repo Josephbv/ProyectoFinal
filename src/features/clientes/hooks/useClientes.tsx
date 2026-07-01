@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
+import { cleanCedula, cleanEmail } from '../../../shared/components/utils';
 
 export interface Cliente {
   id_cliente: number;
@@ -35,8 +36,8 @@ export function useClientes() {
         id_cliente: c.idCliente || c.IdCliente || c.id_cliente,
         tipo_documento: c.tipoDocumento || c.TipoDocumento || c.tipo_documento || 'Cédula de Ciudadanía',
         nombre: c.nombre || c.Nombre || c.nombreCompleto || c.NombreCompleto || c.name || c.Name || c.fullName || (c.correo || c.Correo || '').split('@')[0] || '',
-        cedula: c.cedula || c.Cedula,
-        correo: c.correo || c.Correo,
+        cedula: cleanCedula(c.cedula || c.Cedula) || null,
+        correo: cleanEmail(c.correo || c.Correo) || null,
         telefono: c.telefono || c.Telefono,
         direccion: c.direccion || c.Direccion,
         mascotas: (c.mascota || c.Mascota || c.mascotas || [])

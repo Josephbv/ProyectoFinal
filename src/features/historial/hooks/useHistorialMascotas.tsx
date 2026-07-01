@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
+import { cleanCedula } from '../../../shared/components/utils';
 
 export interface HistorialMascota {
   id_historial: number;
@@ -86,7 +87,7 @@ export function useHistorialMascotas() {
         id_mascota: h.idMascota || h.IdMascota || h.id_mascota,
         nombreMascota: h.idMascotaNavigation?.nombre || h.IdMascotaNavigation?.Nombre || h.mascota?.nombre || h.nombreMascota || 'Mascota',
         nombreCliente: h.idMascotaNavigation?.idClienteNavigation?.nombre || h.IdMascotaNavigation?.IdClienteNavigation?.Nombre || h.mascota?.cliente?.nombre || h.nombreCliente || 'Cliente',
-        cedulaCliente: h.idMascotaNavigation?.idClienteNavigation?.cedula || h.IdMascotaNavigation?.IdClienteNavigation?.Cedula || h.mascota?.cliente?.cedula || h.cedulaCliente || '',
+        cedulaCliente: cleanCedula(h.idMascotaNavigation?.idClienteNavigation?.cedula || h.IdMascotaNavigation?.IdClienteNavigation?.Cedula || h.mascota?.cliente?.cedula || h.cedulaCliente || ''),
         descripcion: h.motivoConsulta || h.descripcion || 'Consulta Médica',
         tipoVisita: tipoVisitaArr,
         sintomas: safeParse(h.sintomas, []),

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../../shared/hooks/apiFetch';
+import { cleanCedula } from '../../../shared/components/utils';
 
 export interface VentaServicio {
   id_venta: number;
@@ -49,8 +50,8 @@ export function useVentas(enabled: boolean = true) {
         cliente: v.cliente || (v.idClienteNavigation || v.IdClienteNavigation ? {
           id_cliente: (v.idClienteNavigation || v.IdClienteNavigation).idCliente || (v.idClienteNavigation || v.IdClienteNavigation).IdCliente,
           nombre: (v.idClienteNavigation || v.IdClienteNavigation).nombre || (v.idClienteNavigation || v.IdClienteNavigation).Nombre || (v.idClienteNavigation || v.IdClienteNavigation).nombreCompleto,
-          cedula: (v.idClienteNavigation || v.IdClienteNavigation).cedula || (v.idClienteNavigation || v.IdClienteNavigation).Cedula || (v.idClienteNavigation || v.IdClienteNavigation).documento || v.cedula || v.Cedula
-        } : (v.nombreCliente || v.NombreCliente ? { nombre: v.nombreCliente || v.NombreCliente, cedula: v.cedulaCliente || v.CedulaCliente } : undefined)),
+          cedula: cleanCedula((v.idClienteNavigation || v.IdClienteNavigation).cedula || (v.idClienteNavigation || v.IdClienteNavigation).Cedula || (v.idClienteNavigation || v.IdClienteNavigation).documento || v.cedula || v.Cedula)
+        } : (v.nombreCliente || v.NombreCliente ? { nombre: v.nombreCliente || v.NombreCliente, cedula: cleanCedula(v.cedulaCliente || v.CedulaCliente) } : undefined)),
         venta_servicios: v.venta_servicios || (v.ventaServicios || v.VentaServicios ? (v.ventaServicios || v.VentaServicios)
           .filter((vs: any) => vs !== null)
           .map((vs: any) => ({
@@ -123,9 +124,9 @@ export function useVentas(enabled: boolean = true) {
           ? {
             id_cliente: (nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).idCliente,
             nombre: (nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).nombre || (nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).Nombre,
-            cedula: (nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).cedula || (nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).Cedula,
+            cedula: cleanCedula((nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).cedula || (nuevaVenta.idClienteNavigation || nuevaVenta.IdClienteNavigation).Cedula),
           }
-          : ventaData.cliente || undefined,
+          : (ventaData.cliente ? { ...ventaData.cliente, cedula: cleanCedula(ventaData.cliente.cedula) } : undefined),
         venta_servicios: (nuevaVenta.ventaServicios || nuevaVenta.VentaServicios || [])
           .filter((vs: any) => vs !== null)
           .map((vs: any) => ({
