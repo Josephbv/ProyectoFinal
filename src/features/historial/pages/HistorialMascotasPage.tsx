@@ -1880,7 +1880,7 @@ export function HistorialMascotasPage() {
                       <Heart className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <p className="text-[9px] font-black text-pink-400 tracking-widest">MASCOTA</p>
+                      <p className="text-[9px] font-black text-pink-400 tracking-widest">Mascota</p>
                       <h4 className="text-sm font-black text-dark-primary">{toSentenceCase(mascotaInfo?.nombre || entrada.nombreMascota || 'N/A')}</h4>
                       {mascotaInfo && (
                         <p className="text-[10px] text-dark-secondary">{toSentenceCase(mascotaInfo.especie)} · {toSentenceCase(mascotaInfo.raza) || 'N/A'}</p>
@@ -1904,7 +1904,7 @@ export function HistorialMascotasPage() {
                       <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center">
                         <User className="w-4 h-4 text-blue-400" />
                       </div>
-                      <p className="text-[9px] font-black text-blue-400 tracking-widest">CLIENTE</p>
+                      <p className="text-[9px] font-black text-blue-400 tracking-widest">Cliente</p>
                     </div>
                     <h4 className="text-sm font-black text-dark-primary">{toSentenceCase(clienteInfo?.nombre || entrada.nombreCliente || 'N/A')}</h4>
                     <p className="text-[10px] text-dark-secondary">Cédula: {clienteInfo?.cedula || entrada.cedulaCliente || 'N/A'}</p>
@@ -1916,7 +1916,7 @@ export function HistorialMascotasPage() {
 
                   {/* Visita */}
                   <div className="bg-dark-bg/50 border border-dark-color/50 rounded-2xl p-4 flex flex-col gap-3">
-                    <p className="text-[9px] font-black text-dark-secondary tracking-widest">INFORMACIÓN DE VISITA</p>
+                    <p className="text-[9px] font-black text-dark-secondary tracking-widest">Información de Visita</p>
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
                         <Calendar className="w-3.5 h-3.5 text-blue-400" />
