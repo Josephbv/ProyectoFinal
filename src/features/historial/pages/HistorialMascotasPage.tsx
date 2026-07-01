@@ -645,6 +645,176 @@ export function HistorialMascotasPage() {
     );
   }
 
+  const renderTimeline = () => {
+    const serviciosActivos = servicios.filter(s => s.estado === 'activo');
+
+    const historialDeLaMascota = historiales
+      .filter(h => h.id_mascota === mascotaSeleccionada?.id_mascota)
+      .filter(h => {
+        if (!filtroServicio) return true;
+        const tipoVisitaArr = Array.isArray(h.tipoVisita) ? h.tipoVisita : [h.tipoVisita];
+        const normalizeStr = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        const normalizedFilter = normalizeStr(filtroServicio);
+        return tipoVisitaArr.some(tipo => tipo && normalizeStr(tipo).includes(normalizedFilter));
+      })
+      .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+
+    const elementosPorPaginaMascota = 10;
+    const totalPaginas = Math.ceil(historialDeLaMascota.length / elementosPorPaginaMascota);
+    const indiceInicio = (paginaActualMascota - 1) * elementosPorPaginaMascota;
+    const indiceFin = indiceInicio + elementosPorPaginaMascota;
+    const historialesPaginados = historialDeLaMascota.slice(indiceInicio, indiceFin);
+
+    return (
+      <div className="p-4 md:p-8 space-y-8 animate-in zoom-in-95 duration-500">
+        <div className="w-full">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                onClick={() => { setFiltroServicio(""); setPasoActual('inicio'); }}
+                className="text-dark-secondary hover:bg-dark-hover gap-2 font-black tracking-widest"
+              >
+                <ChevronLeft className="w-4 h-4" /> Volver al Inicio
+              </Button>
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <div className="relative min-w-[220px]">
+                <select
+                  value={filtroServicio}
+                  onChange={(e) => { setFiltroServicio(e.target.value); setPaginaActualMascota(1); }}
+                  className="w-full h-12 bg-dark-card border border-dark-color rounded-2xl px-4 text-xs font-bold text-dark-primary focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-inner cursor-pointer outline-none"
+                >
+                  <option value="">Todos los servicios</option>
+                  {serviciosActivos.map((s) => (
+                    <option key={s.id_servicio} value={s.nombre_servicio}>{toSentenceCase(s.nombre_servicio)}</option>
+                  ))}
+                </select>
+              </div>
+              {!isClienteRole && (
+                <Button
+                  onClick={() => abrirFormulario(undefined, true)}
+                  className="bg-blue-600 hover:bg-blue-500 text-white font-black tracking-widest px-8 rounded-2xl h-12 shadow-xl shadow-blue-500/20 gap-2 transition-all active:scale-95 hover:scale-[1.02]"
+                >
+                  <Plus className="w-4 h-4" /> Nuevo
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <div className="dark-card overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
+                    <TableHead className="text-dark-primary font-semibold min-w-[120px]"><div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" />Fecha / Hora</div></TableHead>
+                    <TableHead className="text-dark-primary font-semibold min-w-[120px]"><div className="flex items-center gap-2"><Dog className="w-4 h-4 text-blue-400" />Mascota</div></TableHead>
+                    <TableHead className="text-dark-primary font-semibold min-w-[120px]"><div className="flex items-center gap-2"><Activity className="w-4 h-4 text-blue-400" />Servicios</div></TableHead>
+                    <TableHead className="text-dark-primary font-semibold min-w-[140px]"><div className="flex items-center gap-2"><Stethoscope className="w-4 h-4 text-blue-400" />Veterinario</div></TableHead>
+                    <TableHead className="text-dark-primary font-semibold min-w-[160px]"><div className="flex items-center gap-2"><FileText className="w-4 h-4 text-blue-400" />Diagnóstico</div></TableHead>
+                    <TableHead className="text-dark-primary font-semibold min-w-[160px]"><div className="flex items-center gap-2"><HeartPulse className="w-4 h-4 text-blue-400" />Tratamiento</div></TableHead>
+                    <TableHead className="text-dark-primary font-semibold text-center w-28">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {historialesPaginados.map((entrada, index) => {
+                    const cleanVet = ((entrada as any).veterinario || '').replace(/^(?:(?:dr|dra|doctor|doctora)\.?\s*)+/i, '');
+                    const formattedVet = cleanVet ? `Dr. ${toSentenceCase(cleanVet)}` : 'No asignado';
+                    let diagText = toSentenceCase(entrada.diagnostico || 'Sin diagnóstico');
+                    diagText = diagText.length > 20 ? diagText.substring(0, 20) + '...' : diagText;
+                    let tratText = toSentenceCase(entrada.tratamiento || 'Sin tratamiento');
+                    tratText = tratText.length > 20 ? tratText.substring(0, 20) + '...' : tratText;
+
+                    return (
+                      <TableRow key={`${entrada.id_historial}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors group">
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-dark-primary text-xs font-black">
+                              {new Date((entrada.fecha.includes('T') ? entrada.fecha.split('T')[0] : entrada.fecha) + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            </span>
+                            <span className="text-[9px] text-dark-secondary font-bold tracking-widest mt-0.5">{formatTo12h((entrada as any).hora) || '00:00'}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell><span className="font-semibold text-dark-primary text-xs">{toSentenceCase(mascotaSeleccionada?.nombre || (entrada as any).nombreMascota)}</span></TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {Array.isArray(entrada.tipoVisita) ? entrada.tipoVisita.map((tipo, idx) => (
+                              <span key={idx} className={`px-2 py-0.5 rounded-md text-[8px] font-black tracking-widest ${getTipoVisitaColor(tipo)}`}>{toSentenceCase(tipo)}</span>
+                            )) : (
+                              <span className={`px-2 py-0.5 rounded-md text-[8px] font-black tracking-widest ${getTipoVisitaColor(entrada.tipoVisita)}`}>{toSentenceCase(entrada.tipoVisita)}</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell><span className="text-dark-primary text-xs font-bold">{formattedVet}</span></TableCell>
+                        <TableCell className="max-w-[200px]"><p className="text-xs text-dark-secondary truncate" title={entrada.diagnostico ?? undefined}>{diagText}</p></TableCell>
+                        <TableCell className="max-w-[200px]"><p className="text-xs text-dark-secondary truncate" title={entrada.tratamiento ?? undefined}>{tratText}</p></TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <Button
+                              onClick={() => setDetalleModal({ isOpen: true, entrada })}
+                              variant="outline" size="sm"
+                              className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
+                              title="Ver detalles"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            {!isClienteRole && (
+                              <>
+                                <Button
+                                  onClick={() => abrirFormulario(entrada)}
+                                  variant="outline" size="sm"
+                                  className="p-2 h-9 w-9 bg-yellow-500/20 border-yellow-500 text-yellow-400 hover:bg-yellow-500/30"
+                                  title="Editar"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                {!isVetRole && (
+                                  <Button
+                                    onClick={() => setDeleteDialog({ isOpen: true, entrada })}
+                                    variant="outline" size="sm"
+                                    className="p-2 h-9 w-9 bg-rose-500/20 border-rose-500 text-rose-500 hover:bg-rose-500/30"
+                                    title="Eliminar"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {historialesPaginados.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-40 text-center border-none">
+                        <p className="text-sm text-dark-secondary italic">No hay consultas registradas para esta mascota</p>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            {historialDeLaMascota.length > 0 && (
+              <div className="flex items-center justify-between pt-4 mt-4 px-4 pb-4 border-t border-dark-color/40">
+                <div className="text-sm text-dark-secondary">Mostrando {indiceInicio + 1}-{Math.min(indiceFin, historialDeLaMascota.length)} de {historialDeLaMascota.length} entradas</div>
+                {totalPaginas > 1 && (
+                  <div className="flex items-center gap-1">
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(1)} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.max(prev - 1, 1))} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(totalPaginas)} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   function renderFormularioHistorial() {
     const isEdit = !!entradaSeleccionada;
 
@@ -1204,11 +1374,11 @@ export function HistorialMascotasPage() {
                         <TableCell>
                           <div className="flex items-center justify-center gap-1.5">
                             <Button
-                              onClick={() => setDetalleModal({ isOpen: true, entrada })}
+                              onClick={() => abrirTimelineMascota(entrada)}
                               variant="outline"
                               size="sm"
                               className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
-                              title="Ver detalles"
+                              title="Ver historial completo"
                               disabled={loading}
                             >
                               <Eye className="w-4 h-4" />
@@ -1436,239 +1606,6 @@ export function HistorialMascotasPage() {
     );
   };
 
-  const renderTimeline = () => {
-    const serviciosActivos = servicios.filter(s => s.estado === 'activo');
-
-    const historialDeLaMascota = historiales
-      .filter(h => h.id_mascota === mascotaSeleccionada?.id_mascota)
-      .filter(h => {
-        if (!filtroServicio) return true;
-        const tipoVisitaArr = Array.isArray(h.tipoVisita) 
-          ? h.tipoVisita 
-          : [h.tipoVisita];
-        const normalizeStr = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-        const normalizedFilter = normalizeStr(filtroServicio);
-        return tipoVisitaArr.some(tipo => tipo && normalizeStr(tipo).includes(normalizedFilter));
-      })
-      .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-
-    // Paginación para Historial
-    const elementosPorPaginaMascota = 10;
-
-    const totalPaginas = Math.ceil(historialDeLaMascota.length / elementosPorPaginaMascota);
-    const indiceInicio = (paginaActualMascota - 1) * elementosPorPaginaMascota;
-    const indiceFin = indiceInicio + elementosPorPaginaMascota;
-    const historialesPaginados = historialDeLaMascota.slice(indiceInicio, indiceFin);
-
-    return (
-      <div className="p-4 md:p-8 space-y-8 animate-in zoom-in-95 duration-500">
-        <div className="w-full">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setFiltroServicio("");
-                  setPasoActual('inicio');
-                }}
-                className="text-dark-secondary hover:bg-dark-hover gap-2 font-black tracking-widest"
-              >
-                <ChevronLeft className="w-4 h-4" /> Volver al Inicio
-              </Button>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              {/* Filtro por Servicio */}
-              <div className="relative min-w-[220px]">
-                <select
-                  value={filtroServicio}
-                  onChange={(e) => {
-                    setFiltroServicio(e.target.value);
-                    setPaginaActualMascota(1);
-                  }}
-                  className="w-full h-12 bg-dark-card border border-dark-color rounded-2xl px-4 text-xs font-bold text-dark-primary focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-inner cursor-pointer outline-none"
-                >
-                  <option value="">Todos los servicios</option>
-                  {serviciosActivos.map((s) => (
-                    <option key={s.id_servicio} value={s.nombre_servicio}>
-                      {toSentenceCase(s.nombre_servicio)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {!isClienteRole && (
-                <Button
-                  onClick={() => abrirFormulario(undefined, true)}
-                  className="bg-blue-600 hover:bg-blue-500 text-white font-black tracking-widest px-8 rounded-2xl h-12 shadow-xl shadow-blue-500/20 gap-2 transition-all active:scale-95 hover:scale-[1.02]"
-                >
-                  <Plus className="w-4 h-4" /> Nuevo
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <div className="dark-card overflow-hidden">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-blue-500/10 border-dark-color hover:bg-blue-500/15 transition-colors">
-                    <TableHead className="text-dark-primary font-semibold min-w-[120px]">
-                      <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" />Fecha / Hora</div>
-                    </TableHead>
-                    <TableHead className="text-dark-primary font-semibold min-w-[120px]">
-                      <div className="flex items-center gap-2"><Dog className="w-4 h-4 text-blue-400" />Mascota</div>
-                    </TableHead>
-                    <TableHead className="text-dark-primary font-semibold min-w-[120px]">
-                      <div className="flex items-center gap-2"><Activity className="w-4 h-4 text-blue-400" />Servicios</div>
-                    </TableHead>
-                    <TableHead className="text-dark-primary font-semibold min-w-[140px]">
-                      <div className="flex items-center gap-2"><Stethoscope className="w-4 h-4 text-blue-400" />Veterinario</div>
-                    </TableHead>
-                    <TableHead className="text-dark-primary font-semibold min-w-[160px]">
-                      <div className="flex items-center gap-2"><FileText className="w-4 h-4 text-blue-400" />Diagnóstico</div>
-                    </TableHead>
-                    <TableHead className="text-dark-primary font-semibold min-w-[160px]">
-                      <div className="flex items-center gap-2"><HeartPulse className="w-4 h-4 text-blue-400" />Tratamiento</div>
-                    </TableHead>
-                    <TableHead className="text-dark-primary font-semibold text-center w-28">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {historialesPaginados.map((entrada, index) => {
-                    const cleanVet = ((entrada as any).veterinario || '').replace(/^(?:(?:dr|dra|doctor|doctora)\.?\s*)+/i, '');
-                    const formattedVet = cleanVet ? `Dr. ${toSentenceCase(cleanVet)}` : 'No asignado';
-
-                    let diagText = toSentenceCase(entrada.diagnostico || 'Sin diagnóstico');
-                    diagText = diagText.length > 20 ? diagText.substring(0, 20) + '...' : diagText;
-                    
-                    let tratText = toSentenceCase(entrada.tratamiento || 'Sin tratamiento');
-                    tratText = tratText.length > 20 ? tratText.substring(0, 20) + '...' : tratText;
-
-                    return (
-                      <TableRow key={`${entrada.id_historial}-${index}`} className="border-dark-color hover:bg-dark-table-hover transition-colors group">
-                        {/* Fecha */}
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="text-dark-primary text-xs font-black">
-                              {new Date((entrada.fecha.includes('T') ? entrada.fecha.split('T')[0] : entrada.fecha) + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                            </span>
-                            <span className="text-[9px] text-dark-secondary font-bold tracking-widest mt-0.5">
-                              {formatTo12h((entrada as any).hora) || '00:00'}
-                            </span>
-                          </div>
-                        </TableCell>
-
-                        {/* Mascota */}
-                        <TableCell>
-                          <span className="font-semibold text-dark-primary text-xs">
-                            {toSentenceCase(mascotaSeleccionada?.nombre || (entrada as any).nombreMascota)}
-                          </span>
-                        </TableCell>
-
-                        {/* Servicio */}
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {Array.isArray(entrada.tipoVisita) ? entrada.tipoVisita.map((tipo, idx) => (
-                              <span key={idx} className={`px-2 py-0.5 rounded-md text-[8px] font-black tracking-widest ${getTipoVisitaColor(tipo)}`}>
-                                {toSentenceCase(tipo)}
-                              </span>
-                            )) : (
-                              <span className={`px-2 py-0.5 rounded-md text-[8px] font-black tracking-widest ${getTipoVisitaColor(entrada.tipoVisita)}`}>
-                                {toSentenceCase(entrada.tipoVisita)}
-                              </span>
-                            )}
-                          </div>
-                        </TableCell>
-
-                        {/* Veterinario */}
-                        <TableCell>
-                          <span className="text-dark-primary text-xs font-bold">
-                            {formattedVet}
-                          </span>
-                        </TableCell>
-
-                        {/* Diagnóstico */}
-                        <TableCell className="max-w-[200px]">
-                          <p className="text-xs text-dark-secondary truncate" title={entrada.diagnostico ?? undefined}>
-                            {diagText}
-                          </p>
-                        </TableCell>
-
-                        {/* Tratamiento */}
-                        <TableCell className="max-w-[200px]">
-                          <p className="text-xs text-dark-secondary truncate" title={entrada.tratamiento ?? undefined}>
-                            {tratText}
-                          </p>
-                        </TableCell>
-
-                        {/* Acciones */}
-                        <TableCell>
-                          <div className="flex items-center justify-center gap-1.5">
-                            <Button
-                              onClick={() => abrirDetalles(entrada)}
-                              variant="outline"
-                              size="sm"
-                              className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
-                              title="Ver detalles / Imprimir"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            {!isClienteRole && (
-                              <>
-                                <Button
-                                  onClick={() => abrirFormulario(entrada)}
-                                  variant="outline"
-                                  size="sm"
-                                  className="p-2 h-9 w-9 bg-yellow-500/20 border-yellow-500 text-yellow-400 hover:bg-yellow-500/30"
-                                  title="Editar"
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                {!isVetRole && (
-                                  <Button
-                                    onClick={() => setDeleteDialog({ isOpen: true, entrada })}
-                                    variant="outline"
-                                    size="sm"
-                                    className="p-2 h-9 w-9 bg-rose-500/20 border-rose-500 text-rose-500 hover:bg-rose-500/30"
-                                    title="Eliminar"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Paginación */}
-            {historialDeLaMascota.length > 0 && (
-              <div className="flex items-center justify-between pt-4 mt-4 px-4 pb-4 border-t border-dark-color/40">
-                <div className="text-sm text-dark-secondary">
-                  Mostrando {indiceInicio + 1}-{Math.min(indiceFin, historialDeLaMascota.length)} de {historialDeLaMascota.length} entradas
-                </div>
-
-                {totalPaginas > 1 && (
-                  <div className="flex items-center gap-1">
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(1)} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsLeft className="w-3 h-3" /></Button>
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.max(prev - 1, 1))} disabled={paginaActualMascota === 1} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronLeft className="w-3 h-3" /></Button>
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronRight className="w-3 h-3" /></Button>
-                    <Button variant="outline" size="sm" onClick={() => setPaginaActualMascota(totalPaginas)} disabled={paginaActualMascota === totalPaginas} className="p-2 h-8 w-8 border-dark-color text-dark-secondary hover:bg-dark-hover"><ChevronsRight className="w-3 h-3" /></Button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   const renderReporteCompleto = (entrada: HistorialMascota) => {
     const mascotaInfo = mascotas.find(m => m.id_mascota === entrada.id_mascota) || mascotaSeleccionada || entrada.mascota;
