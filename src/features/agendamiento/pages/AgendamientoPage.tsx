@@ -26,6 +26,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
   const { crearEntradaHistorial } = useHistorialMascotas();
 
   const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("todos");
   const [citaModal, setCitaModal] = useState({ isOpen: false, cita: null as Agendamiento | null, readOnly: false });
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, cita: null as Agendamiento | null });
 
@@ -43,6 +44,23 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
     if (isVetRole) {
       if (cita.id_empleado !== user?.id_empleado) return false;
     }
+
+    // Filtrar por estado
+    const estadoFinal = (() => {
+      const isPagadoLocal = localStorage.getItem(`pagado_${cita.id_agendamiento}`) === 'true';
+      if (isPagadoLocal || cita.estado === 'completada') return 'completada';
+      if (cita.estado === 'cancelada') return 'cancelada';
+      if (cita.fecha) {
+        const hoyLocalStr = new Date().toLocaleDateString('en-CA');
+        if (cita.fecha < hoyLocalStr) return 'no_asistio';
+      }
+      return cita.estado || 'activa';
+    })();
+
+    if (filtroEstado !== "todos" && estadoFinal !== filtroEstado) {
+      return false;
+    }
+
     const mascotaAsociada = mascotas.find(m => m.id_mascota === cita.id_mascota);
     const nombreMascota = mascotaAsociada ? mascotaAsociada.nombre : '';
 
@@ -65,7 +83,7 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [busqueda]);
+  }, [busqueda, filtroEstado]);
 
   const handleCrearCita = async (citaData: Partial<Agendamiento>) => {
     const result = await agendarCita(citaData);
@@ -160,6 +178,17 @@ export function AgendamientoPage({ onNavigate, onPagar }: AgendamientoPageProps)
                 className="pl-10 pr-4 py-2 w-72 bg-dark-hover border border-dark-color rounded-lg text-dark-primary focus:outline-none"
               />
             </div>
+            <select
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value)}
+              className="px-4 py-2 bg-dark-hover border border-dark-color rounded-lg text-dark-primary focus:outline-none text-sm cursor-pointer"
+            >
+              <option value="todos" className="bg-dark-card text-dark-primary">Todos los estados</option>
+              <option value="activa" className="bg-dark-card text-dark-primary">Activas</option>
+              <option value="completada" className="bg-dark-card text-dark-primary">Completadas</option>
+              <option value="cancelada" className="bg-dark-card text-dark-primary">Canceladas</option>
+              <option value="no_asistio" className="bg-dark-card text-dark-primary">No Asistieron</option>
+            </select>
             <button
               onClick={() => abrirCitaModal()}
               className="dark-button-primary font-bold gap-2 flex items-center"
