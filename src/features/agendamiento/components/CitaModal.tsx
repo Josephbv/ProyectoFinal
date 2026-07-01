@@ -116,7 +116,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
     const nombreDia = diasSemana[fechaCita.getDay()];
 
     const horarioDia = horarios.find(
-      h => h.id_empleado === parseInt(formData.id_empleado) && h.dia_semana === nombreDia && h.disponible !== false
+      h => Number(h.id_empleado) === Number(formData.id_empleado) && h.dia_semana === nombreDia && h.disponible !== false
     );
     if (!horarioDia) return [];
 
@@ -129,7 +129,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
     // 1. Minutos ocupados por citas existentes (30 mins x cada servicio)
     const minutosOcupados = new Set<number>();
     citas.forEach(c => {
-      if (c.id_empleado !== parseInt(formData.id_empleado)) return;
+      if (Number(c.id_empleado) !== Number(formData.id_empleado)) return;
       if (!c.fecha || c.estado === 'cancelada') return;
       if (cita && c.id_agendamiento === cita.id_agendamiento) return; // ignoramos la propia cita en edición
 
@@ -224,10 +224,10 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
       newErrors.id_empleado = 'Debes asignar un profesional veterinario.';
     } else {
       const empId = parseInt(formData.id_empleado);
-      const e = empleados.find(emp => emp.id_empleado === empId);
+      const e = empleados.find(emp => Number(emp.id_empleado) === Number(empId));
       if (e) {
         const usuarioVinculado = usuarios.find(u =>
-          (u.id_empleado && u.id_empleado === e.id_empleado) ||
+          (u.id_empleado && Number(u.id_empleado) === Number(e.id_empleado)) ||
           (u.correo && e.correo && u.correo.toLowerCase().trim() === e.correo.toLowerCase().trim()) ||
           (u.cedula && e.cedula && u.cedula.trim() === e.cedula.trim())
         );
@@ -305,7 +305,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
     const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const nombreDia = diasSemana[fechaCita.getDay()];
     const horarioDia = horarios.find(
-      h => h.id_empleado === parseInt(formData.id_empleado) && h.dia_semana === nombreDia
+      h => Number(h.id_empleado) === Number(formData.id_empleado) && h.dia_semana === nombreDia
     );
     let limiteMin = horarioDia ? (() => {
       const [hF, mF] = extraerHHmm(horarioDia.hora_fin).split(':').map(Number);
@@ -314,7 +314,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
 
     // 2. Límite por la PRÓXIMA CITA del mismo empleado ese día
     const citasDelEmpleadoEseDia = citas.filter(c => {
-      if (c.id_empleado !== parseInt(formData.id_empleado)) return false;
+      if (Number(c.id_empleado) !== Number(formData.id_empleado)) return false;
       if (!c.fecha || c.estado === 'cancelada') return false;
       if (cita && c.id_agendamiento === cita.id_agendamiento) return false; // ignorar la propia
       const fCita = c.fecha.split('T')[0];
@@ -414,7 +414,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
     const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const nombreDia = diasSemana[fechaCita.getDay()];
     const horarioDia = horarios.find(
-      h => h.id_empleado === parseInt(formData.id_empleado) && h.dia_semana === nombreDia && h.disponible !== false
+      h => Number(h.id_empleado) === Number(formData.id_empleado) && h.dia_semana === nombreDia && h.disponible !== false
     );
     if (!horarioDia) return `El profesional no atiende los días ${nombreDia}.`;
     if (slotsDisponibles.length === 0) return 'No quedan horas disponibles para este día (horas pasadas u ocupadas).';
@@ -519,18 +519,18 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
                     .filter(e => {
                       // Verificar si el empleado está inactivo
                       const usuarioVinculado = usuarios.find(u =>
-                        (u.id_empleado && u.id_empleado === e.id_empleado) ||
+                        (u.id_empleado && Number(u.id_empleado) === Number(e.id_empleado)) ||
                         (u.correo && e.correo && u.correo.toLowerCase().trim() === e.correo.toLowerCase().trim()) ||
                         (u.cedula && e.cedula && u.cedula.trim() === e.cedula.trim())
                       );
                       const esInactivo = usuarioVinculado && usuarioVinculado.estado && usuarioVinculado.estado !== 'activo';
                       
                       // Permitir si no está inactivo, O si es el empleado actualmente seleccionado en la cita
-                      const esSeleccionado = formData.id_empleado === String(e.id_empleado);
+                      const esSeleccionado = Number(formData.id_empleado) === Number(e.id_empleado);
 
                       return (
                         (!esInactivo || esSeleccionado) &&
-                        horarios.some(h => h.id_empleado === e.id_empleado) &&
+                        horarios.some(h => Number(h.id_empleado) === Number(e.id_empleado)) &&
                         (e.cargo || '').toLowerCase() !== 'administrador'
                       );
                     })
