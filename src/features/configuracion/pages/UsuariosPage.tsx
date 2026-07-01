@@ -7,9 +7,13 @@ import { Users, Plus, Search, Edit, Shield, ShieldOff, Lock, Unlock, ChevronLeft
 import { useUsuarios, Usuario } from "../hooks/useUsuarios";
 import { UsuarioModal } from "../components/UsuarioModal";
 import { Switch } from "../../../shared/components/switch";
+import { useEmpleados } from "../../empleados/hooks/useEmpleados";
+import { useClientes } from "../../clientes/hooks/useClientes";
 
 export function UsuariosPage() {
     const { usuarios, loading, crearUsuario, actualizarUsuario, buscarUsuarios } = useUsuarios();
+    const { empleados, crearEmpleado } = useEmpleados();
+    const { clientes, crearCliente } = useClientes();
     const [busqueda, setBusqueda] = useState("");
     const [usuarioModal, setUsuarioModal] = useState({ isOpen: false, usuario: null as Usuario | null, readOnly: false });
     const [statusDialog, setStatusDialog] = useState({ isOpen: false, usuario: null as Usuario | null, newState: '' });
@@ -31,10 +35,76 @@ export function UsuariosPage() {
     }, [busqueda]);
 
     const handleCrearUsuario = async (data: Partial<Usuario>) => {
-        const result = await crearUsuario(data);
+        let idCliente = data.id_cliente;
+        let idEmpleado = data.id_empleado;
+        const targetRol = (data.nombre_rol || '').toLowerCase().trim();
+
+        if (targetRol === 'cliente') {
+            idEmpleado = null;
+            if (!idCliente) {
+                const mailLower = (data.correo || '').toLowerCase().trim();
+                const cedulaStr = (data.cedula || '').trim();
+
+                const clienteExistente = clientes.find(c =>
+                    (c.correo && c.correo.toLowerCase().trim() === mailLower) ||
+                    (c.cedula && c.cedula.trim() === cedulaStr)
+                );
+
+                if (clienteExistente) {
+                    idCliente = clienteExistente.id_cliente;
+                } else {
+                    const cliResult = await crearCliente({
+                        nombre: data.nombre_completo || data.nombre_usuario || '',
+                        correo: data.correo || '',
+                        cedula: data.cedula || '',
+                        tipo_documento: data.tipo_documento || 'CC',
+                        telefono: (data as any).telefono || '',
+                        direccion: (data as any).direccion || '',
+                    });
+                    if (cliResult.success && cliResult.data) {
+                        idCliente = cliResult.data.id_cliente;
+                    }
+                }
+            }
+        } else {
+            idCliente = null;
+            if (!idEmpleado) {
+                const mailLower = (data.correo || '').toLowerCase().trim();
+                const cedulaStr = (data.cedula || '').trim();
+
+                const empleadoExistente = empleados.find(e =>
+                    (e.correo && e.correo.toLowerCase().trim() === mailLower) ||
+                    (e.cedula && e.cedula.trim() === cedulaStr)
+                );
+
+                if (empleadoExistente) {
+                    idEmpleado = empleadoExistente.id_empleado;
+                } else {
+                    const empResult = await crearEmpleado({
+                        nombre: data.nombre_completo || data.nombre_usuario || '',
+                        correo: data.correo || '',
+                        cedula: data.cedula || '',
+                        tipo_documento: data.tipo_documento || 'CC',
+                        telefono: (data as any).telefono || '',
+                        direccion: (data as any).direccion || '',
+                        cargo: data.nombre_rol || 'Administrador'
+                    });
+                    if (empResult.success && empResult.data) {
+                        idEmpleado = empResult.data.id_empleado;
+                    }
+                }
+            }
+        }
+
+        const result = await crearUsuario({
+            ...data,
+            id_cliente: idCliente,
+            id_empleado: idEmpleado
+        });
+
         if (result.success) {
             toast.success("Usuario registrado exitosamente");
-            return { success: true };
+            return { success: true, activationLink: result.activationLink };
         } else {
             return { success: false, error: result.error || "Error al registrar usuario" };
         }
@@ -46,10 +116,75 @@ export function UsuariosPage() {
             toast.error('No se puede editar: el usuario está inactivo.');
             return { success: false };
         }
+
+        let updatedIdCliente = data.id_cliente || usuarioModal.usuario.id_cliente;
+        let updatedIdEmpleado = data.id_empleado || usuarioModal.usuario.id_empleado;
+        const targetRol = (data.nombre_rol || usuarioModal.usuario.rol?.nombre_rol || '').toLowerCase().trim();
+
+        if (targetRol === 'cliente') {
+            updatedIdEmpleado = null;
+            if (!updatedIdCliente) {
+                const mailLower = (data.correo || usuarioModal.usuario.correo || '').toLowerCase().trim();
+                const cedulaStr = (data.cedula || usuarioModal.usuario.cedula || '').trim();
+
+                const clienteExistente = clientes.find(c =>
+                    (c.correo && c.correo.toLowerCase().trim() === mailLower) ||
+                    (c.cedula && c.cedula.trim() === cedulaStr)
+                );
+
+                if (clienteExistente) {
+                    updatedIdCliente = clienteExistente.id_cliente;
+                } else {
+                    const cliResult = await crearCliente({
+                        nombre: data.nombre_completo || usuarioModal.usuario.nombre_completo || data.nombre_usuario || usuarioModal.usuario.nombre_usuario || '',
+                        correo: data.correo || usuarioModal.usuario.correo || '',
+                        cedula: data.cedula || usuarioModal.usuario.cedula || '',
+                        tipo_documento: data.tipo_documento || usuarioModal.usuario.tipo_documento || 'CC',
+                        telefono: (data as any).telefono || (usuarioModal.usuario as any).telefono || '',
+                        direccion: (data as any).direccion || (usuarioModal.usuario as any).direccion || '',
+                    });
+                    if (cliResult.success && cliResult.data) {
+                        updatedIdCliente = cliResult.data.id_cliente;
+                    }
+                }
+            }
+        } else {
+            updatedIdCliente = null;
+            if (!updatedIdEmpleado) {
+                const mailLower = (data.correo || usuarioModal.usuario.correo || '').toLowerCase().trim();
+                const cedulaStr = (data.cedula || usuarioModal.usuario.cedula || '').trim();
+
+                const empleadoExistente = empleados.find(e =>
+                    (e.correo && e.correo.toLowerCase().trim() === mailLower) ||
+                    (e.cedula && e.cedula.trim() === cedulaStr)
+                );
+
+                if (empleadoExistente) {
+                    updatedIdEmpleado = empleadoExistente.id_empleado;
+                } else {
+                    const empResult = await crearEmpleado({
+                        nombre: data.nombre_completo || usuarioModal.usuario.nombre_completo || data.nombre_usuario || usuarioModal.usuario.nombre_usuario || '',
+                        correo: data.correo || usuarioModal.usuario.correo || '',
+                        cedula: data.cedula || usuarioModal.usuario.cedula || '',
+                        tipo_documento: data.tipo_documento || usuarioModal.usuario.tipo_documento || 'CC',
+                        telefono: (data as any).telefono || (usuarioModal.usuario as any).telefono || '',
+                        direccion: (data as any).direccion || (usuarioModal.usuario as any).direccion || '',
+                        cargo: data.nombre_rol || usuarioModal.usuario.rol?.nombre_rol || 'Administrador'
+                    });
+                    if (empResult.success && empResult.data) {
+                        updatedIdEmpleado = empResult.data.id_empleado;
+                    }
+                }
+            }
+        }
+
         const result = await actualizarUsuario(usuarioModal.usuario.id_usuario, {
             ...usuarioModal.usuario,
-            ...data
+            ...data,
+            id_cliente: updatedIdCliente,
+            id_empleado: updatedIdEmpleado
         });
+
         if (result.success) {
             toast.success("Información del usuario actualizada");
             return { success: true };
