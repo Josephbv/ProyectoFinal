@@ -190,6 +190,11 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
             : cleanVal;
         }).join(";"))
       ];
+      const defaultName = `Reporte_Ventas_${new Date().toISOString().split('T')[0]}`;
+      const customName = window.prompt("Ingrese el nombre para el archivo de Excel:", defaultName);
+      if (customName === null) return; // Cancelado
+      const finalName = customName.trim() ? customName.trim() : defaultName;
+
       const csvContent = "\uFEFF" + csvLines.join("\n");
 
       // Descargar archivo
@@ -197,7 +202,7 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `Reporte_Ventas_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute("download", `${finalName}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

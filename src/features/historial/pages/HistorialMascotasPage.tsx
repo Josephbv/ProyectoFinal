@@ -79,12 +79,17 @@ export function HistorialMascotasPage() {
         }).join(";"))
       ];
 
+      const defaultName = `Historial_Clinico_${new Date().toISOString().split('T')[0]}`;
+      const customName = window.prompt("Ingrese el nombre para el archivo de Excel:", defaultName);
+      if (customName === null) return; // Cancelado
+      const finalName = customName.trim() ? customName.trim() : defaultName;
+
       const csvContent = "\uFEFF" + csvLines.join("\n");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `Historial_Clinico_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute("download", `${finalName}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
