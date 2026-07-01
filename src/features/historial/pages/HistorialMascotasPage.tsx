@@ -763,17 +763,6 @@ export function HistorialMascotasPage() {
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button
-                              onClick={() => {
-                                setEntradaSeleccionada(entrada);
-                                setPasoActual('reporteCompleto');
-                              }}
-                              variant="outline" size="sm"
-                              className="p-2 h-9 w-9 bg-emerald-500/20 border-emerald-500 text-emerald-400 hover:bg-emerald-500/30"
-                              title="Generar reporte de consulta"
-                            >
-                              <FileText className="w-4 h-4" />
-                            </Button>
                             {!isClienteRole && (
                               <>
                                 <Button
