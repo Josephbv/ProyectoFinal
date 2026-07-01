@@ -1992,10 +1992,10 @@ export function HistorialMascotasPage() {
                       setEntradaSeleccionada(entrada);
                       setPasoActual('reporteCompleto');
                     }}
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-2xl text-xs tracking-wider gap-2 flex items-center shadow-lg shadow-emerald-500/10 transition-all hover:scale-[1.02] active:scale-95"
+                    className="dark-button-primary font-bold gap-2 flex items-center"
                   >
-                    <FileText className="w-4 h-4" />
-                    Generar Reporte
+                    <FileText className="w-4 h-4 text-white" />
+                    <span className="text-white">Generar Reporte</span>
                   </button>
                   <button
                     onClick={() => setDetalleModal({ isOpen: false, entrada: null })}
