@@ -12,7 +12,7 @@ import { useEmailAuth } from "../../auth/hooks/useEmailAuth";
 import { useMascotas } from "../../mascotas/hooks/useMascotas";
 import { useServicios } from "../../servicios/hooks/useServicios";
 import { Dog, Briefcase } from "lucide-react";
-import { cleanCedula } from "../../../shared/components/utils";
+import { cleanCedula, exportarComprobanteVentaPDF } from "../../../shared/components/utils";
 
 interface VentasPageProps {
   onNewSale?: () => void;
@@ -544,6 +544,16 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
                           title="Ver Detalle"
                         >
                           <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          onClick={() => exportarComprobanteVentaPDF(venta, mascotas, servicios, citas)}
+                          variant="outline"
+                          size="sm"
+                          className="p-2 h-9 w-9 bg-emerald-500/20 border-emerald-500 text-emerald-400 hover:bg-emerald-500/30"
+                          disabled={loading}
+                          title="Exportar Comprobante PDF"
+                        >
+                          <FileText className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>

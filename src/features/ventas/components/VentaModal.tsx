@@ -4,12 +4,13 @@ import { Button } from '../../../shared/components/button';
 import { Input } from '../../../shared/components/input';
 import { Label } from '../../../shared/components/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../shared/components/select';
-import { ShoppingCart, Calendar, User, DollarSign, Stethoscope, Trash2, AlertTriangle } from 'lucide-react';
+import { ShoppingCart, Calendar, User, DollarSign, Stethoscope, Trash2, AlertTriangle, FileText } from 'lucide-react';
 import { Venta, VentaServicio } from '../hooks/useVentas';
 import { useClientes } from '../../clientes/hooks/useClientes';
 import { useServicios } from '../../servicios/hooks/useServicios';
 import { useMascotas } from '../../mascotas/hooks/useMascotas';
 import { Agendamiento } from '../../agendamiento/hooks/useAgendamiento';
+import { exportarComprobanteVentaPDF } from '../../../shared/components/utils';
 
 interface VentaModalProps {
   isOpen: boolean;
@@ -503,6 +504,16 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
           </div>
 
           <DialogFooter className="gap-3 border-t border-dark-color p-6 pt-4 mt-auto">
+            {readOnly && venta && (
+              <button
+                type="button"
+                onClick={() => exportarComprobanteVentaPDF(venta, mascotas, servicios)}
+                className="dark-button-primary bg-emerald-600 hover:bg-emerald-700 hover:border-emerald-600 text-white font-bold gap-2 flex items-center min-w-[160px] justify-center"
+              >
+                <FileText className="w-4 h-4" />
+                Exportar PDF
+              </button>
+            )}
             <button
               type="button"
               onClick={onClose}
