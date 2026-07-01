@@ -12,8 +12,8 @@ import { useClientes } from "../../clientes/hooks/useClientes";
 
 export function UsuariosPage() {
     const { usuarios, loading, crearUsuario, actualizarUsuario, buscarUsuarios } = useUsuarios();
-    const { empleados, crearEmpleado } = useEmpleados();
-    const { clientes, crearCliente } = useClientes();
+    const { empleados, crearEmpleado, actualizarEmpleado } = useEmpleados();
+    const { clientes, crearCliente, actualizarCliente } = useClientes();
     const [busqueda, setBusqueda] = useState("");
     const [usuarioModal, setUsuarioModal] = useState({ isOpen: false, usuario: null as Usuario | null, readOnly: false });
     const [statusDialog, setStatusDialog] = useState({ isOpen: false, usuario: null as Usuario | null, newState: '' });
@@ -38,13 +38,24 @@ export function UsuariosPage() {
         let idCliente = data.id_cliente;
         let idEmpleado = data.id_empleado;
         const targetRol = (data.nombre_rol || '').toLowerCase().trim();
+        const mailLower = (data.correo || '').toLowerCase().trim();
+        const cedulaStr = (data.cedula || '').trim();
 
         if (targetRol === 'cliente') {
             idEmpleado = null;
-            if (!idCliente) {
-                const mailLower = (data.correo || '').toLowerCase().trim();
-                const cedulaStr = (data.cedula || '').trim();
 
+            // Libera la cédula si está registrada en algún empleado
+            if (cedulaStr) {
+                const empConCedula = empleados.find(e => e.cedula === cedulaStr);
+                if (empConCedula && !empConCedula.cedula.endsWith('-E')) {
+                    await actualizarEmpleado(empConCedula.id_empleado, {
+                        ...empConCedula,
+                        cedula: `${empConCedula.cedula}-E`
+                    });
+                }
+            }
+
+            if (!idCliente) {
                 const clienteExistente = clientes.find(c =>
                     (c.correo && c.correo.toLowerCase().trim() === mailLower) ||
                     (c.cedula && c.cedula.trim() === cedulaStr)
@@ -52,6 +63,13 @@ export function UsuariosPage() {
 
                 if (clienteExistente) {
                     idCliente = clienteExistente.id_cliente;
+                    // Restauramos la cédula limpia si tenía un sufijo
+                    if (clienteExistente.cedula && clienteExistente.cedula.endsWith('-C')) {
+                        await actualizarCliente(clienteExistente.id_cliente, {
+                            ...clienteExistente,
+                            cedula: cedulaStr
+                        });
+                    }
                 } else {
                     const cliResult = await crearCliente({
                         nombre: data.nombre_completo || data.nombre_usuario || '',
@@ -68,10 +86,19 @@ export function UsuariosPage() {
             }
         } else {
             idCliente = null;
-            if (!idEmpleado) {
-                const mailLower = (data.correo || '').toLowerCase().trim();
-                const cedulaStr = (data.cedula || '').trim();
 
+            // Libera la cédula si está registrada en algún cliente
+            if (cedulaStr) {
+                const cliConCedula = clientes.find(c => c.cedula === cedulaStr);
+                if (cliConCedula && !cliConCedula.cedula.endsWith('-C')) {
+                    await actualizarCliente(cliConCedula.id_cliente, {
+                        ...cliConCedula,
+                        cedula: `${cliConCedula.cedula}-C`
+                    });
+                }
+            }
+
+            if (!idEmpleado) {
                 const empleadoExistente = empleados.find(e =>
                     (e.correo && e.correo.toLowerCase().trim() === mailLower) ||
                     (e.cedula && e.cedula.trim() === cedulaStr)
@@ -79,6 +106,13 @@ export function UsuariosPage() {
 
                 if (empleadoExistente) {
                     idEmpleado = empleadoExistente.id_empleado;
+                    // Restauramos la cédula limpia si tenía un sufijo
+                    if (empleadoExistente.cedula && empleadoExistente.cedula.endsWith('-E')) {
+                        await actualizarEmpleado(empleadoExistente.id_empleado, {
+                            ...empleadoExistente,
+                            cedula: cedulaStr
+                        });
+                    }
                 } else {
                     const empResult = await crearEmpleado({
                         nombre: data.nombre_completo || data.nombre_usuario || '',
@@ -120,13 +154,24 @@ export function UsuariosPage() {
         let updatedIdCliente = data.id_cliente || usuarioModal.usuario.id_cliente;
         let updatedIdEmpleado = data.id_empleado || usuarioModal.usuario.id_empleado;
         const targetRol = (data.nombre_rol || usuarioModal.usuario.rol?.nombre_rol || '').toLowerCase().trim();
+        const mailLower = (data.correo || usuarioModal.usuario.correo || '').toLowerCase().trim();
+        const cedulaStr = (data.cedula || usuarioModal.usuario.cedula || '').trim();
 
         if (targetRol === 'cliente') {
             updatedIdEmpleado = null;
-            if (!updatedIdCliente) {
-                const mailLower = (data.correo || usuarioModal.usuario.correo || '').toLowerCase().trim();
-                const cedulaStr = (data.cedula || usuarioModal.usuario.cedula || '').trim();
 
+            // Libera la cédula si está registrada en algún empleado
+            if (cedulaStr) {
+                const empConCedula = empleados.find(e => e.cedula === cedulaStr);
+                if (empConCedula && !empConCedula.cedula.endsWith('-E')) {
+                    await actualizarEmpleado(empConCedula.id_empleado, {
+                        ...empConCedula,
+                        cedula: `${empConCedula.cedula}-E`
+                    });
+                }
+            }
+
+            if (!updatedIdCliente) {
                 const clienteExistente = clientes.find(c =>
                     (c.correo && c.correo.toLowerCase().trim() === mailLower) ||
                     (c.cedula && c.cedula.trim() === cedulaStr)
@@ -134,6 +179,13 @@ export function UsuariosPage() {
 
                 if (clienteExistente) {
                     updatedIdCliente = clienteExistente.id_cliente;
+                    // Restauramos la cédula limpia si tenía un sufijo
+                    if (clienteExistente.cedula && clienteExistente.cedula.endsWith('-C')) {
+                        await actualizarCliente(clienteExistente.id_cliente, {
+                            ...clienteExistente,
+                            cedula: cedulaStr
+                        });
+                    }
                 } else {
                     const cliResult = await crearCliente({
                         nombre: data.nombre_completo || usuarioModal.usuario.nombre_completo || data.nombre_usuario || usuarioModal.usuario.nombre_usuario || '',
@@ -150,10 +202,19 @@ export function UsuariosPage() {
             }
         } else {
             updatedIdCliente = null;
-            if (!updatedIdEmpleado) {
-                const mailLower = (data.correo || usuarioModal.usuario.correo || '').toLowerCase().trim();
-                const cedulaStr = (data.cedula || usuarioModal.usuario.cedula || '').trim();
 
+            // Libera la cédula si está registrada en algún cliente
+            if (cedulaStr) {
+                const cliConCedula = clientes.find(c => c.cedula === cedulaStr);
+                if (cliConCedula && !cliConCedula.cedula.endsWith('-C')) {
+                    await actualizarCliente(cliConCedula.id_cliente, {
+                        ...cliConCedula,
+                        cedula: `${cliConCedula.cedula}-C`
+                    });
+                }
+            }
+
+            if (!updatedIdEmpleado) {
                 const empleadoExistente = empleados.find(e =>
                     (e.correo && e.correo.toLowerCase().trim() === mailLower) ||
                     (e.cedula && e.cedula.trim() === cedulaStr)
@@ -161,6 +222,13 @@ export function UsuariosPage() {
 
                 if (empleadoExistente) {
                     updatedIdEmpleado = empleadoExistente.id_empleado;
+                    // Restauramos la cédula limpia si tenía un sufijo
+                    if (empleadoExistente.cedula && empleadoExistente.cedula.endsWith('-E')) {
+                        await actualizarEmpleado(empleadoExistente.id_empleado, {
+                            ...empleadoExistente,
+                            cedula: cedulaStr
+                        });
+                    }
                 } else {
                     const empResult = await crearEmpleado({
                         nombre: data.nombre_completo || usuarioModal.usuario.nombre_completo || data.nombre_usuario || usuarioModal.usuario.nombre_usuario || '',
