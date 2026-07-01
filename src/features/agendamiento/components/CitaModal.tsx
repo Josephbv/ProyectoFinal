@@ -442,7 +442,15 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
             {/* Cliente */}
             <div className="space-y-2">
               <Label className="text-dark-primary flex items-center gap-1.5"><User className="w-4 h-4 text-indigo-400" />Cliente *</Label>
-              <Select value={formData.id_cliente} onValueChange={(val: string) => handleChange('id_cliente', val)} disabled={readOnly || isClienteRole}>
+              <Select 
+                key={`cliente-select-${clientes.length}-${formData.id_cliente}`}
+                value={formData.id_cliente} 
+                onValueChange={(val: string) => { 
+                  handleChange('id_cliente', val); 
+                  handleChange('id_mascota', ''); 
+                }} 
+                disabled={readOnly || isClienteRole}
+              >
                 <SelectTrigger className="bg-dark-hover border-dark-color text-dark-primary h-10">
                   <SelectValue placeholder="Seleccionar cliente..." />
                 </SelectTrigger>
@@ -482,6 +490,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
               ) : (
                 <>
                   <Select
+                    key={`mascota-select-${formData.id_cliente}-${mascotas.length}-${formData.id_mascota}`}
                     value={formData.id_mascota}
                     onValueChange={(val: string) => handleChange('id_mascota', val)}
                     disabled={!formData.id_cliente}
@@ -510,7 +519,12 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
             {/* Empleado */}
             <div className="space-y-2">
               <Label className="text-dark-primary flex items-center gap-1.5"><Stethoscope className="w-4 h-4 text-blue-400" />Empleado Asignado *</Label>
-              <Select value={formData.id_empleado} onValueChange={(val: string) => { handleChange('id_empleado', val); handleChange('hora', ''); }} disabled={readOnly}>
+              <Select 
+                key={`empleado-select-${empleados.length}-${formData.id_empleado}`}
+                value={formData.id_empleado} 
+                onValueChange={(val: string) => { handleChange('id_empleado', val); handleChange('hora', ''); }} 
+                disabled={readOnly}
+              >
                 <SelectTrigger className="bg-dark-hover border-dark-color text-dark-primary h-10">
                   <SelectValue placeholder="Asignar empleado..." />
                 </SelectTrigger>
