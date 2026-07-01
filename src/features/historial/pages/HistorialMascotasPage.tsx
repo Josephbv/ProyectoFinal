@@ -100,6 +100,59 @@ export function HistorialMascotasPage() {
     }
   };
 
+  const exportarTimelineExcel = (historialFiltradoMascota: HistorialMascota[]) => {
+    try {
+      const headers = ["ID", "Mascota", "Propietario", "Cédula Propietario", "Fecha", "Hora", "Veterinario", "Diagnóstico", "Tratamiento"];
+
+      const rows = historialFiltradoMascota.map(h => {
+        const petInfo = mascotas.find(m => m.id_mascota === h.id_mascota) || mascotaSeleccionada || h.mascota;
+        const clientInfo = clientes.find(c => c.id_cliente === petInfo?.id_cliente) || petInfo?.cliente || clienteSeleccionado;
+        
+        return [
+          h.id_historial,
+          petInfo?.nombre || h.nombreMascota || '',
+          clientInfo?.nombre || h.nombreCliente || '',
+          clientInfo?.cedula || h.cedulaCliente || '',
+          h.fecha ? h.fecha.split('T')[0] : '',
+          (h as any).hora || '',
+          h.veterinario || '',
+          h.diagnostico || '',
+          h.tratamiento || ''
+        ];
+      });
+
+      const csvLines = [
+        "sep=;",
+        headers.join(";"),
+        ...rows.map(row => row.map(val => {
+          const cleanVal = typeof val === 'string' ? val.replace(/"/g, '""') : val;
+          return typeof val === 'string' && (String(cleanVal).includes(";") || String(cleanVal).includes("\n") || String(cleanVal).includes('"'))
+            ? `"${cleanVal}"`
+            : cleanVal;
+        }).join(";"))
+      ];
+
+      const defaultName = `Historial_${mascotaSeleccionada?.nombre || 'Mascota'}_${new Date().toISOString().split('T')[0]}`;
+      const customName = window.prompt("Ingrese el nombre para el archivo de Excel:", defaultName);
+      if (customName === null) return; // Cancelado
+      const finalName = customName.trim() ? customName.trim() : defaultName;
+
+      const csvContent = "\uFEFF" + csvLines.join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `${finalName}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Historial exportado en formato Excel con éxito");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al exportar historial");
+    }
+  };
+
   // Paginación para Historial
   const [paginaActualMascota, setPaginaActualMascota] = useState(1);
   const [filtroServicio, setFiltroServicio] = useState("");
@@ -696,6 +749,16 @@ export function HistorialMascotasPage() {
                   ))}
                 </select>
               </div>
+              {!isClienteRole && (
+                <button
+                  onClick={() => exportarTimelineExcel(historialDeLaMascota)}
+                  className="dark-button-secondary font-bold gap-2 flex items-center h-12 rounded-2xl"
+                  disabled={loading || historialDeLaMascota.length === 0}
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>Exportar Excel</span>
+                </button>
+              )}
               {!isClienteRole && (
                 <Button
                   onClick={() => abrirFormulario(undefined, true)}
