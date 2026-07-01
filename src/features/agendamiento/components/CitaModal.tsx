@@ -530,8 +530,7 @@ export function CitaModal({ isOpen, onClose, onSubmit, cita, loading, readOnly =
 
                       return (
                         (!esInactivo || esSeleccionado) &&
-                        horarios.some(h => Number(h.id_empleado) === Number(e.id_empleado)) &&
-                        (e.cargo || '').toLowerCase() !== 'administrador'
+                        horarios.some(h => Number(h.id_empleado) === Number(e.id_empleado))
                       );
                     })
                     .map((e, idx) => (

@@ -380,8 +380,8 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
                   type="date"
                   value={formData.fecha}
                   onChange={(e) => handleChange('fecha', e.target.value)}
-                  className="bg-dark-hover border-dark-color h-10"
-                  readOnly={readOnly}
+                  className={`bg-dark-hover border-dark-color h-10 ${readOnly || citaPrevia ? 'opacity-70 cursor-not-allowed' : ''}`}
+                  readOnly={readOnly || !!citaPrevia}
                 />
                 {errors.fecha && <p className="text-red-400 text-xs">{errors.fecha}</p>}
               </div>
