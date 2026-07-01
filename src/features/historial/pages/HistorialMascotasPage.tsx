@@ -519,17 +519,38 @@ export function HistorialMascotasPage() {
 
       if (entrada.veterinario) {
         // Buscar el doctor en la lista para obtener su cédula si es posible
-        const doctoresList = [
-          ...usuarios
-            .filter(u => {
-              const roleName = u.rol?.nombre_rol?.toLowerCase();
-              return roleName === 'veterinario' || roleName === 'administrador' || roleName === 'admin';
-            })
-            .map(u => ({ id: `user-${u.id_usuario}`, nombre: `Dr. ${u.nombre_usuario}`, cedula: (u as any).cedula })),
-          ...empleados
-            .filter(e => e.cargo?.toLowerCase() === 'veterinario')
-            .map(e => ({ id: `emp-${e.id_empleado}`, nombre: `Dr. ${e.nombre}`, cedula: e.cedula }))
-        ];
+        const doctoresMap = new Map<string, { id: string; nombre: string; cedula: string }>();
+        const agregarOActualizar = (key: string, doc: { id: string; nombre: string; cedula: string }) => {
+          const existing = doctoresMap.get(key);
+          if (!existing || doc.nombre.length > existing.nombre.length) {
+            doctoresMap.set(key, doc);
+          }
+        };
+
+        usuarios
+          .filter(u => {
+            const roleName = u.rol?.nombre_rol?.toLowerCase();
+            return roleName === 'veterinario' || roleName === 'administrador' || roleName === 'admin';
+          })
+          .forEach(u => {
+            const cedula = (u as any).cedula || '';
+            const cleanCed = cedula.trim();
+            const doc = { id: `user-${u.id_usuario}`, nombre: `Dr. ${u.nombre_usuario}`, cedula };
+            const key = cleanCed || `user-${u.id_usuario}`;
+            agregarOActualizar(key, doc);
+          });
+
+        empleados
+          .filter(e => e.cargo?.toLowerCase() === 'veterinario')
+          .forEach(e => {
+            const cedula = e.cedula || '';
+            const cleanCed = cedula.trim();
+            const doc = { id: `emp-${e.id_empleado}`, nombre: `Dr. ${e.nombre}`, cedula };
+            const key = cleanCed || `emp-${e.id_empleado}`;
+            agregarOActualizar(key, doc);
+          });
+
+        const doctoresList = Array.from(doctoresMap.values());
 
         const nombreLimpio = entrada.veterinario.replace(/^(?:(?:dr|dra|doctor|doctora)\.?\s*)+/i, '').toLowerCase().trim();
         const docEncontrado = doctoresList.find(d =>
@@ -779,18 +800,39 @@ export function HistorialMascotasPage() {
   function renderFormularioHistorial() {
     const isEdit = !!entradaSeleccionada;
 
-    // Deduplicar doctores (Usuario + Empleado)
-    const doctores = [
-      ...usuarios
-        .filter(u => {
-          const roleName = u.rol?.nombre_rol?.toLowerCase();
-          return roleName === 'veterinario' || roleName === 'administrador' || roleName === 'admin';
-        })
-        .map(u => ({ id: `user-${u.id_usuario}`, nombre: `Dr. ${u.nombre_usuario}`, cedula: (u as any).cedula })),
-      ...empleados
-        .filter(e => e.cargo?.toLowerCase() === 'veterinario')
-        .map(e => ({ id: `emp-${e.id_empleado}`, nombre: `Dr. ${e.nombre}`, cedula: e.cedula }))
-    ].filter((v, i, a) => a.findIndex(t => t.nombre === v.nombre) === i);
+    // Deduplicar doctores (Usuario + Empleado) por cédula, prefiriendo nombres más completos
+    const doctoresMap = new Map<string, { id: string; nombre: string; cedula: string }>();
+    const agregarOActualizar = (key: string, doc: { id: string; nombre: string; cedula: string }) => {
+      const existing = doctoresMap.get(key);
+      if (!existing || doc.nombre.length > existing.nombre.length) {
+        doctoresMap.set(key, doc);
+      }
+    };
+
+    usuarios
+      .filter(u => {
+        const roleName = u.rol?.nombre_rol?.toLowerCase();
+        return roleName === 'veterinario' || roleName === 'administrador' || roleName === 'admin';
+      })
+      .forEach(u => {
+        const cedula = (u as any).cedula || '';
+        const cleanCed = cedula.trim();
+        const doc = { id: `user-${u.id_usuario}`, nombre: `Dr. ${u.nombre_usuario}`, cedula };
+        const key = cleanCed || `user-${u.id_usuario}`;
+        agregarOActualizar(key, doc);
+      });
+
+    empleados
+      .filter(e => e.cargo?.toLowerCase() === 'veterinario')
+      .forEach(e => {
+        const cedula = e.cedula || '';
+        const cleanCed = cedula.trim();
+        const doc = { id: `emp-${e.id_empleado}`, nombre: `Dr. ${e.nombre}`, cedula };
+        const key = cleanCed || `emp-${e.id_empleado}`;
+        agregarOActualizar(key, doc);
+      });
+
+    const doctores = Array.from(doctoresMap.values());
 
     const visitTypes = servicios
       .filter(s => s.estado === 'activo')

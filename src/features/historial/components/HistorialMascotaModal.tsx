@@ -27,18 +27,39 @@ export function HistorialMascotaModal({ isOpen, onClose, onSubmit, entrada, load
   const { usuarios } = useUsuarios();
   const { empleados } = useEmpleados();
 
-  // Combinar doctores de Usuarios y de Empleados
-  const doctores = [
-    ...usuarios
-      .filter((u: any) => {
-        const roleName = u.roles?.nombre_rol?.toLowerCase() || u.rol?.nombre_rol?.toLowerCase();
-        return roleName === 'veterinario' || roleName === 'administrador' || roleName === 'admin';
-      })
-      .map((u: any) => ({ id: `user-${u.id_usuario}`, nombre: `Dr. ${u.nombre_usuario}` })),
-    ...empleados
-      .filter((e: any) => e.cargo?.toLowerCase() === 'veterinario')
-      .map((e: any) => ({ id: `emp-${e.id_empleado}`, nombre: `Dr. ${e.nombre}` }))
-  ].filter((v: any, i: number, a: any[]) => a.findIndex((t: any) => t.nombre === v.nombre) === i); // Deduplicar por nombre
+  // Combinar y deduplicar doctores de Usuarios y de Empleados por cédula, prefiriendo nombres más completos
+  const doctoresMap = new Map<string, { id: string; nombre: string; cedula: string }>();
+  const agregarOActualizar = (key: string, doc: { id: string; nombre: string; cedula: string }) => {
+    const existing = doctoresMap.get(key);
+    if (!existing || doc.nombre.length > existing.nombre.length) {
+      doctoresMap.set(key, doc);
+    }
+  };
+
+  usuarios
+    .filter((u: any) => {
+      const roleName = u.roles?.nombre_rol?.toLowerCase() || u.rol?.nombre_rol?.toLowerCase();
+      return roleName === 'veterinario' || roleName === 'administrador' || roleName === 'admin';
+    })
+    .forEach((u: any) => {
+      const cedula = u.cedula || '';
+      const cleanCed = cedula.trim();
+      const doc = { id: `user-${u.id_usuario}`, nombre: `Dr. ${u.nombre_usuario}`, cedula };
+      const key = cleanCed || `user-${u.id_usuario}`;
+      agregarOActualizar(key, doc);
+    });
+
+  empleados
+    .filter((e: any) => e.cargo?.toLowerCase() === 'veterinario')
+    .forEach((e: any) => {
+      const cedula = e.cedula || '';
+      const cleanCed = cedula.trim();
+      const doc = { id: `emp-${e.id_empleado}`, nombre: `Dr. ${e.nombre}`, cedula };
+      const key = cleanCed || `emp-${e.id_empleado}`;
+      agregarOActualizar(key, doc);
+    });
+
+  const doctores = Array.from(doctoresMap.values());
 
   const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [selectedPetId, setSelectedPetId] = useState<string>('');
