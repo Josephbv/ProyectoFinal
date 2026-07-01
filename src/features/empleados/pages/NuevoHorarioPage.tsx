@@ -414,26 +414,6 @@ export function NuevoHorarioPage({ onBack, onSuccess, horarioAEditar }: NuevoHor
                                         <Calendar className="w-4 h-4 text-blue-400" />
                                         Horarios Semanales
                                     </h3>
-                                    {diasSeleccionados.length > 1 && (
-                                        <Button
-                                            variant="ghost"
-                                            onClick={() => {
-                                                const primerDia = diasSeleccionados[0];
-                                                const horarioBase = horariosPorDia[primerDia];
-                                                if (horarioBase) {
-                                                    const nuevosHorarios = { ...horariosPorDia };
-                                                    diasSeleccionados.forEach(dia => {
-                                                        nuevosHorarios[dia] = { ...horarioBase };
-                                                    });
-                                                    setHorariosPorDia(nuevosHorarios);
-                                                    toast.success("Horario replicado en todos los días");
-                                                }
-                                            }}
-                                            className="h-7 text-[10px] text-blue-400 hover:text-blue-300 font-black uppercase tracking-widest px-3 border border-blue-500/20 rounded-lg"
-                                        >
-                                            Aplicar a todos
-                                        </Button>
-                                    )}
                                 </div>
 
                                 <div className="grid grid-cols-7 gap-2">
