@@ -54,14 +54,25 @@ export function useMascotas() {
           fecha_desparasitacion: m.fecha_desparasitacion || m.fechaDesparasitacion || m.FechaDesparasitacion || null,
           fecha_ultima_vacuna: m.fecha_ultima_vacuna || m.fechaUltimaVacuna || m.FechaUltimaVacuna || null,
           fecha_creacion: m.fecha_creacion || m.fechaCreacion || m.FechaCreacion || null,
-          cliente: m.cliente || (m.idClienteNavigation || m.IdClienteNavigation ? {
-            id_cliente: (m.idClienteNavigation || m.IdClienteNavigation).idCliente || (m.idClienteNavigation || m.IdClienteNavigation).IdCliente,
-            nombre: (m.idClienteNavigation || m.IdClienteNavigation).nombre || (m.idClienteNavigation || m.IdClienteNavigation).Nombre,
-            cedula: cleanCedula((m.idClienteNavigation || m.IdClienteNavigation).cedula || (m.idClienteNavigation || m.IdClienteNavigation).Cedula),
-            telefono: (m.idClienteNavigation || m.IdClienteNavigation).telefono || (m.idClienteNavigation || m.IdClienteNavigation).Telefono || null,
-            correo: cleanEmail((m.idClienteNavigation || m.IdClienteNavigation).correo || (m.idClienteNavigation || m.IdClienteNavigation).Correo || null),
-            direccion: (m.idClienteNavigation || m.IdClienteNavigation).direccion || (m.idClienteNavigation || m.IdClienteNavigation).Direccion || null,
-          } : undefined)
+          cliente: (() => {
+            const rawCli = m.cliente || (m.idClienteNavigation || m.IdClienteNavigation ? {
+              id_cliente: (m.idClienteNavigation || m.IdClienteNavigation).idCliente || (m.idClienteNavigation || m.IdClienteNavigation).IdCliente,
+              nombre: (m.idClienteNavigation || m.IdClienteNavigation).nombre || (m.idClienteNavigation || m.IdClienteNavigation).Nombre,
+              cedula: (m.idClienteNavigation || m.IdClienteNavigation).cedula || (m.idClienteNavigation || m.IdClienteNavigation).Cedula,
+              telefono: (m.idClienteNavigation || m.IdClienteNavigation).telefono || (m.idClienteNavigation || m.IdClienteNavigation).Telefono || null,
+              correo: (m.idClienteNavigation || m.IdClienteNavigation).correo || (m.idClienteNavigation || m.IdClienteNavigation).Correo || null,
+              direccion: (m.idClienteNavigation || m.IdClienteNavigation).direccion || (m.idClienteNavigation || m.IdClienteNavigation).Direccion || null,
+            } : undefined);
+            if (!rawCli) return undefined;
+            return {
+              id_cliente: rawCli.id_cliente || rawCli.idCliente || rawCli.IdCliente,
+              nombre: rawCli.nombre || rawCli.Nombre,
+              cedula: cleanCedula(rawCli.cedula || rawCli.Cedula),
+              telefono: rawCli.telefono || rawCli.Telefono || null,
+              correo: cleanEmail(rawCli.correo || rawCli.Correo || null),
+              direccion: rawCli.direccion || rawCli.Direccion || null
+            };
+          })()
         };
       });
 

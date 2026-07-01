@@ -55,11 +55,19 @@ export function useAgendamiento() {
           })(),
           hora: a.hora || a.Hora,
           estado: a.estado || a.Estado,
-          cliente: a.cliente || (a.idClienteNavigation || a.IdClienteNavigation ? {
-            id_cliente: (a.idClienteNavigation || a.IdClienteNavigation).idCliente || (a.idClienteNavigation || a.IdClienteNavigation).IdCliente,
-            nombre: (a.idClienteNavigation || a.IdClienteNavigation).nombre || (a.idClienteNavigation || a.IdClienteNavigation).Nombre,
-            cedula: cleanCedula((a.idClienteNavigation || a.IdClienteNavigation).cedula || (a.idClienteNavigation || a.IdClienteNavigation).Cedula)
-          } : undefined),
+          cliente: (() => {
+            const rawCli = a.cliente || (a.idClienteNavigation || a.IdClienteNavigation ? {
+              id_cliente: (a.idClienteNavigation || a.IdClienteNavigation).idCliente || (a.idClienteNavigation || a.IdClienteNavigation).IdCliente,
+              nombre: (a.idClienteNavigation || a.IdClienteNavigation).nombre || (a.idClienteNavigation || a.IdClienteNavigation).Nombre,
+              cedula: (a.idClienteNavigation || a.IdClienteNavigation).cedula || (a.idClienteNavigation || a.IdClienteNavigation).Cedula
+            } : undefined);
+            if (!rawCli) return undefined;
+            return {
+              id_cliente: rawCli.id_cliente || rawCli.idCliente || rawCli.IdCliente,
+              nombre: rawCli.nombre || rawCli.Nombre,
+              cedula: cleanCedula(rawCli.cedula || rawCli.Cedula)
+            };
+          })(),
           empleado: a.empleado || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation ? {
             id_empleado: (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).idEmpleado || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).IdEmpleado,
             nombre: (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).nombre || (a.idEmpleadoNavigation || a.IdEmpleadoNavigation).Nombre

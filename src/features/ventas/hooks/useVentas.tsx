@@ -47,11 +47,19 @@ export function useVentas(enabled: boolean = true) {
           const storedStr = localStorage.getItem(`mascota_venta_${v.idVenta || v.IdVenta || v.id_venta}`);
           return storedStr ? parseInt(storedStr) : undefined;
         })(),
-        cliente: v.cliente || (v.idClienteNavigation || v.IdClienteNavigation ? {
-          id_cliente: (v.idClienteNavigation || v.IdClienteNavigation).idCliente || (v.idClienteNavigation || v.IdClienteNavigation).IdCliente,
-          nombre: (v.idClienteNavigation || v.IdClienteNavigation).nombre || (v.idClienteNavigation || v.IdClienteNavigation).Nombre || (v.idClienteNavigation || v.IdClienteNavigation).nombreCompleto,
-          cedula: cleanCedula((v.idClienteNavigation || v.IdClienteNavigation).cedula || (v.idClienteNavigation || v.IdClienteNavigation).Cedula || (v.idClienteNavigation || v.IdClienteNavigation).documento || v.cedula || v.Cedula)
-        } : (v.nombreCliente || v.NombreCliente ? { nombre: v.nombreCliente || v.NombreCliente, cedula: cleanCedula(v.cedulaCliente || v.CedulaCliente) } : undefined)),
+        cliente: (() => {
+          const rawCli = v.cliente || (v.idClienteNavigation || v.IdClienteNavigation ? {
+            id_cliente: (v.idClienteNavigation || v.IdClienteNavigation).idCliente || (v.idClienteNavigation || v.IdClienteNavigation).IdCliente,
+            nombre: (v.idClienteNavigation || v.IdClienteNavigation).nombre || (v.idClienteNavigation || v.IdClienteNavigation).Nombre || (v.idClienteNavigation || v.IdClienteNavigation).nombreCompleto,
+            cedula: (v.idClienteNavigation || v.IdClienteNavigation).cedula || (v.idClienteNavigation || v.IdClienteNavigation).Cedula || (v.idClienteNavigation || v.IdClienteNavigation).documento || v.cedula || v.Cedula
+          } : (v.nombreCliente || v.NombreCliente ? { nombre: v.nombreCliente || v.NombreCliente, cedula: v.cedulaCliente || v.CedulaCliente } : undefined));
+          if (!rawCli) return undefined;
+          return {
+            id_cliente: rawCli.id_cliente || rawCli.idCliente || rawCli.IdCliente,
+            nombre: rawCli.nombre || rawCli.Nombre,
+            cedula: cleanCedula(rawCli.cedula || rawCli.Cedula)
+          };
+        })(),
         venta_servicios: v.venta_servicios || (v.ventaServicios || v.VentaServicios ? (v.ventaServicios || v.VentaServicios)
           .filter((vs: any) => vs !== null)
           .map((vs: any) => ({
