@@ -50,200 +50,48 @@ export function HistorialMascotasPage() {
   const [clienteSeleccionado, setClienteSeleccionado] = useState<any | null>(null);
   const [mascotaSeleccionada, setMascotaSeleccionada] = useState<any | null>(null);
   const [entradaSeleccionada, setEntradaSeleccionada] = useState<HistorialMascota | null>(null);
+  const [detalleModal, setDetalleModal] = useState<{ isOpen: boolean; entrada: HistorialMascota | null }>({ isOpen: false, entrada: null });
 
-  const exportarHistorialesPDF = () => {
+  const exportarHistorialesExcel = () => {
     try {
-      const printWindow = window.open("", "_blank");
-      if (!printWindow) {
-        toast.error("No se pudo abrir la ventana de impresión. Por favor, permite las ventanas emergentes.");
-        return;
-      }
+      const headers = ["ID", "Mascota", "Propietario", "Cédula Propietario", "Fecha", "Hora", "Veterinario", "Diagnóstico", "Tratamiento"];
 
-      const fechaGeneracion = new Date().toLocaleDateString('es-CO', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      const rows = historialFiltrado.map(h => [
+        h.id_historial,
+        h.nombreMascota || '',
+        h.nombreCliente || '',
+        h.cedulaCliente || '',
+        h.fecha ? h.fecha.split('T')[0] : '',
+        (h as any).hora || '',
+        h.veterinario || '',
+        h.diagnostico || '',
+        h.tratamiento || ''
+      ]);
 
-      const filasHtml = historialFiltrado.map(h => `
-        <tr>
-          <td>${h.id_historial}</td>
-          <td style="font-weight: 600;">${h.nombreMascota || ''}</td>
-          <td>${h.nombreCliente || ''} (${h.cedulaCliente || '—'})</td>
-          <td>${h.fecha ? h.fecha.split('T')[0] : ''} ${(h as any).hora || ''}</td>
-          <td>${h.veterinario || '—'}</td>
-          <td style="font-size: 11px;">${h.diagnostico || '—'}</td>
-          <td style="font-size: 11px;">${h.tratamiento || '—'}</td>
-        </tr>
-      `).join('');
+      const csvLines = [
+        "sep=;",
+        headers.join(";"),
+        ...rows.map(row => row.map(val => {
+          const cleanVal = typeof val === 'string' ? val.replace(/"/g, '""') : val;
+          return typeof val === 'string' && (String(cleanVal).includes(";") || String(cleanVal).includes("\n") || String(cleanVal).includes('"'))
+            ? `"${cleanVal}"`
+            : cleanVal;
+        }).join(";"))
+      ];
 
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Reporte de Historial Clínico - KaiVet</title>
-            <style>
-              @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
-              body {
-                font-family: 'Outfit', sans-serif;
-                color: #1e293b;
-                padding: 40px;
-                margin: 0;
-                background-color: #ffffff;
-              }
-              .header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 2px solid #e2e8f0;
-                padding-bottom: 20px;
-                margin-bottom: 30px;
-              }
-              .logo-container {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-              }
-              .logo-icon {
-                width: 32px;
-                height: 32px;
-                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: bold;
-                font-size: 18px;
-              }
-              .logo-text {
-                font-size: 22px;
-                font-weight: 700;
-                color: #0f172a;
-              }
-              .logo-sub {
-                color: #3b82f6;
-              }
-              .report-info {
-                text-align: right;
-              }
-              .title {
-                font-size: 24px;
-                font-weight: 700;
-                color: #0f172a;
-                margin: 0;
-                margin-top: 10px;
-              }
-              .date {
-                font-size: 12px;
-                color: #64748b;
-                margin-top: 5px;
-              }
-              .summary {
-                margin-bottom: 25px;
-                font-size: 14px;
-                color: #475569;
-                background-color: #f8fafc;
-                padding: 12px 20px;
-                border-radius: 8px;
-                border-left: 4px solid #3b82f6;
-                display: inline-block;
-              }
-              table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 30px;
-              }
-              th {
-                background-color: #f1f5f9;
-                color: #475569;
-                font-weight: 600;
-                font-size: 12px;
-                text-transform: uppercase;
-                text-align: left;
-                padding: 12px;
-                border-bottom: 2px solid #e2e8f0;
-              }
-              td {
-                padding: 12px;
-                font-size: 13px;
-                border-bottom: 1px solid #e2e8f0;
-                color: #334155;
-              }
-              tr:nth-child(even) td {
-                background-color: #f8fafc;
-              }
-              .footer {
-                text-align: center;
-                font-size: 11px;
-                color: #94a3b8;
-                margin-top: 60px;
-                border-top: 1px solid #e2e8f0;
-                padding-top: 20px;
-              }
-              @page {
-                size: letter;
-                margin: 20mm;
-              }
-              @media print {
-                body { padding: 0; }
-              }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <div class="logo-container">
-                <div class="logo-icon">🐾</div>
-                <div class="logo-text">KaiVet<span class="logo-sub"> Manager</span></div>
-              </div>
-              <div class="report-info">
-                <div class="title">Reporte de Historial Clínico</div>
-                <div class="date">Generado el ${fechaGeneracion}</div>
-              </div>
-            </div>
-            
-            <div class="summary">
-              <strong>Total de registros:</strong> ${historialFiltrado.length} entradas de historial clínico encontradas.
-            </div>
-
-            <table>
-              <thead>
-                <tr>
-                  <th style="width: 8%;">ID</th>
-                  <th style="width: 12%;">Mascota</th>
-                  <th style="width: 18%;">Propietario</th>
-                  <th style="width: 14%;">Fecha/Hora</th>
-                  <th style="width: 14%;">Veterinario</th>
-                  <th style="width: 17%;">Diagnóstico</th>
-                  <th style="width: 17%;">Tratamiento</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${filasHtml}
-              </tbody>
-            </table>
-
-            <div class="footer">
-              Este es un reporte oficial emitido por la plataforma KaiVet Manager. &copy; ${new Date().getFullYear()} KaiVet. Todos los derechos reservados.
-            </div>
-
-            <script>
-              window.onload = function() {
-                setTimeout(function() {
-                  window.print();
-                  window.close();
-                }, 500);
-              };
-            </script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      toast.success("Historial médico listo para imprimir / guardar como PDF");
+      const csvContent = "\uFEFF" + csvLines.join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Historial_Clinico_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Historial exportado en formato Excel con éxito");
     } catch (error) {
       console.error(error);
-      toast.error("Error al exportar reporte");
+      toast.error("Error al exportar historial");
     }
   };
 
@@ -1356,11 +1204,11 @@ export function HistorialMascotasPage() {
                         <TableCell>
                           <div className="flex items-center justify-center gap-1.5">
                             <Button
-                              onClick={() => abrirTimelineMascota(entrada)}
+                              onClick={() => setDetalleModal({ isOpen: true, entrada })}
                               variant="outline"
                               size="sm"
                               className="p-2 h-9 w-9 bg-blue-500/20 border-blue-500 text-blue-400 hover:bg-blue-500/30"
-                              title="Ver historial completo"
+                              title="Ver detalles"
                               disabled={loading}
                             >
                               <Eye className="w-4 h-4" />
@@ -2034,12 +1882,12 @@ export function HistorialMascotasPage() {
             <div className="flex items-center gap-4 shrink-0">
               {pasoActual === 'inicio' && !isClienteRole && (
                 <button
-                  onClick={exportarHistorialesPDF}
+                  onClick={exportarHistorialesExcel}
                   className="dark-button-secondary font-bold gap-2 flex items-center"
                   disabled={loading || historialFiltrado.length === 0}
                 >
                   <FileText className="w-4 h-4" />
-                  <span>Exportar Reporte</span>
+                  <span>Exportar Excel</span>
                 </button>
               )}
               {pasoActual === 'inicio' && !isClienteRole && (
@@ -2067,6 +1915,136 @@ export function HistorialMascotasPage() {
         title="¿Eliminar registro?"
         description="Esta acción borrará el registro para siempre y no se podrá deshacer."
       />
+
+      {/* Modal de Detalles del Historial */}
+      <Dialog open={detalleModal.isOpen} onOpenChange={(open) => !open && setDetalleModal({ isOpen: false, entrada: null })}>
+        <DialogContent className="bg-dark-card border-dark-color max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-dark-primary flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-400" />
+              Informe Clínico Detallado
+            </DialogTitle>
+            <DialogDescription className="text-dark-secondary">
+              {detalleModal.entrada ? `Expediente médico #${detalleModal.entrada.id_historial}` : ''}
+            </DialogDescription>
+          </DialogHeader>
+
+          {detalleModal.entrada && (() => {
+            const entrada = detalleModal.entrada;
+            const mascotaInfo = mascotas.find((m: any) => m.id_mascota === entrada.id_mascota) || entrada.mascota;
+            const clienteInfo = clientes.find((c: any) => c.id_cliente === mascotaInfo?.id_cliente) || mascotaInfo?.cliente;
+            return (
+              <div className="space-y-6 pt-2">
+                {/* Fila superior: Mascota, Cliente, Visita */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Mascota */}
+                  <div className="bg-dark-bg/50 border border-dark-color/50 rounded-2xl p-4 flex flex-col items-center text-center gap-2">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-lg">
+                      <Heart className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black text-pink-400 tracking-widest">MASCOTA</p>
+                      <h4 className="text-sm font-black text-dark-primary">{toSentenceCase(mascotaInfo?.nombre || entrada.nombreMascota || 'N/A')}</h4>
+                      {mascotaInfo && (
+                        <p className="text-[10px] text-dark-secondary">{toSentenceCase(mascotaInfo.especie)} · {toSentenceCase(mascotaInfo.raza) || 'N/A'}</p>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 w-full pt-2 border-t border-dark-color/30">
+                      <div className="bg-dark-bg/50 p-2 rounded-xl">
+                        <p className="text-[8px] text-dark-secondary">Edad</p>
+                        <p className="text-[10px] font-black text-emerald-400">{mascotaInfo?.edad || 'N/A'} m</p>
+                      </div>
+                      <div className="bg-dark-bg/50 p-2 rounded-xl">
+                        <p className="text-[8px] text-dark-secondary">Peso</p>
+                        <p className="text-[10px] font-black text-blue-400">{mascotaInfo?.peso || 'N/A'} kg</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cliente */}
+                  <div className="bg-dark-bg/50 border border-dark-color/50 rounded-2xl p-4 flex flex-col gap-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                        <User className="w-4 h-4 text-blue-400" />
+                      </div>
+                      <p className="text-[9px] font-black text-blue-400 tracking-widest">CLIENTE</p>
+                    </div>
+                    <h4 className="text-sm font-black text-dark-primary">{toSentenceCase(clienteInfo?.nombre || entrada.nombreCliente || 'N/A')}</h4>
+                    <p className="text-[10px] text-dark-secondary">Cédula: {clienteInfo?.cedula || entrada.cedulaCliente || 'N/A'}</p>
+                    <div className="pt-2 border-t border-dark-color/30 space-y-1">
+                      <p className="text-[10px] text-dark-secondary">{clienteInfo?.telefono || 'Sin teléfono'}</p>
+                      <p className="text-[10px] text-dark-secondary">{toSentenceCase(clienteInfo?.direccion || 'Sin dirección')}</p>
+                    </div>
+                  </div>
+
+                  {/* Visita */}
+                  <div className="bg-dark-bg/50 border border-dark-color/50 rounded-2xl p-4 flex flex-col gap-3">
+                    <p className="text-[9px] font-black text-dark-secondary tracking-widest">INFORMACIÓN DE VISITA</p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                        <Calendar className="w-3.5 h-3.5 text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="text-[8px] text-dark-secondary">Fecha</p>
+                        <p className="text-xs font-black text-dark-primary">{entrada.fecha ? new Date((entrada.fecha.split('T')[0]) + 'T12:00:00').toLocaleDateString('es-CO') : 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                        <Clock className="w-3.5 h-3.5 text-orange-400" />
+                      </div>
+                      <div>
+                        <p className="text-[8px] text-dark-secondary">Hora</p>
+                        <p className="text-xs font-black text-dark-primary">{formatTo12h((entrada as any).hora) || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                        <Stethoscope className="w-3.5 h-3.5 text-emerald-400" />
+                      </div>
+                      <div>
+                        <p className="text-[8px] text-dark-secondary">Veterinario</p>
+                        <p className="text-xs font-black text-dark-primary">{toSentenceCase(entrada.veterinario) || 'N/A'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Diagnóstico */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 border-l-4 border-pink-500 pl-3">
+                    <Activity className="w-4 h-4 text-pink-400" />
+                    <h3 className="text-sm font-black text-dark-primary">Diagnóstico y Evolución</h3>
+                  </div>
+                  <div className="bg-dark-bg/50 border border-dark-color/50 rounded-2xl p-4">
+                    <p className="text-sm text-dark-primary leading-relaxed whitespace-pre-wrap">{toSentenceCase(entrada.diagnostico || 'Sin diagnóstico registrado')}</p>
+                  </div>
+                </div>
+
+                {/* Tratamiento */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 border-l-4 border-emerald-500 pl-3">
+                    <Stethoscope className="w-4 h-4 text-emerald-400" />
+                    <h3 className="text-sm font-black text-dark-primary">Tratamiento Realizado</h3>
+                  </div>
+                  <div className="bg-dark-bg/50 border border-dark-color/50 rounded-2xl p-4">
+                    <p className="text-sm text-dark-primary leading-relaxed whitespace-pre-wrap">{toSentenceCase(entrada.tratamiento || 'Sin tratamiento registrado')}</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setDetalleModal({ isOpen: false, entrada: null })}
+                    className="dark-button-primary font-bold"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

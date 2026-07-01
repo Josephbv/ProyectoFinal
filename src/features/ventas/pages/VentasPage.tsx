@@ -162,12 +162,16 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
           })
           .join("; "); // Usamos punto y coma dentro de la lista para no romper el formato CSV
 
+        const mascotaLabel = finalMascota
+          ? `${finalMascota.nombre} (${finalMascota.especie || 'N/A'} · ${finalMascota.raza || 'N/A'})`
+          : 'Sin mascota';
+
         return [
           venta.id_venta,
           venta.fecha ? venta.fecha.split('T')[0] : '',
           venta.cliente?.nombre || 'Cliente desconocido',
           cleanCedula(venta.cliente?.cedula) || '',
-          finalMascota ? finalMascota.nombre : 'Sin mascota',
+          mascotaLabel,
           serviciosNombres || '',
           venta.total || 0,
           venta.estado || 'aprobada'
