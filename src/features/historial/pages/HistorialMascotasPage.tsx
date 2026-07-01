@@ -665,9 +665,9 @@ export function HistorialMascotasPage() {
           </div>
         </header>
 
-        <div className="max-w-5xl mx-auto p-10 space-y-12 w-full">
+        <div className="max-w-5xl mx-auto px-10 pt-12 pb-10 space-y-12 w-full">
           {/* Fila Superior: Mascota, Cliente e Info Cita */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
             {/* Tarjeta de la Mascota */}
             <div className="dark-card p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-pink-500/10 transition-colors" />
