@@ -758,6 +758,17 @@ export function HistorialMascotasPage() {
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
+                            <Button
+                              onClick={() => {
+                                setEntradaSeleccionada(entrada);
+                                setPasoActual('reporteCompleto');
+                              }}
+                              variant="outline" size="sm"
+                              className="p-2 h-9 w-9 bg-emerald-500/20 border-emerald-500 text-emerald-400 hover:bg-emerald-500/30"
+                              title="Generar reporte de consulta"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </Button>
                             {!isClienteRole && (
                               <>
                                 <Button
@@ -1633,7 +1644,7 @@ export function HistorialMascotasPage() {
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
-                onClick={() => setPasoActual('detalles')}
+                onClick={() => setPasoActual('timeline')}
                 className="text-white hover:bg-white/10 rounded-full w-10 h-10 p-0"
               >
                 <ChevronLeft className="w-6 h-6" />
@@ -1649,7 +1660,7 @@ export function HistorialMascotasPage() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => setPasoActual('detalles')}
+                onClick={() => setPasoActual('timeline')}
                 className="border-slate-700 text-slate-400 hover:bg-slate-800 font-black text-xs tracking-widest px-8 h-12 rounded-xl"
               >
                 Cerrar
@@ -1969,7 +1980,18 @@ export function HistorialMascotasPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      setDetalleModal({ isOpen: false, entrada: null });
+                      setEntradaSeleccionada(entrada);
+                      setPasoActual('reporteCompleto');
+                    }}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-2xl text-xs tracking-wider gap-2 flex items-center shadow-lg shadow-emerald-500/10 transition-all hover:scale-[1.02] active:scale-95"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Generar Reporte
+                  </button>
                   <button
                     onClick={() => setDetalleModal({ isOpen: false, entrada: null })}
                     className="dark-button-primary font-bold"
