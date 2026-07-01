@@ -47,6 +47,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
 
     if (!acc[key]) {
       acc[key] = {
+        id_empleado: horario.id_empleado,
         cc: emp?.cedula || 'N/A',
         nombre: emp?.nombre || 'Empleado',
         apellido: emp?.cargo || '', // Usamos cargo si no hay apellido, o vacío
@@ -55,7 +56,7 @@ export function HorarioPage({ onNewHorario, onEditHorario }: HorarioPageProps) {
     }
     acc[key].horarios.push(horario);
     return acc;
-  }, {} as Record<string, { cc: string; nombre: string; apellido: string; horarios: Horario[] }>);
+  }, {} as Record<string, { id_empleado?: number; cc: string; nombre: string; apellido: string; horarios: Horario[] }>);
 
   const empleadosArray = Object.values(empleadosConHorarios);
 

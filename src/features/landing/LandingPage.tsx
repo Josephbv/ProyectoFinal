@@ -514,7 +514,7 @@ export function LandingPage({ onGoToLogin }: LandingPageProps) {
                                 {[
                                     { icon: "📧", text: "kaivetmanager@gmail.com" },
                                     { icon: "📞", text: "+57 323 425 9445", href: "https://wa.me/573234259445?text=Hola!%20Me%20gustar%C3%ADa%20obtener%20m%C3%A1s%20informaci%C3%B3n%20sobre%20KaiVet." },
-                                    { icon: "📍", text: "Vereda San Esteban - Girardota, Antioquia" },
+                                    { icon: "📍", text: "Vereda Potrerito - Girardota, Antioquia" },
                                 ].map(({ icon, text, href }) => (
                                     <li key={text} style={{ display: "flex", alignItems: "flex-start", gap: 10, color: "#94a3b8", fontSize: 14 }}>
                                         <span style={{ fontSize: 16, marginTop: 2 }}>{icon}</span>
@@ -561,7 +561,7 @@ export function LandingPage({ onGoToLogin }: LandingPageProps) {
                             }}>
                                 <iframe
                                     title="Ubicación KaiVet"
-                                    src="https://maps.google.com/maps?q=vereda%20san%20esteban%20-%20girardota%20antioquia&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                                    src="https://maps.google.com/maps?q=vereda%20potrerito%20-%20girardota%20antioquia&t=&z=14&ie=UTF8&iwloc=&output=embed"
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0 }}
