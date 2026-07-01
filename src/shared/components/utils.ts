@@ -24,8 +24,12 @@ export function exportarComprobanteVentaPDF(venta: any, mascotas: any[], servici
     }
 
     const idMascota = venta.id_mascota || venta.IdMascota ||
-      citas.find((c: any) => c.id_agendamiento === venta.id_agendamiento)?.id_mascota;
-    const mascota = idMascota ? mascotas.find((m: any) => m.id_mascota === idMascota) : null;
+      citas.find((c: any) => c.id_agendamiento === (venta.id_agendamiento || venta.idAgendamiento || venta.IdAgendamiento))?.id_mascota;
+    let mascota = idMascota ? mascotas.find((m: any) => m.id_mascota === idMascota) : null;
+
+    if (!mascota && venta.id_cliente) {
+      mascota = mascotas.find((m: any) => Number(m.id_cliente) === Number(venta.id_cliente)) || null;
+    }
 
     const fechaFormateada = venta.fecha ? venta.fecha.split('T')[0] : new Date().toISOString().split('T')[0];
 
@@ -230,10 +234,10 @@ export function exportarComprobanteVentaPDF(venta: any, mascotas: any[], servici
                 <div class="info-row">Cédula: <span>${cleanCedula(venta.cliente?.cedula) || '—'}</span></div>
               </div>
               <div class="info-block">
-                <div class="info-title">Paciente</div>
-                <div class="info-row">Nombre: <span>${mascota ? mascota.nombre : 'Sin mascota'}</span></div>
-                <div class="info-row">Especie: <span>${mascota?.especie || '—'}</span></div>
-                <div class="info-row">Raza: <span>${mascota?.raza || '—'}</span></div>
+                <div class="info-title">Mascota</div>
+                <div class="info-row">Nombre: <span>${mascota ? mascota.nombre : 'No aplica'}</span></div>
+                <div class="info-row">Especie: <span>${mascota ? (mascota.especie || '—') : '—'}</span></div>
+                <div class="info-row">Raza: <span>${mascota ? (mascota.raza || '—') : '—'}</span></div>
               </div>
             </div>
 

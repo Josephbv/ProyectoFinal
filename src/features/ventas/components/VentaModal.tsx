@@ -507,7 +507,10 @@ export function VentaModal({ isOpen, onClose, onSubmit, venta, citaPrevia, loadi
             {readOnly && venta && (
               <button
                 type="button"
-                onClick={() => exportarComprobanteVentaPDF(venta, mascotas, servicios)}
+                onClick={() => exportarComprobanteVentaPDF({
+                  ...venta,
+                  id_mascota: formData.id_mascota ? parseInt(formData.id_mascota) : undefined
+                }, mascotas, servicios)}
                 className="dark-button-primary bg-emerald-600 hover:bg-emerald-700 hover:border-emerald-600 text-white font-bold gap-2 flex items-center min-w-[160px] justify-center"
               >
                 <FileText className="w-4 h-4" />

@@ -3,7 +3,7 @@ import { Button } from "../../../shared/components/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/components/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/components/alert-dialog";
 import { toast } from "sonner";
-import { Plus, Search, ShoppingCart, Calendar, Trash2, User, DollarSign, Stethoscope, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Tag, Fingerprint, AlertTriangle, X, FileText } from "lucide-react";
+import { Plus, Search, ShoppingCart, Calendar, Trash2, User, DollarSign, Stethoscope, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Tag, Fingerprint, AlertTriangle, X, FileText, FileSpreadsheet } from "lucide-react";
 import { useVentas, Venta, VentaServicio } from "../hooks/useVentas";
 import { VentaModal } from "../components/VentaModal";
 import { ConfirmDeleteDialog } from "../../../shared/components/ConfirmDeleteDialog";
@@ -137,249 +137,68 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
     return venta_servicios?.length || 0;
   };
 
-  const exportarVentasPDF = () => {
+  const exportarVentasExcel = () => {
     try {
-      const printWindow = window.open("", "_blank");
-      if (!printWindow) {
-        toast.error("No se pudo abrir la ventana de impresión. Por favor, permite las ventanas emergentes.");
-        return;
-      }
+      // Filtrar ventas anuladas para que solo se exporten las aprobadas
+      const ventasActivas = ventasFiltradas.filter(v => v.estado !== 'anulada');
 
-      const fechaGeneracion = new Date().toLocaleDateString('es-CO', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      // Calcular totales
-      const totalIngresos = ventasFiltradas.reduce((sum, v) => sum + (v.total || 0), 0);
-      const totalAprobadas = ventasFiltradas.filter(v => v.estado !== 'anulada').length;
-      const totalAnuladas = ventasFiltradas.filter(v => v.estado === 'anulada').length;
-
-      const filasHtml = ventasFiltradas.map(venta => {
+      // Fila de encabezado
+      const headers = ["ID Venta", "Fecha", "Cliente", "Cédula", "Mascota", "Servicios/Procedimientos", "Total Cobrado", "Estado"];
+      
+      // Filas de datos
+      const rows = ventasActivas.map(venta => {
         const idMascota = venta.id_mascota || (venta as any).IdMascota ||
           citas.find(c => c.id_agendamiento === (venta as any).id_agendamiento)?.id_mascota;
         const mascota = idMascota ? mascotas.find(m => m.id_mascota === idMascota) : null;
         
+        // Fallback mascota por cliente
+        const finalMascota = mascota || (venta.id_cliente ? mascotas.find(m => Number(m.id_cliente) === Number(venta.id_cliente)) : null);
+
         const serviciosNombres = (venta.venta_servicios || [])
           .map(vs => {
             const sInfo = servicios.find(s => s.id_servicio === vs.id_servicio);
             return vs.servicio?.nombre_servicio || sInfo?.nombre_servicio || 'Servicio';
           })
-          .join(", ");
+          .join("; "); // Usamos punto y coma dentro de la lista para no romper el formato CSV
 
-        const formattedTotal = (venta.total || 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+        return [
+          venta.id_venta,
+          venta.fecha ? venta.fecha.split('T')[0] : '',
+          venta.cliente?.nombre || 'Cliente desconocido',
+          cleanCedula(venta.cliente?.cedula) || '',
+          finalMascota ? finalMascota.nombre : 'Sin mascota',
+          serviciosNombres || '',
+          venta.total || 0,
+          venta.estado || 'aprobada'
+        ];
+      });
 
-        return `
-          <tr>
-            <td>${venta.id_venta}</td>
-            <td>${venta.fecha ? venta.fecha.split('T')[0] : ''}</td>
-            <td style="font-weight: 600;">${venta.cliente?.nombre || 'Cliente desconocido'}</td>
-            <td>${cleanCedula(venta.cliente?.cedula) || '—'}</td>
-            <td>${mascota ? mascota.nombre : 'Sin mascota'}</td>
-            <td style="font-size: 11px; max-width: 200px; word-wrap: break-word;">${serviciosNombres || '—'}</td>
-            <td style="font-weight: bold; text-align: right;">${formattedTotal}</td>
-            <td style="text-transform: uppercase; font-size: 10px; font-weight: bold; color: ${venta.estado === 'anulada' ? '#ef4444' : '#10b981'};">${venta.estado || 'aprobada'}</td>
-          </tr>
-        `;
-      }).join('');
+      // Crear el contenido CSV con BOM UTF-8 para que Excel reconozca tildes y caracteres especiales
+      const csvContent = "\uFEFF" + [
+        headers.join(","),
+        ...rows.map(e => e.map(val => {
+          // Limpiar comillas y envolver si contiene comas, saltos de línea o comillas
+          const cleanVal = typeof val === 'string' ? val.replace(/"/g, '""') : val;
+          return typeof val === 'string' && (cleanVal.includes(",") || cleanVal.includes("\n") || cleanVal.includes('"'))
+            ? `"${cleanVal}"`
+            : cleanVal;
+        }).join(","))
+      ].join("\n");
 
-      const formattedTotalIngresos = totalIngresos.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+      // Descargar archivo
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Reporte_Ventas_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Reporte de Ventas - KaiVet</title>
-            <style>
-              @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
-              body {
-                font-family: 'Outfit', sans-serif;
-                color: #1e293b;
-                padding: 40px;
-                margin: 0;
-                background-color: #ffffff;
-              }
-              .header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 2px solid #e2e8f0;
-                padding-bottom: 20px;
-                margin-bottom: 30px;
-              }
-              .logo-container {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-              }
-              .logo-icon {
-                width: 32px;
-                height: 32px;
-                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: bold;
-                font-size: 18px;
-              }
-              .logo-text {
-                font-size: 22px;
-                font-weight: 700;
-                color: #0f172a;
-              }
-              .logo-sub {
-                color: #3b82f6;
-              }
-              .report-info {
-                text-align: right;
-              }
-              .title {
-                font-size: 24px;
-                font-weight: 700;
-                color: #0f172a;
-                margin: 0;
-                margin-top: 10px;
-              }
-              .date {
-                font-size: 12px;
-                color: #64748b;
-                margin-top: 5px;
-              }
-              .kpi-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 20px;
-                margin-bottom: 30px;
-              }
-              .kpi-card {
-                background-color: #f8fafc;
-                border: 1px solid #e2e8f0;
-                border-radius: 12px;
-                padding: 15px 20px;
-              }
-              .kpi-title {
-                font-size: 11px;
-                text-transform: uppercase;
-                color: #64748b;
-                font-weight: 600;
-                margin-bottom: 5px;
-                letter-spacing: 0.5px;
-              }
-              .kpi-value {
-                font-size: 20px;
-                font-weight: 700;
-                color: #0f172a;
-              }
-              table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 30px;
-              }
-              th {
-                background-color: #f1f5f9;
-                color: #475569;
-                font-weight: 600;
-                font-size: 12px;
-                text-transform: uppercase;
-                text-align: left;
-                padding: 12px;
-                border-bottom: 2px solid #e2e8f0;
-              }
-              td {
-                padding: 12px;
-                font-size: 13px;
-                border-bottom: 1px solid #e2e8f0;
-                color: #334155;
-              }
-              tr:nth-child(even) td {
-                background-color: #f8fafc;
-              }
-              .footer {
-                text-align: center;
-                font-size: 11px;
-                color: #94a3b8;
-                margin-top: 60px;
-                border-top: 1px solid #e2e8f0;
-                padding-top: 20px;
-              }
-              @page {
-                size: letter;
-                margin: 20mm;
-              }
-              @media print {
-                body { padding: 0; }
-              }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <div class="logo-container">
-                <div class="logo-icon">🐾</div>
-                <div class="logo-text">KaiVet<span class="logo-sub"> Manager</span></div>
-              </div>
-              <div class="report-info">
-                <div class="title">Reporte de Ventas</div>
-                <div class="date">Generado el ${fechaGeneracion}</div>
-              </div>
-            </div>
-            
-            <div class="kpi-grid">
-              <div class="kpi-card" style="border-left: 4px solid #3b82f6;">
-                <div class="kpi-title">Ingresos Totales</div>
-                <div class="kpi-value">${formattedTotalIngresos}</div>
-              </div>
-              <div class="kpi-card" style="border-left: 4px solid #10b981;">
-                <div class="kpi-title">Ventas Aprobadas</div>
-                <div class="kpi-value">${totalAprobadas}</div>
-              </div>
-              <div class="kpi-card" style="border-left: 4px solid #ef4444;">
-                <div class="kpi-title">Ventas Anuladas</div>
-                <div class="kpi-value">${totalAnuladas}</div>
-              </div>
-            </div>
-
-            <table>
-              <thead>
-                <tr>
-                  <th style="width: 8%;">ID</th>
-                  <th style="width: 12%;">Fecha</th>
-                  <th style="width: 18%;">Cliente</th>
-                  <th style="width: 12%;">Doc. Cliente</th>
-                  <th style="width: 12%;">Mascota</th>
-                  <th style="width: 20%;">Servicios</th>
-                  <th style="width: 10%; text-align: right;">Total</th>
-                  <th style="width: 8%;">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${filasHtml}
-              </tbody>
-            </table>
-
-            <div class="footer">
-              Este es un reporte oficial emitido por la plataforma KaiVet Manager. &copy; ${new Date().getFullYear()} KaiVet. Todos los derechos reservados.
-            </div>
-
-            <script>
-              window.onload = function() {
-                setTimeout(function() {
-                  window.print();
-                  window.close();
-                }, 500);
-              };
-            </script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      toast.success("Reporte de ventas listo para imprimir / guardar como PDF");
+      toast.success("Reporte de ventas exportado en formato Excel con éxito");
     } catch (error) {
       console.error(error);
-      toast.error("Error al exportar reporte");
+      toast.error("Error al exportar reporte a Excel");
     }
   };
 
@@ -411,12 +230,12 @@ export function VentasPage({ onNewSale, citaAPagar, onVentaCerrada }: VentasPage
 
             {!isClienteRole && !isVetRole && (
               <button
-                onClick={exportarVentasPDF}
+                onClick={exportarVentasExcel}
                 className="dark-button-secondary font-bold gap-2 flex items-center"
                 disabled={loading || ventasFiltradas.length === 0}
               >
-                <FileText className="w-4 h-4" />
-                Exportar Reporte
+                <FileSpreadsheet className="w-4 h-4" />
+                Exportar Excel
               </button>
             )}
 

@@ -10,7 +10,7 @@ import { Switch } from "../../../shared/components/switch";
 import { useEmpleados } from "../../empleados/hooks/useEmpleados";
 import { useClientes } from "../../clientes/hooks/useClientes";
 
-const suffixEmail = (email: string, suffix: string) => {
+const suffixEmail = (email: string | null | undefined, suffix: string) => {
     if (!email) return '';
     if (email.includes(`-${suffix}@`)) return email;
     const parts = email.split('@');
@@ -20,7 +20,7 @@ const suffixEmail = (email: string, suffix: string) => {
     return `${email}-${suffix}`;
 };
 
-const cleanEmail = (email: string) => {
+const cleanEmail = (email: string | null | undefined) => {
     if (!email) return '';
     return email.replace(/-[CEce]@/, '@');
 };
@@ -57,12 +57,12 @@ export function UsuariosPage() {
         const cedulaStr = (data.cedula || '').trim();
 
         if (targetRol === 'cliente') {
-            idEmpleado = null;
+            idEmpleado = undefined;
 
             // Libera la cédula y el correo si está registrada en algún empleado
             if (cedulaStr) {
                 const empConCedula = empleados.find(e => e.cedula === cedulaStr);
-                if (empConCedula && !empConCedula.cedula.endsWith('-E')) {
+                if (empConCedula && empConCedula.cedula && !empConCedula.cedula.endsWith('-E')) {
                     await actualizarEmpleado(empConCedula.id_empleado, {
                         ...empConCedula,
                         cedula: `${empConCedula.cedula}-E`,
@@ -103,12 +103,12 @@ export function UsuariosPage() {
                 }
             }
         } else {
-            idCliente = null;
+            idCliente = undefined;
 
             // Libera la cédula y el correo si está registrada en algún cliente
             if (cedulaStr) {
                 const cliConCedula = clientes.find(c => c.cedula === cedulaStr);
-                if (cliConCedula && !cliConCedula.cedula.endsWith('-C')) {
+                if (cliConCedula && cliConCedula.cedula && !cliConCedula.cedula.endsWith('-C')) {
                     await actualizarCliente(cliConCedula.id_cliente, {
                         ...cliConCedula,
                         cedula: `${cliConCedula.cedula}-C`,
@@ -179,12 +179,12 @@ export function UsuariosPage() {
         const cedulaStr = (data.cedula || usuarioModal.usuario.cedula || '').trim();
 
         if (targetRol === 'cliente') {
-            updatedIdEmpleado = null;
+            updatedIdEmpleado = undefined;
 
             // Libera la cédula y el correo si está registrada en algún empleado
             if (cedulaStr) {
                 const empConCedula = empleados.find(e => e.cedula === cedulaStr);
-                if (empConCedula && !empConCedula.cedula.endsWith('-E')) {
+                if (empConCedula && empConCedula.cedula && !empConCedula.cedula.endsWith('-E')) {
                     await actualizarEmpleado(empConCedula.id_empleado, {
                         ...empConCedula,
                         cedula: `${empConCedula.cedula}-E`,
@@ -225,12 +225,12 @@ export function UsuariosPage() {
                 }
             }
         } else {
-            updatedIdCliente = null;
+            updatedIdCliente = undefined;
 
             // Libera la cédula y el correo si está registrada en algún cliente
             if (cedulaStr) {
                 const cliConCedula = clientes.find(c => c.cedula === cedulaStr);
-                if (cliConCedula && !cliConCedula.cedula.endsWith('-C')) {
+                if (cliConCedula && cliConCedula.cedula && !cliConCedula.cedula.endsWith('-C')) {
                     await actualizarCliente(cliConCedula.id_cliente, {
                         ...cliConCedula,
                         cedula: `${cliConCedula.cedula}-C`,
